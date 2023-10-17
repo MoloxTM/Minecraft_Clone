@@ -1,6 +1,7 @@
 
 
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL;
 
@@ -39,18 +40,28 @@ public class Game {
                 new Vertex(-0.5f, -0.5f, 0),
         };
 
+        int[] indices = {
+                0, 1, 2,
+                0, 2, 3
+        };
+
         Shader shader = new Shader("res/block.vert", "res/block.frag");
 
-        VBO vbo = new VBO(vertices);
         VAO vao = new VAO();
-
         vao.bind();
+
+        VBO vbo = new VBO(vertices);
+        EBO ebo = new EBO(indices);
+
         vao.linkAttrib(vbo, 0, 3, GL_FLOAT, 3 * 4, 0);
 
-        vbo.unbind();
         vao.unbind();
+        vbo.unbind();
+        ebo.unbind();
 
         float angle = 0.0f;
+
+        float z = 10.0f;
 
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.58f, 0.83f, 0.99f, 1);
@@ -61,6 +72,21 @@ public class Game {
             Matrix4f projection = new Matrix4f().identity();
             Matrix4f view = new Matrix4f().identity();
             Matrix4f model = new Matrix4f().identity();
+
+            if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+                z -= 0.05f;
+            }
+
+            if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+                z += 0.05f;
+            }
+
+            projection = projection.perspective((float) Math.toRadians(45.0f), 1280.0f / 720.0f, 0.1f, 100.0f);
+            view = view.lookAt(
+                    new Vector3f(0.0f, 0.0f, z),
+                    new Vector3f(0.0f, 0.0f, 0.0f),
+                    new Vector3f(0.0f, 1.0f, 0.0f)
+            );
 
             model.rotate(angle, 1.0f, 0.0f, 0.0f);
 
@@ -77,12 +103,13 @@ public class Game {
             glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "view"), false, viewBuffer);
             glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), false, modelBuffer);
 
-            angle += 0.001f;
+            angle += 0.01f;
             if (angle > 360.0f) {
                 angle = 0.0f;
             }
+
             vao.bind();
-            glDrawArrays(GL_TRIANGLES, 0, vertices.length);
+            glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
             vao.unbind();
 
             glfwSwapBuffers(window);
