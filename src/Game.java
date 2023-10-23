@@ -34,15 +34,67 @@ public class Game {
         GL.createCapabilities();
 
         Vertex[] vertices = {
-                new Vertex(-0.5f, 0.5f, 0),
-                new Vertex(0.5f, 0.5f, 0),
-                new Vertex(0.5f, -0.5f, 0),
-                new Vertex(-0.5f, -0.5f, 0),
+                // Face avant
+                new Vertex(new Vector3f(-0.5f, -0.5f, 0.5f)),
+                new Vertex(new Vector3f(0.5f, -0.5f, 0.5f)),
+                new Vertex(new Vector3f(0.5f, 0.5f, 0.5f)),
+                new Vertex(new Vector3f(-0.5f, 0.5f, 0.5f)),
+
+                // Face arrière
+                new Vertex(new Vector3f(-0.5f, -0.5f, -0.5f)),
+                new Vertex(new Vector3f(0.5f, -0.5f, -0.5f)),
+                new Vertex(new Vector3f(0.5f, 0.5f, -0.5f)),
+                new Vertex(new Vector3f(-0.5f, 0.5f, -0.5f)),
+
+                // Face gauche
+                new Vertex(new Vector3f(-0.5f, 0.5f, 0.5f)),
+                new Vertex(new Vector3f(-0.5f, 0.5f, -0.5f)),
+                new Vertex(new Vector3f(-0.5f, -0.5f, -0.5f)),
+                new Vertex(new Vector3f(-0.5f, -0.5f, 0.5f)),
+
+                // Face droite
+                new Vertex(new Vector3f(0.5f, 0.5f, 0.5f)),
+                new Vertex(new Vector3f(0.5f, 0.5f, -0.5f)),
+                new Vertex(new Vector3f(0.5f, -0.5f, -0.5f)),
+                new Vertex(new Vector3f(0.5f, -0.5f, 0.5f)),
+
+                // Face supérieure
+                new Vertex(new Vector3f(-0.5f, 0.5f, 0.5f)),
+                new Vertex(new Vector3f(0.5f, 0.5f, 0.5f)),
+                new Vertex(new Vector3f(0.5f, 0.5f, -0.5f)),
+                new Vertex(new Vector3f(-0.5f, 0.5f, -0.5f)),
+
+                // Face inférieure
+                new Vertex(new Vector3f(-0.5f, -0.5f, 0.5f)),
+                new Vertex(new Vector3f(0.5f, -0.5f, 0.5f)),
+                new Vertex(new Vector3f(0.5f, -0.5f, -0.5f)),
+                new Vertex(new Vector3f(-0.5f, -0.5f, -0.5f))
         };
 
         int[] indices = {
+                // Face avant
                 0, 1, 2,
-                0, 2, 3
+                2, 3, 0,
+
+                // Face arrière
+                4, 5, 6,
+                6, 7, 4,
+
+                // Face gauche
+                8, 9, 10,
+                10, 11, 8,
+
+                // Face droite
+                12, 13, 14,
+                14, 15, 12,
+
+                // Face supérieure
+                16, 17, 18,
+                18, 19, 16,
+
+                // Face inférieure
+                20, 21, 22,
+                22, 23, 20
         };
 
         Shader shader = new Shader("res/block.vert", "res/block.frag");
@@ -62,6 +114,12 @@ public class Game {
         float angle = 0.0f;
 
         float z = 10.0f;
+        float x = 0.0f;
+        float y = 0.0f;
+
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.58f, 0.83f, 0.99f, 1);
@@ -74,17 +132,33 @@ public class Game {
             Matrix4f model = new Matrix4f().identity();
 
             if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-                z -= 0.05f;
+                z -= 0.01f;
             }
 
             if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-                z += 0.05f;
+                z += 0.01f;
+            }
+
+            if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+                x -= 0.01f;
+            }
+
+            if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+                x += 0.01f;
+            }
+
+            if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS) {
+                y += 0.01f;
+            }
+
+            if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+                y -= 0.01f;
             }
 
             projection = projection.perspective((float) Math.toRadians(45.0f), 1280.0f / 720.0f, 0.1f, 100.0f);
             view = view.lookAt(
-                    new Vector3f(0.0f, 0.0f, z),
-                    new Vector3f(0.0f, 0.0f, 0.0f),
+                    new Vector3f(x, y, z),
+                    new Vector3f(x, y, 0.0f),
                     new Vector3f(0.0f, 1.0f, 0.0f)
             );
 
@@ -103,7 +177,7 @@ public class Game {
             glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "view"), false, viewBuffer);
             glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), false, modelBuffer);
 
-            angle += 0.01f;
+            angle += 0.001f;
             if (angle > 360.0f) {
                 angle = 0.0f;
             }

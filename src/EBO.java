@@ -1,9 +1,8 @@
+import static org.lwjgl.opengl.GL33.*;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL;
 
 import java.nio.IntBuffer;
-
-import static org.lwjgl.opengl.GL33.*;
-
 public class EBO {
 
     private final int id;
@@ -16,8 +15,8 @@ public class EBO {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);
     }
 
-    public int getID() {
-        return this.id;
+    public int getId() {
+        return id;
     }
 
     public void bind() {
