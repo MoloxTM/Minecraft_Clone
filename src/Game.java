@@ -34,10 +34,12 @@ public class Game {
         glfwMakeContextCurrent(window);
         GL.createCapabilities();
 
-        Vector2f texCoordsBottomLeft = new Vector2f(0.0f, 0.0f);
-        Vector2f texCoordsUpLeft = new Vector2f(0.0f, 1.0f);
-        Vector2f texCoordsUpRight = new Vector2f(1.0f, 1.0f);
-        Vector2f texCoordsBottomRight = new Vector2f(1.0f, 0.0f);
+        Vector2f[] textCoordsDiamondOre = new Texture("", 0).calculateTexCoords(2, 12, 16.0f);
+
+        Vector2f texCoordsBottomLeft = textCoordsDiamondOre[0];
+        Vector2f texCoordsUpLeft = textCoordsDiamondOre[1];
+        Vector2f texCoordsUpRight = textCoordsDiamondOre[2];
+        Vector2f texCoordsBottomRight = textCoordsDiamondOre[3];
 
         Vertex[] vertices = {
                 // Face avant
@@ -127,9 +129,15 @@ public class Game {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        Texture texture = new Texture("res/dirt.png");
+        Texture texture = new Texture("res/dirt.png", 0);
+        Texture texture1 = new Texture("res/terrain.png", 1);
         texture.load();
+        texture1.load();
         glEnable(GL_DEPTH_TEST);
+
+        FloatBuffer modelBuffer = BufferUtils.createFloatBuffer(16);
+        FloatBuffer viewBuffer = BufferUtils.createFloatBuffer(16);
+        FloatBuffer projectionBuffer = BufferUtils.createFloatBuffer(16);
 
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.58f, 0.83f, 0.99f, 1);
@@ -142,27 +150,27 @@ public class Game {
             Matrix4f model = new Matrix4f().identity();
 
             if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-                z -= 0.01f;
+                z -= 0.1f;
             }
 
             if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-                z += 0.01f;
+                z += 0.1f;
             }
 
             if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-                x -= 0.01f;
+                x -= 0.1f;
             }
 
             if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-                x += 0.01f;
+                x += 0.1f;
             }
 
             if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS) {
-                y += 0.01f;
+                y += 0.1f;
             }
 
             if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-                y -= 0.01f;
+                y -= 0.1f;
             }
 
             projection = projection.perspective((float) Math.toRadians(45.0f), 1280.0f / 720.0f, 0.1f, 100.0f);
@@ -174,28 +182,39 @@ public class Game {
 
             model.rotate(angle, 1.0f, 0.0f, 0.0f);
 
-            FloatBuffer projectionBuffer = BufferUtils.createFloatBuffer(16);
             projection.get(projectionBuffer);
 
-            FloatBuffer viewBuffer = BufferUtils.createFloatBuffer(16);
             view.get(viewBuffer);
 
-            FloatBuffer modelBuffer = BufferUtils.createFloatBuffer(16);
             model.get(modelBuffer);
 
             glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "projection"), false, projectionBuffer);
             glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "view"), false, viewBuffer);
             glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), false, modelBuffer);
 
-            angle += 0.001f;
+            angle += 0.1f;
             if (angle > 360.0f) {
                 angle = 0.0f;
             }
-            texture.bind();
-            glUniform1i(glGetUniformLocation(shader.getId(), "uTexture"), 0);
+
             vao.bind();
+
+            glActiveTexture(GL_TEXTURE0 + texture.getSlot());
+            texture.bind();
+            glUniform1i(glGetUniformLocation(shader.getId(), "uTexture"), texture.getSlot());
             glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
             texture.unbind();
+
+            model.translate(2.0f, 0.0f, 0.0f);
+            model.get(modelBuffer);
+            glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), false, modelBuffer);
+
+            glActiveTexture(GL_TEXTURE0 + texture1.getSlot());
+            texture1.bind();
+            glUniform1i(glGetUniformLocation(shader.getId(), "uTexture"), texture1.getSlot());
+            glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
+            texture1.unbind();
+
             vao.unbind();
 
             glfwSwapBuffers(window);

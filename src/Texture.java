@@ -1,3 +1,5 @@
+import org.joml.Vector2f;
+import org.joml.Vector3f;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryUtil;
 
@@ -8,10 +10,11 @@ import static org.lwjgl.opengl.GL33.*;
 public class Texture {
 
     private final String imagePath;
-    private int id;
+    private int id, slot;
 
-    public Texture(String imagePath) {
+    public Texture(String imagePath, int slot) {
         this.imagePath = imagePath;
+        this.slot = slot;
     }
 
     public void load() {
@@ -33,7 +36,7 @@ public class Texture {
         System.out.println("Chargement de la texture " + this.imagePath);
 
         id = glGenTextures();
-        glActiveTexture(GL_TEXTURE0);
+        glActiveTexture(GL_TEXTURE0 + this.slot);
         glBindTexture(GL_TEXTURE_2D, id);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -51,6 +54,22 @@ public class Texture {
         this.unbind();
     }
 
+    public Vector2f[] calculateTexCoords(int x, int y, float format) {
+        Vector2f texCoordsBottomLeft = new Vector2f(x/format, y/format);
+        Vector2f texCoordsUpLeft = new Vector2f(x/format, (y + 1)/format);
+        Vector2f texCoordsUpRight = new Vector2f((x + 1)/format, (y + 1)/format);
+        Vector2f texCoordsBottomRight = new Vector2f((x + 1)/format, y/format);
+
+        Vector2f[] texCoords = {
+                texCoordsBottomLeft,
+                texCoordsUpLeft,
+                texCoordsUpRight,
+                texCoordsBottomRight
+        };
+
+        return texCoords;
+    }
+
     public void bind() {
         glBindTexture(GL_TEXTURE_2D, id);
     }
@@ -65,5 +84,12 @@ public class Texture {
 
     public int getId() {
         return id;
+    }
+
+    public int getSlot() {
+        return slot;
+    }
+    public void setSlot(int slot) {
+        this.slot = slot;
     }
 }
