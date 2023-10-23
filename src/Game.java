@@ -1,6 +1,7 @@
 
 
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL;
@@ -33,42 +34,47 @@ public class Game {
         glfwMakeContextCurrent(window);
         GL.createCapabilities();
 
+        Vector2f texCoordsBottomLeft = new Vector2f(0.0f, 0.0f);
+        Vector2f texCoordsUpLeft = new Vector2f(0.0f, 1.0f);
+        Vector2f texCoordsUpRight = new Vector2f(1.0f, 1.0f);
+        Vector2f texCoordsBottomRight = new Vector2f(1.0f, 0.0f);
+
         Vertex[] vertices = {
                 // Face avant
-                new Vertex(new Vector3f(-0.5f, -0.5f, 0.5f)),
-                new Vertex(new Vector3f(0.5f, -0.5f, 0.5f)),
-                new Vertex(new Vector3f(0.5f, 0.5f, 0.5f)),
-                new Vertex(new Vector3f(-0.5f, 0.5f, 0.5f)),
+                new Vertex(new Vector3f(-0.5f, -0.5f, 0.5f), texCoordsBottomLeft),
+                new Vertex(new Vector3f(0.5f, -0.5f, 0.5f), texCoordsUpLeft),
+                new Vertex(new Vector3f(0.5f, 0.5f, 0.5f), texCoordsUpRight),
+                new Vertex(new Vector3f(-0.5f, 0.5f, 0.5f), texCoordsBottomRight),
 
                 // Face arrière
-                new Vertex(new Vector3f(-0.5f, -0.5f, -0.5f)),
-                new Vertex(new Vector3f(0.5f, -0.5f, -0.5f)),
-                new Vertex(new Vector3f(0.5f, 0.5f, -0.5f)),
-                new Vertex(new Vector3f(-0.5f, 0.5f, -0.5f)),
+                new Vertex(new Vector3f(-0.5f, -0.5f, -0.5f), texCoordsBottomLeft),
+                new Vertex(new Vector3f(0.5f, -0.5f, -0.5f), texCoordsUpLeft),
+                new Vertex(new Vector3f(0.5f, 0.5f, -0.5f), texCoordsUpRight),
+                new Vertex(new Vector3f(-0.5f, 0.5f, -0.5f), texCoordsBottomRight),
 
                 // Face gauche
-                new Vertex(new Vector3f(-0.5f, 0.5f, 0.5f)),
-                new Vertex(new Vector3f(-0.5f, 0.5f, -0.5f)),
-                new Vertex(new Vector3f(-0.5f, -0.5f, -0.5f)),
-                new Vertex(new Vector3f(-0.5f, -0.5f, 0.5f)),
+                new Vertex(new Vector3f(-0.5f, 0.5f, 0.5f), texCoordsBottomLeft),
+                new Vertex(new Vector3f(-0.5f, 0.5f, -0.5f), texCoordsUpLeft),
+                new Vertex(new Vector3f(-0.5f, -0.5f, -0.5f), texCoordsUpRight),
+                new Vertex(new Vector3f(-0.5f, -0.5f, 0.5f), texCoordsBottomRight),
 
                 // Face droite
-                new Vertex(new Vector3f(0.5f, 0.5f, 0.5f)),
-                new Vertex(new Vector3f(0.5f, 0.5f, -0.5f)),
-                new Vertex(new Vector3f(0.5f, -0.5f, -0.5f)),
-                new Vertex(new Vector3f(0.5f, -0.5f, 0.5f)),
+                new Vertex(new Vector3f(0.5f, 0.5f, 0.5f), texCoordsBottomLeft),
+                new Vertex(new Vector3f(0.5f, 0.5f, -0.5f), texCoordsUpLeft),
+                new Vertex(new Vector3f(0.5f, -0.5f, -0.5f), texCoordsUpRight),
+                new Vertex(new Vector3f(0.5f, -0.5f, 0.5f), texCoordsBottomRight),
 
                 // Face supérieure
-                new Vertex(new Vector3f(-0.5f, 0.5f, 0.5f)),
-                new Vertex(new Vector3f(0.5f, 0.5f, 0.5f)),
-                new Vertex(new Vector3f(0.5f, 0.5f, -0.5f)),
-                new Vertex(new Vector3f(-0.5f, 0.5f, -0.5f)),
+                new Vertex(new Vector3f(-0.5f, 0.5f, 0.5f), texCoordsBottomLeft),
+                new Vertex(new Vector3f(0.5f, 0.5f, 0.5f), texCoordsUpLeft),
+                new Vertex(new Vector3f(0.5f, 0.5f, -0.5f), texCoordsUpRight),
+                new Vertex(new Vector3f(-0.5f, 0.5f, -0.5f), texCoordsBottomRight),
 
                 // Face inférieure
-                new Vertex(new Vector3f(-0.5f, -0.5f, 0.5f)),
-                new Vertex(new Vector3f(0.5f, -0.5f, 0.5f)),
-                new Vertex(new Vector3f(0.5f, -0.5f, -0.5f)),
-                new Vertex(new Vector3f(-0.5f, -0.5f, -0.5f))
+                new Vertex(new Vector3f(-0.5f, -0.5f, 0.5f), texCoordsBottomLeft),
+                new Vertex(new Vector3f(0.5f, -0.5f, 0.5f), texCoordsUpLeft),
+                new Vertex(new Vector3f(0.5f, -0.5f, -0.5f), texCoordsUpRight),
+                new Vertex(new Vector3f(-0.5f, -0.5f, -0.5f), texCoordsBottomRight)
         };
 
         int[] indices = {
@@ -105,7 +111,8 @@ public class Game {
         VBO vbo = new VBO(vertices);
         EBO ebo = new EBO(indices);
 
-        vao.linkAttrib(vbo, 0, 3, GL_FLOAT, 3 * 4, 0);
+        vao.linkAttrib(vbo, 0, 3, GL_FLOAT, 5 * Float.BYTES, 0);
+        vao.linkAttrib(vbo, 1, 2, GL_FLOAT, 5 * Float.BYTES, 3 * Float.BYTES);
 
         vao.unbind();
         vbo.unbind();
@@ -117,9 +124,12 @@ public class Game {
         float x = 0.0f;
         float y = 0.0f;
 
-
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        Texture texture = new Texture("res/dirt.png");
+        texture.load();
+        glEnable(GL_DEPTH_TEST);
 
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.58f, 0.83f, 0.99f, 1);
@@ -181,9 +191,11 @@ public class Game {
             if (angle > 360.0f) {
                 angle = 0.0f;
             }
-
+            texture.bind();
+            glUniform1i(glGetUniformLocation(shader.getId(), "uTexture"), 0);
             vao.bind();
             glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
+            texture.unbind();
             vao.unbind();
 
             glfwSwapBuffers(window);
