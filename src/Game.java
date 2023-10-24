@@ -6,8 +6,12 @@ import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL;
 
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.nio.FloatBuffer;
 
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
 import static org.lwjgl.opengl.GL33.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
@@ -139,6 +143,10 @@ public class Game {
         FloatBuffer viewBuffer = BufferUtils.createFloatBuffer(16);
         FloatBuffer projectionBuffer = BufferUtils.createFloatBuffer(16);
 
+        Player player = new Player();
+
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.58f, 0.83f, 0.99f, 1);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -149,48 +157,42 @@ public class Game {
             Matrix4f view = new Matrix4f().identity();
             Matrix4f model = new Matrix4f().identity();
 
-            if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-                z -= 0.1f;
-            }
+            player.handleInputs(window);
 
-            if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-                z += 0.1f;
-            }
+            player.getFront().x = (float) (cos(Math.toRadians(player.getYaw())) * cos(Math.toRadians(player.getPitch())));
+            player.getFront().y = (float) sin(Math.toRadians(player.getPitch()));
+            player.getFront().z = (float) (sin(Math.toRadians(player.getYaw())) * cos(Math.toRadians(player.getPitch())));; // Cela affichera (0.0, 0.0, 3.0)
 
-            if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-                x -= 0.1f;
-            }
+            player.setFront(player.getFront().normalize());
 
-            if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-                x += 0.1f;
-            }
+            Vector3f test = new Vector3f();
+            test.x = player.getPosition().x + player.getFront().x;
+            test.y = player.getPosition().y + player.getFront().y;
+            test.z = player.getPosition().z + player.getFront().z;
 
-            if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS) {
-                y += 0.1f;
-            }
+            view.lookAt(
+                    player.getPosition(),
+                    test,
+                    new Vector3f(0.0f, 1.0f, 0.0f)
+            );
 
-            if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-                y -= 0.1f;
-            }
 
             projection = projection.perspective((float) Math.toRadians(45.0f), 1280.0f / 720.0f, 0.1f, 100.0f);
+            /*
             view = view.lookAt(
                     new Vector3f(x, y, z),
                     new Vector3f(x, y, 0.0f),
                     new Vector3f(0.0f, 1.0f, 0.0f)
             );
-
+            */
             model.rotate(angle, 1.0f, 0.0f, 0.0f);
 
             projection.get(projectionBuffer);
-
             view.get(viewBuffer);
-
             model.get(modelBuffer);
 
             glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "projection"), false, projectionBuffer);
             glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "view"), false, viewBuffer);
-            glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), false, modelBuffer);
 
             angle += 0.1f;
             if (angle > 360.0f) {
@@ -199,21 +201,19 @@ public class Game {
 
             vao.bind();
 
-            glActiveTexture(GL_TEXTURE0 + texture.getSlot());
-            texture.bind();
-            glUniform1i(glGetUniformLocation(shader.getId(), "uTexture"), texture.getSlot());
-            glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
-            texture.unbind();
-
-            model.translate(2.0f, 0.0f, 0.0f);
-            model.get(modelBuffer);
-            glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), false, modelBuffer);
-
-            glActiveTexture(GL_TEXTURE0 + texture1.getSlot());
-            texture1.bind();
-            glUniform1i(glGetUniformLocation(shader.getId(), "uTexture"), texture1.getSlot());
-            glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
-            texture1.unbind();
+            for (int blockX = 0; blockX < 10; blockX++) {
+                for (int blockZ = 0; blockZ < 10; blockZ++) {
+                    model = model.translate(blockX, 0, blockZ);
+                    model.get(modelBuffer);
+                    glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), false, modelBuffer);
+                    glActiveTexture(GL_TEXTURE0 + texture1.getSlot());
+                    texture1.bind();
+                    glUniform1i(glGetUniformLocation(shader.getId(), "uTexture"), texture1.getSlot());
+                    glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
+                    texture1.unbind();
+                    model = model.identity();
+                }
+            }
 
             vao.unbind();
 
