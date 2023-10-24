@@ -43,8 +43,8 @@ public class Player {
             firstMouse = false;
         }
 
-        double mouseOffsetX = lastMouseX - mouseX.get(0);
-        double mouseOffsetY = lastMouseY - mouseY.get(0);
+        double mouseOffsetX = mouseX.get(0) - lastMouseX;
+        double mouseOffsetY = mouseY.get(0) - lastMouseY;
 
         yaw += (float) mouseOffsetX * speed;
         if (yaw > 360.0f || yaw < -360.0f){
