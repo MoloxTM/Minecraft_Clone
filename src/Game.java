@@ -126,10 +126,6 @@ public class Game {
 
         float angle = 0.0f;
 
-        float z = 10.0f;
-        float x = 0.0f;
-        float y = 0.0f;
-
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -139,11 +135,8 @@ public class Game {
         texture1.load();
         glEnable(GL_DEPTH_TEST);
 
-        FloatBuffer modelBuffer = BufferUtils.createFloatBuffer(16);
-        FloatBuffer viewBuffer = BufferUtils.createFloatBuffer(16);
-        FloatBuffer projectionBuffer = BufferUtils.createFloatBuffer(16);
-
         Player player = new Player();
+        Camera camera = new Camera(1280.0f, 720.0f);
 
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -152,70 +145,22 @@ public class Game {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             shader.enable();
-
-            Matrix4f projection = new Matrix4f().identity();
-            Matrix4f view = new Matrix4f().identity();
-            Matrix4f model = new Matrix4f().identity();
-
             player.handleInputs(window);
 
-            player.getFront().x = (float) (cos(Math.toRadians(player.getYaw())) * cos(Math.toRadians(player.getPitch())));
-            player.getFront().y = (float) sin(Math.toRadians(player.getPitch()));
-            player.getFront().z = (float) (sin(Math.toRadians(player.getYaw())) * cos(Math.toRadians(player.getPitch())));; // Cela affichera (0.0, 0.0, 3.0)
-
-            player.setFront(player.getFront().normalize());
-
-            Vector3f test = new Vector3f();
-            test.x = player.getPosition().x + player.getFront().x;
-            test.y = player.getPosition().y + player.getFront().y;
-            test.z = player.getPosition().z + player.getFront().z;
-
-            view.lookAt(
-                    player.getPosition(),
-                    test,
-                    new Vector3f(0.0f, 1.0f, 0.0f)
-            );
-
-
-            projection = projection.perspective((float) Math.toRadians(45.0f), 1280.0f / 720.0f, 0.1f, 100.0f);
-            /*
-            view = view.lookAt(
-                    new Vector3f(x, y, z),
-                    new Vector3f(x, y, 0.0f),
-                    new Vector3f(0.0f, 1.0f, 0.0f)
-            );
-            */
-            model.rotate(angle, 1.0f, 0.0f, 0.0f);
-
-            projection.get(projectionBuffer);
-            view.get(viewBuffer);
-            model.get(modelBuffer);
-
-            glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "projection"), false, projectionBuffer);
-            glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "view"), false, viewBuffer);
-
-            angle += 0.1f;
-            if (angle > 360.0f) {
-                angle = 0.0f;
-            }
-
-            vao.bind();
-
-            for (int blockX = 0; blockX < 10; blockX++) {
-                for (int blockZ = 0; blockZ < 10; blockZ++) {
-                    model = model.translate(blockX, 0, blockZ);
-                    model.get(modelBuffer);
-                    glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), false, modelBuffer);
+            for (int x = 0; x < 10; x++) {
+                for (int z = 0; z < 10; z++) {
+                    vao.bind();
                     glActiveTexture(GL_TEXTURE0 + texture1.getSlot());
                     texture1.bind();
+                    camera.update(player, shader, x, 1, z);
+
                     glUniform1i(glGetUniformLocation(shader.getId(), "uTexture"), texture1.getSlot());
                     glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
+                    vao.unbind();
+
                     texture1.unbind();
-                    model = model.identity();
                 }
             }
-
-            vao.unbind();
 
             glfwSwapBuffers(window);
             glfwPollEvents();
