@@ -38,7 +38,7 @@ public class Game {
         glfwMakeContextCurrent(window);
         GL.createCapabilities();
 
-        Vector2f[] textCoordsDiamondOre = new Texture("", 0).calculateTexCoords(2, 12, 16.0f);
+        Vector2f[] textCoordsDiamondOre = new Texture("", 0).calculateTexCoords(8, 15, 16.0f);
 
         Vector2f texCoordsBottomLeft = textCoordsDiamondOre[0];
         Vector2f texCoordsUpLeft = textCoordsDiamondOre[1];
@@ -124,8 +124,6 @@ public class Game {
         vbo.unbind();
         ebo.unbind();
 
-        float angle = 0.0f;
-
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -147,18 +145,22 @@ public class Game {
             shader.enable();
             player.handleInputs(window);
 
-            for (int x = 0; x < 10; x++) {
-                for (int z = 0; z < 10; z++) {
-                    vao.bind();
-                    glActiveTexture(GL_TEXTURE0 + texture1.getSlot());
-                    texture1.bind();
-                    camera.update(player, shader, x, 1, z);
+            for (int x = 0; x < 20; x++) {
+                for (int y = 0; y < 20; y++) {
+                    for (int z = 0; z < 20; z++) {
+                        vao.bind();
+                        glActiveTexture(GL_TEXTURE0 + texture1.getSlot());
+                        texture1.bind();
 
-                    glUniform1i(glGetUniformLocation(shader.getId(), "uTexture"), texture1.getSlot());
-                    glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
-                    vao.unbind();
+                        camera.update(player);
+                        camera.matrix(shader, x, y, z);
 
-                    texture1.unbind();
+                        shader.sendInt("uTexture", texture1.getSlot());
+                        glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
+                        vao.unbind();
+
+                        texture1.unbind();
+                    }
                 }
             }
 

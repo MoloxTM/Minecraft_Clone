@@ -1,3 +1,4 @@
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWWindowCloseCallback;
@@ -28,7 +29,7 @@ public class Player {
         this.firstMouse = true;
         this.lastMouseX = 0.0f;
         this.lastMouseY = 0.0f;
-        this.speed = 0.02f;
+        this.speed = 0.05f;
     }
 
     public void handleInputs(long window) {
@@ -57,55 +58,40 @@ public class Player {
             pitch = -89.0f;
         }
 
+        front.x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
+        front.y = (float) Math.sin(Math.toRadians(0.0f));
+        front.z = (float) (Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
+
+        front.normalize();
+        Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
+
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
-            position.z = position.z - 1 * speed;
+            position = position.add(new Vector3f(front).mul(speed));
         }
 
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
-            position.x = position.x - 1 * speed;
+            position = position.sub(new Vector3f(right).mul(speed));
         }
 
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
-            position.z = position.z + 1 * speed;
+            position = position.sub(new Vector3f(front).mul(speed));
         }
 
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
-            position.x = position.x + 1 * speed;
-        }
+            position = position.add(new Vector3f(right).mul(speed));
 
-        System.out.println("Yaw : " + yaw + " pitch : " + pitch);
+        }
 
         lastMouseX = (float) mouseX.get(0);
         lastMouseY = (float) mouseY.get(0);
     }
 
-    public void updateCamera() {
-        front.x = (float) (cos(this.getYaw()) * cos(this.getPitch()));
-        front.y = (float) sin(this.getPitch());
-        front.z = (float) (sin(this.getYaw()) * cos(this.getPitch()));
-    }
-
-    public Vector3f getFront() {
-        return front;
-    }
-
-    public void setFront(Vector3f front) {
-        this.front = front;
-    }
     public float getSpeed() {
         return speed;
     }
 
     public Vector3f getPosition() {
         return position;
-    }
-
-    public float getLastMouseX() {
-        return lastMouseX;
-    }
-
-    public float getLastMouseY() {
-        return lastMouseY;
     }
 
     public float getPitch() {

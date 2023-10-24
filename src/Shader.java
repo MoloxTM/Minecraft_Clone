@@ -1,5 +1,8 @@
+import org.joml.Matrix4f;
+
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.FloatBuffer;
 import java.util.Scanner;
 
 import static org.lwjgl.opengl.GL33.*;
@@ -63,5 +66,14 @@ public class Shader {
 
     public void enable() {
         glUseProgram(id);
+    }
+
+    public void sendInt(String name, int value) {
+        glUniform1i(glGetUniformLocation(id, name), value);
+    }
+
+    public void sendMatrix(String name, Matrix4f mat, FloatBuffer buffer) {
+        mat.get(buffer);
+        glUniformMatrix4fv(glGetUniformLocation(id, name), false, buffer);
     }
 }
