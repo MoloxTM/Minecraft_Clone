@@ -138,9 +138,20 @@ public class Game {
 
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+        double previousTime = 0.0f;
+        int frames = 0;
+
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.58f, 0.83f, 0.99f, 1);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            double currentTime = glfwGetTime();
+            frames++;
+            if (currentTime - previousTime >= 1.0) {
+                System.out.println("FPS " + frames);
+                frames = 0;
+                previousTime = currentTime;
+            }
 
             shader.enable();
             player.handleInputs(window);
