@@ -1,3 +1,5 @@
+package fr.math.minecraft;
+
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.stb.STBImage;
@@ -52,22 +54,6 @@ public class Texture {
 
         STBImage.stbi_image_free(imageBuffer);
         this.unbind();
-    }
-
-    public Vector2f[] calculateTexCoords(int x, int y, float format) {
-        Vector2f texCoordsBottomLeft = new Vector2f(x/format, y/format);
-        Vector2f texCoordsUpLeft = new Vector2f(x/format, (y + 1)/format);
-        Vector2f texCoordsUpRight = new Vector2f((x + 1)/format, (y + 1)/format);
-        Vector2f texCoordsBottomRight = new Vector2f((x + 1)/format, y/format);
-
-        Vector2f[] texCoords = {
-                texCoordsBottomLeft,
-                texCoordsUpLeft,
-                texCoordsUpRight,
-                texCoordsBottomRight
-        };
-
-        return texCoords;
     }
 
     public void bind() {

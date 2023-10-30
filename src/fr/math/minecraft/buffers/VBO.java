@@ -1,4 +1,6 @@
+package fr.math.minecraft.buffers;
 
+import fr.math.minecraft.Vertex;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 

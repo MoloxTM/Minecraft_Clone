@@ -1,3 +1,5 @@
+package fr.math.minecraft.buffers;
+
 import static org.lwjgl.opengl.GL33.*;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL;
