@@ -90,7 +90,7 @@ public class MinecraftServer {
         UUID uuid = UUID.randomUUID();
         byte[] buffer = uuid.toString().getBytes(StandardCharsets.UTF_8);
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, clientPort);
-        clients.put(uuid.toString(), new Client(playerName));
+        clients.put(uuid.toString(), new Client(uuid.toString(), playerName));
 
         return packet;
     }

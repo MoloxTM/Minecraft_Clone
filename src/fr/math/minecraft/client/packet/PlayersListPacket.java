@@ -1,13 +1,17 @@
 package fr.math.minecraft.client.packet;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.MinecraftClient;
+import fr.math.minecraft.client.player.Player;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
+import org.joml.Vector3f;
 
 import java.io.IOException;
 
@@ -28,7 +32,31 @@ public class PlayersListPacket implements ClientPacket {
         try {
             String players = client.sendString(message);
 
-            System.out.println(players);
+            ArrayNode playersNode = (ArrayNode) mapper.readTree(players);
+            for (int i = 0; i < playersNode.size(); i++) {
+                JsonNode playerNode = playersNode.get(i);
+
+                String uuid = playerNode.get("uuid").asText();
+                Player player;
+
+                if (uuid.equalsIgnoreCase(game.getPlayer().getUuid())) continue;
+
+                if (game.getPlayers().containsKey(uuid)) {
+                    player = game.getPlayers().get(uuid);
+                } else {
+                    player = new Player(playerNode.get("name").asText());
+                    player.setUuid(uuid);
+                    game.getPlayers().put(uuid, player);
+                }
+
+                float playerX = playerNode.get("x").floatValue();
+                float playerY = playerNode.get("y").floatValue();
+                float playerZ = playerNode.get("z").floatValue();
+
+                player.getPosition().x = playerX;
+                player.getPosition().y = playerY;
+                player.getPosition().z = playerZ;
+            }
         } catch (IOException e) {
             logger.error(e.getMessage());
         }

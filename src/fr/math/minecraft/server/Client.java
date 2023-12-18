@@ -8,13 +8,15 @@ import org.joml.Vector3f;
 public class Client {
 
     private final String name;
+    private final String uuid;
     private Vector3f position;
     private Vector3f front;
     private float yaw;
     private float pitch;
     private float speed;
 
-    public Client(String name) {
+    public Client(String uuid, String name) {
+        this.uuid = uuid;
         this.name = name;
         this.front = new Vector3f(0.0f, 0.0f, 0.0f);
         this.position = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -62,6 +64,7 @@ public class Client {
     public ObjectNode toJSON() {
         ObjectNode node = new ObjectMapper().createObjectNode();
         node.put("name", this.name);
+        node.put("uuid", this.uuid);
         node.put("x", this.position.x);
         node.put("y", this.position.y);
         node.put("z", this.position.z);

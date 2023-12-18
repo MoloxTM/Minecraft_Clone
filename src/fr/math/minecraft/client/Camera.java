@@ -36,7 +36,7 @@ public class Camera {
         pitch = player.getPitch();
     }
 
-    public void matrix(Shader shader, int x, int y, int z) {
+    public void matrix(Shader shader, float x, float y, float z) {
 
         front.x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
         front.y = (float) Math.sin(Math.toRadians(pitch));

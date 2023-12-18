@@ -6,6 +6,10 @@ import fr.math.minecraft.client.player.Player;
 import fr.math.minecraft.client.world.Chunk;
 import org.lwjgl.opengl.GL;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.lwjgl.opengl.GL33.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
@@ -14,10 +18,12 @@ public class Game {
     private long window;
     private static Game instance = null;
     private final MinecraftClient client;
+    private final Map<String, Player> players;
+    private Player player;
 
     private Game() {
         this.client = new MinecraftClient(50000);
-        System.out.println(client);
+        this.players = new HashMap<>();
     }
 
     public void run() {
@@ -48,7 +54,7 @@ public class Game {
         texture1.load();
         glEnable(GL_DEPTH_TEST);
 
-        Player player = new Player("ZelphiX");
+        player = new Player("ZelphiX");
         Camera camera = new Camera(1280.0f, 720.0f);
         Chunk chunk = new Chunk(0, 0, 0);
 
@@ -86,6 +92,15 @@ public class Game {
             chunk.getChunkMesh().draw();
             texture1.unbind();
 
+            for (Map.Entry<String , Player> entry : players.entrySet()) {
+                Player p = entry.getValue();
+                texture1.bind();
+                texture1.bind();
+                camera.matrix(shader, p.getPosition().x, p.getPosition().y, p.getPosition().z);
+                chunk.getChunkMesh().draw();
+                texture1.unbind();
+            }
+
             glfwSwapBuffers(window);
             glfwPollEvents();
 
@@ -102,5 +117,13 @@ public class Game {
 
     public MinecraftClient getClient() {
         return this.client;
+    }
+
+    public Map<String, Player> getPlayers() {
+        return players;
+    }
+
+    public Player getPlayer() {
+        return player;
     }
 }

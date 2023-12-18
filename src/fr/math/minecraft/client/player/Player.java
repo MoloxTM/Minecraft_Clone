@@ -117,4 +117,8 @@ public class Player {
     public void setUuid(String uuid) {
         this.uuid = uuid;
     }
+
+    public void setPosition(Vector3f position) {
+        this.position = position;
+    }
 }
