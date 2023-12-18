@@ -1,10 +1,9 @@
-package fr.math.minecraft.meshs;
+package fr.math.minecraft.client.meshs;
 
-import fr.math.minecraft.Texture;
-import fr.math.minecraft.Vertex;
-import fr.math.minecraft.buffers.EBO;
-import fr.math.minecraft.buffers.VAO;
-import fr.math.minecraft.buffers.VBO;
+import fr.math.minecraft.client.Vertex;
+import fr.math.minecraft.client.buffers.EBO;
+import fr.math.minecraft.client.buffers.VAO;
+import fr.math.minecraft.client.buffers.VBO;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 

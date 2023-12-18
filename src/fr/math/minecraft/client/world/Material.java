@@ -1,4 +1,4 @@
-package fr.math.minecraft.world;
+package fr.math.minecraft.client.world;
 
 public enum Material {
 

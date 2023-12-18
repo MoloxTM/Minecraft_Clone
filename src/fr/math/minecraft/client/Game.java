@@ -1,7 +1,9 @@
-package fr.math.minecraft;
+package fr.math.minecraft.client;
 
-import fr.math.minecraft.meshs.BlockMesh;
-import fr.math.minecraft.world.Chunk;
+import fr.math.minecraft.client.packet.ConnectionInitPacket;
+import fr.math.minecraft.client.packet.PlayersListPacket;
+import fr.math.minecraft.client.player.Player;
+import fr.math.minecraft.client.world.Chunk;
 import org.lwjgl.opengl.GL;
 
 import static org.lwjgl.opengl.GL33.*;
@@ -10,6 +12,13 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class Game {
 
     private long window;
+    private static Game instance = null;
+    private final MinecraftClient client;
+
+    private Game() {
+        this.client = new MinecraftClient(50000);
+        System.out.println(client);
+    }
 
     public void run() {
         if (!glfwInit()) {
@@ -39,7 +48,7 @@ public class Game {
         texture1.load();
         glEnable(GL_DEPTH_TEST);
 
-        Player player = new Player();
+        Player player = new Player("ZelphiX");
         Camera camera = new Camera(1280.0f, 720.0f);
         Chunk chunk = new Chunk(0, 0, 0);
 
@@ -48,12 +57,16 @@ public class Game {
         double previousTime = 0.0f;
         int frames = 0;
 
+        client.connect();
+        new ConnectionInitPacket(player).send();
+
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.58f, 0.83f, 0.99f, 1);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             double currentTime = glfwGetTime();
             frames++;
+
             if (currentTime - previousTime >= 1.0) {
                 System.out.println("FPS " + frames);
                 frames = 0;
@@ -75,6 +88,19 @@ public class Game {
 
             glfwSwapBuffers(window);
             glfwPollEvents();
+
+            new PlayersListPacket().send();
         }
+    }
+
+    public static Game getInstance() {
+        if (instance == null) {
+            instance = new Game();
+        }
+        return instance;
+    }
+
+    public MinecraftClient getClient() {
+        return this.client;
     }
 }

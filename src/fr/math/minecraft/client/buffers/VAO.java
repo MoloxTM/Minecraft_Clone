@@ -1,4 +1,4 @@
-package fr.math.minecraft.buffers;
+package fr.math.minecraft.client.buffers;
 
 import static org.lwjgl.opengl.GL33.*;
 public class VAO {

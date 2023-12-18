@@ -1,5 +1,6 @@
-package fr.math.minecraft;
+package fr.math.minecraft.client;
 
+import fr.math.minecraft.client.player.Player;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;

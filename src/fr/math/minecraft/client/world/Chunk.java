@@ -1,6 +1,6 @@
-package fr.math.minecraft.world;
+package fr.math.minecraft.client.world;
 
-import fr.math.minecraft.meshs.ChunkMesh;
+import fr.math.minecraft.client.meshs.ChunkMesh;
 import org.joml.Vector3i;
 
 public class Chunk {

@@ -1,7 +1,6 @@
-package fr.math.minecraft.buffers;
+package fr.math.minecraft.client.buffers;
 
-import fr.math.minecraft.Vertex;
-import org.joml.Vector3f;
+import fr.math.minecraft.client.Vertex;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;

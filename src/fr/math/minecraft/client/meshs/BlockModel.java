@@ -1,4 +1,4 @@
-package fr.math.minecraft.meshs;
+package fr.math.minecraft.client.meshs;
 
 import org.joml.Vector3f;
 

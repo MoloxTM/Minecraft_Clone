@@ -1,8 +1,7 @@
-package fr.math.minecraft.buffers;
+package fr.math.minecraft.client.buffers;
 
 import static org.lwjgl.opengl.GL33.*;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL;
 
 import java.nio.IntBuffer;
 public class EBO {

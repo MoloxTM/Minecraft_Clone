@@ -1,12 +1,10 @@
-package fr.math.minecraft.meshs;
+package fr.math.minecraft.client.meshs;
 
-import fr.math.minecraft.Vertex;
-import fr.math.minecraft.world.Chunk;
-import fr.math.minecraft.world.Material;
+import fr.math.minecraft.client.Vertex;
+import fr.math.minecraft.client.world.Chunk;
+import fr.math.minecraft.client.world.Material;
 import org.joml.Vector2f;
-import org.joml.Vector3d;
 import org.joml.Vector3f;
-import org.joml.Vector3i;
 
 import java.util.ArrayList;
 

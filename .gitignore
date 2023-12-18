@@ -29,3 +29,6 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+src/log/client-log.txt
+src/log/client-log.txt
+src/log/

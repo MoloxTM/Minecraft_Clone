@@ -1,7 +1,7 @@
-package fr.math.minecraft.meshs;
+package fr.math.minecraft.client.meshs;
 
-import fr.math.minecraft.Vertex;
-import fr.math.minecraft.buffers.VAO;
+import fr.math.minecraft.client.Vertex;
+import fr.math.minecraft.client.buffers.VAO;
 
 public abstract class Mesh {
 

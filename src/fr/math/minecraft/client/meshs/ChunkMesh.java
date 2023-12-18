@@ -1,8 +1,8 @@
-package fr.math.minecraft.meshs;
+package fr.math.minecraft.client.meshs;
 
-import fr.math.minecraft.buffers.VAO;
-import fr.math.minecraft.buffers.VBO;
-import fr.math.minecraft.world.Chunk;
+import fr.math.minecraft.client.buffers.VAO;
+import fr.math.minecraft.client.buffers.VBO;
+import fr.math.minecraft.client.world.Chunk;
 
 import static org.lwjgl.opengl.GL33.*;
 

@@ -1,4 +1,4 @@
-package fr.math.minecraft;
+package fr.math.minecraft.client;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;

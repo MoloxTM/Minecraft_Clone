@@ -1,5 +1,7 @@
-package fr.math.minecraft;
+package fr.math.minecraft.client.player;
 
+import fr.math.minecraft.client.packet.PlayerMovePacket;
+import fr.math.minecraft.client.player.PlayerDirection;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
@@ -16,22 +18,24 @@ import static org.lwjgl.glfw.GLFW.*;
 public class Player {
 
     private Vector3f position;
-    private Vector3f front;
     private float yaw;
     private float pitch;
+    private float speed;
     private boolean firstMouse;
     private float lastMouseX, lastMouseY;
-    private float speed;
+    private final String name;
+    private String uuid;
 
-    public Player(){
+    public Player(String name) {
         this.position = new Vector3f(0.0f, 0.0f, 0.0f);
-        this.front = new Vector3f(0.0f, 0.0f, 0.0f);
         this.yaw = 0.0f;
         this.pitch = 0.0f;
         this.firstMouse = true;
         this.lastMouseX = 0.0f;
         this.lastMouseY = 0.0f;
         this.speed = 0.05f;
+        this.name = name;
+        this.uuid = null;
     }
 
     public void handleInputs(long window) {
@@ -60,28 +64,26 @@ public class Player {
             pitch = -89.0f;
         }
 
-        front.x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
-        front.y = (float) Math.sin(Math.toRadians(0.0f));
-        front.z = (float) (Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
-
-        front.normalize();
-        Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
+        PlayerMovePacket packet = null;
 
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
-            position = position.add(new Vector3f(front).mul(speed));
+            packet = new PlayerMovePacket(this, PlayerDirection.FORWARD);
         }
 
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
-            position = position.sub(new Vector3f(right).mul(speed));
+            packet = new PlayerMovePacket(this, PlayerDirection.LEFT);
         }
 
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
-            position = position.sub(new Vector3f(front).mul(speed));
+            packet = new PlayerMovePacket(this, PlayerDirection.BACKWARD);
         }
 
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
-            position = position.add(new Vector3f(right).mul(speed));
+            packet = new PlayerMovePacket(this, PlayerDirection.RIGHT);
+        }
 
+        if (packet != null) {
+            packet.send();
         }
 
         lastMouseX = (float) mouseX.get(0);
@@ -102,5 +104,17 @@ public class Player {
 
     public float getYaw() {
         return yaw;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 }
