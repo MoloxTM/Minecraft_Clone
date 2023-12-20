@@ -67,6 +67,8 @@ public class Game {
         client.connect();
         new ConnectionInitPacket(player).send();
 
+        Chunk c = new Chunk(0, 0, 0);
+
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.58f, 0.83f, 0.99f, 1);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -95,16 +97,16 @@ public class Game {
                 texture1.unbind();
             }
 
-            /*
+
             for (Map.Entry<String , Player> entry : players.entrySet()) {
                 Player p = entry.getValue();
                 if (p.getUuid().equalsIgnoreCase(player.getUuid())) continue;
                 texture1.bind();
                 camera.matrix(shader, p.getPosition().x, p.getPosition().y, p.getPosition().z);
-                chunk.getChunkMesh().draw();
+                c.getChunkMesh().draw();
                 texture1.unbind();
             }
-            */
+
 
             glfwSwapBuffers(window);
             glfwPollEvents();

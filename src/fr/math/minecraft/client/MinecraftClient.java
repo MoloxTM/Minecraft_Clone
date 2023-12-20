@@ -18,6 +18,7 @@ public class MinecraftClient {
     private InetAddress address;
     private final int serverPort;
     private final Logger logger;
+    private static final String IP_SERVER = "10.40.62.85";
 
     public MinecraftClient(int serverPort) {
         logger = LoggerUtility.getClientLogger(MinecraftClient.class, LogType.TXT);
@@ -28,7 +29,7 @@ public class MinecraftClient {
     public void connect()  {
         try {
             this.socket = new DatagramSocket();
-            this.address = InetAddress.getByName("localhost");
+            this.address = InetAddress.getByName(IP_SERVER);
 
         } catch (UnknownHostException | SocketException e) {
             throw new RuntimeException(e);
