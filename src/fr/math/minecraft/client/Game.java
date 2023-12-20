@@ -19,11 +19,12 @@ public class Game {
     private static Game instance = null;
     private final MinecraftClient client;
     private final Map<String, Player> players;
-    private Player player;
+    private final Player player;
 
     private Game() {
         this.client = new MinecraftClient(50000);
         this.players = new HashMap<>();
+        this.player = new Player(null);
     }
 
     public void run() {
@@ -54,7 +55,6 @@ public class Game {
         texture1.load();
         glEnable(GL_DEPTH_TEST);
 
-        player = new Player("ZelphiX");
         Camera camera = new Camera(1280.0f, 720.0f);
         Chunk chunk = new Chunk(0, 0, 0);
 

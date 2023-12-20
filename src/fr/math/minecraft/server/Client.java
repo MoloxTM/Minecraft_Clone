@@ -29,7 +29,7 @@ public class Client {
         return name;
     }
 
-    public void updatePosition(String direction, float yaw, float pitch) {
+    public void updatePosition(boolean movingLeft, boolean movingRight, boolean movingBackward, boolean movingForward, float yaw, float pitch) {
 
         this.yaw = yaw;
         this.pitch = pitch;
@@ -41,20 +41,17 @@ public class Client {
         front.normalize();
         Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
 
-        switch (direction) {
-            case "FORWARD":
-                position = position.add(new Vector3f(front).mul(speed));
-                break;
-            case "BACKWARD":
-                position = position.sub(new Vector3f(front).mul(speed));
-                break;
-            case "LEFT":
-                position = position.sub(new Vector3f(right).mul(speed));
-                break;
-            case "RIGHT":
-                position = position.add(new Vector3f(right).mul(speed));
-                break;
-        }
+        if (movingForward)
+            position = position.add(new Vector3f(front).mul(speed));
+
+        if (movingBackward)
+            position = position.sub(new Vector3f(front).mul(speed));
+
+        if (movingLeft)
+            position = position.sub(new Vector3f(right).mul(speed));
+
+        if (movingRight)
+            position = position.add(new Vector3f(right).mul(speed));
     }
 
     public Vector3f getPosition() {

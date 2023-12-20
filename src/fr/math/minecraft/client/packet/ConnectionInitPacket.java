@@ -34,6 +34,11 @@ public class ConnectionInitPacket implements ClientPacket {
 
         try {
             String id = client.sendString(message);
+
+            if (id.contains("USERNAME_NOT_AVAILABLE")) {
+                throw new RuntimeException("Le joueur " + player.getName() + " est déjà connecté !");
+            }
+
             player.setUuid(id.substring(0, 36));
             logger.info("Connection initié, ID offert : " + player.getUuid());
         } catch (IOException e) {

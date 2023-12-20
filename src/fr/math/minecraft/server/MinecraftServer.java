@@ -10,10 +10,7 @@ import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.ServerSocket;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +24,8 @@ public class MinecraftServer {
     private final int port;
     private final Logger logger;
     private final Map<String, Client> clients;
+    private final Map<String, String> sockets;
+    private final Map<String, Long> lastActivities;
 
     public MinecraftServer(int port) {
         this.running = false;
@@ -34,6 +33,8 @@ public class MinecraftServer {
         this.port = port;
         this.logger = LoggerUtility.getServerLogger(MinecraftServer.class, LogType.TXT);
         this.clients = new HashMap<>();
+        this.sockets = new HashMap<>();
+        this.lastActivities = new HashMap<>();
     }
 
     public void start() throws IOException {
@@ -57,7 +58,7 @@ public class MinecraftServer {
             byte[] buffer;
             switch (packetType) {
                 case "CONNECTION_INIT":
-                    packet = this.handleConnectionInit(packetData, address, clientPort);
+                    packet = this.handleConnectionInit(packet, packetData, address, clientPort);
 
                     socket.send(packet);
                     break;
@@ -80,17 +81,33 @@ public class MinecraftServer {
                 default:
                     logger.error("Type de packet : " + packetType + " non reconnu.");
             }
-
         }
         socket.close();
     }
 
-    private DatagramPacket handleConnectionInit(JsonNode packetData, InetAddress address, int clientPort) {
+    private DatagramPacket handleConnectionInit(DatagramPacket receivedPacket, JsonNode packetData, InetAddress address, int clientPort) {
         String playerName = packetData.get("playerName").asText();
-        UUID uuid = UUID.randomUUID();
-        byte[] buffer = uuid.toString().getBytes(StandardCharsets.UTF_8);
+
+        for (Client client : clients.values()) {
+            if (client.getName().equalsIgnoreCase(playerName)) {
+                byte[] buffer = "USERNAME_NOT_AVAILABLE".getBytes(StandardCharsets.UTF_8);
+                return new DatagramPacket(buffer, buffer.length, address, clientPort);
+            }
+        }
+
+        String uuid = UUID.randomUUID().toString();
+        byte[] buffer = uuid.getBytes(StandardCharsets.UTF_8);
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, clientPort);
-        clients.put(uuid.toString(), new Client(uuid.toString(), playerName));
+        clients.put(uuid, new Client(uuid, playerName));
+        sockets.put(String.valueOf(receivedPacket.getAddress()), uuid);
+        logger.info(playerName + " a rejoint le serveur ! (" + clients.size() + "/???)");
+
+        if (!lastActivities.containsKey(uuid)) {
+            TimeoutHandler handler = new TimeoutHandler(this, uuid);
+            handler.start();
+        }
+
+        lastActivities.put(uuid, System.currentTimeMillis());
 
         return packet;
     }
@@ -118,11 +135,15 @@ public class MinecraftServer {
 
     public DatagramPacket handleMovement(Client client, JsonNode packetData, InetAddress address, int clientPort) throws JsonProcessingException {
 
-        String direction = packetData.get("direction").asText();
+        boolean movingLeft = packetData.get("left").asBoolean();
+        boolean movingRight = packetData.get("right").asBoolean();
+        boolean movingForward = packetData.get("forward").asBoolean();
+        boolean movingBackward = packetData.get("backward").asBoolean();
+
         float yaw = packetData.get("yaw").floatValue();
         float pitch = packetData.get("pitch").floatValue();
 
-        client.updatePosition(direction, yaw, pitch);
+        client.updatePosition(movingLeft, movingRight, movingBackward, movingForward, yaw, pitch);
 
         ObjectNode positionNode = new ObjectMapper().createObjectNode();
         positionNode.put("x", client.getPosition().x);
@@ -132,7 +153,16 @@ public class MinecraftServer {
         String response = new ObjectMapper().writeValueAsString(positionNode);
         byte[] buffer = response.getBytes(StandardCharsets.UTF_8);
 
+        lastActivities.put(packetData.get("uuid").asText(), System.currentTimeMillis());
+
         return new DatagramPacket(buffer, buffer.length, address, clientPort);
     }
 
+    public Map<String, Long> getLastActivities() {
+        return lastActivities;
+    }
+
+    public Map<String, Client> getClients() {
+        return clients;
+    }
 }

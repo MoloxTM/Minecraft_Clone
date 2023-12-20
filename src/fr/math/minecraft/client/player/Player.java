@@ -1,17 +1,11 @@
 package fr.math.minecraft.client.player;
 
 import fr.math.minecraft.client.packet.PlayerMovePacket;
-import fr.math.minecraft.client.player.PlayerDirection;
-import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.glfw.GLFWWindowCloseCallback;
 
-import java.nio.Buffer;
 import java.nio.DoubleBuffer;
 
-import static java.lang.Math.*;
-import static org.lwjgl.opengl.GL33.*;
 import static org.lwjgl.glfw.GLFW.*;
 
 
@@ -23,7 +17,7 @@ public class Player {
     private float speed;
     private boolean firstMouse;
     private float lastMouseX, lastMouseY;
-    private final String name;
+    private String name;
     private String uuid;
 
     public Player(String name) {
@@ -64,27 +58,25 @@ public class Player {
             pitch = -89.0f;
         }
 
-        PlayerMovePacket packet = null;
+        PlayerMovePacket packet = new PlayerMovePacket(this);
 
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
-            packet = new PlayerMovePacket(this, PlayerDirection.FORWARD);
+            packet.setMovingForward(true);
         }
 
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
-            packet = new PlayerMovePacket(this, PlayerDirection.LEFT);
+            packet.setMovingLeft(true);
         }
 
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
-            packet = new PlayerMovePacket(this, PlayerDirection.BACKWARD);
+            packet.setMovingBackward(true);
         }
 
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
-            packet = new PlayerMovePacket(this, PlayerDirection.RIGHT);
+            packet.setMovingRight(true);
         }
 
-        if (packet != null) {
-            packet.send();
-        }
+        packet.send();
 
         lastMouseX = (float) mouseX.get(0);
         lastMouseY = (float) mouseY.get(0);
@@ -120,5 +112,9 @@ public class Player {
 
     public void setPosition(Vector3f position) {
         this.position = position;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
