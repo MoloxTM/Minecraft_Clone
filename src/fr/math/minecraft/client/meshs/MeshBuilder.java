@@ -3,6 +3,7 @@ package fr.math.minecraft.client.meshs;
 import fr.math.minecraft.client.Vertex;
 import fr.math.minecraft.client.world.Chunk;
 import fr.math.minecraft.client.world.Material;
+import fr.math.minecraft.client.world.World;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -10,8 +11,18 @@ import java.util.ArrayList;
 
 public class MeshBuilder {
 
+    private static int blockX = 0, blockY = 0;
+
     public static boolean isEmpty(int[] blocks, int worldX, int worldY, int worldZ) {
-        if (worldX < 0 || worldY < 0 || worldZ < 0 || worldX >= Chunk.SIZE || worldY >= Chunk.SIZE || worldZ >= Chunk.SIZE) return true;
+        if (worldX < 0 || worldY < 0 || worldZ < 0)
+            return true;
+
+        if (worldX >= World.WIDTH * Chunk.SIZE || worldY >= World.HEIGHT * Chunk.SIZE || worldZ >= World.DEPTH * Chunk.SIZE)
+            return true;
+
+        worldX = worldX % Chunk.SIZE;
+        worldY = worldY % Chunk.SIZE;
+        worldZ = worldZ % Chunk.SIZE;
         return blocks[worldX + worldY * Chunk.AREA + worldZ * Chunk.SIZE] == Material.AIR.getId();
     }
 
@@ -55,7 +66,7 @@ public class MeshBuilder {
                     boolean nz = isEmpty(chunk.getBlocks(), worldX, worldY, worldZ - 1);
 
                     if (px) {
-                        Vector2f[] textureCoords = calculateTexCoords(2, 15, 16.0f);
+                        Vector2f[] textureCoords = calculateTexCoords(blockX, blockY, 16.0f);
                         for (int k = 0; k < 6; k++)  {
                             Vector3f blockVector = new Vector3f(x, y, z);
                             vertices.add(new Vertex(blockVector.add(BlockModel.PX_POS[k]), textureCoords[k]));
@@ -63,7 +74,7 @@ public class MeshBuilder {
                     }
 
                     if (nx) {
-                        Vector2f[] textureCoords = calculateTexCoords(2, 15, 16.0f);
+                        Vector2f[] textureCoords = calculateTexCoords(blockX, blockY, 16.0f);
                         for (int k = 0; k < 6; k++)  {
                             Vector3f blockVector = new Vector3f(x, y, z);
                             vertices.add(new Vertex(blockVector.add(BlockModel.NX_POS[k]), textureCoords[k]));
@@ -71,7 +82,7 @@ public class MeshBuilder {
                     }
 
                     if (py) {
-                        Vector2f[] textureCoords = calculateTexCoords(2, 15, 16.0f);
+                        Vector2f[] textureCoords = calculateTexCoords(blockX, blockY, 16.0f);
                         for (int k = 0; k < 6; k++)  {
                             Vector3f blockVector = new Vector3f(x, y, z);
                             vertices.add(new Vertex(blockVector.add(BlockModel.PY_POS[k]), textureCoords[k]));
@@ -79,7 +90,7 @@ public class MeshBuilder {
                     }
 
                     if (ny) {
-                        Vector2f[] textureCoords = calculateTexCoords(2, 15, 16.0f);
+                        Vector2f[] textureCoords = calculateTexCoords(blockX, blockY, 16.0f);
                         for (int k = 0; k < 6; k++)  {
                             Vector3f blockVector = new Vector3f(x, y, z);
                             vertices.add(new Vertex(blockVector.add(BlockModel.NY_POS[k]), textureCoords[k]));
@@ -87,7 +98,7 @@ public class MeshBuilder {
                     }
 
                     if (pz) {
-                        Vector2f[] textureCoords = calculateTexCoords(2, 15, 16.0f);
+                        Vector2f[] textureCoords = calculateTexCoords(blockX, blockY, 16.0f);
                         for (int k = 0; k < 6; k++)  {
                             Vector3f blockVector = new Vector3f(x, y, z);
                             vertices.add(new Vertex(blockVector.add(BlockModel.PZ_POS[k]), textureCoords[k]));
@@ -95,13 +106,21 @@ public class MeshBuilder {
                     }
 
                     if (nz) {
-                        Vector2f[] textureCoords = calculateTexCoords(2, 15, 16.0f);
+                        Vector2f[] textureCoords = calculateTexCoords(blockX, blockY, 16.0f);
                         for (int k = 0; k < 6; k++)  {
                             Vector3f blockVector = new Vector3f(x, y, z);
                             vertices.add(new Vertex(blockVector.add(BlockModel.NZ_POS[k]), textureCoords[k]));
                         }
                     }
                 }
+            }
+        }
+        blockX++;
+        if (blockX > 15) {
+            blockX = 0;
+            blockY++;
+            if (blockY == 15) {
+                blockY = 0;
             }
         }
         return vertices.toArray(new Vertex[0]);

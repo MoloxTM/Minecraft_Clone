@@ -29,7 +29,16 @@ public class Client {
         return name;
     }
 
-    public void updatePosition(boolean movingLeft, boolean movingRight, boolean movingBackward, boolean movingForward, float yaw, float pitch) {
+    public void updatePosition(JsonNode packetData) {
+        boolean movingLeft = packetData.get("left").asBoolean();
+        boolean movingRight = packetData.get("right").asBoolean();
+        boolean movingForward = packetData.get("forward").asBoolean();
+        boolean movingBackward = packetData.get("backward").asBoolean();
+        boolean flying = packetData.get("flying").asBoolean();
+        boolean sneaking = packetData.get("sneaking").asBoolean();
+
+        float yaw = packetData.get("yaw").floatValue();
+        float pitch = packetData.get("pitch").floatValue();
 
         this.yaw = yaw;
         this.pitch = pitch;
@@ -52,6 +61,13 @@ public class Client {
 
         if (movingRight)
             position = position.add(new Vector3f(right).mul(speed));
+
+        if (flying)
+            position = position.add(new Vector3f(0.0f, .5f, 0.0f));
+
+        if (sneaking)
+            position = position.sub(new Vector3f(0.0f, .5f, 0.0f));
+
     }
 
     public Vector3f getPosition() {

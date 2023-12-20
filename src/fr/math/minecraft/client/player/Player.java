@@ -60,20 +60,28 @@ public class Player {
 
         PlayerMovePacket packet = new PlayerMovePacket(this);
 
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
             packet.setMovingForward(true);
         }
 
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
             packet.setMovingLeft(true);
         }
 
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
             packet.setMovingBackward(true);
         }
 
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
             packet.setMovingRight(true);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+            packet.setFlying(true);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+            packet.setSneaking(true);
         }
 
         packet.send();

@@ -1,6 +1,7 @@
 package fr.math.minecraft.client.world;
 
 import fr.math.minecraft.client.meshs.ChunkMesh;
+import fr.math.minecraft.client.world.generator.OverworldGenerator;
 import org.joml.Vector3i;
 
 public class Chunk {
@@ -17,14 +18,12 @@ public class Chunk {
     public Chunk(int x, int y, int z) {
         this.position = new Vector3i(x, y, z);
         this.blocks = new int[VOLUME];
-        for (int blockX = 0; blockX < SIZE; blockX++) {
-            for (int blockY = 0; blockY < SIZE; blockY++) {
-                for (int blockZ = 0; blockZ < SIZE; blockZ++) {
-                    blocks[blockX + blockY * AREA + blockZ * SIZE] = Material.STONE.getId();
-                }
-            }
-        }
+        this.load();
         this.chunkMesh = new ChunkMesh(this);
+    }
+
+    public void load() {
+        new OverworldGenerator().generate(this);
     }
 
     public int[] getBlocks() {

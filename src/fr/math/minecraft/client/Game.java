@@ -4,6 +4,7 @@ import fr.math.minecraft.client.packet.ConnectionInitPacket;
 import fr.math.minecraft.client.packet.PlayersListPacket;
 import fr.math.minecraft.client.player.Player;
 import fr.math.minecraft.client.world.Chunk;
+import fr.math.minecraft.client.world.World;
 import org.lwjgl.opengl.GL;
 
 import java.util.ArrayList;
@@ -56,7 +57,7 @@ public class Game {
         glEnable(GL_DEPTH_TEST);
 
         Camera camera = new Camera(1280.0f, 720.0f);
-        Chunk chunk = new Chunk(0, 0, 0);
+        World world = new World();
 
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -86,20 +87,24 @@ public class Game {
             texture1.bind();
 
             camera.update(player);
-            camera.matrix(shader, 0, 0, 0);
+            for (Chunk chunk : world.getChunks()) {
+                texture1.bind();
+                shader.sendInt("uTexture", 1);
+                camera.matrix(shader, chunk.getPosition().x * Chunk.SIZE, chunk.getPosition().y * Chunk.SIZE, chunk.getPosition().z * Chunk.SIZE);
+                chunk.getChunkMesh().draw();
+                texture1.unbind();
+            }
 
-            shader.sendInt("uTexture", 1);
-            chunk.getChunkMesh().draw();
-            texture1.unbind();
-
+            /*
             for (Map.Entry<String , Player> entry : players.entrySet()) {
                 Player p = entry.getValue();
-                texture1.bind();
+                if (p.getUuid().equalsIgnoreCase(player.getUuid())) continue;
                 texture1.bind();
                 camera.matrix(shader, p.getPosition().x, p.getPosition().y, p.getPosition().z);
                 chunk.getChunkMesh().draw();
                 texture1.unbind();
             }
+            */
 
             glfwSwapBuffers(window);
             glfwPollEvents();
