@@ -9,7 +9,7 @@ import java.util.Map;
 public class TimeoutHandler extends Thread {
 
     private final MinecraftServer server;
-    private final static int TIMEOUT_DELAY_MS = 5 * 1000;
+    private final static int TIMEOUT_DELAY_MS = 10 * 1000;
 
     private final String uuid;
     private final Logger logger;
@@ -33,6 +33,8 @@ public class TimeoutHandler extends Thread {
                         timeout = true;
 
                         logger.info("La connexion avec le client " + uuid + " (" + client.getName() + ") a été perdu... (timeout)");
+                        server.getClients().remove(uuid);
+                        server.getLastActivities().remove(uuid);
                     }
                 }
             }
