@@ -82,11 +82,12 @@ public class Game {
             camera.update(player);
 
             for (Chunk chunk : world.getChunks()) {
-                //renderer.render(camera, chunk);
+                renderer.render(camera, chunk);
             }
 
-            renderer.render(camera, player);
-
+            for (Player p : players.values()) {
+                renderer.render(camera, p);
+            }
 
             glfwSwapBuffers(window);
             glfwPollEvents();
@@ -97,6 +98,7 @@ public class Game {
 
     public static Game getInstance() {
         if (instance == null) {
+            System.out.println(instance);
             instance = new Game();
         }
         return instance;

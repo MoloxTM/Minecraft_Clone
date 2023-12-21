@@ -24,6 +24,9 @@ public class PlayerMesh extends Mesh {
         this.addFace(vertex, PlayerModel.PLAYER_HEAD_POS);
         this.addFace(vertex, PlayerModel.PLAYER_CHEST_POS);
         this.addFace(vertex, PlayerModel.PLAYER_LEFT_HAND);
+        this.addFace(vertex, PlayerModel.PLAYER_RIGHT_HAND);
+        this.addFace(vertex, PlayerModel.PLAYER_RIGHT_LEG);
+        this.addFace(vertex, PlayerModel.PLAYER_LEFT_LEG);
 
         vertices = vertex.toArray(new Vertex[0]);
     }

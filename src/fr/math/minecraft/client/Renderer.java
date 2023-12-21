@@ -34,7 +34,7 @@ public class Renderer {
         glActiveTexture(GL_TEXTURE0 + skinTexture.getSlot());
         skinTexture.bind();
 
-        camera.matrix(playerShader, 0, 0, 0);
+        camera.matrix(playerShader, player);
 
         playerMesh.draw();
 

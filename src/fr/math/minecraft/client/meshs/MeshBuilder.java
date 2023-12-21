@@ -34,12 +34,12 @@ public class MeshBuilder {
         Vector2f texCoordsBottomRight = new Vector2f((x + 1)/format, y/format);
 
         Vector2f[] texCoords = {
-                texCoordsBottomLeft,
-                texCoordsUpLeft,
-                texCoordsUpRight,
-                texCoordsUpRight,
-                texCoordsBottomRight,
-                texCoordsBottomLeft,
+            texCoordsBottomLeft,
+            texCoordsUpLeft,
+            texCoordsUpRight,
+            texCoordsUpRight,
+            texCoordsBottomRight,
+            texCoordsBottomLeft,
         };
 
         return texCoords;

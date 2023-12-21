@@ -1,5 +1,7 @@
 package fr.math.minecraft.client.world;
 
+import fr.math.minecraft.client.entity.Player;
+
 import java.util.ArrayList;
 
 public class World {
@@ -27,4 +29,5 @@ public class World {
     public ArrayList<Chunk> getChunks() {
         return chunks;
     }
+
 }
