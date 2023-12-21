@@ -21,11 +21,13 @@ public class Game {
     private final MinecraftClient client;
     private final Map<String, Player> players;
     private final Player player;
+    private World world;
 
     private Game() {
         this.client = new MinecraftClient(50000);
         this.players = new HashMap<>();
         this.player = new Player(null);
+        this.world = null;
     }
 
     public void run() {
@@ -57,14 +59,15 @@ public class Game {
         glEnable(GL_DEPTH_TEST);
 
         Camera camera = new Camera(1280.0f, 720.0f);
-        World world = new World();
+
+        this.world = new World();
+        world.buildChunks();
 
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
         double previousTime = 0.0f;
         int frames = 0;
 
-        client.connect();
         new ConnectionInitPacket(player).send();
 
         Chunk c = new Chunk(0, 0, 0);
@@ -89,7 +92,7 @@ public class Game {
             texture1.bind();
 
             camera.update(player);
-            for (Chunk chunk : world.getChunks()) {
+            for (Chunk chunk : world.getChunks().values()) {
                 texture1.bind();
                 shader.sendInt("uTexture", 1);
                 camera.matrix(shader, chunk.getPosition().x * Chunk.SIZE, chunk.getPosition().y * Chunk.SIZE, chunk.getPosition().z * Chunk.SIZE);
@@ -117,6 +120,7 @@ public class Game {
 
     public static Game getInstance() {
         if (instance == null) {
+            System.out.println(instance);
             instance = new Game();
         }
         return instance;
@@ -132,5 +136,9 @@ public class Game {
 
     public Player getPlayer() {
         return player;
+    }
+
+    public World getWorld() {
+        return world;
     }
 }

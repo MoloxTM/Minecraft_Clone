@@ -68,7 +68,7 @@ public class Player {
             packet.setMovingLeft(true);
         }
 
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
             packet.setMovingBackward(true);
         }
 

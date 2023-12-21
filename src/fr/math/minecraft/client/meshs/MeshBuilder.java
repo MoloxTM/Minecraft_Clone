@@ -1,5 +1,6 @@
 package fr.math.minecraft.client.meshs;
 
+import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.Vertex;
 import fr.math.minecraft.client.world.Chunk;
 import fr.math.minecraft.client.world.Material;
@@ -14,16 +15,12 @@ public class MeshBuilder {
     private static int blockX = 0, blockY = 0;
 
     public static boolean isEmpty(int[] blocks, int worldX, int worldY, int worldZ) {
-        if (worldX < 0 || worldY < 0 || worldZ < 0)
-            return true;
-
-        if (worldX >= World.WIDTH * Chunk.SIZE || worldY >= World.HEIGHT * Chunk.SIZE || worldZ >= World.DEPTH * Chunk.SIZE)
-            return true;
-
-        worldX = worldX % Chunk.SIZE;
-        worldY = worldY % Chunk.SIZE;
-        worldZ = worldZ % Chunk.SIZE;
-        return blocks[worldX + worldY * Chunk.AREA + worldZ * Chunk.SIZE] == Material.AIR.getId();
+        if (worldX < 0 || worldY < 0 || worldZ < 0)return true;
+        World world = Game.getInstance().getWorld();
+        Chunk chunk = world.getChunk(worldX / Chunk.SIZE, worldY / Chunk.SIZE, worldZ / Chunk.SIZE);
+        if (chunk == null) return true;
+        //System.out.println("ID : " +( chunk.getBlock((worldX % Chunk.SIZE), (worldY % Chunk.SIZE), (worldZ % Chunk.SIZE)) == Material.AIR.getId()));
+        return chunk.getBlock((worldX % Chunk.SIZE), (worldY % Chunk.SIZE), (worldZ % Chunk.SIZE)) == Material.AIR.getId();
     }
 
     public static Vector2f[] calculateTexCoords(int x, int y, float format) {

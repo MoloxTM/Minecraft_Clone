@@ -18,8 +18,15 @@ public class Chunk {
     public Chunk(int x, int y, int z) {
         this.position = new Vector3i(x, y, z);
         this.blocks = new int[VOLUME];
+        for (int blockX = 0; blockX < Chunk.SIZE; blockX++) {
+            for (int blockY = 0; blockY < Chunk.SIZE; blockY++) {
+                for (int blockZ = 0; blockZ < Chunk.SIZE; blockZ++) {
+                    this.setBlock(blockX, blockY, blockZ, Material.AIR.getId());
+                }
+            }
+        }
         this.load();
-        this.chunkMesh = new ChunkMesh(this);
+        this.chunkMesh = null;
     }
 
     public void load() {
