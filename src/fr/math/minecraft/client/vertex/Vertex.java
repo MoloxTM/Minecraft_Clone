@@ -1,7 +1,10 @@
-package fr.math.minecraft.client;
+package fr.math.minecraft.client.vertex;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.lwjgl.BufferUtils;
+
+import java.nio.FloatBuffer;
 
 public class Vertex {
 
@@ -23,4 +26,5 @@ public class Vertex {
     public Vector2f getTextureCoords() {
         return textureCoords;
     }
+
 }

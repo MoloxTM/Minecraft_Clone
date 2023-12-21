@@ -24,6 +24,7 @@ public class PlayerMovePacket implements ClientPacket {
     private boolean movingBackward;
     private boolean flying;
     private boolean sneaking;
+    private boolean movingHead;
 
     public PlayerMovePacket(Player player) {
         this.player = player;
@@ -35,12 +36,11 @@ public class PlayerMovePacket implements ClientPacket {
         this.movingBackward = false;
         this.flying = false;
         this.sneaking = false;
+        this.movingHead = false;
     }
 
     @Override
     public void send() {
-        if (!movingLeft && !movingRight && !movingBackward && !movingForward && !flying && !sneaking)
-            return;
 
         MinecraftClient client = Game.getInstance().getClient();
 
@@ -109,5 +109,9 @@ public class PlayerMovePacket implements ClientPacket {
 
     public void setSneaking(boolean sneaking) {
         this.sneaking = sneaking;
+    }
+
+    public void setMovingHead(boolean movingHead) {
+        this.movingHead = movingHead;
     }
 }

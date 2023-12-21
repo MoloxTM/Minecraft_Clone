@@ -74,8 +74,13 @@ public class Shader {
         glUniform1i(glGetUniformLocation(id, name), value);
     }
 
+    public void sendFloat(String name, float value) {
+        glUniform1f(glGetUniformLocation(id, name), value);
+    }
+
     public void sendMatrix(String name, Matrix4f mat, FloatBuffer buffer) {
         mat.get(buffer);
         glUniformMatrix4fv(glGetUniformLocation(id, name), false, buffer);
     }
+
 }

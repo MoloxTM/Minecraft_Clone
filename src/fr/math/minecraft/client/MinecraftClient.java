@@ -34,7 +34,6 @@ public class MinecraftClient {
         } catch (UnknownHostException | SocketException e) {
             throw new RuntimeException(e);
         }
-        logger.info("Connexion établie avec le serveur");
     }
 
     public String sendString(String message) throws IOException {

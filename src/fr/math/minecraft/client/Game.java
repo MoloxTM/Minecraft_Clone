@@ -9,6 +9,7 @@ import org.lwjgl.opengl.GL;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.lwjgl.opengl.GL33.*;
 import static org.lwjgl.glfw.GLFW.*;
@@ -87,6 +88,7 @@ public class Game {
 
             for (Player p : players.values()) {
                 renderer.render(camera, p);
+                System.out.println(p.getYaw());
             }
 
             glfwSwapBuffers(window);

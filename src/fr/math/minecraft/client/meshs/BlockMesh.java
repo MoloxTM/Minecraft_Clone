@@ -1,6 +1,6 @@
 package fr.math.minecraft.client.meshs;
 
-import fr.math.minecraft.client.Vertex;
+import fr.math.minecraft.client.vertex.Vertex;
 import fr.math.minecraft.client.buffers.EBO;
 import fr.math.minecraft.client.buffers.VAO;
 import fr.math.minecraft.client.buffers.VBO;

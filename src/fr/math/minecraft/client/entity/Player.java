@@ -125,4 +125,12 @@ public class Player {
     public void setName(String name) {
         this.name = name;
     }
+
+    public void setYaw(float yaw) {
+        this.yaw = yaw;
+    }
+
+    public void setPitch(float pitch) {
+        this.pitch = pitch;
+    }
 }

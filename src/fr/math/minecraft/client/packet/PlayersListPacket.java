@@ -51,10 +51,15 @@ public class PlayersListPacket implements ClientPacket {
                 float playerX = playerNode.get("x").floatValue();
                 float playerY = playerNode.get("y").floatValue();
                 float playerZ = playerNode.get("z").floatValue();
+                float pitch = playerNode.get("pitch").floatValue();
+                float yaw = playerNode.get("yaw").floatValue();
 
                 player.getPosition().x = playerX;
                 player.getPosition().y = playerY;
                 player.getPosition().z = playerZ;
+
+                player.setYaw(yaw);
+                player.setPitch(pitch);
             }
         } catch (IOException e) {
             logger.error(e.getMessage());

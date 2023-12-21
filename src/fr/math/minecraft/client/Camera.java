@@ -64,6 +64,9 @@ public class Camera {
         view.lookAt(position, new Vector3f(position).add(front), up);
         model.translate(player.getPosition().x, player.getPosition().y + PlayerModel.CHEST_HEIGHT, player.getPosition().z);
 
+        shader.sendFloat("yaw", (float) Math.toRadians(player.getYaw()));
+        shader.sendFloat("pitch", (float) Math.toRadians(player.getPitch()));
+
         shader.sendMatrix("projection", projection, projectionBuffer);
         shader.sendMatrix("view", view, viewBuffer);
         shader.sendMatrix("model", model, modelBuffer);

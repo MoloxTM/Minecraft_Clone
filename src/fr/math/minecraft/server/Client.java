@@ -81,6 +81,8 @@ public class Client {
         node.put("x", this.position.x);
         node.put("y", this.position.y);
         node.put("z", this.position.z);
+        node.put("yaw", this.yaw);
+        node.put("pitch", this.pitch);
 
         return node;
     }
