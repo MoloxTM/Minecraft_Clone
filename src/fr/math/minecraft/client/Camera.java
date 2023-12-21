@@ -1,6 +1,7 @@
 package fr.math.minecraft.client;
 
-import fr.math.minecraft.client.player.Player;
+import fr.math.minecraft.client.entity.Player;
+import fr.math.minecraft.client.world.Chunk;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
@@ -34,6 +35,10 @@ public class Camera {
         position = player.getPosition();
         yaw = player.getYaw();
         pitch = player.getPitch();
+    }
+
+    public void matrix(Shader shader, Chunk chunk) {
+        this.matrix(shader, chunk.getPosition().x * Chunk.SIZE, chunk.getPosition().y * Chunk.SIZE, chunk.getPosition().z * Chunk.SIZE);
     }
 
     public void matrix(Shader shader, float x, float y, float z) {

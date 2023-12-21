@@ -18,7 +18,7 @@ public class MinecraftClient {
     private InetAddress address;
     private final int serverPort;
     private final Logger logger;
-    private static final String IP_SERVER = "10.40.62.85";
+    private static final String IP_SERVER = "localhost";
 
     public MinecraftClient(int serverPort) {
         logger = LoggerUtility.getClientLogger(MinecraftClient.class, LogType.TXT);

@@ -1,4 +1,4 @@
-package fr.math.minecraft.client.player;
+package fr.math.minecraft.client.entity;
 
 import fr.math.minecraft.client.packet.PlayerMovePacket;
 import org.joml.Vector3f;

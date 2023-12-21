@@ -2,12 +2,11 @@ package fr.math.minecraft.client;
 
 import fr.math.minecraft.client.packet.ConnectionInitPacket;
 import fr.math.minecraft.client.packet.PlayersListPacket;
-import fr.math.minecraft.client.player.Player;
+import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.world.Chunk;
 import fr.math.minecraft.client.world.World;
 import org.lwjgl.opengl.GL;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,13 +46,9 @@ public class Game {
         glfwMakeContextCurrent(window);
         GL.createCapabilities();
 
-        Shader shader = new Shader("res/block.vert", "res/block.frag");
-
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        Texture texture1 = new Texture("res/terrain.png", 1);
-        texture1.load();
         glEnable(GL_DEPTH_TEST);
 
         Camera camera = new Camera(1280.0f, 720.0f);
@@ -67,7 +62,7 @@ public class Game {
         client.connect();
         new ConnectionInitPacket(player).send();
 
-        Chunk c = new Chunk(0, 0, 0);
+        Renderer renderer = new Renderer();
 
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.58f, 0.83f, 0.99f, 1);
@@ -82,30 +77,15 @@ public class Game {
                 previousTime = currentTime;
             }
 
-            shader.enable();
             player.handleInputs(window);
 
-            glActiveTexture(GL_TEXTURE1);
-            texture1.bind();
-
             camera.update(player);
+
             for (Chunk chunk : world.getChunks()) {
-                texture1.bind();
-                shader.sendInt("uTexture", 1);
-                camera.matrix(shader, chunk.getPosition().x * Chunk.SIZE, chunk.getPosition().y * Chunk.SIZE, chunk.getPosition().z * Chunk.SIZE);
-                chunk.getChunkMesh().draw();
-                texture1.unbind();
+                //renderer.render(camera, chunk);
             }
 
-
-            for (Map.Entry<String , Player> entry : players.entrySet()) {
-                Player p = entry.getValue();
-                if (p.getUuid().equalsIgnoreCase(player.getUuid())) continue;
-                texture1.bind();
-                camera.matrix(shader, p.getPosition().x, p.getPosition().y, p.getPosition().z);
-                c.getChunkMesh().draw();
-                texture1.unbind();
-            }
+            renderer.render(camera, player);
 
 
             glfwSwapBuffers(window);
