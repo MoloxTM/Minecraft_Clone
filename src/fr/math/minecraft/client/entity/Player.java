@@ -15,11 +15,16 @@ public class Player {
     public final static float WIDTH = .75f;
     public final static float HEIGHT = 1.75f;
     public final static float DEPTH = WIDTH;
+    private final static float HAND_WALKING_ANIMATION_SPEED = .5f;
+    private final static float MAX_HAND_ROTATION_ANGLE = 30.0f;
     private Vector3f position;
     private float yaw;
     private float pitch;
     private float speed;
+    private float handRotation;
+    private String handRotationState;
     private boolean firstMouse;
+    public boolean movingLeft, movingRight, movingForward, movingBackward;
     private float lastMouseX, lastMouseY;
     private String name;
     private String uuid;
@@ -34,6 +39,12 @@ public class Player {
         this.speed = 0.05f;
         this.name = name;
         this.uuid = null;
+        this.handRotation = 0.0f;
+        this.movingLeft = false;
+        this.movingRight = false;
+        this.movingForward = false;
+        this.movingBackward = false;
+        this.handRotationState = "FORWARD";
     }
 
     public void handleInputs(long window) {
@@ -65,18 +76,22 @@ public class Player {
         PlayerMovePacket packet = new PlayerMovePacket(this);
 
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+            movingForward = true;
             packet.setMovingForward(true);
         }
 
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+            movingLeft = true;
             packet.setMovingLeft(true);
         }
 
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+            movingBackward = true;
             packet.setMovingBackward(true);
         }
 
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+            movingRight = true;
             packet.setMovingRight(true);
         }
 
@@ -92,6 +107,32 @@ public class Player {
 
         lastMouseX = (float) mouseX.get(0);
         lastMouseY = (float) mouseY.get(0);
+    }
+
+    private void handleHandRotation() {
+        if (handRotationState.equals("FORWARD")) {
+            handRotation += HAND_WALKING_ANIMATION_SPEED;
+
+            if (handRotation > MAX_HAND_ROTATION_ANGLE)
+                handRotationState = "BACKWARD";
+        } else {
+            handRotation -= HAND_WALKING_ANIMATION_SPEED;
+
+            if (handRotation < -MAX_HAND_ROTATION_ANGLE)
+                handRotationState = "FORWARD";
+        }
+    }
+
+    public void update() {
+        if (!this.isMoving()) {
+            handRotation *= 0.95f;
+        } else {
+            this.handleHandRotation();
+        }
+    }
+
+    public boolean isMoving() {
+        return movingLeft || movingRight || movingForward || movingBackward;
     }
 
     public float getSpeed() {
@@ -136,5 +177,25 @@ public class Player {
 
     public void setPitch(float pitch) {
         this.pitch = pitch;
+    }
+
+    public float getHandRotation() {
+        return this.handRotation;
+    }
+
+    public void setMovingLeft(boolean movingLeft) {
+        this.movingLeft = movingLeft;
+    }
+
+    public void setMovingRight(boolean movingRight) {
+        this.movingRight = movingRight;
+    }
+
+    public void setMovingForward(boolean movingForward) {
+        this.movingForward = movingForward;
+    }
+
+    public void setMovingBackward(boolean movingBackward) {
+        this.movingBackward = movingBackward;
     }
 }

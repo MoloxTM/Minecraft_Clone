@@ -82,6 +82,8 @@ public class Camera {
 
         shader.sendFloat("yaw", (float) Math.toRadians(player.getYaw()));
         shader.sendFloat("pitch", (float) Math.toRadians(player.getPitch()));
+        shader.sendFloat("time", Game.getInstance().getTime());
+        shader.sendFloat("handRotation", (float) Math.toRadians(player.getHandRotation()));
 
         shader.sendMatrix("projection", projection, projectionBuffer);
         shader.sendMatrix("view", view, viewBuffer);

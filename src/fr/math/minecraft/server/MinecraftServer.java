@@ -74,7 +74,7 @@ public class MinecraftServer {
 
                     break;
                 case "PLAYERS_LIST_REQUEST":
-                    packet = this.handlePlayerList(address, clientPort);
+                    packet = this.handlePlayerList(packetData, address, clientPort);
 
                     socket.send(packet);
                     break;
@@ -105,16 +105,16 @@ public class MinecraftServer {
         logger.info(playerName + " a rejoint le serveur ! (" + clients.size() + "/???)");
 
         if (!lastActivities.containsKey(uuid)) {
+            lastActivities.put(uuid, System.currentTimeMillis());
             TimeoutHandler handler = new TimeoutHandler(this, uuid);
             handler.start();
         }
 
-        lastActivities.put(uuid, System.currentTimeMillis());
 
         return packet;
     }
 
-    private DatagramPacket handlePlayerList(InetAddress address, int clientPort) {
+    private DatagramPacket handlePlayerList(JsonNode packetData, InetAddress address, int clientPort) {
         ObjectMapper mapper = new ObjectMapper();
         ArrayNode playersNode = mapper.createArrayNode();
 
@@ -122,6 +122,9 @@ public class MinecraftServer {
             Client client = entrySet.getValue();
             playersNode.add(client.toJSON());
         }
+
+        String uuid = packetData.get("uuid").asText();
+        lastActivities.put(uuid, System.currentTimeMillis());
 
         try {
             String message = mapper.writeValueAsString(playersNode);
@@ -146,8 +149,6 @@ public class MinecraftServer {
 
         String response = new ObjectMapper().writeValueAsString(positionNode);
         byte[] buffer = response.getBytes(StandardCharsets.UTF_8);
-
-        lastActivities.put(packetData.get("uuid").asText(), System.currentTimeMillis());
 
         return new DatagramPacket(buffer, buffer.length, address, clientPort);
     }

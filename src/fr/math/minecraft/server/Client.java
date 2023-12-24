@@ -14,6 +14,7 @@ public class Client {
     private float yaw;
     private float pitch;
     private float speed;
+    private boolean movingLeft, movingRight, movingForward, movingBackward;
 
     public Client(String uuid, String name) {
         this.uuid = uuid;
@@ -42,6 +43,11 @@ public class Client {
 
         this.yaw = yaw;
         this.pitch = pitch;
+
+        this.movingLeft = movingLeft;
+        this.movingRight = movingRight;
+        this.movingForward = movingForward;
+        this.movingBackward = movingBackward;
 
         front.x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
         front.y = (float) Math.sin(Math.toRadians(0.0f));
@@ -83,6 +89,10 @@ public class Client {
         node.put("z", this.position.z);
         node.put("yaw", this.yaw);
         node.put("pitch", this.pitch);
+        node.put("movingLeft", this.movingLeft);
+        node.put("movingRight", this.movingRight);
+        node.put("movingForward", this.movingForward);
+        node.put("movingBackward", this.movingBackward);
 
         return node;
     }

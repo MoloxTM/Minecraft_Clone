@@ -13,6 +13,7 @@ import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class PlayersListPacket implements ClientPacket {
 
@@ -32,6 +33,7 @@ public class PlayersListPacket implements ClientPacket {
             String players = client.sendString(message);
 
             ArrayNode playersNode = (ArrayNode) mapper.readTree(players);
+            ArrayList<String> playersUuids = new ArrayList<>();
             for (int i = 0; i < playersNode.size(); i++) {
                 JsonNode playerNode = playersNode.get(i);
 
@@ -48,11 +50,18 @@ public class PlayersListPacket implements ClientPacket {
                     game.getPlayers().put(uuid, player);
                 }
 
+                playersUuids.add(player.getUuid());
+
                 float playerX = playerNode.get("x").floatValue();
                 float playerY = playerNode.get("y").floatValue();
                 float playerZ = playerNode.get("z").floatValue();
                 float pitch = playerNode.get("pitch").floatValue();
                 float yaw = playerNode.get("yaw").floatValue();
+
+                boolean movingLeft = playerNode.get("movingLeft").asBoolean();
+                boolean movingRight = playerNode.get("movingRight").asBoolean();
+                boolean movingForward = playerNode.get("movingForward").asBoolean();
+                boolean movingBackward = playerNode.get("movingBackward").asBoolean();
 
                 player.getPosition().x = playerX;
                 player.getPosition().y = playerY;
@@ -60,9 +69,25 @@ public class PlayersListPacket implements ClientPacket {
 
                 player.setYaw(-yaw);
                 player.setPitch(pitch);
+
+                player.setMovingLeft(movingLeft);
+                player.setMovingRight(movingRight);
+                player.setMovingForward(movingForward);
+                player.setMovingBackward(movingBackward);
+
             }
+            this.clearInactivePlayers(playersUuids);
+            playersUuids.clear();
         } catch (IOException e) {
             logger.error(e.getMessage());
+        }
+    }
+
+    private void clearInactivePlayers(ArrayList<String> playersUuids) {
+        for (Player player : Game.getInstance().getPlayers().values()) {
+            if (!playersUuids.contains(player.getUuid())) {
+                Game.getInstance().getPlayers().remove(player.getUuid());
+            }
         }
     }
 
@@ -70,6 +95,7 @@ public class PlayersListPacket implements ClientPacket {
     public String toJSON() {
         ObjectNode packetNode = mapper.createObjectNode();
         packetNode.put("type", "PLAYERS_LIST_REQUEST");
+        packetNode.put("uuid", Game.getInstance().getPlayer().getUuid());
         packetNode.put("clientVersion", "1.0.0");
         try {
             return mapper.writeValueAsString(packetNode);

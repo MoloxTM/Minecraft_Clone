@@ -7,8 +7,10 @@ public class PlayerVertex extends Vertex {
 
     public final static float HEAD_PART_ID = 1.0f;
     public final static float CHEST_PART_ID = 2.0f;
-    public final static float HAND_PART_ID = 3.0f;
-    public final static float LEG_PART_ID = 4.0f;
+    public final static float LEFT_HAND_PART_ID = 3.0f;
+    public final static float RIGHT_HAND_PART_ID = 3.5f;
+    public final static float LEFT_LEG_PART_ID = 4.0f;
+    public final static float RIGHT_LEG_PART_ID = 4.5f;
 
     private final float partId;
 

@@ -5,6 +5,7 @@ import fr.math.minecraft.client.packet.PlayersListPacket;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.world.Chunk;
 import fr.math.minecraft.client.world.World;
+import org.joml.Vector3f;
 import org.lwjgl.opengl.GL;
 
 import java.util.HashMap;
@@ -23,6 +24,7 @@ public class Game {
     private World world;
     private Camera camera;
     private float updateTimer;
+    private float time;
 
     private Game() {
         this.client = new MinecraftClient(50000);
@@ -42,7 +44,7 @@ public class Game {
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-        window = glfwCreateWindow(1280, 720, "Minecraft", NULL, NULL);
+        window = glfwCreateWindow((int) GameConfiguration.WINDOW_WIDTH, (int) GameConfiguration.WINDOW_HEIGHT, "Minecraft", NULL, NULL);
         if (window == NULL) {
             throw new RuntimeException("Erreur lors de la crétion de la fenêtre !");
         }
@@ -55,7 +57,7 @@ public class Game {
 
         glEnable(GL_DEPTH_TEST);
 
-        this.camera = new Camera(1280.0f, 720.0f);
+        this.camera = new Camera(GameConfiguration.WINDOW_WIDTH, GameConfiguration.WINDOW_HEIGHT);
         this.world = new World();
 
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -78,6 +80,8 @@ public class Game {
 
             lastTime = currentTime;
 
+            new PlayersListPacket().send();
+
             while (updateTimer > GameConfiguration.UPDATE_TICK) {
                 this.update();
                 updateTimer -= GameConfiguration.UPDATE_TICK;
@@ -89,12 +93,15 @@ public class Game {
             glfwSwapBuffers(window);
             glfwPollEvents();
 
-            new PlayersListPacket().send();
         }
     }
 
     private void update() {
         camera.update(player);
+        time += 0.01f;
+        for (Player player : players.values()) {
+            player.update();
+        }
     }
 
     private void render(Renderer renderer) {
@@ -102,8 +109,8 @@ public class Game {
             renderer.render(camera, chunk);
         }
 
-        for (Player p : players.values()) {
-            renderer.render(camera, p);
+        for (Player player : players.values()) {
+            renderer.render(camera, player);
         }
     }
 
@@ -125,5 +132,9 @@ public class Game {
 
     public Player getPlayer() {
         return player;
+    }
+
+    public float getTime() {
+        return time;
     }
 }

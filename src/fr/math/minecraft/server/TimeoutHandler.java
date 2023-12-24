@@ -9,7 +9,7 @@ import java.util.Map;
 public class TimeoutHandler extends Thread {
 
     private final MinecraftServer server;
-    private final static int TIMEOUT_DELAY_MS = 60 * 1000;
+    private final static double TIMEOUT_DELAY_MS = 1000;
 
     private final String uuid;
     private final Logger logger;
@@ -28,13 +28,15 @@ public class TimeoutHandler extends Thread {
             synchronized (server.getLastActivities()) {
                 long lastTimeSeen = server.getLastActivities().get(uuid);
                 if (currentTime - lastTimeSeen > TIMEOUT_DELAY_MS) {
+                    System.out.println(currentTime - lastTimeSeen);
                     synchronized (server.getClients()) {
-                        Client client = server.getClients().get(uuid);
+                        String clientName = server.getClients().get(uuid).getName();
                         timeout = true;
 
-                        logger.info("La connexion avec le client " + uuid + " (" + client.getName() + ") a été perdu... (timeout)");
                         server.getClients().remove(uuid);
                         server.getLastActivities().remove(uuid);
+                        logger.info("La connexion avec le client " + uuid + " (" + clientName + ") a été perdu... (déconnexion)");
+                        logger.info(clientName + " a quitté la partie. (" + server.getClients().size() + "/???)");
                     }
                 }
             }
