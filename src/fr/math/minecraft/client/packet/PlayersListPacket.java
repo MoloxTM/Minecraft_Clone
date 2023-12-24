@@ -58,7 +58,7 @@ public class PlayersListPacket implements ClientPacket {
                 player.getPosition().y = playerY;
                 player.getPosition().z = playerZ;
 
-                player.setYaw(yaw);
+                player.setYaw(-yaw);
                 player.setPitch(pitch);
             }
         } catch (IOException e) {

@@ -98,11 +98,24 @@ public class PlayerModel {
         new PlayerVertex(new Vector3f(-0.25f, -0.25f                , 0.25f / 2.0f - CHEST_DEPTH),    new Vector2f(20.0f / SKIN_SIZE, 44.0f / SKIN_SIZE), PlayerVertex.CHEST_PART_ID),
         new PlayerVertex(new Vector3f(-0.25f, -0.25f                , 0.25f / 2.0f - CHEST_DEPTH),    new Vector2f(20.0f / SKIN_SIZE, 44.0f / SKIN_SIZE), PlayerVertex.CHEST_PART_ID),
         new PlayerVertex(new Vector3f(-0.25f, -0.25f - CHEST_HEIGHT , 0.25f / 2.0f - CHEST_DEPTH),    new Vector2f(20.0f / SKIN_SIZE, 32.0f / SKIN_SIZE), PlayerVertex.CHEST_PART_ID),
-        new PlayerVertex(new Vector3f(-0.25f, -0.25f - CHEST_HEIGHT, 0.25f / 2.0f               ),    new Vector2f(16.0f / SKIN_SIZE, 32.0f / SKIN_SIZE), PlayerVertex.CHEST_PART_ID)
+        new PlayerVertex(new Vector3f(-0.25f, -0.25f - CHEST_HEIGHT, 0.25f / 2.0f               ),    new Vector2f(16.0f / SKIN_SIZE, 32.0f / SKIN_SIZE), PlayerVertex.CHEST_PART_ID),
 
         // PY
+        new PlayerVertex(new Vector3f(-0.25f, -0.25f, 0.25f / 2.0f), new Vector2f(20.0f / SKIN_SIZE, 44.0f / SKIN_SIZE), PlayerVertex.CHEST_PART_ID),
+        new PlayerVertex(new Vector3f(-0.25f, -0.25f, -0.25f / 2.0f) , new Vector2f(20.0f / SKIN_SIZE, 48.0f / SKIN_SIZE), PlayerVertex.CHEST_PART_ID),
+        new PlayerVertex(new Vector3f(0.25f, -0.25f, -0.25f / 2.0f), new Vector2f(28.0f / SKIN_SIZE, 48.0f / SKIN_SIZE), PlayerVertex.CHEST_PART_ID),
+        new PlayerVertex(new Vector3f(0.25f, -0.25f, -0.25f / 2.0f), new Vector2f(28.0f / SKIN_SIZE, 48.0f / SKIN_SIZE), PlayerVertex.CHEST_PART_ID),
+        new PlayerVertex(new Vector3f(0.25f, -0.25f, 0.25f / 2.0f), new Vector2f(28.0f / SKIN_SIZE, 44.0f / SKIN_SIZE), PlayerVertex.CHEST_PART_ID),
+        new PlayerVertex(new Vector3f(-0.25f, -0.25f, 0.25f / 2.0f), new Vector2f(20.0f / SKIN_SIZE, 44.0f / SKIN_SIZE), PlayerVertex.CHEST_PART_ID),
+
 
         // NY
+        new PlayerVertex(new Vector3f(-0.25f, -0.25f - CHEST_HEIGHT, 0.25f / 2.0f), new Vector2f(28.0f / SKIN_SIZE, 44.0f / SKIN_SIZE), PlayerVertex.CHEST_PART_ID),
+        new PlayerVertex(new Vector3f(-0.25f, -0.25f - CHEST_HEIGHT, -0.25f / 2.0f), new Vector2f(28.0f / SKIN_SIZE, 48.0f / SKIN_SIZE), PlayerVertex.CHEST_PART_ID),
+        new PlayerVertex(new Vector3f(0.25f, -0.25f - CHEST_HEIGHT, -0.25f / 2.0f), new Vector2f(36.0f / SKIN_SIZE, 48.0f / SKIN_SIZE), PlayerVertex.CHEST_PART_ID),
+        new PlayerVertex(new Vector3f(0.25f, -0.25f - CHEST_HEIGHT, -0.25f / 2.0f), new Vector2f(36.0f / SKIN_SIZE, 48.0f / SKIN_SIZE), PlayerVertex.CHEST_PART_ID),
+        new PlayerVertex(new Vector3f(0.25f, -0.25f - CHEST_HEIGHT, 0.25f / 2.0f), new Vector2f(36.0f / SKIN_SIZE, 44.0f / SKIN_SIZE), PlayerVertex.CHEST_PART_ID),
+        new PlayerVertex(new Vector3f(-0.25f, -0.25f - CHEST_HEIGHT, 0.25f / 2.0f), new Vector2f(28.0f / SKIN_SIZE, 44.0f / SKIN_SIZE), PlayerVertex.CHEST_PART_ID),
     };
 
     public final static PlayerVertex[] PLAYER_LEFT_HAND = {
