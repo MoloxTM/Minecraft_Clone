@@ -11,6 +11,10 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class Player {
 
+
+    public final static float WIDTH = .75f;
+    public final static float HEIGHT = 1.75f;
+    public final static float DEPTH = WIDTH;
     private Vector3f position;
     private float yaw;
     private float pitch;

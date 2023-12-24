@@ -9,7 +9,6 @@ import org.lwjgl.opengl.GL;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import static org.lwjgl.opengl.GL33.*;
 import static org.lwjgl.glfw.GLFW.*;
@@ -21,11 +20,15 @@ public class Game {
     private final MinecraftClient client;
     private final Map<String, Player> players;
     private final Player player;
+    private World world;
+    private Camera camera;
+    private float updateTimer;
 
     private Game() {
         this.client = new MinecraftClient(50000);
         this.players = new HashMap<>();
         this.player = new Player(null);
+        this.updateTimer = 0.0f;
     }
 
     public void run() {
@@ -52,13 +55,12 @@ public class Game {
 
         glEnable(GL_DEPTH_TEST);
 
-        Camera camera = new Camera(1280.0f, 720.0f);
-        World world = new World();
+        this.camera = new Camera(1280.0f, 720.0f);
+        this.world = new World();
 
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-        double previousTime = 0.0f;
-        int frames = 0;
+        double lastTime = glfwGetTime();
 
         client.connect();
         new ConnectionInitPacket(player).send();
@@ -70,30 +72,38 @@ public class Game {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             double currentTime = glfwGetTime();
-            frames++;
+            double deltaTime = currentTime - lastTime;
 
-            if (currentTime - previousTime >= 1.0) {
-                System.out.println("FPS " + frames);
-                frames = 0;
-                previousTime = currentTime;
+            updateTimer += deltaTime;
+
+            lastTime = currentTime;
+
+            while (updateTimer > GameConfiguration.UPDATE_TICK) {
+                this.update();
+                updateTimer -= GameConfiguration.UPDATE_TICK;
+                player.handleInputs(window);
             }
 
-            player.handleInputs(window);
-
-            camera.update(player);
-
-            for (Chunk chunk : world.getChunks()) {
-                renderer.render(camera, chunk);
-            }
-
-            for (Player p : players.values()) {
-                renderer.render(camera, p);
-            }
+            this.render(renderer);
 
             glfwSwapBuffers(window);
             glfwPollEvents();
 
             new PlayersListPacket().send();
+        }
+    }
+
+    private void update() {
+        camera.update(player);
+    }
+
+    private void render(Renderer renderer) {
+        for (Chunk chunk : world.getChunks()) {
+            renderer.render(camera, chunk);
+        }
+
+        for (Player p : players.values()) {
+            renderer.render(camera, p);
         }
     }
 

@@ -29,7 +29,6 @@ public class Camera {
         modelBuffer = BufferUtils.createFloatBuffer(16);
         viewBuffer = BufferUtils.createFloatBuffer(16);
         projectionBuffer = BufferUtils.createFloatBuffer(16);
-
     }
 
     public void update(Player player) {
@@ -38,15 +37,32 @@ public class Camera {
         pitch = player.getPitch();
     }
 
-    public void matrix(Shader shader, Chunk chunk) {
-        this.matrix(shader, chunk.getPosition().x * Chunk.SIZE, chunk.getPosition().y * Chunk.SIZE, chunk.getPosition().z * Chunk.SIZE);
-    }
-
     private void calculateFront(Vector3f front) {
         front.x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
         front.y = (float) Math.sin(Math.toRadians(pitch));
         front.z = (float) (Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
         front.normalize();
+    }
+
+    public void matrix(Shader shader, Chunk chunk) {
+        this.calculateFront(front);
+
+        Matrix4f projection = new Matrix4f();
+        Matrix4f view = new Matrix4f();
+        Matrix4f model = new Matrix4f();
+
+        Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
+        Vector3f up = new Vector3f(right).cross(front).normalize();
+
+        Vector3f newPosition = new Vector3f(position).add(0, 1 + 0.25f, 0);
+
+        projection.perspective((float) Math.toRadians(fov), width / height, 0.1f ,100.0f);
+        view.lookAt(newPosition, new Vector3f(newPosition).add(front), up);
+        model.translate(chunk.getPosition().x * Chunk.SIZE, chunk.getPosition().y * Chunk.SIZE, chunk.getPosition().z * Chunk.SIZE);
+
+        shader.sendMatrix("projection", projection, projectionBuffer);
+        shader.sendMatrix("view", view, viewBuffer);
+        shader.sendMatrix("model", model, modelBuffer);
     }
 
     public void matrix(Shader shader, Player player) {
@@ -62,7 +78,7 @@ public class Camera {
 
         projection.perspective((float) Math.toRadians(fov), width / height, 0.1f ,100.0f);
         view.lookAt(position, new Vector3f(position).add(front), up);
-        model.translate(player.getPosition().x, player.getPosition().y + PlayerModel.CHEST_HEIGHT, player.getPosition().z);
+        model.translate(player.getPosition().x, player.getPosition().y, player.getPosition().z);
 
         shader.sendFloat("yaw", (float) Math.toRadians(player.getYaw()));
         shader.sendFloat("pitch", (float) Math.toRadians(player.getPitch()));
@@ -70,27 +86,6 @@ public class Camera {
         shader.sendMatrix("projection", projection, projectionBuffer);
         shader.sendMatrix("view", view, viewBuffer);
         shader.sendMatrix("model", model, modelBuffer);
-    }
-
-    public void matrix(Shader shader, float x, float y, float z) {
-
-        this.calculateFront(front);
-
-        Matrix4f projection = new Matrix4f();
-        Matrix4f view = new Matrix4f();
-        Matrix4f model = new Matrix4f();
-
-        Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
-        Vector3f up = new Vector3f(right).cross(front).normalize();
-
-        projection.perspective((float) Math.toRadians(fov), width / height, 0.1f ,100.0f);
-        view.lookAt(position, new Vector3f(position).add(front), up);
-        model.translate(x, y, z);
-
-        shader.sendMatrix("projection", projection, projectionBuffer);
-        shader.sendMatrix("view", view, viewBuffer);
-        shader.sendMatrix("model", model, modelBuffer);
-
     }
 
 }
