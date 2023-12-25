@@ -75,11 +75,11 @@ void main() {
     } else if (aPartId == 3.0) {
         // If vertex is a part of left hand
         float rotationAngle = sin((position.z + time) * .8f) / 32.0f;
-        vec3 pivot = vec3(-0.5f / 2, -0.25f, .125f);
+        vec3 pivot = vec3(-0.25f - .125f, -0.5f, .125f / 2.0f);
         translationMatrix *= rotateZ(rotationAngle) * rotateAroundPoint(handRotation, pivot);
     } else if (aPartId == 3.5) {
         // If vertex is a part of right hand
-        vec3 pivot = vec3(0.5f / 2, -0.25f, .125f);
+        vec3 pivot = vec3(0.25f + .125f, -0.5f, .125f / 2.0f);
         float rotationAngle = sin((position.z + time) * .8f) / 32.0f;
         translationMatrix *= rotateZ(-rotationAngle) * rotateAroundPoint(-handRotation, pivot);
     } else if (aPartId == 4.0) {

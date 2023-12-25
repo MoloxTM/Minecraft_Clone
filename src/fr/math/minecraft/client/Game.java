@@ -25,6 +25,7 @@ public class Game {
     private Camera camera;
     private float updateTimer;
     private float time;
+    private float deltaTime;
 
     private Game() {
         this.client = new MinecraftClient(50000);
@@ -75,6 +76,8 @@ public class Game {
 
             double currentTime = glfwGetTime();
             double deltaTime = currentTime - lastTime;
+
+            this.deltaTime = (float) deltaTime;
 
             updateTimer += deltaTime;
 
@@ -136,5 +139,9 @@ public class Game {
 
     public float getTime() {
         return time;
+    }
+
+    public float getDeltaTime() {
+        return deltaTime;
     }
 }

@@ -1,10 +1,13 @@
 package fr.math.minecraft.client.entity;
 
+import fr.math.minecraft.client.animations.Animation;
+import fr.math.minecraft.client.animations.PlayerWalkAnimation;
 import fr.math.minecraft.client.packet.PlayerMovePacket;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 
 import java.nio.DoubleBuffer;
+import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -15,19 +18,16 @@ public class Player {
     public final static float WIDTH = .75f;
     public final static float HEIGHT = 1.75f;
     public final static float DEPTH = WIDTH;
-    private final static float HAND_WALKING_ANIMATION_SPEED = .5f;
-    private final static float MAX_HAND_ROTATION_ANGLE = 30.0f;
     private Vector3f position;
     private float yaw;
     private float pitch;
     private float speed;
-    private float handRotation;
-    private String handRotationState;
     private boolean firstMouse;
     public boolean movingLeft, movingRight, movingForward, movingBackward;
     private float lastMouseX, lastMouseY;
     private String name;
     private String uuid;
+    private final ArrayList<Animation> animations;
 
     public Player(String name) {
         this.position = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -39,12 +39,17 @@ public class Player {
         this.speed = 0.05f;
         this.name = name;
         this.uuid = null;
-        this.handRotation = 0.0f;
         this.movingLeft = false;
         this.movingRight = false;
         this.movingForward = false;
         this.movingBackward = false;
-        this.handRotationState = "FORWARD";
+        this.animations = new ArrayList<>();
+
+        this.initAnimations();
+    }
+
+    private void initAnimations() {
+        animations.add(new PlayerWalkAnimation(this));
     }
 
     public void handleInputs(long window) {
@@ -109,25 +114,9 @@ public class Player {
         lastMouseY = (float) mouseY.get(0);
     }
 
-    private void handleHandRotation() {
-        if (handRotationState.equals("FORWARD")) {
-            handRotation += HAND_WALKING_ANIMATION_SPEED;
-
-            if (handRotation > MAX_HAND_ROTATION_ANGLE)
-                handRotationState = "BACKWARD";
-        } else {
-            handRotation -= HAND_WALKING_ANIMATION_SPEED;
-
-            if (handRotation < -MAX_HAND_ROTATION_ANGLE)
-                handRotationState = "FORWARD";
-        }
-    }
-
     public void update() {
-        if (!this.isMoving()) {
-            handRotation *= 0.95f;
-        } else {
-            this.handleHandRotation();
+        for (Animation animation : animations) {
+            animation.update();
         }
     }
 
@@ -179,10 +168,6 @@ public class Player {
         this.pitch = pitch;
     }
 
-    public float getHandRotation() {
-        return this.handRotation;
-    }
-
     public void setMovingLeft(boolean movingLeft) {
         this.movingLeft = movingLeft;
     }
@@ -197,5 +182,9 @@ public class Player {
 
     public void setMovingBackward(boolean movingBackward) {
         this.movingBackward = movingBackward;
+    }
+
+    public ArrayList<Animation> getAnimations() {
+        return animations;
     }
 }

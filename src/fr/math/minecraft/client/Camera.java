@@ -1,7 +1,7 @@
 package fr.math.minecraft.client;
 
+import fr.math.minecraft.client.animations.Animation;
 import fr.math.minecraft.client.entity.Player;
-import fr.math.minecraft.client.meshs.model.PlayerModel;
 import fr.math.minecraft.client.world.Chunk;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -83,7 +83,10 @@ public class Camera {
         shader.sendFloat("yaw", (float) Math.toRadians(player.getYaw()));
         shader.sendFloat("pitch", (float) Math.toRadians(player.getPitch()));
         shader.sendFloat("time", Game.getInstance().getTime());
-        shader.sendFloat("handRotation", (float) Math.toRadians(player.getHandRotation()));
+
+        for (Animation animation : player.getAnimations()) {
+            animation.sendUniforms(shader);
+        }
 
         shader.sendMatrix("projection", projection, projectionBuffer);
         shader.sendMatrix("view", view, viewBuffer);
