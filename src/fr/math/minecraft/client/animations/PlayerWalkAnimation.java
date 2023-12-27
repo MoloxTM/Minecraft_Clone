@@ -7,9 +7,8 @@ import fr.math.minecraft.client.entity.Player;
 public class PlayerWalkAnimation extends Animation {
 
     private float handRotation;
-    private String state = "FORWARD";
     private final Player player;
-    private final static float HAND_WALKING_ANIMATION_SPEED = 3.0f;
+    private final static float HAND_WALKING_ANIMATION_SPEED = 5.0f;
     private final static float MAX_HAND_ROTATION_ANGLE = 20.0f;
 
     public PlayerWalkAnimation(Player player) {

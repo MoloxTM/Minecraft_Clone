@@ -79,6 +79,7 @@ public class Camera {
         projection.perspective((float) Math.toRadians(fov), width / height, 0.1f ,100.0f);
         view.lookAt(position, new Vector3f(position).add(front), up);
         model.translate(player.getPosition().x, player.getPosition().y, player.getPosition().z);
+        model.rotate((float) Math.toRadians(90.0f), new Vector3f(0.0f, 1.0f, 0.0f), model);
 
         shader.sendFloat("yaw", (float) Math.toRadians(player.getYaw()));
         shader.sendFloat("pitch", (float) Math.toRadians(player.getPitch()));

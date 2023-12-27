@@ -23,7 +23,7 @@ public class Client {
         this.position = new Vector3f(0.0f, 0.0f, 0.0f);
         this.yaw = 0.0f;
         this.pitch = 0.0f;
-        this.speed = 0.05f;
+        this.speed = 0.025f;
     }
 
     public String getName() {

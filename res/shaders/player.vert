@@ -64,6 +64,7 @@ void main() {
     mat4 translationMatrix = mat4(1.0f);
     vec3 position = aPosition;
 
+    // Make body follows head in case the head's yaw is too far away from the body
     if (aPartId != 1.0) {
         translationMatrix *= rotateX(yaw);
     }
@@ -71,7 +72,7 @@ void main() {
     if (aPartId == 1.0) {
         // If vertex is a part of head
 
-        translationMatrix = rotateX(yaw) * rotateY(pitch);
+        translationMatrix *= rotateX(yaw) * rotateY(pitch) * translate(0, -0.125 * abs(sin(pitch)), 0);
     } else if (aPartId == 3.0) {
         // If vertex is a part of left hand
         float rotationAngle = sin((position.z + time) * .8f) / 32.0f;
