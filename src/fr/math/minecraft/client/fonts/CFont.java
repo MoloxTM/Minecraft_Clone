@@ -1,5 +1,8 @@
 package fr.math.minecraft.client.fonts;
 
+import fr.math.minecraft.client.Texture;
+import org.w3c.dom.Text;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,6 +12,7 @@ public class CFont {
     private final int fontSize;
     private int width, height, lineHeight;
     private final Map<Integer, CharInfo> characterMap;
+    private Texture texture;
 
     public CFont(String filePath, int fontSize) {
         this.filePath = filePath;
@@ -16,9 +20,13 @@ public class CFont {
         this.width = 0;
         this.height = 0;
         this.lineHeight = 0;
+        this.texture = null;
         this.characterMap = BitmapBuilder.buildBitmap(this);
     }
 
+    public CharInfo getCharacter(int code) {
+        return characterMap.getOrDefault(code, new CharInfo(0, 0, 0, 0));
+    }
 
     public String getFilePath() {
         return filePath;
@@ -54,5 +62,13 @@ public class CFont {
 
     public Map<Integer, CharInfo> getCharacterMap() {
         return characterMap;
+    }
+
+    public Texture getTexture() {
+        return texture;
+    }
+
+    public void setTexture(Texture texture) {
+        this.texture = texture;
     }
 }

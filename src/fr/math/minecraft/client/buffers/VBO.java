@@ -1,6 +1,5 @@
 package fr.math.minecraft.client.buffers;
 
-import fr.math.minecraft.client.vertex.BatchVertex;
 import fr.math.minecraft.client.vertex.PlayerVertex;
 import fr.math.minecraft.client.vertex.Vertex;
 import org.lwjgl.BufferUtils;
@@ -49,10 +48,18 @@ public class VBO {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
-    public VBO(BatchVertex[] vertices) {
+    public VBO(int bufferSize, int drawMethod) {
         id = glGenBuffers();
-        float[] data = new float[100 * 7];
+        glBindBuffer(GL_ARRAY_BUFFER, id);
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(bufferSize);
+        glBufferData(GL_ARRAY_BUFFER, buffer, drawMethod);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
 
+    public void bufferFloat(int size, int drawMethod) {
+        this.bind();
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(size);
+        glBufferData(GL_ARRAY_BUFFER, buffer, drawMethod);
     }
 
     public int getId() {

@@ -35,8 +35,6 @@ public class Texture {
             throw new IllegalArgumentException("Impossible de charger l'image " + this.imagePath);
         }
 
-        System.out.println("Chargement de la texture " + this.imagePath);
-
         id = glGenTextures();
         glActiveTexture(GL_TEXTURE0 + this.slot);
         glBindTexture(GL_TEXTURE_2D, id);
@@ -49,7 +47,7 @@ public class Texture {
         if (channels.get() == 3) {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width.get(), height.get(), 0, GL_RGB, GL_UNSIGNED_BYTE, imageBuffer);
         } else {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width.get(), height.get(), 0, GL_RGBA, GL_UNSIGNED_BYTE, imageBuffer);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width.get(), height.get(), 0, GL_RGBA, GL_UNSIGNED_BYTE, imageBuffer);
         }
 
         STBImage.stbi_image_free(imageBuffer);

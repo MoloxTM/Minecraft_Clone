@@ -1,5 +1,8 @@
 package fr.math.minecraft.client.fonts;
 
+import fr.math.minecraft.client.Texture;
+import fr.math.minecraft.client.manager.FontManager;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -65,17 +68,31 @@ public class BitmapBuilder {
                 continue;
             CharInfo charInfo = characterMap.get(i);
             charInfo.calculateTextureCoordinates(width, height);
+
+            if ((char) i == 'A') {
+                System.out.println((char) i + " X : " + charInfo.getTextureCoords()[0].x + " Y : " + charInfo.getTextureCoords()[0].y);
+            }
+
             g2d.drawString("" + (char) i, charInfo.getSourceX(), charInfo.getSourceY());
         }
 
         g2d.dispose();
+        File file = new File("res/bitmap.png");
 
-        try {
-            File file = new File("res/tmp.png");
-            ImageIO.write(image, "png", file);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (!file.exists()) {
+            try {
+                ImageIO.write(image, "png", file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+
+        System.out.println(file.getPath());
+        Texture texture = new Texture(file.getPath(), 5);
+        texture.load();
+
+
+        cfont.setTexture(texture);
 
         return characterMap;
     }

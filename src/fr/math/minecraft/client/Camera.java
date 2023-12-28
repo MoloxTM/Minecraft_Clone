@@ -94,4 +94,17 @@ public class Camera {
         shader.sendMatrix("model", model, modelBuffer);
     }
 
+    public void matrix(Shader shader, String text) {
+
+        Matrix4f projection = new Matrix4f();
+        Matrix4f view = new Matrix4f();
+        Matrix4f model = new Matrix4f();
+
+        projection.ortho(0, GameConfiguration.WINDOW_WIDTH, 0, GameConfiguration.WINDOW_HEIGHT, 0.1f, 999.0f);
+
+        shader.sendMatrix("projection", projection, projectionBuffer);
+        shader.sendMatrix("view", view, viewBuffer);
+        shader.sendMatrix("model", model, modelBuffer);
+    }
+
 }

@@ -1,5 +1,6 @@
 package fr.math.minecraft.client;
 
+import fr.math.minecraft.client.fonts.CFont;
 import fr.math.minecraft.client.packet.ConnectionInitPacket;
 import fr.math.minecraft.client.packet.PlayersListPacket;
 import fr.math.minecraft.client.entity.Player;
@@ -26,6 +27,7 @@ public class Game {
     private float updateTimer;
     private float time;
     private float deltaTime;
+    private CFont font;
 
     private Game() {
         this.client = new MinecraftClient(50000);
@@ -53,11 +55,12 @@ public class Game {
         glfwMakeContextCurrent(window);
         GL.createCapabilities();
 
+        glEnable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        glEnable(GL_DEPTH_TEST);
 
+        this.font = new CFont("res/fonts/Monocraft.ttf", 32);
         this.camera = new Camera(GameConfiguration.WINDOW_WIDTH, GameConfiguration.WINDOW_HEIGHT);
         this.world = new World();
 
@@ -116,10 +119,7 @@ public class Game {
             renderer.render(camera, player);
         }
 
-    }
-
-    private void loadFont(String filePath, int fontSize) {
-
+        renderer.renderText(camera, "Hello, World!", font);
     }
 
     public static Game getInstance() {
@@ -148,5 +148,9 @@ public class Game {
 
     public float getDeltaTime() {
         return deltaTime;
+    }
+
+    public Camera getCamera() {
+        return camera;
     }
 }

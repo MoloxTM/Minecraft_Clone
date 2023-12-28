@@ -41,7 +41,7 @@ public class PlayerMesh extends Mesh {
         this.vao = new VAO();
         vao.bind();
 
-        VBO vbo = new VBO(vertices);
+        vbo = new VBO(vertices);
 
         vao.linkAttrib(vbo, 0, 3, GL_FLOAT, 6 * Float.BYTES, 0);
         vao.linkAttrib(vbo, 1, 2, GL_FLOAT, 6 * Float.BYTES, 3 * Float.BYTES);
