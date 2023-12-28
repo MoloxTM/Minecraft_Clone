@@ -2,6 +2,9 @@ package fr.math.minecraft.client.fonts;
 
 import fr.math.minecraft.client.Texture;
 import fr.math.minecraft.client.manager.FontManager;
+import fr.math.minecraft.logger.LogType;
+import fr.math.minecraft.logger.LoggerUtility;
+import org.apache.log4j.Logger;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -13,9 +16,19 @@ import java.util.Map;
 
 public class BitmapBuilder {
 
+
+    private final static Logger logger = LoggerUtility.getClientLogger(BitmapBuilder.class, LogType.TXT);
+
     public static Map<Integer, CharInfo> buildBitmap(CFont cfont) {
         HashMap<Integer, CharInfo> characterMap = new HashMap<>();
-        Font font = new Font(cfont.getFilePath(), Font.PLAIN, cfont.getFontSize());
+
+
+        Font font = null;
+        try {
+            font = Font.createFont(Font.TRUETYPE_FONT, new File(cfont.getFilePath())).deriveFont((float) cfont.getFontSize());
+        } catch (FontFormatException | IOException e) {
+            throw new RuntimeException(e);
+        }
 
         // Création d'une image fictive pour récupérer les informations de la police (largeur, hauteur...)
 
@@ -36,7 +49,7 @@ public class BitmapBuilder {
         int x = 0;
         int y = (int) (fontMetrics.getHeight() * 1.4f);
 
-        for (int i = 0; i < font.getNumGlyphs(); i++) {
+        for (int i = 0; i < Character.MAX_VALUE; i++) {
             if (!font.canDisplay(i))
                 continue;
 
@@ -59,19 +72,14 @@ public class BitmapBuilder {
 
         image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         g2d = image.createGraphics();
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setFont(font);
         g2d.setColor(Color.WHITE);
 
-        for (int i = 0; i < font.getNumGlyphs(); i++) {
+        for (int i = 0; i < Character.MAX_VALUE; i++) {
             if (!font.canDisplay(i))
                 continue;
             CharInfo charInfo = characterMap.get(i);
             charInfo.calculateTextureCoordinates(width, height);
-
-            if ((char) i == 'A') {
-                System.out.println((char) i + " X : " + charInfo.getTextureCoords()[0].x + " Y : " + charInfo.getTextureCoords()[0].y);
-            }
 
             g2d.drawString("" + (char) i, charInfo.getSourceX(), charInfo.getSourceY());
         }
@@ -79,18 +87,15 @@ public class BitmapBuilder {
         g2d.dispose();
         File file = new File("res/bitmap.png");
 
-        if (!file.exists()) {
-            try {
-                ImageIO.write(image, "png", file);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            ImageIO.write(image, "png", file);
+            logger.info("Génération de la bitmap pour la font " + file.getPath() + " effectuée avec succès !");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        System.out.println(file.getPath());
         Texture texture = new Texture(file.getPath(), 5);
         texture.load();
-
 
         cfont.setTexture(texture);
 

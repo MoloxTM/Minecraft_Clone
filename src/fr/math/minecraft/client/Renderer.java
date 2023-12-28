@@ -19,10 +19,12 @@ public class Renderer {
     private final Texture skinTexture;
     private final Texture terrainTexture;
     private final FontManager fontManager;
+    private final CFont font;
 
     public Renderer() {
         this.playerMesh = new PlayerMesh();
-        this.fontMesh = new FontMesh(new CFont("res/fonts/Monocraft.ttf", 32));
+        this.font = new CFont("res/fonts/Minecraft.ttf", 16);
+        this.fontMesh = new FontMesh(font);
 
         this.fontManager = new FontManager();
 
@@ -65,10 +67,19 @@ public class Renderer {
         terrainTexture.unbind();
     }
 
-    public void renderText(Camera camera, String text, CFont font) {
+    public void renderText(Camera camera, String text, int x, int y, int rgb) {
+        this.renderText(camera, text, x, y, -10, rgb);
+    }
+
+    public void renderText(Camera camera, String text, int x, int y, int z, int rgb) {
+        this.renderString(camera, text, x, y, z, rgb);
+        this.renderString(camera, text, x + 2, y - 2, z, 0x555555);
+    }
+
+    private void renderString(Camera camera, String text, int x, int y, int z, int rgb) {
         Texture texture = font.getTexture();
 
-        fontManager.addText(fontMesh, text, 200, 200, 1.0f, 0xFFFFFF);
+        fontManager.addText(fontMesh, text, x, y, z, 1.0f, rgb);
 
         fontShader.enable();
         fontShader.sendInt("uTexture", texture.getSlot());

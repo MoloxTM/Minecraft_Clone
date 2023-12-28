@@ -27,7 +27,6 @@ public class Game {
     private float updateTimer;
     private float time;
     private float deltaTime;
-    private CFont font;
 
     private Game() {
         this.client = new MinecraftClient(50000);
@@ -59,8 +58,6 @@ public class Game {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-
-        this.font = new CFont("res/fonts/Monocraft.ttf", 32);
         this.camera = new Camera(GameConfiguration.WINDOW_WIDTH, GameConfiguration.WINDOW_HEIGHT);
         this.world = new World();
 
@@ -119,7 +116,7 @@ public class Game {
             renderer.render(camera, player);
         }
 
-        renderer.renderText(camera, "Hello, World!", font);
+        renderer.renderText(camera, "Hello, World!", 200, 200, 0xFFFFFF);
     }
 
     public static Game getInstance() {
