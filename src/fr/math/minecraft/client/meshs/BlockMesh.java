@@ -1,5 +1,6 @@
 package fr.math.minecraft.client.meshs;
 
+import fr.math.minecraft.client.meshs.builder.MeshBuilder;
 import fr.math.minecraft.client.vertex.Vertex;
 import fr.math.minecraft.client.buffers.EBO;
 import fr.math.minecraft.client.buffers.VAO;

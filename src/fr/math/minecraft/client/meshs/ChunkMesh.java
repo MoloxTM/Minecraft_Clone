@@ -2,6 +2,7 @@ package fr.math.minecraft.client.meshs;
 
 import fr.math.minecraft.client.buffers.VAO;
 import fr.math.minecraft.client.buffers.VBO;
+import fr.math.minecraft.client.meshs.builder.MeshBuilder;
 import fr.math.minecraft.client.world.Chunk;
 
 import static org.lwjgl.opengl.GL33.*;

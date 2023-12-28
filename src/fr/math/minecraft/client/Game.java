@@ -115,6 +115,11 @@ public class Game {
         for (Player player : players.values()) {
             renderer.render(camera, player);
         }
+
+    }
+
+    private void loadFont(String filePath, int fontSize) {
+
     }
 
     public static Game getInstance() {
