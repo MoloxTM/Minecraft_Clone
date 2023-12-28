@@ -48,6 +48,15 @@ public class VBO {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
+    public VBO(float[] vertices) {
+        id = glGenBuffers();
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(vertices.length);
+        buffer.put(vertices).flip();
+        glBindBuffer(GL_ARRAY_BUFFER, id);
+        glBufferData(GL_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
     public VBO(int bufferSize, int drawMethod) {
         id = glGenBuffers();
         glBindBuffer(GL_ARRAY_BUFFER, id);

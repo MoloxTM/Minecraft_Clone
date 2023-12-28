@@ -1,6 +1,7 @@
 package fr.math.minecraft;
 
 import fr.math.minecraft.client.Game;
+import fr.math.minecraft.client.entity.Player;
 
 public class ClientMain {
 
@@ -12,7 +13,7 @@ public class ClientMain {
             throw new IllegalArgumentException("Veuillez renseigner un pseudo ! (--name <pseudo>)");
         }
         Game game = Game.getInstance();
-        game.getPlayer().setName(args[1]);
+        game.setPlayer(new Player(args[1]));
         game.run();
     }
 

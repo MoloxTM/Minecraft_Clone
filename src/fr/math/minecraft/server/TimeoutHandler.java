@@ -9,7 +9,7 @@ import java.util.Map;
 public class TimeoutHandler extends Thread {
 
     private final MinecraftServer server;
-    private final static double TIMEOUT_DELAY_MS = 1000;
+    private final static double TIMEOUT_DELAY_MS = 100000;
 
     private final String uuid;
     private final Logger logger;

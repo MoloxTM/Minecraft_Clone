@@ -79,7 +79,7 @@ public class FontManager {
         fontMesh.setSize(fontMesh.getSize() + 4);
     }
 
-    public void addText(FontMesh fontMesh, String text, int x, int y, int z, float scale, int rgb) {
+    public void addText(FontMesh fontMesh, String text, float x, float y, float z, float scale, int rgb) {
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
             CharInfo charInfo = fontMesh.getFont().getCharacter(c);

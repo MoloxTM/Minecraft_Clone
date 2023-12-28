@@ -106,8 +106,8 @@ public class MinecraftServer {
 
         if (!lastActivities.containsKey(uuid)) {
             lastActivities.put(uuid, System.currentTimeMillis());
-            TimeoutHandler handler = new TimeoutHandler(this, uuid);
-            handler.start();
+            //TimeoutHandler handler = new TimeoutHandler(this, uuid);
+            //handler.start();
         }
 
 

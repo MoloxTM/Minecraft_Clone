@@ -1,11 +1,20 @@
 package fr.math.minecraft.client.entity;
 
+import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.client.animations.Animation;
 import fr.math.minecraft.client.animations.PlayerWalkAnimation;
+import fr.math.minecraft.client.meshs.NametagMesh;
 import fr.math.minecraft.client.packet.PlayerMovePacket;
+import fr.math.minecraft.logger.LogType;
+import fr.math.minecraft.logger.LoggerUtility;
+import org.apache.log4j.Logger;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.io.File;
+import java.io.IOException;
 import java.nio.DoubleBuffer;
 import java.util.ArrayList;
 
@@ -28,6 +37,8 @@ public class Player {
     private String name;
     private String uuid;
     private final ArrayList<Animation> animations;
+    private NametagMesh nametagMesh;
+    private final Logger logger = LoggerUtility.getClientLogger(Player.class, LogType.TXT);
 
     public Player(String name) {
         this.position = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -44,6 +55,14 @@ public class Player {
         this.movingForward = false;
         this.movingBackward = false;
         this.animations = new ArrayList<>();
+
+        try {
+            this.nametagMesh = new NametagMesh(name, Font.createFont(Font.TRUETYPE_FONT, new File(GameConfiguration.FONT_FILE_PATH)).deriveFont(GameConfiguration.NAMETAG_FONT_SIZE));
+        } catch (IOException | FontFormatException e) {
+            this.nametagMesh = null;
+            logger.error("Impossible de charger la font " + GameConfiguration.FONT_FILE_PATH + " pour le nametag du joueur.");
+            e.printStackTrace();
+        }
 
         this.initAnimations();
     }
@@ -186,5 +205,9 @@ public class Player {
 
     public ArrayList<Animation> getAnimations() {
         return animations;
+    }
+
+    public NametagMesh getNametagMesh() {
+        return nametagMesh;
     }
 }

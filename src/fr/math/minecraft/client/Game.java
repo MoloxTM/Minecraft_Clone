@@ -19,9 +19,9 @@ public class Game {
 
     private long window;
     private static Game instance = null;
-    private final MinecraftClient client;
-    private final Map<String, Player> players;
-    private final Player player;
+    private MinecraftClient client;
+    private Map<String, Player> players;
+    private Player player;
     private World world;
     private Camera camera;
     private float updateTimer;
@@ -29,13 +29,11 @@ public class Game {
     private float deltaTime;
 
     private Game() {
-        this.client = new MinecraftClient(50000);
-        this.players = new HashMap<>();
-        this.player = new Player(null);
-        this.updateTimer = 0.0f;
+        this.initWindow();
+        this.init();
     }
 
-    public void run() {
+    public void initWindow() {
         if (!glfwInit()) {
             throw new IllegalStateException("Erreur lors de l'initialisation de GLFW !");
         }
@@ -57,9 +55,17 @@ public class Game {
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
 
+    public void init() {
+        this.client = new MinecraftClient(50000);
+        this.players = new HashMap<>();
+        this.updateTimer = 0.0f;
         this.camera = new Camera(GameConfiguration.WINDOW_WIDTH, GameConfiguration.WINDOW_HEIGHT);
         this.world = new World();
+    }
+
+    public void run() {
 
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -69,6 +75,10 @@ public class Game {
         new ConnectionInitPacket(player).send();
 
         Renderer renderer = new Renderer();
+
+        Player t = new Player("NOUGA");
+        t.setPosition(new Vector3f(10, 10, 50));
+        players.put("1", t);
 
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.58f, 0.83f, 0.99f, 1);
@@ -83,7 +93,7 @@ public class Game {
 
             lastTime = currentTime;
 
-            new PlayersListPacket().send();
+            // new PlayersListPacket().send();
 
             while (updateTimer > GameConfiguration.UPDATE_TICK) {
                 this.update();
@@ -149,5 +159,9 @@ public class Game {
 
     public Camera getCamera() {
         return camera;
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
     }
 }
