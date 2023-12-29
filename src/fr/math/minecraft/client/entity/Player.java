@@ -55,15 +55,7 @@ public class Player {
         this.movingForward = false;
         this.movingBackward = false;
         this.animations = new ArrayList<>();
-
-        try {
-            this.nametagMesh = new NametagMesh(name, Font.createFont(Font.TRUETYPE_FONT, new File(GameConfiguration.FONT_FILE_PATH)).deriveFont(GameConfiguration.NAMETAG_FONT_SIZE));
-        } catch (IOException | FontFormatException e) {
-            this.nametagMesh = null;
-            logger.error("Impossible de charger la font " + GameConfiguration.FONT_FILE_PATH + " pour le nametag du joueur.");
-            e.printStackTrace();
-        }
-
+        this.nametagMesh = new NametagMesh(name);
         this.initAnimations();
     }
 

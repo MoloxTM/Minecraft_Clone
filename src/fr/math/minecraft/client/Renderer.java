@@ -82,7 +82,7 @@ public class Renderer {
     private void renderNametagText(Camera camera, Player player) {
         Texture texture = font.getTexture();
 
-        fontManager.addText(fontMesh, player.getName(), 0, 0, 0, 1.0f, 0xFFFFFF);
+        fontManager.addText(fontMesh, player.getName(), 0, 0, 0, 1.0f, 0xFFFFFF, true);
 
         nametagTextShader.enable();
         nametagTextShader.sendInt("uTexture", texture.getSlot());

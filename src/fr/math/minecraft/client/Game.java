@@ -76,7 +76,7 @@ public class Game {
 
         Renderer renderer = new Renderer();
 
-        Player t = new Player("NOUGA");
+        Player t = new Player("NOUGAT");
         t.setPosition(new Vector3f(10, 10, 50));
         players.put("1", t);
 
