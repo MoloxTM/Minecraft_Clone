@@ -6,6 +6,8 @@ import fr.math.minecraft.client.entity.Player;
 public class ClientMain {
 
     public static void main(String[] args) {
+        System.setProperty("java.awt.headless", "true");
+
         if (args.length != 2) {
             throw new IllegalArgumentException("Veuillez renseigner un pseudo ! (--name <pseudo>)");
         }
