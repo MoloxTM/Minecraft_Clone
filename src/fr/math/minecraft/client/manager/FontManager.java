@@ -11,9 +11,9 @@ import static org.lwjgl.opengl.GL33.*;
 
 public class FontManager {
 
-    private final static float CHARACTER_WIDTH = 0.3f;
-    private final static float CHARACTER_HEIGHT = 0.4f;
-    private final static float CHARACTER_SPACE = 0.3f;
+    private final static float CHARACTER_WIDTH = 0.2f;
+    private final static float CHARACTER_HEIGHT = 0.3f;
+    private final static float CHARACTER_SPACE = 0.2f;
     private final static Logger logger = LoggerUtility.getClientLogger(FontManager.class, LogType.TXT);
     private float currentPos;
 
@@ -45,7 +45,7 @@ public class FontManager {
         int index = fontMesh.getSize() * FontMesh.VERTEX_SIZE;
 
         vertices[index] = onWorld ? currentPos + CHARACTER_WIDTH : x1;
-        vertices[index + 1] = onWorld ? -0.5f : y0;
+        vertices[index + 1] = onWorld ? -0.5f + 0.15f / 4.0f : y0;
         vertices[index + 2] = onWorld ? 0.01f : z;
         vertices[index + 3] = r;
         vertices[index + 4] = g;
@@ -55,7 +55,7 @@ public class FontManager {
 
         index += FontMesh.VERTEX_SIZE;
         vertices[index] = onWorld ? currentPos + CHARACTER_WIDTH : x1;
-        vertices[index + 1] = onWorld ? -0.5f + CHARACTER_HEIGHT : y1;
+        vertices[index + 1] = onWorld ? -0.5f + CHARACTER_HEIGHT + 0.15f / 4.0f : y1;
         vertices[index + 2] = onWorld ? 0.01f : z;
         vertices[index + 3] = r;
         vertices[index + 4] = g;
@@ -65,7 +65,7 @@ public class FontManager {
 
         index += FontMesh.VERTEX_SIZE;
         vertices[index] = onWorld ? currentPos : x0;
-        vertices[index + 1] = onWorld ? -0.5f + CHARACTER_HEIGHT : y1;
+        vertices[index + 1] = onWorld ? -0.5f + CHARACTER_HEIGHT + 0.15f / 4.0f : y1;
         vertices[index + 2] = onWorld ? 0.01f : z;
         vertices[index + 3] = r;
         vertices[index + 4] = g;
@@ -75,7 +75,7 @@ public class FontManager {
 
         index += FontMesh.VERTEX_SIZE;
         vertices[index] = onWorld ? currentPos : x0;
-        vertices[index + 1] = onWorld ? -0.5f : y0;
+        vertices[index + 1] = onWorld ? -0.5f + 0.15f / 4.0f : y0;
         vertices[index + 2] = onWorld ? 0.01f : z;
         vertices[index + 3] = r;
         vertices[index + 4] = g;

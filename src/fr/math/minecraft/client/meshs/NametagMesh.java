@@ -17,7 +17,7 @@ public class NametagMesh extends Mesh {
     private float[] vertices;
 
     public NametagMesh(String text) {
-        this.width = text.length() * 0.35f;
+        this.width = text.length() * 0.25f;
 
         this.vertices = new float[] {
             -0.5f + 0.5f - width / 2.0f, -0.5f, 0.0f,
