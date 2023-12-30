@@ -96,9 +96,10 @@ public class MinecraftServer {
         }
 
         String uuid = UUID.randomUUID().toString();
+        String skin = packetData.get("skin").asText();
         byte[] buffer = uuid.getBytes(StandardCharsets.UTF_8);
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, clientPort);
-        clients.put(uuid, new Client(uuid, playerName));
+        clients.put(uuid, new Client(uuid, playerName, skin));
         sockets.put(String.valueOf(receivedPacket.getAddress()), uuid);
         logger.info(playerName + " a rejoint le serveur ! (" + clients.size() + "/???)");
 

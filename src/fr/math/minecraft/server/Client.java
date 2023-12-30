@@ -14,9 +14,10 @@ public class Client {
     private float yaw;
     private float pitch;
     private float speed;
+    private String skin;
     private boolean movingLeft, movingRight, movingForward, movingBackward;
 
-    public Client(String uuid, String name) {
+    public Client(String uuid, String name, String skin) {
         this.uuid = uuid;
         this.name = name;
         this.front = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -24,6 +25,7 @@ public class Client {
         this.yaw = 0.0f;
         this.pitch = 0.0f;
         this.speed = 0.05f;
+        this.skin = skin;
     }
 
     public String getName() {
@@ -93,7 +95,12 @@ public class Client {
         node.put("movingRight", this.movingRight);
         node.put("movingForward", this.movingForward);
         node.put("movingBackward", this.movingBackward);
+        node.put("skin", this.skin);
 
         return node;
+    }
+
+    public String getSkin() {
+        return skin;
     }
 }

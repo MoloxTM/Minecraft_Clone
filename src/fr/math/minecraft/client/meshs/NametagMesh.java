@@ -13,8 +13,8 @@ import static org.lwjgl.opengl.GL33.*;
 
 public class NametagMesh extends Mesh {
 
-    private float width, height;
-    private float[] vertices;
+    private final float width;
+    private final float[] vertices;
 
     public NametagMesh(String text) {
         this.width = text.length() * 0.25f;

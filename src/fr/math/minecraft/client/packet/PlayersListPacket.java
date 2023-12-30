@@ -12,8 +12,12 @@ import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 
 public class PlayersListPacket implements ClientPacket {
 
@@ -38,6 +42,7 @@ public class PlayersListPacket implements ClientPacket {
                 JsonNode playerNode = playersNode.get(i);
 
                 String uuid = playerNode.get("uuid").asText();
+                String base64Skin = playerNode.get("skin").asText();
                 Player player;
 
                 if (uuid.equalsIgnoreCase(game.getPlayer().getUuid())) continue;
@@ -46,6 +51,8 @@ public class PlayersListPacket implements ClientPacket {
                     player = game.getPlayers().get(uuid);
                 } else {
                     player = new Player(playerNode.get("name").asText());
+                    BufferedImage skin = this.loadSkin(base64Skin);
+                    player.setSkin(skin);
                     player.setUuid(uuid);
                     game.getPlayers().put(uuid, player);
                 }
@@ -80,6 +87,15 @@ public class PlayersListPacket implements ClientPacket {
             playersUuids.clear();
         } catch (IOException e) {
             logger.error(e.getMessage());
+        }
+    }
+
+    private BufferedImage loadSkin(String base64Skin) {
+        byte[] bytes = Base64.getDecoder().decode(base64Skin);
+        try {
+            return ImageIO.read(new ByteArrayInputStream(bytes));
+        } catch (IOException e) {
+            return null;
         }
     }
 

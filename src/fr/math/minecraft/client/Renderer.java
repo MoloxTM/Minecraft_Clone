@@ -8,6 +8,9 @@ import fr.math.minecraft.client.meshs.NametagMesh;
 import fr.math.minecraft.client.meshs.PlayerMesh;
 import fr.math.minecraft.client.world.Chunk;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.lwjgl.opengl.GL33.*;
 
 public class Renderer {
@@ -19,10 +22,10 @@ public class Renderer {
     private final Shader fontShader;
     private final Shader nametagTextShader;
     private final Shader nametagShader;
-    private final Texture skinTexture;
     private final Texture terrainTexture;
     private final FontManager fontManager;
     private final CFont font;
+    private final Map<String, Texture> skinsMap;
 
     public Renderer() {
         this.playerMesh = new PlayerMesh();
@@ -38,13 +41,23 @@ public class Renderer {
         this.nametagTextShader = new Shader("res/shaders/nametag_text.vert", "res/shaders/nametag_text.frag");
 
         this.terrainTexture = new Texture("res/textures/terrain.png", 1);
-        this.skinTexture = new Texture("res/textures/skin.png", 2);
+        this.skinsMap = new HashMap<>();
 
-        this.skinTexture.load();
         this.terrainTexture.load();
     }
 
     public void render(Camera camera, Player player) {
+
+        Texture skinTexture;
+
+        if (skinsMap.containsKey(player.getUuid())) {
+            skinTexture = skinsMap.get(player.getUuid());
+        } else {
+            skinTexture = new Texture(player.getSkin(), 2);
+            skinTexture.load();
+            skinsMap.put(player.getUuid(), skinTexture);
+        }
+
         playerShader.enable();
         playerShader.sendInt("uTexture", skinTexture.getSlot());
 

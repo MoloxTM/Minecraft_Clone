@@ -10,7 +10,11 @@ import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Base64;
 
 public class ConnectionInitPacket implements ClientPacket {
 
@@ -53,9 +57,16 @@ public class ConnectionInitPacket implements ClientPacket {
         node.put("playerName", player.getName());
         node.put("clientVersion", "1.0.0");
 
+        BufferedImage skin = player.getSkin();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
         try {
+            ImageIO.write(skin, "png", baos);
+            node.put("skin", Base64.getEncoder().encodeToString(baos.toByteArray()));
+            System.out.println(node.get("skin").asText());
+            baos.close();
             return mapper.writeValueAsString(node);
-        } catch (JsonProcessingException e) {
+        } catch (IOException e) {
             return null;
         }
     }

@@ -1,6 +1,5 @@
 package fr.math.minecraft.client.entity;
 
-import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.client.animations.Animation;
 import fr.math.minecraft.client.animations.PlayerWalkAnimation;
 import fr.math.minecraft.client.meshs.NametagMesh;
@@ -11,15 +10,11 @@ import org.apache.log4j.Logger;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 
-import java.awt.Font;
-import java.awt.FontFormatException;
-import java.io.File;
-import java.io.IOException;
+import java.awt.image.BufferedImage;
 import java.nio.DoubleBuffer;
 import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
-
 
 public class Player {
 
@@ -38,6 +33,7 @@ public class Player {
     private String uuid;
     private final ArrayList<Animation> animations;
     private NametagMesh nametagMesh;
+    private BufferedImage skin;
     private final Logger logger = LoggerUtility.getClientLogger(Player.class, LogType.TXT);
 
     public Player(String name) {
@@ -56,6 +52,7 @@ public class Player {
         this.movingBackward = false;
         this.animations = new ArrayList<>();
         this.nametagMesh = new NametagMesh(name);
+        this.skin = null;
         this.initAnimations();
     }
 
@@ -201,5 +198,13 @@ public class Player {
 
     public NametagMesh getNametagMesh() {
         return nametagMesh;
+    }
+
+    public BufferedImage getSkin() {
+        return skin;
+    }
+
+    public void setSkin(BufferedImage skin) {
+        this.skin = skin;
     }
 }

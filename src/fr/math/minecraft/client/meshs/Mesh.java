@@ -16,7 +16,6 @@ public abstract class Mesh {
     public Mesh() {
         this.vertices = null;
         this.indices = null;
-        this.vao = null;
         this.vbo = null;
         this.vao = null;
     }
