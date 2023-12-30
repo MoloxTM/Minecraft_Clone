@@ -6,8 +6,10 @@ import fr.math.minecraft.client.manager.FontManager;
 import fr.math.minecraft.client.meshs.FontMesh;
 import fr.math.minecraft.client.meshs.NametagMesh;
 import fr.math.minecraft.client.meshs.PlayerMesh;
+import fr.math.minecraft.client.packet.SkinRequestPacket;
 import fr.math.minecraft.client.world.Chunk;
 
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,6 +25,7 @@ public class Renderer {
     private final Shader nametagTextShader;
     private final Shader nametagShader;
     private final Texture terrainTexture;
+    private final Texture defaultSkinTexture;
     private final FontManager fontManager;
     private final CFont font;
     private final Map<String, Texture> skinsMap;
@@ -41,6 +44,7 @@ public class Renderer {
         this.nametagTextShader = new Shader("res/shaders/nametag_text.vert", "res/shaders/nametag_text.frag");
 
         this.terrainTexture = new Texture("res/textures/terrain.png", 1);
+        this.defaultSkinTexture = new Texture("res/textures/skin.png", 2);
         this.skinsMap = new HashMap<>();
 
         this.terrainTexture.load();
@@ -53,9 +57,17 @@ public class Renderer {
         if (skinsMap.containsKey(player.getUuid())) {
             skinTexture = skinsMap.get(player.getUuid());
         } else {
-            skinTexture = new Texture(player.getSkin(), 2);
-            skinTexture.load();
-            skinsMap.put(player.getUuid(), skinTexture);
+            SkinRequestPacket packet = new SkinRequestPacket(player.getUuid());
+            packet.send();
+            BufferedImage skin = packet.getSkin();
+            if (skin != null) {
+                player.setSkin(skin);
+                skinTexture = new Texture(player.getSkin(), 2);
+                skinTexture.load();
+                skinsMap.put(player.getUuid(), skinTexture);
+            } else {
+                skinTexture = defaultSkinTexture;
+            }
         }
 
         playerShader.enable();
@@ -67,6 +79,7 @@ public class Renderer {
         camera.matrix(playerShader, player);
 
         playerMesh.draw();
+
 
         skinTexture.unbind();
 

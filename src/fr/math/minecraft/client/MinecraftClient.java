@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 
 public class MinecraftClient {
 
-    private static final int MAX_RESPONSE_LENGTH = 2048;
+    private static final int MAX_RESPONSE_LENGTH = 4096;
     private DatagramSocket socket;
     private InetAddress address;
     private final int serverPort;
@@ -37,14 +37,17 @@ public class MinecraftClient {
     }
 
     public String sendString(String message) throws IOException {
-        byte[] buffer = message.getBytes(StandardCharsets.UTF_8);
+        return this.sendBytes(message.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public String sendBytes(byte[] buffer) throws IOException {
         DatagramPacket packet = new DatagramPacket(buffer, 0, buffer.length, this.address, this.serverPort);
         socket.send(packet);
         buffer = new byte[MAX_RESPONSE_LENGTH];
         packet = new DatagramPacket(buffer, buffer.length);
         socket.receive(packet);
 
-        return new String(packet.getData(), 0, buffer.length);
+        return new String(packet.getData(), 0, packet.getLength()).trim();
     }
 
 }

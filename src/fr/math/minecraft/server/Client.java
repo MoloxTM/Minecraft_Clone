@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.joml.Vector3f;
 
+import java.awt.image.BufferedImage;
+
 public class Client {
 
     private final String name;
@@ -14,10 +16,10 @@ public class Client {
     private float yaw;
     private float pitch;
     private float speed;
-    private String skin;
+    private BufferedImage skin;
     private boolean movingLeft, movingRight, movingForward, movingBackward;
 
-    public Client(String uuid, String name, String skin) {
+    public Client(String uuid, String name) {
         this.uuid = uuid;
         this.name = name;
         this.front = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -25,7 +27,7 @@ public class Client {
         this.yaw = 0.0f;
         this.pitch = 0.0f;
         this.speed = 0.05f;
-        this.skin = skin;
+        this.skin = null;
     }
 
     public String getName() {
@@ -95,12 +97,11 @@ public class Client {
         node.put("movingRight", this.movingRight);
         node.put("movingForward", this.movingForward);
         node.put("movingBackward", this.movingBackward);
-        node.put("skin", this.skin);
 
         return node;
     }
 
-    public String getSkin() {
+    public BufferedImage getSkin() {
         return skin;
     }
 }

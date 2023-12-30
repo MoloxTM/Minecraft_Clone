@@ -63,7 +63,6 @@ public class ConnectionInitPacket implements ClientPacket {
         try {
             ImageIO.write(skin, "png", baos);
             node.put("skin", Base64.getEncoder().encodeToString(baos.toByteArray()));
-            System.out.println(node.get("skin").asText());
             baos.close();
             return mapper.writeValueAsString(node);
         } catch (IOException e) {

@@ -39,10 +39,6 @@ public class Texture {
 
         if (imagePath != null) {
 
-            width.rewind();
-            height.rewind();
-            channels.rewind();
-
             STBImage.stbi_set_flip_vertically_on_load(true);
             imageBuffer = STBImage.stbi_load(this.imagePath, width, height, channels, 0);
             if (imageBuffer == null) {
@@ -57,19 +53,31 @@ public class Texture {
             height.put(image.getHeight());
             channels.put(4);
 
-            for (int h = 0; h < image.getHeight(); h++) {
-                for (int w = 0; w < image.getWidth(); w++) {
-                    int pixel = pixels[h * image.getWidth() + w];
+            // Flip pixels vertically on load (cref stbi_flip_vertically_on_load)
+            for (int y = 0; y < image.getHeight() / 2; y++) {
+                int oppositeY = image.getHeight() - y - 1;
+                for (int x = 0; x < image.getWidth(); x++) {
+                    int index1 = y * image.getWidth() + x;
+                    int index2 = oppositeY * image.getWidth() + x;
 
-                    imageBuffer.put((byte) ((pixel >> 16) & 0xFF));
-                    imageBuffer.put((byte) ((pixel >> 8) & 0xFF));
-                    imageBuffer.put((byte) ((pixel >> 0) & 0xFF));
-                    imageBuffer.put((byte) ((pixel >> 24) & 0xFF));
+                    int temp = pixels[index1];
+                    pixels[index1] = pixels[index2];
+                    pixels[index2] = temp;
                 }
+            }
+
+            for (int pixel : pixels) {
+                imageBuffer.put((byte) ((pixel >> 16) & 0xFF));
+                imageBuffer.put((byte) ((pixel >> 8) & 0xFF));
+                imageBuffer.put((byte) ((pixel >> 0) & 0xFF));
+                imageBuffer.put((byte) ((pixel >> 24) & 0xFF));
             }
             imageBuffer.flip();
         }
 
+        width.rewind();
+        height.rewind();
+        channels.rewind();
 
         id = glGenTextures();
         glActiveTexture(GL_TEXTURE0 + this.slot);
@@ -80,14 +88,10 @@ public class Texture {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-        if (channels.get() == 3) {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width.get(), height.get(), 0, GL_RGB, GL_UNSIGNED_BYTE, imageBuffer);
-        } else {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width.get(), height.get(), 0, GL_RGBA, GL_UNSIGNED_BYTE, imageBuffer);
-        }
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width.get(), height.get(), 0, GL_RGBA, GL_UNSIGNED_BYTE, imageBuffer);
 
         logger.info("Chargement de la texture effectuée avec succès.");
-        STBImage.stbi_image_free(imageBuffer);
+
         this.unbind();
     }
 

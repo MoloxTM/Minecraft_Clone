@@ -42,7 +42,6 @@ public class PlayersListPacket implements ClientPacket {
                 JsonNode playerNode = playersNode.get(i);
 
                 String uuid = playerNode.get("uuid").asText();
-                String base64Skin = playerNode.get("skin").asText();
                 Player player;
 
                 if (uuid.equalsIgnoreCase(game.getPlayer().getUuid())) continue;
@@ -51,8 +50,6 @@ public class PlayersListPacket implements ClientPacket {
                     player = game.getPlayers().get(uuid);
                 } else {
                     player = new Player(playerNode.get("name").asText());
-                    BufferedImage skin = this.loadSkin(base64Skin);
-                    player.setSkin(skin);
                     player.setUuid(uuid);
                     game.getPlayers().put(uuid, player);
                 }
