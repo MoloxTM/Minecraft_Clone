@@ -26,7 +26,7 @@ public class Renderer {
 
     public Renderer() {
         this.playerMesh = new PlayerMesh();
-        this.font = new CFont(GameConfiguration.FONT_FILE_PATH, 16);
+        this.font = new CFont(GameConfiguration.FONT_FILE_PATH, GameConfiguration.FONT_SIZE);
         this.fontMesh = new FontMesh(font);
 
         this.fontManager = new FontManager();
@@ -122,7 +122,7 @@ public class Renderer {
     private void renderString(Camera camera, String text, float x, float y, float z, int rgb) {
         Texture texture = font.getTexture();
 
-        fontManager.addText(fontMesh, text, x, y, z, 1.0f, rgb);
+        fontManager.addText(fontMesh, text, x, y, z, 0.25f, rgb);
 
         fontShader.enable();
         fontShader.sendInt("uTexture", texture.getSlot());

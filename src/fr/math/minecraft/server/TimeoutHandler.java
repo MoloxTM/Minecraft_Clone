@@ -9,8 +9,7 @@ import java.util.Map;
 public class TimeoutHandler extends Thread {
 
     private final MinecraftServer server;
-    private final static double TIMEOUT_DELAY_MS = 100000;
-
+    private final static double TIMEOUT_DELAY_MS = 5000;
     private final String uuid;
     private final Logger logger;
 
@@ -28,7 +27,6 @@ public class TimeoutHandler extends Thread {
             synchronized (server.getLastActivities()) {
                 long lastTimeSeen = server.getLastActivities().get(uuid);
                 if (currentTime - lastTimeSeen > TIMEOUT_DELAY_MS) {
-                    System.out.println(currentTime - lastTimeSeen);
                     synchronized (server.getClients()) {
                         String clientName = server.getClients().get(uuid).getName();
                         timeout = true;

@@ -113,6 +113,8 @@ public class Camera {
         model.translate(player.getPosition().x, player.getPosition().y + 0.8f, player.getPosition().z);
         model.rotate((float) Math.toRadians(90.0f), new Vector3f(0.0f, 1.0f, 0.0f), model);
 
+        shader.sendFloat("yaw", (float) Math.toRadians(player.getYaw()));
+
         shader.sendMatrix("projection", projection, projectionBuffer);
         shader.sendMatrix("view", view, viewBuffer);
         shader.sendMatrix("model", model, modelBuffer);

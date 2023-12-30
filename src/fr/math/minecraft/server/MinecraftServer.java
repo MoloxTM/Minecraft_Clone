@@ -88,14 +88,12 @@ public class MinecraftServer {
     private DatagramPacket handleConnectionInit(DatagramPacket receivedPacket, JsonNode packetData, InetAddress address, int clientPort) {
         String playerName = packetData.get("playerName").asText();
 
-        /*
         for (Client client : clients.values()) {
             if (client.getName().equalsIgnoreCase(playerName)) {
                 byte[] buffer = "USERNAME_NOT_AVAILABLE".getBytes(StandardCharsets.UTF_8);
                 return new DatagramPacket(buffer, buffer.length, address, clientPort);
             }
         }
-        */
 
         String uuid = UUID.randomUUID().toString();
         byte[] buffer = uuid.getBytes(StandardCharsets.UTF_8);
@@ -106,8 +104,8 @@ public class MinecraftServer {
 
         if (!lastActivities.containsKey(uuid)) {
             lastActivities.put(uuid, System.currentTimeMillis());
-            //TimeoutHandler handler = new TimeoutHandler(this, uuid);
-            //handler.start();
+            TimeoutHandler handler = new TimeoutHandler(this, uuid);
+            handler.start();
         }
 
 

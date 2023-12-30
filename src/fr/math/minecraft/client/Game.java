@@ -76,10 +76,6 @@ public class Game {
 
         Renderer renderer = new Renderer();
 
-        Player t = new Player("NOUGAT");
-        t.setPosition(new Vector3f(10, 10, 50));
-        players.put("1", t);
-
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.58f, 0.83f, 0.99f, 1);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -93,7 +89,7 @@ public class Game {
 
             lastTime = currentTime;
 
-            // new PlayersListPacket().send();
+            new PlayersListPacket().send();
 
             while (updateTimer > GameConfiguration.UPDATE_TICK) {
                 this.update();

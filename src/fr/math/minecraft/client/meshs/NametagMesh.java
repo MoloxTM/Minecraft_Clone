@@ -17,12 +17,12 @@ public class NametagMesh extends Mesh {
     private float[] vertices;
 
     public NametagMesh(String text) {
-        this.width = text.length() * 0.4f;
+        this.width = text.length() * 0.35f;
 
         this.vertices = new float[] {
             -0.5f + 0.5f - width / 2.0f, -0.5f, 0.0f,
-            -0.5f + 0.5f - width / 2.0f, -0.1f, 0.0f,
-            -0.5f + width + 0.5f - width / 2.0f, -0.1f, 0.0f,
+            -0.5f + 0.5f - width / 2.0f, -0.2f, 0.0f,
+            -0.5f + width + 0.5f - width / 2.0f, -0.2f, 0.0f,
             -0.5f + width + 0.5f - width / 2.0f, -0.5f, 0.0f,
         };
 
@@ -30,8 +30,6 @@ public class NametagMesh extends Mesh {
             0, 1, 2,
             2, 3, 0
         };
-
-        System.out.println("Width : "  + width + " Height : " + height);
 
         this.init();
     }
