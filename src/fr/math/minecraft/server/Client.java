@@ -14,6 +14,7 @@ public class Client {
     private Vector3f position;
     private Vector3f front;
     private float yaw;
+    private float bodyYaw;
     private float pitch;
     private float speed;
     private BufferedImage skin;
@@ -43,9 +44,11 @@ public class Client {
         boolean sneaking = packetData.get("sneaking").asBoolean();
 
         float yaw = packetData.get("yaw").floatValue();
+        float bodyYaw = packetData.get("bodyYaw").floatValue();
         float pitch = packetData.get("pitch").floatValue();
 
         this.yaw = yaw;
+        this.bodyYaw = bodyYaw;
         this.pitch = pitch;
 
         this.movingLeft = movingLeft;
@@ -97,11 +100,16 @@ public class Client {
         node.put("movingRight", this.movingRight);
         node.put("movingForward", this.movingForward);
         node.put("movingBackward", this.movingBackward);
+        node.put("bodyYaw", this.bodyYaw);
 
         return node;
     }
 
     public BufferedImage getSkin() {
         return skin;
+    }
+
+    public float getBodyYaw() {
+        return bodyYaw;
     }
 }

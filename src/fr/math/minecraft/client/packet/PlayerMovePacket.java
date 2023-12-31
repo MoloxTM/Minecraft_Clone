@@ -79,6 +79,7 @@ public class PlayerMovePacket implements ClientPacket {
         messageNode.put("sneaking", sneaking);
         messageNode.put("pitch", player.getPitch());
         messageNode.put("yaw", player.getYaw());
+        messageNode.put("bodyYaw", player.getBodyYaw());
 
         try {
             return mapper.writeValueAsString(messageNode);

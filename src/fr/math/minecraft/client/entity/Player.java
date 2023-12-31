@@ -7,6 +7,7 @@ import fr.math.minecraft.client.packet.PlayerMovePacket;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
+import org.joml.Math;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 
@@ -24,6 +25,7 @@ public class Player {
     public final static float DEPTH = WIDTH;
     private Vector3f position;
     private float yaw;
+    private float bodyYaw;
     private float pitch;
     private float speed;
     private boolean firstMouse;
@@ -39,6 +41,7 @@ public class Player {
     public Player(String name) {
         this.position = new Vector3f(0.0f, 0.0f, 0.0f);
         this.yaw = 0.0f;
+        this.bodyYaw = 0.0f;
         this.pitch = 0.0f;
         this.firstMouse = true;
         this.lastMouseX = 0.0f;
@@ -206,5 +209,13 @@ public class Player {
 
     public void setSkin(BufferedImage skin) {
         this.skin = skin;
+    }
+
+    public float getBodyYaw() {
+        return bodyYaw;
+    }
+
+    public void setBodyYaw(float bodyYaw) {
+        this.bodyYaw = bodyYaw;
     }
 }

@@ -48,6 +48,7 @@ public class Renderer {
         this.skinsMap = new HashMap<>();
 
         this.terrainTexture.load();
+        this.defaultSkinTexture.load();
     }
 
     public void render(Camera camera, Player player) {
@@ -79,7 +80,6 @@ public class Renderer {
         camera.matrix(playerShader, player);
 
         playerMesh.draw();
-
 
         skinTexture.unbind();
 

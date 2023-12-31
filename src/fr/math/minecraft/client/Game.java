@@ -5,6 +5,7 @@ import fr.math.minecraft.client.packet.PlayersListPacket;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.world.Chunk;
 import fr.math.minecraft.client.world.World;
+import org.joml.Vector3f;
 import org.lwjgl.opengl.GL;
 
 import java.util.HashMap;

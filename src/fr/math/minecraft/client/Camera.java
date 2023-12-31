@@ -84,6 +84,7 @@ public class Camera {
         model.translate(player.getPosition().x, player.getPosition().y, player.getPosition().z);
         model.rotate((float) Math.toRadians(90.0f), new Vector3f(0.0f, 1.0f, 0.0f), model);
 
+        shader.sendFloat("bodyYaw", (float) Math.toRadians(player.getBodyYaw()));
         shader.sendFloat("yaw", (float) Math.toRadians(player.getYaw()));
         shader.sendFloat("pitch", (float) Math.toRadians(player.getPitch()));
         shader.sendFloat("time", Game.getInstance().getTime());

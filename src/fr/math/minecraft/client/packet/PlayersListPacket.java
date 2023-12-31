@@ -37,7 +37,7 @@ public class PlayersListPacket implements ClientPacket {
             String players = client.sendString(message);
 
             ArrayNode playersNode = (ArrayNode) mapper.readTree(players);
-            ArrayList<String> playersUuids = new ArrayList<>();
+            game.getPlayers().clear();
             for (int i = 0; i < playersNode.size(); i++) {
                 JsonNode playerNode = playersNode.get(i);
 
@@ -54,13 +54,12 @@ public class PlayersListPacket implements ClientPacket {
                     game.getPlayers().put(uuid, player);
                 }
 
-                playersUuids.add(player.getUuid());
-
                 float playerX = playerNode.get("x").floatValue();
                 float playerY = playerNode.get("y").floatValue();
                 float playerZ = playerNode.get("z").floatValue();
                 float pitch = playerNode.get("pitch").floatValue();
                 float yaw = playerNode.get("yaw").floatValue();
+                float bodyYaw = playerNode.get("bodyYaw").floatValue();
 
                 boolean movingLeft = playerNode.get("movingLeft").asBoolean();
                 boolean movingRight = playerNode.get("movingRight").asBoolean();
@@ -72,6 +71,7 @@ public class PlayersListPacket implements ClientPacket {
                 player.getPosition().z = playerZ;
 
                 player.setYaw(yaw);
+                player.setBodyYaw(bodyYaw);
                 player.setPitch(pitch);
 
                 player.setMovingLeft(movingLeft);
@@ -80,8 +80,6 @@ public class PlayersListPacket implements ClientPacket {
                 player.setMovingBackward(movingBackward);
 
             }
-            this.clearInactivePlayers(playersUuids);
-            playersUuids.clear();
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
@@ -93,14 +91,6 @@ public class PlayersListPacket implements ClientPacket {
             return ImageIO.read(new ByteArrayInputStream(bytes));
         } catch (IOException e) {
             return null;
-        }
-    }
-
-    private void clearInactivePlayers(ArrayList<String> playersUuids) {
-        for (Player player : Game.getInstance().getPlayers().values()) {
-            if (!playersUuids.contains(player.getUuid())) {
-                Game.getInstance().getPlayers().remove(player.getUuid());
-            }
         }
     }
 
