@@ -2,12 +2,12 @@ package fr.math.minecraft.client;
 
 import fr.math.minecraft.client.packet.ConnectionInitPacket;
 import fr.math.minecraft.client.packet.PlayersListPacket;
-import fr.math.minecraft.client.player.Player;
+import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.world.Chunk;
 import fr.math.minecraft.client.world.World;
+import org.joml.Vector3f;
 import org.lwjgl.opengl.GL;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,19 +18,21 @@ public class Game {
 
     private long window;
     private static Game instance = null;
-    private final MinecraftClient client;
-    private final Map<String, Player> players;
-    private final Player player;
+    private MinecraftClient client;
+    private Map<String, Player> players;
+    private Player player;
     private World world;
+    private Camera camera;
+    private float updateTimer;
+    private float time;
+    private float deltaTime;
 
     private Game() {
-        this.client = new MinecraftClient(50000);
-        this.players = new HashMap<>();
-        this.player = new Player(null);
-        this.world = null;
+        this.initWindow();
+        this.init();
     }
 
-    public void run() {
+    public void initWindow() {
         if (!glfwInit()) {
             throw new IllegalStateException("Erreur lors de l'initialisation de GLFW !");
         }
@@ -41,7 +43,7 @@ public class Game {
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-        window = glfwCreateWindow(1280, 720, "Minecraft", NULL, NULL);
+        window = glfwCreateWindow((int) GameConfiguration.WINDOW_WIDTH, (int) GameConfiguration.WINDOW_HEIGHT, "Minecraft", NULL, NULL);
         if (window == NULL) {
             throw new RuntimeException("Erreur lors de la crétion de la fenêtre !");
         }
@@ -49,73 +51,76 @@ public class Game {
         glfwMakeContextCurrent(window);
         GL.createCapabilities();
 
-        Shader shader = new Shader("res/block.vert", "res/block.frag");
-
+        glEnable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
 
-        Texture texture1 = new Texture("res/terrain.png", 1);
-        texture1.load();
-        glEnable(GL_DEPTH_TEST);
-
-        Camera camera = new Camera(1280.0f, 720.0f);
-
+    public void init() {
+        this.client = new MinecraftClient(50000);
+        this.players = new HashMap<>();
+        this.updateTimer = 0.0f;
+        this.camera = new Camera(GameConfiguration.WINDOW_WIDTH, GameConfiguration.WINDOW_HEIGHT);
         this.world = new World();
-        world.buildChunks();
+    }
+
+    public void run() {
 
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-        double previousTime = 0.0f;
-        int frames = 0;
+        double lastTime = glfwGetTime();
 
         new ConnectionInitPacket(player).send();
 
-        Chunk c = new Chunk(0, 0, 0);
+        Renderer renderer = new Renderer();
 
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.58f, 0.83f, 0.99f, 1);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             double currentTime = glfwGetTime();
-            frames++;
+            double deltaTime = currentTime - lastTime;
 
-            if (currentTime - previousTime >= 1.0) {
-                System.out.println("FPS " + frames);
-                frames = 0;
-                previousTime = currentTime;
+            this.deltaTime = (float) deltaTime;
+
+            updateTimer += deltaTime;
+
+            lastTime = currentTime;
+
+            new PlayersListPacket().send();
+
+            while (updateTimer > GameConfiguration.UPDATE_TICK) {
+                this.update();
+                updateTimer -= GameConfiguration.UPDATE_TICK;
+                player.handleInputs(window);
             }
 
-            shader.enable();
-            player.handleInputs(window);
-
-            glActiveTexture(GL_TEXTURE1);
-            texture1.bind();
-
-            camera.update(player);
-            for (Chunk chunk : world.getChunks().values()) {
-                texture1.bind();
-                shader.sendInt("uTexture", 1);
-                camera.matrix(shader, chunk.getPosition().x * Chunk.SIZE, chunk.getPosition().y * Chunk.SIZE, chunk.getPosition().z * Chunk.SIZE);
-                chunk.getChunkMesh().draw();
-                texture1.unbind();
-            }
-
-
-            for (Map.Entry<String , Player> entry : players.entrySet()) {
-                Player p = entry.getValue();
-                if (p.getUuid().equalsIgnoreCase(player.getUuid())) continue;
-                texture1.bind();
-                camera.matrix(shader, p.getPosition().x, p.getPosition().y, p.getPosition().z);
-                c.getChunkMesh().draw();
-                texture1.unbind();
-            }
-
+            this.render(renderer);
 
             glfwSwapBuffers(window);
             glfwPollEvents();
 
-            new PlayersListPacket().send();
         }
+    }
+
+    private void update() {
+        camera.update(player);
+        time += 0.01f;
+        for (Player player : players.values()) {
+            player.update();
+        }
+    }
+
+    private void render(Renderer renderer) {
+        for (Chunk chunk : world.getChunks()) {
+            renderer.render(camera, chunk);
+        }
+
+        for (Player player : players.values()) {
+            renderer.render(camera, player);
+        }
+
+        renderer.renderText(camera, "Hello, World!", 200, 200, 0xFFFFFF);
     }
 
     public static Game getInstance() {
@@ -140,5 +145,20 @@ public class Game {
 
     public World getWorld() {
         return world;
+    }
+    public float getTime() {
+        return time;
+    }
+
+    public float getDeltaTime() {
+        return deltaTime;
+    }
+
+    public Camera getCamera() {
+        return camera;
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
     }
 }

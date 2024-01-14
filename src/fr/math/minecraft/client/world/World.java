@@ -1,6 +1,7 @@
 package fr.math.minecraft.client.world;
 
 import fr.math.minecraft.client.meshs.ChunkMesh;
+import fr.math.minecraft.client.entity.Player;
 
 import java.util.ArrayList;
 import java.util.HashMap;

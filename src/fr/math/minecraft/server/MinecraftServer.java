@@ -9,9 +9,15 @@ import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -26,10 +32,11 @@ public class MinecraftServer {
     private final Map<String, Client> clients;
     private final Map<String, String> sockets;
     private final Map<String, Long> lastActivities;
+    private final static int MAX_REQUEST_SIZE = 4096;
 
     public MinecraftServer(int port) {
         this.running = false;
-        this.buffer = new byte[256];
+        this.buffer = new byte[MAX_REQUEST_SIZE];
         this.port = port;
         this.logger = LoggerUtility.getServerLogger(MinecraftServer.class, LogType.TXT);
         this.clients = new HashMap<>();
@@ -74,7 +81,12 @@ public class MinecraftServer {
 
                     break;
                 case "PLAYERS_LIST_REQUEST":
-                    packet = this.handlePlayerList(address, clientPort);
+                    packet = this.handlePlayerList(packetData, address, clientPort);
+
+                    socket.send(packet);
+                    break;
+                case "SKIN_REQUEST":
+                    packet = this.handleSkinRequest(packetData, address, clientPort);
 
                     socket.send(packet);
                     break;
@@ -83,6 +95,30 @@ public class MinecraftServer {
             }
         }
         socket.close();
+    }
+
+    private DatagramPacket handleSkinRequest(JsonNode packetData, InetAddress address, int clientPort) {
+        String uuid = packetData.get("uuid").asText();
+
+        File file = new File("skins/" + uuid + ".png");
+        if (!file.exists()) {
+            byte[] buffer = "PLAYER_DOESNT_EXISTS".getBytes(StandardCharsets.UTF_8);
+            return new DatagramPacket(buffer, buffer.length, address, clientPort);
+        }
+
+        try {
+            BufferedImage skin = ImageIO.read(file);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(skin, "png", baos);
+            String base64Skin = Base64.getEncoder().encodeToString(baos.toByteArray());
+            byte[] buffer = base64Skin.getBytes();
+
+            return new DatagramPacket(buffer, buffer.length, address, clientPort);
+        } catch (IOException e) {
+            byte[] buffer = "ERROR".getBytes(StandardCharsets.UTF_8);
+            logger.error(e.getMessage());
+            return new DatagramPacket(buffer, buffer.length, address, clientPort);
+        }
     }
 
     private DatagramPacket handleConnectionInit(DatagramPacket receivedPacket, JsonNode packetData, InetAddress address, int clientPort) {
@@ -95,26 +131,36 @@ public class MinecraftServer {
                 return new DatagramPacket(buffer, buffer.length, address, clientPort);
             }
         }
-        */
+         */
+
 
         String uuid = UUID.randomUUID().toString();
         byte[] buffer = uuid.getBytes(StandardCharsets.UTF_8);
-        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, clientPort);
         clients.put(uuid, new Client(uuid, playerName));
-        sockets.put(String.valueOf(receivedPacket.getAddress()), uuid);
+
+        byte[] skinBytes = Base64.getDecoder().decode(packetData.get("skin").asText());
+        try {
+            BufferedImage skin = ImageIO.read(new ByteArrayInputStream(skinBytes));
+            ImageIO.write(skin, "png", new File("skins/" + uuid + ".png"));
+            logger.info("Le skin du joueur" + playerName + " (" + uuid + ") a été sauvegardé avec succès.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, clientPort);
         logger.info(playerName + " a rejoint le serveur ! (" + clients.size() + "/???)");
 
         if (!lastActivities.containsKey(uuid)) {
+            lastActivities.put(uuid, System.currentTimeMillis());
             TimeoutHandler handler = new TimeoutHandler(this, uuid);
             handler.start();
         }
 
-        lastActivities.put(uuid, System.currentTimeMillis());
 
         return packet;
     }
 
-    private DatagramPacket handlePlayerList(InetAddress address, int clientPort) {
+    private DatagramPacket handlePlayerList(JsonNode packetData, InetAddress address, int clientPort) {
         ObjectMapper mapper = new ObjectMapper();
         ArrayNode playersNode = mapper.createArrayNode();
 
@@ -122,6 +168,9 @@ public class MinecraftServer {
             Client client = entrySet.getValue();
             playersNode.add(client.toJSON());
         }
+
+        String uuid = packetData.get("uuid").asText();
+        lastActivities.put(uuid, System.currentTimeMillis());
 
         try {
             String message = mapper.writeValueAsString(playersNode);
@@ -146,8 +195,6 @@ public class MinecraftServer {
 
         String response = new ObjectMapper().writeValueAsString(positionNode);
         byte[] buffer = response.getBytes(StandardCharsets.UTF_8);
-
-        lastActivities.put(packetData.get("uuid").asText(), System.currentTimeMillis());
 
         return new DatagramPacket(buffer, buffer.length, address, clientPort);
     }

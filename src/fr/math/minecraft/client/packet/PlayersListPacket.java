@@ -7,13 +7,17 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.MinecraftClient;
-import fr.math.minecraft.client.player.Player;
+import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
-import org.joml.Vector3f;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Base64;
 
 public class PlayersListPacket implements ClientPacket {
 
@@ -33,6 +37,7 @@ public class PlayersListPacket implements ClientPacket {
             String players = client.sendString(message);
 
             ArrayNode playersNode = (ArrayNode) mapper.readTree(players);
+            game.getPlayers().clear();
             for (int i = 0; i < playersNode.size(); i++) {
                 JsonNode playerNode = playersNode.get(i);
 
@@ -52,13 +57,40 @@ public class PlayersListPacket implements ClientPacket {
                 float playerX = playerNode.get("x").floatValue();
                 float playerY = playerNode.get("y").floatValue();
                 float playerZ = playerNode.get("z").floatValue();
+                float pitch = playerNode.get("pitch").floatValue();
+                float yaw = playerNode.get("yaw").floatValue();
+                float bodyYaw = playerNode.get("bodyYaw").floatValue();
+
+                boolean movingLeft = playerNode.get("movingLeft").asBoolean();
+                boolean movingRight = playerNode.get("movingRight").asBoolean();
+                boolean movingForward = playerNode.get("movingForward").asBoolean();
+                boolean movingBackward = playerNode.get("movingBackward").asBoolean();
 
                 player.getPosition().x = playerX;
                 player.getPosition().y = playerY;
                 player.getPosition().z = playerZ;
+
+                player.setYaw(yaw);
+                player.setBodyYaw(bodyYaw);
+                player.setPitch(pitch);
+
+                player.setMovingLeft(movingLeft);
+                player.setMovingRight(movingRight);
+                player.setMovingForward(movingForward);
+                player.setMovingBackward(movingBackward);
+
             }
         } catch (IOException e) {
             logger.error(e.getMessage());
+        }
+    }
+
+    private BufferedImage loadSkin(String base64Skin) {
+        byte[] bytes = Base64.getDecoder().decode(base64Skin);
+        try {
+            return ImageIO.read(new ByteArrayInputStream(bytes));
+        } catch (IOException e) {
+            return null;
         }
     }
 
@@ -66,6 +98,7 @@ public class PlayersListPacket implements ClientPacket {
     public String toJSON() {
         ObjectNode packetNode = mapper.createObjectNode();
         packetNode.put("type", "PLAYERS_LIST_REQUEST");
+        packetNode.put("uuid", Game.getInstance().getPlayer().getUuid());
         packetNode.put("clientVersion", "1.0.0");
         try {
             return mapper.writeValueAsString(packetNode);

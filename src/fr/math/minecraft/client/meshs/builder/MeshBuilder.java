@@ -1,7 +1,9 @@
-package fr.math.minecraft.client.meshs;
+package fr.math.minecraft.client.meshs.builder;
 
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.Vertex;
+import fr.math.minecraft.client.vertex.Vertex;
+import fr.math.minecraft.client.meshs.model.BlockModel;
 import fr.math.minecraft.client.world.Chunk;
 import fr.math.minecraft.client.world.Material;
 import fr.math.minecraft.client.world.World;
@@ -30,12 +32,12 @@ public class MeshBuilder {
         Vector2f texCoordsBottomRight = new Vector2f((x + 1)/format, y/format);
 
         Vector2f[] texCoords = {
-                texCoordsBottomLeft,
-                texCoordsUpLeft,
-                texCoordsUpRight,
-                texCoordsUpRight,
-                texCoordsBottomRight,
-                texCoordsBottomLeft,
+            texCoordsBottomLeft,
+            texCoordsUpLeft,
+            texCoordsUpRight,
+            texCoordsUpRight,
+            texCoordsBottomRight,
+            texCoordsBottomLeft,
         };
 
         return texCoords;

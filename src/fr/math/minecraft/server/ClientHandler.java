@@ -23,7 +23,7 @@ public class ClientHandler extends Thread {
     public JsonNode parsePacket(DatagramPacket packet) {
         try {
             byte[] buffer = packet.getData();
-            String message = new String(buffer, 0, buffer.length);
+            String message = new String(buffer, 0, buffer.length).trim();
 
             return mapper.readTree(message);
         } catch (JsonProcessingException e) {

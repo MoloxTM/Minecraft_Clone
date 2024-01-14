@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.MinecraftClient;
-import fr.math.minecraft.client.player.Player;
+import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
@@ -24,6 +24,7 @@ public class PlayerMovePacket implements ClientPacket {
     private boolean movingBackward;
     private boolean flying;
     private boolean sneaking;
+    private boolean movingHead;
 
     public PlayerMovePacket(Player player) {
         this.player = player;
@@ -35,12 +36,11 @@ public class PlayerMovePacket implements ClientPacket {
         this.movingBackward = false;
         this.flying = false;
         this.sneaking = false;
+        this.movingHead = false;
     }
 
     @Override
     public void send() {
-        if (!movingLeft && !movingRight && !movingBackward && !movingForward && !flying && !sneaking)
-            return;
 
         MinecraftClient client = Game.getInstance().getClient();
 
@@ -79,6 +79,7 @@ public class PlayerMovePacket implements ClientPacket {
         messageNode.put("sneaking", sneaking);
         messageNode.put("pitch", player.getPitch());
         messageNode.put("yaw", player.getYaw());
+        messageNode.put("bodyYaw", player.getBodyYaw());
 
         try {
             return mapper.writeValueAsString(messageNode);
@@ -109,5 +110,9 @@ public class PlayerMovePacket implements ClientPacket {
 
     public void setSneaking(boolean sneaking) {
         this.sneaking = sneaking;
+    }
+
+    public void setMovingHead(boolean movingHead) {
+        this.movingHead = movingHead;
     }
 }

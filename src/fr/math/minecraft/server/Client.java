@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.joml.Vector3f;
 
+import java.awt.image.BufferedImage;
+
 public class Client {
 
     private final String name;
@@ -12,8 +14,11 @@ public class Client {
     private Vector3f position;
     private Vector3f front;
     private float yaw;
+    private float bodyYaw;
     private float pitch;
     private float speed;
+    private BufferedImage skin;
+    private boolean movingLeft, movingRight, movingForward, movingBackward;
 
     public Client(String uuid, String name) {
         this.uuid = uuid;
@@ -23,6 +28,7 @@ public class Client {
         this.yaw = 0.0f;
         this.pitch = 0.0f;
         this.speed = 0.05f;
+        this.skin = null;
     }
 
     public String getName() {
@@ -38,10 +44,17 @@ public class Client {
         boolean sneaking = packetData.get("sneaking").asBoolean();
 
         float yaw = packetData.get("yaw").floatValue();
+        float bodyYaw = packetData.get("bodyYaw").floatValue();
         float pitch = packetData.get("pitch").floatValue();
 
         this.yaw = yaw;
+        this.bodyYaw = bodyYaw;
         this.pitch = pitch;
+
+        this.movingLeft = movingLeft;
+        this.movingRight = movingRight;
+        this.movingForward = movingForward;
+        this.movingBackward = movingBackward;
 
         front.x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
         front.y = (float) Math.sin(Math.toRadians(0.0f));
@@ -63,10 +76,10 @@ public class Client {
             position = position.add(new Vector3f(right).mul(speed));
 
         if (flying)
-            position = position.add(new Vector3f(0.0f, .5f, 0.0f));
+            position = position.add(new Vector3f(0.0f, .05f, 0.0f));
 
         if (sneaking)
-            position = position.sub(new Vector3f(0.0f, .5f, 0.0f));
+            position = position.sub(new Vector3f(0.0f, .05f, 0.0f));
 
     }
 
@@ -81,7 +94,22 @@ public class Client {
         node.put("x", this.position.x);
         node.put("y", this.position.y);
         node.put("z", this.position.z);
+        node.put("yaw", this.yaw);
+        node.put("pitch", this.pitch);
+        node.put("movingLeft", this.movingLeft);
+        node.put("movingRight", this.movingRight);
+        node.put("movingForward", this.movingForward);
+        node.put("movingBackward", this.movingBackward);
+        node.put("bodyYaw", this.bodyYaw);
 
         return node;
+    }
+
+    public BufferedImage getSkin() {
+        return skin;
+    }
+
+    public float getBodyYaw() {
+        return bodyYaw;
     }
 }

@@ -1,6 +1,7 @@
 package fr.math.minecraft.client.meshs;
 
-import fr.math.minecraft.client.Vertex;
+import fr.math.minecraft.client.meshs.builder.MeshBuilder;
+import fr.math.minecraft.client.vertex.Vertex;
 import fr.math.minecraft.client.buffers.EBO;
 import fr.math.minecraft.client.buffers.VAO;
 import fr.math.minecraft.client.buffers.VBO;
@@ -90,8 +91,8 @@ public class BlockMesh extends Mesh {
         this.vao = new VAO();
         vao.bind();
 
-        VBO vbo = new VBO(vertices);
-        EBO ebo = new EBO(indices);
+        vbo = new VBO(vertices);
+        ebo = new EBO(indices);
 
         vao.linkAttrib(vbo, 0, 3, GL_FLOAT, 5 * Float.BYTES, 0);
         vao.linkAttrib(vbo, 1, 2, GL_FLOAT, 5 * Float.BYTES, 3 * Float.BYTES);

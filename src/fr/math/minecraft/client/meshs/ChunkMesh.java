@@ -2,6 +2,7 @@ package fr.math.minecraft.client.meshs;
 
 import fr.math.minecraft.client.buffers.VAO;
 import fr.math.minecraft.client.buffers.VBO;
+import fr.math.minecraft.client.meshs.builder.MeshBuilder;
 import fr.math.minecraft.client.world.Chunk;
 
 import static org.lwjgl.opengl.GL33.*;
@@ -18,7 +19,7 @@ public class ChunkMesh extends Mesh {
         vao = new VAO();
         vao.bind();
 
-        VBO vbo = new VBO(vertices);
+        vbo = new VBO(vertices);
 
         vao.linkAttrib(vbo, 0, 3, GL_FLOAT, 5 * Float.BYTES, 0);
         vao.linkAttrib(vbo, 1, 2, GL_FLOAT, 5 * Float.BYTES, 3 * Float.BYTES);
