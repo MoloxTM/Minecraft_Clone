@@ -23,7 +23,6 @@ public class OverworldGenerator implements TerrainGenerator {
 
                 float worldNoise = noise.getNoise(worldX, worldZ);
                 int worldHeight = (int) (worldNoise * noise.getAmplitude() + noise.getOffset());
-
                 for (int y = 0; y < Chunk.SIZE; y++) {
                     int worldY = y + chunk.getPosition().y * Chunk.SIZE;
                     Material material = Material.AIR;

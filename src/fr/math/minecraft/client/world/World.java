@@ -15,6 +15,7 @@ public class World {
 
     public World() {
         this.chunks = new HashMap<>();
+        this.buildChunks();
     }
 
     public void buildChunks() {

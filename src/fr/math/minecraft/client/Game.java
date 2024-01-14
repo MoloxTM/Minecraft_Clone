@@ -112,7 +112,7 @@ public class Game {
     }
 
     private void render(Renderer renderer) {
-        for (Chunk chunk : world.getChunks()) {
+        for (Chunk chunk : world.getChunks().values()) {
             renderer.render(camera, chunk);
         }
 
