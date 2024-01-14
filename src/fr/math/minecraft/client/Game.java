@@ -29,7 +29,7 @@ public class Game {
 
     private Game() {
         this.initWindow();
-        this.init();
+        //this.init();
     }
 
     public void initWindow() {
@@ -125,7 +125,7 @@ public class Game {
 
     public static Game getInstance() {
         if (instance == null) {
-            System.out.println(instance);
+            System.out.println("Game getInstance :"+instance);
             instance = new Game();
         }
         return instance;

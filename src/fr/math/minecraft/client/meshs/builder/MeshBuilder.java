@@ -1,7 +1,6 @@
 package fr.math.minecraft.client.meshs.builder;
 
 import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.Vertex;
 import fr.math.minecraft.client.vertex.Vertex;
 import fr.math.minecraft.client.meshs.model.BlockModel;
 import fr.math.minecraft.client.world.Chunk;
