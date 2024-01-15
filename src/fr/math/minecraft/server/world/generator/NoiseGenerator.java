@@ -1,4 +1,4 @@
-package fr.math.minecraft.client.world.generator;
+package fr.math.minecraft.server.world.generator;
 
 import org.joml.SimplexNoise;
 

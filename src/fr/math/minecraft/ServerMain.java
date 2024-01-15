@@ -7,7 +7,7 @@ import java.io.IOException;
 public class ServerMain {
 
     public static void main(String[] args) {
-        MinecraftServer server = new MinecraftServer(50000);
+        MinecraftServer server = MinecraftServer.getInstance();
         try {
             server.start();
         } catch (IOException e) {

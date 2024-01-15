@@ -1,9 +1,7 @@
-package fr.math.minecraft.client.world.generator;
+package fr.math.minecraft.server.world.generator;
 
-import fr.math.minecraft.client.world.Chunk;
-import fr.math.minecraft.client.world.Material;
-import fr.math.minecraft.client.world.World;
-import org.joml.Vector2f;
+import fr.math.minecraft.server.world.ServerChunk;
+import fr.math.minecraft.server.world.Material;
 
 public class OverworldGenerator implements TerrainGenerator {
 
@@ -14,17 +12,17 @@ public class OverworldGenerator implements TerrainGenerator {
     }
 
     @Override
-    public void generate(Chunk chunk) {
-        for (int x = 0; x < Chunk.SIZE; x++) {
-            for (int z = 0; z < Chunk.SIZE; z++) {
+    public void generate(ServerChunk chunk) {
+        for (int x = 0; x < ServerChunk.SIZE; x++) {
+            for (int z = 0; z < ServerChunk.SIZE; z++) {
 
-                int worldX = x + chunk.getPosition().x * Chunk.SIZE;
-                int worldZ = z + chunk.getPosition().z * Chunk.SIZE;
+                int worldX = x + chunk.getPosition().x * ServerChunk.SIZE;
+                int worldZ = z + chunk.getPosition().z * ServerChunk.SIZE;
 
                 float worldNoise = noise.getNoise(worldX, worldZ);
                 int worldHeight = (int) (worldNoise * noise.getAmplitude() + noise.getOffset());
-                for (int y = 0; y < Chunk.SIZE; y++) {
-                    int worldY = y + chunk.getPosition().y * Chunk.SIZE;
+                for (int y = 0; y < ServerChunk.SIZE; y++) {
+                    int worldY = y + chunk.getPosition().y * ServerChunk.SIZE;
                     Material material = Material.AIR;
 
                     if (worldY < worldHeight) {

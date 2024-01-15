@@ -24,6 +24,7 @@ import java.util.UUID;
 
 public class MinecraftServer {
 
+    private static MinecraftServer instance = null;
     private DatagramSocket socket;
     private boolean running;
     private final byte[] buffer;
@@ -34,7 +35,7 @@ public class MinecraftServer {
     private final Map<String, Long> lastActivities;
     private final static int MAX_REQUEST_SIZE = 4096;
 
-    public MinecraftServer(int port) {
+    private MinecraftServer(int port) {
         this.running = false;
         this.buffer = new byte[MAX_REQUEST_SIZE];
         this.port = port;
@@ -197,6 +198,13 @@ public class MinecraftServer {
         byte[] buffer = response.getBytes(StandardCharsets.UTF_8);
 
         return new DatagramPacket(buffer, buffer.length, address, clientPort);
+    }
+
+    public static MinecraftServer getInstance() {
+        if(instance == null) {
+            instance = new MinecraftServer(50000);
+        }
+        return instance;
     }
 
     public Map<String, Long> getLastActivities() {
