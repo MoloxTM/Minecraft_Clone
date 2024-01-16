@@ -12,7 +12,7 @@ import java.io.IOException;
 public class ClientMain {
 
     public static void main(String[] args) {
-        //System.setProperty("java.awt.headless", "true");
+        System.setProperty("java.awt.headless", "true");
         String skinPath = "res/textures/skin.png";
         if (args.length == 2) {
             if (!args[0].equalsIgnoreCase("--name")) {
@@ -37,7 +37,6 @@ public class ClientMain {
         System.out.println("Instance de game ClientMain :" + Game.getInstance() + "\n");
         Game game = Game.getInstance();
         game.init();
-        game.getWorld().buildChunks();
         BufferedImage skin = loadSkin(skinPath);
         game.setPlayer(new Player(args[1]));
         game.getPlayer().setSkin(skin);

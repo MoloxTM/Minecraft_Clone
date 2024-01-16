@@ -7,9 +7,9 @@ import java.util.HashMap;
 public class ServerWorld {
 
     private final HashMap<Coordinates, ServerChunk> chunks;
-    public final static int WIDTH = 10;
+    public final static int WIDTH = 30;
     public final static int HEIGHT = 10;
-    public final static int DEPTH = 10;
+    public final static int DEPTH = 30;
 
     public ServerWorld() {
         this.chunks = new HashMap<>();
@@ -25,7 +25,7 @@ public class ServerWorld {
                 }
             }
         }
-        System.out.println(getChunk(0, 0, 0));
+        System.out.println("Monde généré avec succès");
     }
 
     public HashMap<Coordinates, ServerChunk> getChunks() {
@@ -34,7 +34,6 @@ public class ServerWorld {
 
     public ServerChunk getChunk(int x, int y, int z) {
         Coordinates coordinates = new Coordinates(x, y, z);
-        if(!chunks.containsKey(coordinates)) return null;
-        return chunks.get(coordinates);
+        return chunks.getOrDefault(coordinates, null);
     }
 }

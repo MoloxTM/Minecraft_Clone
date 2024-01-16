@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
+import fr.math.minecraft.server.world.ServerChunk;
+import fr.math.minecraft.server.world.ServerWorld;
 import org.apache.log4j.Logger;
 
 import javax.imageio.ImageIO;
@@ -33,6 +35,7 @@ public class MinecraftServer {
     private final Map<String, Client> clients;
     private final Map<String, String> sockets;
     private final Map<String, Long> lastActivities;
+    private final ServerWorld world;
     private final static int MAX_REQUEST_SIZE = 4096;
 
     private MinecraftServer(int port) {
@@ -43,6 +46,7 @@ public class MinecraftServer {
         this.clients = new HashMap<>();
         this.sockets = new HashMap<>();
         this.lastActivities = new HashMap<>();
+        this.world = new ServerWorld();
     }
 
     public void start() throws IOException {
@@ -91,11 +95,39 @@ public class MinecraftServer {
 
                     socket.send(packet);
                     break;
+                case "CHUNK_REQUEST":
+                    packet = this.handleChunkRequest(packetData, address, clientPort);
+
+                    socket.send(packet);
+                    break;
                 default:
+                    String message = "UNAUTHORIZED_PACKET";
+                    buffer = message.getBytes(StandardCharsets.UTF_8);
+                    socket.send(new DatagramPacket(buffer, buffer.length, address, clientPort));
                     logger.error("Type de packet : " + packetType + " non reconnu.");
             }
         }
         socket.close();
+    }
+
+    private DatagramPacket handleChunkRequest(JsonNode packetData, InetAddress address, int clientPort) {
+
+        int x = packetData.get("x").asInt();
+        int y = packetData.get("y").asInt();
+        int z = packetData.get("z").asInt();
+
+        ServerChunk chunk = world.getChunk(x, y, z);
+
+        if (chunk == null) {
+            byte[] buffer = "CHUNK_UNKNOWN".getBytes(StandardCharsets.UTF_8);
+            return new DatagramPacket(buffer, buffer.length, address, clientPort);
+        }
+
+        String chunkData = chunk.toJSON();
+        byte[] buffer = chunkData.getBytes(StandardCharsets.UTF_8);
+
+        return new DatagramPacket(buffer, buffer.length, address, clientPort);
+
     }
 
     private DatagramPacket handleSkinRequest(JsonNode packetData, InetAddress address, int clientPort) {

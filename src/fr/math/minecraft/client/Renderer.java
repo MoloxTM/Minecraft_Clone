@@ -123,6 +123,7 @@ public class Renderer {
     }
 
     public void render(Camera camera, Chunk chunk) {
+
         chunkShader.enable();
         chunkShader.sendInt("uTexture", terrainTexture.getSlot());
 

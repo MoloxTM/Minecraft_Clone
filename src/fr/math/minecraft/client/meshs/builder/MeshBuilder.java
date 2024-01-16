@@ -121,6 +121,8 @@ public class MeshBuilder {
                 blockY = 0;
             }
         }
+        System.out.println("VERTICES SIZE " + vertices.size());
+
         return vertices.toArray(new Vertex[0]);
     }
 

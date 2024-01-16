@@ -1,8 +1,16 @@
 package fr.math.minecraft.server.world;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.server.world.generator.OverworldGenerator;
 import org.joml.Vector3i;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class ServerChunk {
 
@@ -44,6 +52,29 @@ public class ServerChunk {
 
     public Vector3i getPosition() {
         return position;
+    }
+
+    public String toJSON() {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode node = mapper.createObjectNode();
+        ArrayNode blocksArray = mapper.createArrayNode();
+
+        for (int block : blocks) {
+            blocksArray.add(block);
+        }
+
+        node.put("x", position.x);
+        node.put("y", position.y);
+        node.put("z", position.z);
+        node.set("blocks", blocksArray);
+
+        try {
+            return mapper.writeValueAsString(node);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
 }

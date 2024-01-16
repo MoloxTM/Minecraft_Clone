@@ -1,11 +1,14 @@
 package fr.math.minecraft.client.packet;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.MinecraftClient;
 import fr.math.minecraft.client.entity.Player;
+import fr.math.minecraft.client.world.Chunk;
 import org.joml.Vector3f;
 
 import java.io.IOException;
@@ -13,11 +16,13 @@ import java.io.IOException;
 public class ChunkRequestPacket implements  ClientPacket{
 
     private final ObjectMapper mapper;
-    private Vector3f coordinates;
+    private final Vector3f coordinates;
+    private JsonNode chunkData;
 
     public ChunkRequestPacket(Vector3f coordinates) {
         this.mapper = new ObjectMapper();
         this.coordinates = coordinates;
+        this.chunkData = null;
     }
     @Override
     public void send() {
@@ -29,8 +34,14 @@ public class ChunkRequestPacket implements  ClientPacket{
         }
 
         try {
-            String chunk = client.sendString(message);
-            System.out.println(chunk);
+            String response = client.sendString(message);
+
+            if (response.equals("UNAUTHORIZED_PACKET") || response.equals("CHUNK_UNKNOWN")) {
+                return;
+            }
+
+            this.chunkData = mapper.readTree(response);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -45,9 +56,13 @@ public class ChunkRequestPacket implements  ClientPacket{
         node.put("z", coordinates.z);
 
         try {
-            return  mapper.writeValueAsString(node);
+            return mapper.writeValueAsString(node);
         } catch (JsonProcessingException e) {
             return null;
         }
+    }
+
+    public JsonNode getChunkData() {
+        return this.chunkData;
     }
 }

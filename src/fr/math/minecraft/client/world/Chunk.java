@@ -7,6 +7,7 @@ public class Chunk {
 
     private final Vector3i position;
     private final int[] blocks;
+    private boolean empty;
 
     public final static int SIZE = 16;
     public final static int AREA = SIZE * SIZE;
@@ -24,6 +25,7 @@ public class Chunk {
                 }
             }
         }
+        this.empty = true;
         this.chunkMesh = null;
     }
 
@@ -49,5 +51,23 @@ public class Chunk {
 
     public void setChunkMesh(ChunkMesh chunkMesh) {
         this.chunkMesh = chunkMesh;
+    }
+
+    public boolean isEmpty() {
+        return empty;
+    }
+
+    public void setEmpty(boolean empty) {
+        this.empty = empty;
+    }
+
+    public int getBlocksSize() {
+        int count = 0;
+        for (int block : blocks) {
+            if (block != Material.AIR.getId()) {
+                count++;
+            }
+        }
+        return count;
     }
 }

@@ -1,8 +1,10 @@
 package fr.math.minecraft.client;
 
+import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.packet.ConnectionInitPacket;
 import fr.math.minecraft.client.packet.PlayersListPacket;
 import fr.math.minecraft.client.entity.Player;
+import fr.math.minecraft.client.tick.TickHandler;
 import fr.math.minecraft.client.world.Chunk;
 import fr.math.minecraft.client.world.World;
 import org.joml.Vector3f;
@@ -70,6 +72,8 @@ public class Game {
 
         double lastTime = glfwGetTime();
 
+        new TickHandler().start();
+
         new ConnectionInitPacket(player).send();
 
         Renderer renderer = new Renderer();
@@ -101,6 +105,7 @@ public class Game {
             glfwPollEvents();
 
         }
+
     }
 
     private void update() {
@@ -112,8 +117,18 @@ public class Game {
     }
 
     private void render(Renderer renderer) {
-        for (Chunk chunk : world.getChunks().values()) {
-            renderer.render(camera, chunk);
+        synchronized (world.getChunks()) {
+            for (Chunk chunk : world.getChunks().values()) {
+
+                if (chunk.getChunkMesh() == null && !chunk.isEmpty()) {
+                    System.out.println("Nb blocks " + chunk.getBlocksSize());
+                    chunk.setChunkMesh(new ChunkMesh(chunk));
+                }
+
+                if (!chunk.isEmpty()) {
+                    renderer.render(camera, chunk);
+                }
+            }
         }
 
         for (Player player : players.values()) {
