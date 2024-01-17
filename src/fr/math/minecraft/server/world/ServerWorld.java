@@ -7,9 +7,9 @@ import java.util.HashMap;
 public class ServerWorld {
 
     private final HashMap<Coordinates, ServerChunk> chunks;
-    public final static int WIDTH = 30;
+    public final static int WIDTH = 50;
     public final static int HEIGHT = 10;
-    public final static int DEPTH = 30;
+    public final static int DEPTH = 50;
 
     public ServerWorld() {
         this.chunks = new HashMap<>();

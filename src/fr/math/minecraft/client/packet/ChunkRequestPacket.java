@@ -36,7 +36,7 @@ public class ChunkRequestPacket implements  ClientPacket{
         try {
             String response = client.sendString(message);
 
-            if (response.equals("UNAUTHORIZED_PACKET") || response.equals("CHUNK_UNKNOWN")) {
+            if (response.equals("UNAUTHORIZED_PACKET") || response.equals("CHUNK_UNKNOWN") || response.equals("TIMEOUT_REACHED")) {
                 return;
             }
 

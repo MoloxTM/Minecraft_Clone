@@ -29,6 +29,7 @@ public class MinecraftClient {
     public void connect()  {
         try {
             this.socket = new DatagramSocket();
+            this.socket.setSoTimeout(2000);
             this.address = InetAddress.getByName(IP_SERVER);
 
         } catch (UnknownHostException | SocketException e) {
@@ -36,16 +37,22 @@ public class MinecraftClient {
         }
     }
 
-    public String sendString(String message) throws IOException {
+    public synchronized String sendString(String message) throws IOException {
         return this.sendBytes(message.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String sendBytes(byte[] buffer) throws IOException {
+    public synchronized String sendBytes(byte[] buffer) throws IOException {
         DatagramPacket packet = new DatagramPacket(buffer, 0, buffer.length, this.address, this.serverPort);
         socket.send(packet);
         buffer = new byte[MAX_RESPONSE_LENGTH];
         packet = new DatagramPacket(buffer, buffer.length);
-        socket.receive(packet);
+
+        try {
+            socket.receive(packet);
+        } catch (SocketTimeoutException e) {
+            logger.error(e.getMessage());
+            return "TIMEOUT_REACHED";
+        }
 
         return new String(packet.getData(), 0, packet.getLength()).trim();
     }

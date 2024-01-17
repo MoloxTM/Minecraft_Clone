@@ -5,6 +5,7 @@ import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.packet.ChunkRequestPacket;
+import fr.math.minecraft.client.world.Chunk;
 import fr.math.minecraft.server.manager.ChunkManager;
 import org.joml.Vector3f;
 
@@ -47,13 +48,13 @@ public class TickHandler extends Thread {
     private void tick() {
         Player player = game.getPlayer();
 
-        int startX = Math.max((int) (player.getPosition().x - GameConfiguration.CHUNK_RENDER_DISTANCE), 0);
-        int startY = Math.max((int) (player.getPosition().y - GameConfiguration.CHUNK_RENDER_DISTANCE), 0);
-        int startZ = Math.max((int) (player.getPosition().z - GameConfiguration.CHUNK_RENDER_DISTANCE), 0);
+        int startX = Math.max((int) (player.getPosition().x / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE), 0);
+        int startY = Math.max((int) (player.getPosition().y / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE), 0);
+        int startZ = Math.max((int) (player.getPosition().z / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE), 0);
 
-        int endX = (int) player.getPosition().x + GameConfiguration.CHUNK_RENDER_DISTANCE;
-        int endY = (int) player.getPosition().y + GameConfiguration.CHUNK_RENDER_DISTANCE;
-        int endZ = (int) player.getPosition().z + GameConfiguration.CHUNK_RENDER_DISTANCE;
+        int endX = (int) player.getPosition().x / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE;
+        int endY = (int) player.getPosition().y / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE;
+        int endZ = (int) player.getPosition().z / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE;
 
         for (int x = startX; x <= endX; x++) {
             for (int y = startY; y <= endY; y++) {
@@ -66,6 +67,7 @@ public class TickHandler extends Thread {
 
                     JsonNode chunkData = packet.getChunkData();
                     chunkManager.loadChunkData(chunkData);
+
                 }
             }
         }

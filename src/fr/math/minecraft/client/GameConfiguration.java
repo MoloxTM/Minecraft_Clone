@@ -9,6 +9,6 @@ public class GameConfiguration {
     public final static String FONT_FILE_PATH = "res/fonts/Monocraft.ttf";
     public final static int FONT_SIZE = 64;
     public final static float NAMETAG_FONT_SIZE = 32.0f;
-    public final static int CHUNK_RENDER_DISTANCE = 3;
+    public final static int CHUNK_RENDER_DISTANCE = 6;
 
 }
