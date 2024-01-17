@@ -15,12 +15,12 @@ public class ChunkManager {
 
         JsonNode blocks = chunkData.get("blocks");
 
+        if (blocks == null) return;
+        if (!blocks.isArray()) return;
+
         int x = chunkData.get("x").asInt();
         int y = chunkData.get("y").asInt();
         int z = chunkData.get("z").asInt();
-
-        if (blocks == null) return;
-        if (!blocks.isArray()) return;
 
         World world = Game.getInstance().getWorld();
 

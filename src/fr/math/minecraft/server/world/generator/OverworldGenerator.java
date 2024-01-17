@@ -20,7 +20,7 @@ public class OverworldGenerator implements TerrainGenerator {
                 int worldZ = z + chunk.getPosition().z * ServerChunk.SIZE;
 
                 float worldNoise = noise.getNoise(worldX, worldZ);
-                float worldHeight = (int) (worldNoise * noise.getAmplitude() + noise.getOffset());
+                int worldHeight = (int) (worldNoise * noise.getAmplitude() + noise.getOffset());
 
                 for (int y = 0; y < ServerChunk.SIZE; y++) {
                     int worldY = y + chunk.getPosition().y * ServerChunk.SIZE;
@@ -31,8 +31,6 @@ public class OverworldGenerator implements TerrainGenerator {
                     }
 
                     chunk.setBlock(x, y, z, material.getId());
-
-
                 }
             }
         }

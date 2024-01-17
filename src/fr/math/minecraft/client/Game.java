@@ -121,7 +121,6 @@ public class Game {
             for (Chunk chunk : world.getChunks().values()) {
 
                 if (chunk.getChunkMesh() == null && !chunk.isEmpty()) {
-                    System.out.println("Nb blocks " + chunk.getBlocksSize());
                     chunk.setChunkMesh(new ChunkMesh(chunk));
                 }
 

@@ -29,7 +29,7 @@ public class ChunkRequestPacket implements  ClientPacket{
         MinecraftClient client = Game.getInstance().getClient();
         String message = this.toJSON();
 
-        if(message == null) {
+        if (message == null) {
             return;
         }
 
