@@ -76,7 +76,7 @@ public class Client {
             position = position.add(new Vector3f(right).mul(speed));
 
         if (flying)
-            position = position.add(new Vector3f(0.0f, .05f, 0.0f));
+            position = position.add(new Vector3f(0.0f, .5f, 0.0f));
 
         if (sneaking)
             position = position.sub(new Vector3f(0.0f, .05f, 0.0f));

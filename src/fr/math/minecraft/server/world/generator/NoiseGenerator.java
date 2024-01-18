@@ -37,6 +37,23 @@ public class NoiseGenerator {
         return noiseValue / totalAmplitude;
     }
 
+    public float getHeight(int x, int y) {
+        float noiseValue = 0.0f;
+        for (int i = 0; i < octaves; i++) {
+            float frequency = (float) Math.pow(2.0, i);
+            float amplitude = (float) Math.pow(roughness, i);
+
+            float noiseX = x * frequency / smoothness;
+            float noiseY = y * frequency / smoothness;
+
+            noiseValue += SimplexNoise.noise(noiseX, noiseY) * amplitude;
+        }
+
+        float height = (((noiseValue / 2.1f) + 1.2f) * amplitude) + offset;
+
+        return height > 0 ? height : 1;
+    }
+
     public float getAmplitude() {
         return this.amplitude;
     }

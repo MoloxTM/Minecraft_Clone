@@ -52,6 +52,10 @@ public class MeshBuilder {
                     int block = chunk.getBlock(x, y, z);
                     if (block == Material.AIR.getId()) continue;
 
+                    Material material = Material.getMaterialById(block);
+
+                    if (material == null) material = Material.STONE;
+
                     int worldX = x + chunk.getPosition().x * Chunk.SIZE;
                     int worldY = y + chunk.getPosition().y * Chunk.SIZE;
                     int worldZ = z + chunk.getPosition().z * Chunk.SIZE;
@@ -63,8 +67,9 @@ public class MeshBuilder {
                     boolean pz = isEmpty(chunk.getBlocks(), worldX, worldY, worldZ + 1);
                     boolean nz = isEmpty(chunk.getBlocks(), worldX, worldY, worldZ - 1);
 
+                    Vector2f[] textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
+
                     if (px) {
-                        Vector2f[] textureCoords = calculateTexCoords(blockX, blockY, 16.0f);
                         for (int k = 0; k < 6; k++)  {
                             Vector3f blockVector = new Vector3f(x, y, z);
                             vertices.add(new Vertex(blockVector.add(BlockModel.PX_POS[k]), textureCoords[k]));
@@ -72,7 +77,6 @@ public class MeshBuilder {
                     }
 
                     if (nx) {
-                        Vector2f[] textureCoords = calculateTexCoords(blockX, blockY, 16.0f);
                         for (int k = 0; k < 6; k++)  {
                             Vector3f blockVector = new Vector3f(x, y, z);
                             vertices.add(new Vertex(blockVector.add(BlockModel.NX_POS[k]), textureCoords[k]));
@@ -80,7 +84,6 @@ public class MeshBuilder {
                     }
 
                     if (py) {
-                        Vector2f[] textureCoords = calculateTexCoords(blockX, blockY, 16.0f);
                         for (int k = 0; k < 6; k++)  {
                             Vector3f blockVector = new Vector3f(x, y, z);
                             vertices.add(new Vertex(blockVector.add(BlockModel.PY_POS[k]), textureCoords[k]));
@@ -88,7 +91,6 @@ public class MeshBuilder {
                     }
 
                     if (ny) {
-                        Vector2f[] textureCoords = calculateTexCoords(blockX, blockY, 16.0f);
                         for (int k = 0; k < 6; k++)  {
                             Vector3f blockVector = new Vector3f(x, y, z);
                             vertices.add(new Vertex(blockVector.add(BlockModel.NY_POS[k]), textureCoords[k]));
@@ -96,7 +98,6 @@ public class MeshBuilder {
                     }
 
                     if (pz) {
-                        Vector2f[] textureCoords = calculateTexCoords(blockX, blockY, 16.0f);
                         for (int k = 0; k < 6; k++)  {
                             Vector3f blockVector = new Vector3f(x, y, z);
                             vertices.add(new Vertex(blockVector.add(BlockModel.PZ_POS[k]), textureCoords[k]));
@@ -104,7 +105,6 @@ public class MeshBuilder {
                     }
 
                     if (nz) {
-                        Vector2f[] textureCoords = calculateTexCoords(blockX, blockY, 16.0f);
                         for (int k = 0; k < 6; k++)  {
                             Vector3f blockVector = new Vector3f(x, y, z);
                             vertices.add(new Vertex(blockVector.add(BlockModel.NZ_POS[k]), textureCoords[k]));
@@ -113,15 +113,6 @@ public class MeshBuilder {
                 }
             }
         }
-        blockX++;
-        if (blockX > 15) {
-            blockX = 0;
-            blockY++;
-            if (blockY == 15) {
-                blockY = 0;
-            }
-        }
-        System.out.println("VERTICES SIZE " + vertices.size());
 
         return vertices.toArray(new Vertex[0]);
     }
