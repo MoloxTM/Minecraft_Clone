@@ -28,6 +28,7 @@ public class Game {
     private float updateTimer;
     private float time;
     private float deltaTime;
+    private GameState state;
 
     private Game() {
         this.initWindow();
@@ -64,6 +65,7 @@ public class Game {
         this.updateTimer = 0.0f;
         this.camera = new Camera(GameConfiguration.WINDOW_WIDTH, GameConfiguration.WINDOW_HEIGHT);
         this.world = new World();
+        this.state = GameState.MAIN_MENU;
     }
 
     public void run() {
@@ -72,34 +74,44 @@ public class Game {
 
         double lastTime = glfwGetTime();
 
-        new TickHandler().start();
+        /*
+        TickHandler tickHandler = new TickHandler();
+        tickHandler.start();
 
         new ConnectionInitPacket(player).send();
+         */
 
         Renderer renderer = new Renderer();
 
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.58f, 0.83f, 0.99f, 1);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            if (state == GameState.MAIN_MENU) {
+                renderer.renderMainMenu(camera);
+                player.setYaw(player.getYaw() + .03f);
+                camera.update(player);
+            } else {
 
-            double currentTime = glfwGetTime();
-            double deltaTime = currentTime - lastTime;
 
-            this.deltaTime = (float) deltaTime;
+                double currentTime = glfwGetTime();
+                double deltaTime = currentTime - lastTime;
 
-            updateTimer += deltaTime;
+                this.deltaTime = (float) deltaTime;
 
-            lastTime = currentTime;
+                updateTimer += deltaTime;
 
-            new PlayersListPacket().send();
+                lastTime = currentTime;
 
-            while (updateTimer > GameConfiguration.UPDATE_TICK) {
-                this.update();
-                updateTimer -= GameConfiguration.UPDATE_TICK;
-                player.handleInputs(window);
+                new PlayersListPacket().send();
+
+                while (updateTimer > GameConfiguration.UPDATE_TICK) {
+                    this.update();
+                    updateTimer -= GameConfiguration.UPDATE_TICK;
+                    player.handleInputs(window);
+                }
+
+                this.render(renderer);
             }
-
-            this.render(renderer);
 
             glfwSwapBuffers(window);
             glfwPollEvents();
@@ -117,7 +129,6 @@ public class Game {
     }
 
     private void render(Renderer renderer) {
-        renderer.renderMainMenu(camera);
         synchronized (world.getChunks()) {
             for (Chunk chunk : world.getChunks().values()) {
 
@@ -175,5 +186,17 @@ public class Game {
 
     public void setPlayer(Player player) {
         this.player = player;
+    }
+
+    public long getWindow() {
+        return window;
+    }
+
+    public GameState getState() {
+        return state;
+    }
+
+    public void setState(GameState state) {
+        this.state = state;
     }
 }

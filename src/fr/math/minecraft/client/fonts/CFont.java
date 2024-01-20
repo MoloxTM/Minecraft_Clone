@@ -1,9 +1,7 @@
 package fr.math.minecraft.client.fonts;
 
-import fr.math.minecraft.client.Texture;
-import org.w3c.dom.Text;
+import fr.math.minecraft.client.texture.Texture;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class CFont {

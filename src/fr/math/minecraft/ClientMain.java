@@ -1,7 +1,6 @@
 package fr.math.minecraft;
 
 import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.Texture;
 import fr.math.minecraft.client.entity.Player;
 
 import javax.imageio.ImageIO;

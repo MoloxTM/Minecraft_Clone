@@ -1,7 +1,6 @@
 package fr.math.minecraft.client.fonts;
 
-import fr.math.minecraft.client.Texture;
-import fr.math.minecraft.client.manager.FontManager;
+import fr.math.minecraft.client.texture.Texture;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;

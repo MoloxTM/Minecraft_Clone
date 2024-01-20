@@ -152,4 +152,8 @@ public class Camera {
         shader.sendMatrix("projection", projection, projectionBuffer);
         shader.sendMatrix("view", view, viewBuffer);
     }
+
+    public Vector3f getPosition() {
+        return position;
+    }
 }

@@ -113,4 +113,18 @@ public class FontManager {
         this.addText(fontMesh, text, x, y, z, scale, rgb, false);
     }
 
+    public int getTextWidth(FontMesh fontMesh, String text) {
+        return this.getTextWidth(fontMesh, .25f, text);
+    }
+
+    public int getTextWidth(FontMesh fontMesh, float scale, String text) {
+        int width = 0;
+        for (int i = 0; i < text.length(); i++) {
+            char character = text.charAt(i);
+            CharInfo charInfo = fontMesh.getFont().getCharacter(character);
+            width += charInfo.getWidth() * scale;
+        }
+        return width;
+    }
+
 }

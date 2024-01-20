@@ -1,10 +1,8 @@
-package fr.math.minecraft.client;
+package fr.math.minecraft.client.texture;
 
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryUtil;
 

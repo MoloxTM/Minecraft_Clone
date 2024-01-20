@@ -29,7 +29,7 @@ public class TickHandler extends Thread {
         float tickTimer = 0.0f;
         double previousTime = glfwGetTime();
 
-        while (true) {
+        while (!glfwWindowShouldClose(game.getWindow())) {
             double currentTime = glfwGetTime();
             double deltaTime = currentTime - previousTime;
 

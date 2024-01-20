@@ -1,9 +1,8 @@
-package fr.math.minecraft.client;
+package fr.math.minecraft.client.texture;
 
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
-import org.lwjgl.opengl.GL33;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryUtil;
 
@@ -48,7 +47,14 @@ public class CubemapTexture extends Texture {
                 throw new RuntimeException("Impossible de charger la texture " + this.filePaths[i]);
             }
 
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width.get(), height.get(), 0, GL_RGB, GL_UNSIGNED_BYTE, imageBuffer);
+            int format;
+            if (channels.get() == 3) {
+                format = GL_RGB;
+            } else {
+                format = GL_RGBA;
+            }
+
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, width.get(), height.get(), 0, format, GL_UNSIGNED_BYTE, imageBuffer);
 
             STBImage.stbi_image_free(imageBuffer);
 

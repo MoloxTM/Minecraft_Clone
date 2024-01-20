@@ -5,6 +5,8 @@ import fr.math.minecraft.client.fonts.CFont;
 import fr.math.minecraft.client.manager.FontManager;
 import fr.math.minecraft.client.meshs.*;
 import fr.math.minecraft.client.packet.SkinRequestPacket;
+import fr.math.minecraft.client.texture.CubemapTexture;
+import fr.math.minecraft.client.texture.Texture;
 import fr.math.minecraft.client.world.Chunk;
 
 import java.awt.image.BufferedImage;
@@ -120,15 +122,14 @@ public class Renderer {
 
     private void renderNametagText(Camera camera, Player player) {
         Texture texture = font.getTexture();
-
-        fontManager.addText(fontMesh, player.getName(), 0, 0, 0, 1.0f, 0xFFFFFF, true);
-
         nametagTextShader.enable();
         nametagTextShader.sendInt("uTexture", texture.getSlot());
 
         glActiveTexture(GL_TEXTURE0 + texture.getSlot());
         texture.bind();
         camera.matrixNametag(nametagTextShader, player);
+
+        fontManager.addText(fontMesh, player.getName(), 0, 0, 0, 1.0f, 0xFFFFFF, true);
 
         fontMesh.flush();
 
@@ -162,21 +163,23 @@ public class Renderer {
     private void renderString(Camera camera, String text, float x, float y, float z, int rgb) {
         Texture texture = font.getTexture();
 
-        fontManager.addText(fontMesh, text, x, y, z, 0.25f, rgb);
 
         fontShader.enable();
         fontShader.sendInt("uTexture", texture.getSlot());
 
         glActiveTexture(GL_TEXTURE0 + texture.getSlot());
         texture.bind();
+        camera.matrix(fontShader, text);
+
+        fontManager.addText(fontMesh, text, x, y, z, 0.25f, rgb);
 
         fontMesh.flush();
-        camera.matrix(fontShader, text);
 
         texture.unbind();
     }
 
     public void renderMainMenu(Camera camera) {
+
 
         glDepthFunc(GL_LEQUAL);
 
@@ -191,5 +194,10 @@ public class Renderer {
 
         panoramaTexture.unbind();
         glDepthFunc(GL_LESS);
+
+        int offset = 5;
+
+        this.renderText(camera, "Minecraft 1.0.0", offset, offset, 0xFFFFFF);
+        this.renderText(camera, "Copyright Me and the hoes.", GameConfiguration.WINDOW_WIDTH - fontManager.getTextWidth(fontMesh, "Copyright Me and the hoes.") - offset, offset, 0xFFFFFF);
     }
 }
