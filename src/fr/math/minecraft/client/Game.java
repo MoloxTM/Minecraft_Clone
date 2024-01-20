@@ -117,6 +117,7 @@ public class Game {
     }
 
     private void render(Renderer renderer) {
+        renderer.renderMainMenu(camera);
         synchronized (world.getChunks()) {
             for (Chunk chunk : world.getChunks().values()) {
 

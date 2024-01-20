@@ -10,7 +10,6 @@ import static org.lwjgl.opengl.GL33.*;
 public class ChunkMesh extends Mesh {
 
     public ChunkMesh(Chunk chunk) {
-        System.out.println("Nb blocks (Mesh) " + chunk.getBlocksSize());
         vertices = MeshBuilder.buildChunkMesh(chunk);
         this.init();
     }

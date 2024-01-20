@@ -3,9 +3,7 @@ package fr.math.minecraft.client;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.fonts.CFont;
 import fr.math.minecraft.client.manager.FontManager;
-import fr.math.minecraft.client.meshs.FontMesh;
-import fr.math.minecraft.client.meshs.NametagMesh;
-import fr.math.minecraft.client.meshs.PlayerMesh;
+import fr.math.minecraft.client.meshs.*;
 import fr.math.minecraft.client.packet.SkinRequestPacket;
 import fr.math.minecraft.client.world.Chunk;
 
@@ -19,21 +17,25 @@ public class Renderer {
 
     private final PlayerMesh playerMesh;
     private final FontMesh fontMesh;
+    private final SkyboxMesh skyboxMesh;
     private final Shader playerShader;
     private final Shader chunkShader;
     private final Shader fontShader;
     private final Shader nametagTextShader;
     private final Shader nametagShader;
+    private final Shader skyboxShader;
     private final Texture terrainTexture;
     private final Texture defaultSkinTexture;
     private final FontManager fontManager;
     private final CFont font;
     private final Map<String, Texture> skinsMap;
+    private final CubemapTexture panoramaTexture;
 
     public Renderer() {
         this.playerMesh = new PlayerMesh();
         this.font = new CFont(GameConfiguration.FONT_FILE_PATH, GameConfiguration.FONT_SIZE);
         this.fontMesh = new FontMesh(font);
+        this.skyboxMesh = new SkyboxMesh();
 
         this.fontManager = new FontManager();
 
@@ -42,13 +44,23 @@ public class Renderer {
         this.fontShader = new Shader("res/shaders/font.vert", "res/shaders/font.frag");
         this.nametagShader = new Shader("res/shaders/nametag.vert", "res/shaders/nametag.frag");
         this.nametagTextShader = new Shader("res/shaders/nametag_text.vert", "res/shaders/nametag_text.frag");
+        this.skyboxShader = new Shader("res/shaders/skybox.vert", "res/shaders/skybox.frag");
 
         this.terrainTexture = new Texture("res/textures/terrain.png", 1);
         this.defaultSkinTexture = new Texture("res/textures/skin.png", 2);
+
+        String[] panoramas = new String[6];
+
+        for (int i = 0; i < panoramas.length; i++) {
+            panoramas[i] = "res/textures/gui/title/panorama_" + i + ".png";
+        }
+
+        this.panoramaTexture = new CubemapTexture(panoramas, 3);
         this.skinsMap = new HashMap<>();
 
         this.terrainTexture.load();
         this.defaultSkinTexture.load();
+        this.panoramaTexture.load();
     }
 
     public void render(Camera camera, Player player) {
@@ -163,4 +175,20 @@ public class Renderer {
         texture.unbind();
     }
 
+    public void renderMainMenu(Camera camera) {
+
+        glDepthFunc(GL_LEQUAL);
+
+        skyboxShader.enable();
+        skyboxShader.sendInt("uTexture", panoramaTexture.getSlot());
+
+        glActiveTexture(GL_TEXTURE0 + panoramaTexture.getSlot());
+        panoramaTexture.bind();
+
+        camera.matrixSkybox(skyboxShader);
+        skyboxMesh.draw();
+
+        panoramaTexture.unbind();
+        glDepthFunc(GL_LESS);
+    }
 }

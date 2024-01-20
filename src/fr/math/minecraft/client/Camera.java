@@ -3,6 +3,7 @@ package fr.math.minecraft.client;
 import fr.math.minecraft.client.animations.Animation;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.world.Chunk;
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
@@ -134,4 +135,21 @@ public class Camera {
         shader.sendMatrix("model", model, modelBuffer);
     }
 
+    public void matrixSkybox(Shader shader) {
+
+        this.calculateFront(front);
+
+        Matrix4f projection = new Matrix4f();
+        Matrix4f view = new Matrix4f();
+
+        Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
+        Vector3f up = new Vector3f(right).cross(front).normalize();
+
+        projection.perspective((float) Math.toRadians(fov), width / height, nearPlane ,farPlane);
+        view.lookAt(position, new Vector3f(position).add(front), up);
+        view = new Matrix4f(new Matrix3f(view));
+
+        shader.sendMatrix("projection", projection, projectionBuffer);
+        shader.sendMatrix("view", view, viewBuffer);
+    }
 }

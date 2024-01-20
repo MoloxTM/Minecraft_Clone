@@ -15,10 +15,10 @@ import java.nio.IntBuffer;
 import static org.lwjgl.opengl.GL33.*;
 public class Texture {
 
-    private String imagePath;
+    protected String imagePath;
     private BufferedImage image;
     private Logger logger = LoggerUtility.getClientLogger(Texture.class, LogType.TXT);
-    private int id, slot;
+    protected int id, slot;
 
     public Texture(String imagePath, int slot) {
         this.imagePath = imagePath;
@@ -90,7 +90,12 @@ public class Texture {
 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width.get(), height.get(), 0, GL_RGBA, GL_UNSIGNED_BYTE, imageBuffer);
 
-        logger.info("Chargement de la texture effectuée avec succès.");
+        logger.info("Chargement de la texture + " + imagePath + " effectuée avec succès.");
+        STBImage.stbi_image_free(imageBuffer);
+
+        MemoryUtil.memFree(width);
+        MemoryUtil.memFree(height);
+        MemoryUtil.memFree(channels);
 
         this.unbind();
     }
