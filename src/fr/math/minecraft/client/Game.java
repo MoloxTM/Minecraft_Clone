@@ -10,8 +10,12 @@ import fr.math.minecraft.client.world.World;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import static org.lwjgl.opengl.GL33.*;
 import static org.lwjgl.glfw.GLFW.*;
@@ -82,12 +86,37 @@ public class Game {
          */
 
         Renderer renderer = new Renderer();
+        int lines = 0;
+        String splash = "Miam Miam";
+        BufferedReader reader;
+        try {
+            reader = new BufferedReader(new FileReader(GameConfiguration.SPLASHES_FILE_PATH));
+            while (true) {
+                if (!(reader.readLine() != null)) break;
+                lines++;
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(lines != 0) {
+            try {
+                reader = new BufferedReader(new FileReader(GameConfiguration.SPLASHES_FILE_PATH));
+                Random r = new Random();
+                int randomLine = r.nextInt(0, lines);
+                splash = Files.readAllLines(Paths.get(GameConfiguration.SPLASHES_FILE_PATH)).get(randomLine);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
 
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.58f, 0.83f, 0.99f, 1);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             if (state == GameState.MAIN_MENU) {
-                renderer.renderMainMenu(camera);
+                renderer.renderMainMenu(camera, splash);
                 player.setYaw(player.getYaw() + .03f);
                 camera.update(player);
             } else {

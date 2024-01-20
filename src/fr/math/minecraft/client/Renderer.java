@@ -194,7 +194,7 @@ public class Renderer {
         texture.unbind();
     }
 
-    public void renderMainMenu(Camera camera) {
+    public void renderMainMenu(Camera camera, String splash) {
 
         glDepthFunc(GL_LEQUAL);
 
@@ -214,6 +214,7 @@ public class Renderer {
 
         this.renderText(camera, "Minecraft 1.0.0", offset, offset, 0xFFFFFF);
         this.renderText(camera, "Copyright Me and the hoes.", GameConfiguration.WINDOW_WIDTH - fontManager.getTextWidth(fontMesh, "Copyright Me and the hoes.") - offset, offset, 0xFFFFFF);
+        this.renderText(camera, splash, (float)((GameConfiguration.WINDOW_WIDTH * 0.75) - (fontManager.getTextWidth(fontMesh, splash))), (float) (GameConfiguration.WINDOW_HEIGHT - (GameConfiguration.WINDOW_HEIGHT* 0.25)), 0xFFFF00);
         this.renderImage(camera);
     }
 
