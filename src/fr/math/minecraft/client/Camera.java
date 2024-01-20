@@ -122,16 +122,20 @@ public class Camera {
         shader.sendMatrix("model", model, modelBuffer);
     }
 
-    public void matrix(Shader shader, String text) {
+    public void matrixOrtho(Shader shader) {
+        this.matrixOrtho(shader, 0.0f);
+    }
+
+    public void matrixOrtho(Shader shader, float rotateAngle) {
 
         Matrix4f projection = new Matrix4f();
-        Matrix4f view = new Matrix4f();
         Matrix4f model = new Matrix4f();
 
         projection.ortho(0, GameConfiguration.WINDOW_WIDTH, 0, GameConfiguration.WINDOW_HEIGHT, nearPlane ,farPlane);
 
+        model.rotate((float) Math.toRadians(rotateAngle), new Vector3f(1.0f, 0.0f, 0.0f), model);
+
         shader.sendMatrix("projection", projection, projectionBuffer);
-        shader.sendMatrix("view", view, viewBuffer);
         shader.sendMatrix("model", model, modelBuffer);
     }
 

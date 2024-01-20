@@ -8,11 +8,10 @@ out vec3 color;
 out vec2 textureCoords;
 
 uniform mat4 projection;
-uniform mat4 view;
 uniform mat4 model;
 
 void main() {
-    gl_Position = projection * view * model * vec4(aPosition, 1.0);
+    gl_Position = projection * model * vec4(aPosition, 1.0);
     color = aColor;
     textureCoords = aTexture;
 }

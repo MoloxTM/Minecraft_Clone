@@ -8,6 +8,7 @@ import fr.math.minecraft.client.packet.SkinRequestPacket;
 import fr.math.minecraft.client.texture.CubemapTexture;
 import fr.math.minecraft.client.texture.Texture;
 import fr.math.minecraft.client.world.Chunk;
+import org.joml.Matrix4f;
 
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
@@ -23,11 +24,14 @@ public class Renderer {
     private final Shader playerShader;
     private final Shader chunkShader;
     private final Shader fontShader;
+    private final Shader imageShader;
     private final Shader nametagTextShader;
     private final Shader nametagShader;
     private final Shader skyboxShader;
     private final Texture terrainTexture;
     private final Texture defaultSkinTexture;
+    private final Texture minecraftTitleTexture;
+    private final ImageMesh minecraftTitleMesh;
     private final FontManager fontManager;
     private final CFont font;
     private final Map<String, Texture> skinsMap;
@@ -39,6 +43,16 @@ public class Renderer {
         this.fontMesh = new FontMesh(font);
         this.skyboxMesh = new SkyboxMesh();
 
+        int titleWidth = (int) (1002 * .5f);
+        int titleHeight = (int) (197 * .5f);
+
+        this.minecraftTitleMesh = new ImageMesh(
+                titleWidth,
+                titleHeight,
+                (int) (GameConfiguration.WINDOW_WIDTH - 1002 * .5f) / 2,
+                (int) (GameConfiguration.WINDOW_HEIGHT - 197 * .5f - 100)
+        );
+
         this.fontManager = new FontManager();
 
         this.playerShader = new Shader("res/shaders/player.vert", "res/shaders/player.frag");
@@ -47,9 +61,11 @@ public class Renderer {
         this.nametagShader = new Shader("res/shaders/nametag.vert", "res/shaders/nametag.frag");
         this.nametagTextShader = new Shader("res/shaders/nametag_text.vert", "res/shaders/nametag_text.frag");
         this.skyboxShader = new Shader("res/shaders/skybox.vert", "res/shaders/skybox.frag");
+        this.imageShader = new Shader("res/shaders/image.vert", "res/shaders/image.frag");
 
         this.terrainTexture = new Texture("res/textures/terrain.png", 1);
         this.defaultSkinTexture = new Texture("res/textures/skin.png", 2);
+        this.minecraftTitleTexture = new Texture("res/textures/gui/title/minecraft_title.png", 3);
 
         String[] panoramas = new String[6];
         int[] index = new int[]{ 1, 3, 5, 4, 0, 2 };
@@ -58,11 +74,12 @@ public class Renderer {
             panoramas[i] = "res/textures/gui/title/panorama_" + index[i] + ".png";
         }
 
-        this.panoramaTexture = new CubemapTexture(panoramas, 3);
+        this.panoramaTexture = new CubemapTexture(panoramas, 4);
         this.skinsMap = new HashMap<>();
 
         this.terrainTexture.load();
         this.defaultSkinTexture.load();
+        this.minecraftTitleTexture.load();
         this.panoramaTexture.load();
     }
 
@@ -163,13 +180,12 @@ public class Renderer {
     private void renderString(Camera camera, String text, float x, float y, float z, int rgb) {
         Texture texture = font.getTexture();
 
-
         fontShader.enable();
         fontShader.sendInt("uTexture", texture.getSlot());
 
         glActiveTexture(GL_TEXTURE0 + texture.getSlot());
         texture.bind();
-        camera.matrix(fontShader, text);
+        camera.matrixOrtho(fontShader);
 
         fontManager.addText(fontMesh, text, x, y, z, 0.25f, rgb);
 
@@ -179,7 +195,6 @@ public class Renderer {
     }
 
     public void renderMainMenu(Camera camera) {
-
 
         glDepthFunc(GL_LEQUAL);
 
@@ -199,5 +214,20 @@ public class Renderer {
 
         this.renderText(camera, "Minecraft 1.0.0", offset, offset, 0xFFFFFF);
         this.renderText(camera, "Copyright Me and the hoes.", GameConfiguration.WINDOW_WIDTH - fontManager.getTextWidth(fontMesh, "Copyright Me and the hoes.") - offset, offset, 0xFFFFFF);
+        this.renderImage(camera);
+    }
+
+    public void renderImage(Camera camera) {
+        imageShader.enable();
+        imageShader.sendInt("uTexture", minecraftTitleTexture.getSlot());
+
+        glActiveTexture(GL_TEXTURE0 + minecraftTitleTexture.getSlot());
+        minecraftTitleTexture.bind();
+
+        camera.matrixOrtho(imageShader);
+
+        minecraftTitleMesh.draw();
+
+        minecraftTitleTexture.unbind();
     }
 }
