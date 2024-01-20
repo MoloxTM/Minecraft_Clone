@@ -41,6 +41,7 @@ public class CubemapTexture extends Texture {
             IntBuffer height = MemoryUtil.memAllocInt(1);
             IntBuffer channels = MemoryUtil.memAllocInt(1);
 
+            STBImage.stbi_set_flip_vertically_on_load(true);
             ByteBuffer imageBuffer = STBImage.stbi_load(this.filePaths[i], width, height, channels, 0);
 
             if (imageBuffer == null) {

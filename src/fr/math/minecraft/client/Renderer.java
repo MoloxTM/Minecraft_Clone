@@ -50,9 +50,10 @@ public class Renderer {
         this.defaultSkinTexture = new Texture("res/textures/skin.png", 2);
 
         String[] panoramas = new String[6];
+        int[] index = new int[]{ 1, 3, 5, 4, 0, 2 };
 
-        for (int i = 0; i < panoramas.length; i++) {
-            panoramas[i] = "res/textures/gui/title/panorama_" + i + ".png";
+        for (int i = 0; i < index.length; i++) {
+            panoramas[i] = "res/textures/gui/title/panorama_" + index[i] + ".png";
         }
 
         this.panoramaTexture = new CubemapTexture(panoramas, 3);
