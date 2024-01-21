@@ -151,7 +151,7 @@ public class Renderer {
 
         fontManager.addText(fontMesh, player.getName(), 0, 0, 0, 1.0f, 0xFFFFFF, true);
 
-        fontMesh.flush();
+        // fontMesh.flush();
 
         texture.unbind();
     }
@@ -219,7 +219,7 @@ public class Renderer {
         float splashOffset = (float) (splasheScale % 0.1) * 100;
         float splashWidth = fontManager.getTextWidth(fontMesh, splash);
         this.renderText(camera, "Minecraft 1.0.0", offset, offset, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
-        this.renderText(camera, "Copyright Me and the hoes.", GameConfiguration.WINDOW_WIDTH - fontManager.getTextWidth(fontMesh, "Copyright Me and the hoes.") - offset - 100, offset + 200, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE, 10.0f, new Vector3i(0, 0, 1));
+        this.renderText(camera, "Copyright Me and the hoes.", GameConfiguration.WINDOW_WIDTH - fontManager.getTextWidth(fontMesh, "Copyright Me and the hoes.") - offset, offset, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE, 0.0f, new Vector3i(0, 0, 1));
         this.renderText(camera, splash, (float)((GameConfiguration.WINDOW_WIDTH * 0.7) - (splashWidth / 2.0f) - splashOffset), (float) (GameConfiguration.WINDOW_HEIGHT - (GameConfiguration.WINDOW_HEIGHT* 0.25)), -10.0f, 0xFFFF00, splasheScale, 10.0f, new Vector3i(0, 0, 1));
         this.renderImage(camera);
     }
