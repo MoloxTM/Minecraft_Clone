@@ -2,13 +2,13 @@ package fr.math.minecraft.client;
 
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.fonts.CFont;
+import fr.math.minecraft.client.gui.BlockButton;
 import fr.math.minecraft.client.manager.FontManager;
 import fr.math.minecraft.client.meshs.*;
 import fr.math.minecraft.client.packet.SkinRequestPacket;
 import fr.math.minecraft.client.texture.CubemapTexture;
 import fr.math.minecraft.client.texture.Texture;
 import fr.math.minecraft.client.world.Chunk;
-import org.joml.Matrix4f;
 
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
@@ -21,6 +21,7 @@ public class Renderer {
     private final PlayerMesh playerMesh;
     private final FontMesh fontMesh;
     private final SkyboxMesh skyboxMesh;
+    private final ButtonMesh buttonMesh;
     private final Shader playerShader;
     private final Shader chunkShader;
     private final Shader fontShader;
@@ -31,6 +32,7 @@ public class Renderer {
     private final Texture terrainTexture;
     private final Texture defaultSkinTexture;
     private final Texture minecraftTitleTexture;
+    private final Texture widgetsTexture;
     private final ImageMesh minecraftTitleMesh;
     private final FontManager fontManager;
     private final CFont font;
@@ -42,6 +44,7 @@ public class Renderer {
         this.font = new CFont(GameConfiguration.FONT_FILE_PATH, GameConfiguration.FONT_SIZE);
         this.fontMesh = new FontMesh(font);
         this.skyboxMesh = new SkyboxMesh();
+        this.buttonMesh = new ButtonMesh();
 
         int titleWidth = (int) (1002 * .5f);
         int titleHeight = (int) (197 * .5f);
@@ -66,6 +69,7 @@ public class Renderer {
         this.terrainTexture = new Texture("res/textures/terrain.png", 1);
         this.defaultSkinTexture = new Texture("res/textures/skin.png", 2);
         this.minecraftTitleTexture = new Texture("res/textures/gui/title/minecraft_title.png", 3);
+        this.widgetsTexture = new Texture("res/textures/gui/widgets.png", 5);
 
         String[] panoramas = new String[6];
         int[] index = new int[]{ 1, 3, 5, 4, 0, 2 };
@@ -81,6 +85,7 @@ public class Renderer {
         this.defaultSkinTexture.load();
         this.minecraftTitleTexture.load();
         this.panoramaTexture.load();
+        this.widgetsTexture.load();
     }
 
     public void render(Camera camera, Player player) {
@@ -173,11 +178,16 @@ public class Renderer {
     }
 
     public void renderText(Camera camera, String text, float x, float y, float z, int rgb) {
-        this.renderString(camera, text, x, y, z, rgb);
-        this.renderString(camera, text, x + 2, y - 2, z, 0x555555);
+        this.renderString(camera, text, x, y, z, 0.0f, rgb);
+        this.renderString(camera, text, x + 2, y - 2, z, 0.0f, 0x555555);
     }
 
-    private void renderString(Camera camera, String text, float x, float y, float z, int rgb) {
+    public void renderText(Camera camera, String text, float x, float y, float z, float rotationAngle, int rgb) {
+        this.renderString(camera, text, x, y, z, rotationAngle, rgb);
+        this.renderString(camera, text, x + 2, y - 2, z, rotationAngle, 0x555555);
+    }
+
+    private void renderString(Camera camera, String text, float x, float y, float z, float rotationAngle, int rgb) {
         Texture texture = font.getTexture();
 
         fontShader.enable();
@@ -185,9 +195,9 @@ public class Renderer {
 
         glActiveTexture(GL_TEXTURE0 + texture.getSlot());
         texture.bind();
-        camera.matrixOrtho(fontShader);
+        camera.matrixOrtho(fontShader, rotationAngle);
 
-        fontManager.addText(fontMesh, text, x, y, z, 0.25f, rgb);
+        fontManager.addText(fontMesh, text, x, y, z, 0.3f, rgb);
 
         fontMesh.flush();
 
@@ -213,9 +223,15 @@ public class Renderer {
         int offset = 5;
 
         this.renderText(camera, "Minecraft 1.0.0", offset, offset, 0xFFFFFF);
-        this.renderText(camera, "Copyright Me and the hoes.", GameConfiguration.WINDOW_WIDTH - fontManager.getTextWidth(fontMesh, "Copyright Me and the hoes.") - offset, offset, 0xFFFFFF);
-        this.renderText(camera, splash, (float)((GameConfiguration.WINDOW_WIDTH * 0.75) - (fontManager.getTextWidth(fontMesh, splash))), (float) (GameConfiguration.WINDOW_HEIGHT - (GameConfiguration.WINDOW_HEIGHT* 0.25)), 0xFFFF00);
+        this.renderText(camera, "Copyright Me and the hoes.", GameConfiguration.WINDOW_WIDTH - fontManager.getTextWidth(fontMesh, 0.3f, "Copyright Me and the hoes.") - offset, offset, 0xFFFFFF);
+        this.renderText(camera, splash, (float)((GameConfiguration.WINDOW_WIDTH * 0.75) - (fontManager.getTextWidth(fontMesh, 0.3f, splash))), (float) (GameConfiguration.WINDOW_HEIGHT - (GameConfiguration.WINDOW_HEIGHT* 0.25)), 0xFFFF00);
         this.renderImage(camera);
+        this.renderButton(
+                camera,
+                "Jouer",
+                (GameConfiguration.WINDOW_WIDTH - ButtonMesh.BUTTON_WIDTH) / 2,
+                (GameConfiguration.WINDOW_HEIGHT - ButtonMesh.BUTTON_HEIGHT) / 2
+        );
     }
 
     public void renderImage(Camera camera) {
@@ -230,5 +246,24 @@ public class Renderer {
         minecraftTitleMesh.draw();
 
         minecraftTitleTexture.unbind();
+    }
+
+    public void renderButton(Camera camera, String text, float x, float y) {
+        imageShader.enable();
+        imageShader.sendInt("uTexture", widgetsTexture.getSlot());
+
+        glActiveTexture(GL_TEXTURE0 + widgetsTexture.getSlot());
+        widgetsTexture.bind();
+
+        camera.matrixOrtho(imageShader, x, y);
+
+        buttonMesh.draw();
+
+        widgetsTexture.unbind();
+
+        int width = fontManager.getTextWidth(fontMesh,.25f, text);
+        float height = fontManager.getTextHeight(fontMesh,.25f, text);
+
+        this.renderText(camera, text, x + (ButtonMesh.BUTTON_WIDTH - width) / 2.0f, y + (ButtonMesh.BUTTON_HEIGHT - height) / 2.0f, -9, 0xFFFFFF, fontMesh);
     }
 }

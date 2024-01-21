@@ -1,6 +1,8 @@
 package fr.math.minecraft.client;
 
 import fr.math.minecraft.client.audio.Sound;
+import fr.math.minecraft.client.audio.Sounds;
+import fr.math.minecraft.client.manager.SoundManager;
 import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.packet.ConnectionInitPacket;
 import fr.math.minecraft.client.packet.PlayersListPacket;
@@ -45,6 +47,7 @@ public class Game {
     private float time;
     private float deltaTime;
     private GameState state;
+    private SoundManager soundManager;
     private final static Logger logger = LoggerUtility.getClientLogger(Game.class, LogType.TXT);
 
     private Game() {
@@ -98,12 +101,14 @@ public class Game {
         this.camera = new Camera(GameConfiguration.WINDOW_WIDTH, GameConfiguration.WINDOW_HEIGHT);
         this.world = new World();
         this.state = GameState.MAIN_MENU;
+        this.soundManager = new SoundManager();
 
-        this.addSound("res/sounds/music/subwoofer_lullaby.ogg", true);
+        for (Sounds sound : Sounds.values()) {
+            soundManager.addSound(sound.getFilePath(), false);
+        }
 
-        for (Sound sound : getAllSounds()) {
+        for (Sound sound : soundManager.getAllSounds()) {
             sound.load();
-            sound.play();
         }
     }
 
@@ -146,36 +151,30 @@ public class Game {
             }
         }
 
+        soundManager.getRandomMusic().play();
 
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.58f, 0.83f, 0.99f, 1);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            if (state == GameState.MAIN_MENU) {
-                renderer.renderMainMenu(camera, splash);
-                player.setYaw(player.getYaw() + .03f);
-                camera.update(player);
-            } else {
 
+            double currentTime = glfwGetTime();
+            double deltaTime = currentTime - lastTime;
 
-                double currentTime = glfwGetTime();
-                double deltaTime = currentTime - lastTime;
+            this.deltaTime = (float) deltaTime;
 
-                this.deltaTime = (float) deltaTime;
+            updateTimer += deltaTime;
 
-                updateTimer += deltaTime;
+            lastTime = currentTime;
 
-                lastTime = currentTime;
-
-                new PlayersListPacket().send();
-
-                while (updateTimer > GameConfiguration.UPDATE_TICK) {
-                    this.update();
-                    updateTimer -= GameConfiguration.UPDATE_TICK;
+            while (updateTimer > GameConfiguration.UPDATE_TICK) {
+                this.update();
+                updateTimer -= GameConfiguration.UPDATE_TICK;
+                if (state == GameState.PLAYING) {
                     player.handleInputs(window);
                 }
-
-                this.render(renderer);
             }
+
+            this.render(renderer);
 
             glfwSwapBuffers(window);
             glfwPollEvents();
@@ -190,6 +189,12 @@ public class Game {
     }
 
     private void update() {
+        if (state == GameState.MAIN_MENU) {
+            player.setYaw(player.getYaw() + .03f);
+            camera.update(player);
+            return;
+        }
+        new PlayersListPacket().send();
         camera.update(player);
         time += 0.01f;
         for (Player player : players.values()) {
@@ -198,6 +203,11 @@ public class Game {
     }
 
     private void render(Renderer renderer) {
+        if (state == GameState.MAIN_MENU) {
+            renderer.renderMainMenu(camera, "Pierre mother love!");
+            return;
+        }
+
         synchronized (world.getChunks()) {
             for (Chunk chunk : world.getChunks().values()) {
 
@@ -269,26 +279,4 @@ public class Game {
         this.state = state;
     }
 
-    public Map<String, Sound> getSounds() {
-        return sounds;
-    }
-
-    public Collection<Sound> getAllSounds() {
-        return sounds.values();
-    }
-
-    public Sound getSound(String soundFile) {
-        File file = new File(soundFile);
-        return sounds.get(file.getAbsolutePath());
-    }
-
-    public void addSound(String filePath, boolean loops) {
-        File file = new File(filePath);
-        if (sounds.containsKey(file.getAbsolutePath()) || !file.exists()) {
-            logger.warn("Impossible d'ajouter le son " + filePath + ", il est déjà enregistré ou le chemin spécifié n'existe pas.");
-            return;
-        }
-        Sound sound = new Sound(filePath, loops);
-        sounds.put(file.getAbsolutePath(), sound);
-    }
 }

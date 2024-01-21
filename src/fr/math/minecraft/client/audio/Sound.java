@@ -20,7 +20,7 @@ public class Sound {
     private final String filePath;
     private boolean playing, loops;
     private final static Logger logger = LoggerUtility.getClientLogger(Sound.class, LogType.TXT);
-    private final static float DEFAULT_VOLUME = 0.3f;
+    private final static float DEFAULT_VOLUME = 1.5f;
 
     public Sound(String filePath, boolean loops) {
         this.filePath = filePath;
@@ -67,6 +67,7 @@ public class Sound {
 
         free(rawAudioBuffer);
 
+        logger.info("Son " + filePath + " chargée avec succès");
     }
 
     public void play() {

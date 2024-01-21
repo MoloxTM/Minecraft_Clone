@@ -123,17 +123,25 @@ public class Camera {
     }
 
     public void matrixOrtho(Shader shader) {
-        this.matrixOrtho(shader, 0.0f);
+        this.matrixOrtho(shader, 0.0f, 0.0f, 0.0f);
     }
 
-    public void matrixOrtho(Shader shader, float rotateAngle) {
+    public void matrixOrtho(Shader shader, float rotationAngle) {
+        this.matrixOrtho(shader, rotationAngle, 0.0f, 0.0f);
+    }
+
+    public void matrixOrtho(Shader shader, float x, float y) {
+        this.matrixOrtho(shader, 0.0f, x, y);
+    }
+
+    public void matrixOrtho(Shader shader, float rotateAngle, float x, float y) {
 
         Matrix4f projection = new Matrix4f();
         Matrix4f model = new Matrix4f();
 
         projection.ortho(0, GameConfiguration.WINDOW_WIDTH, 0, GameConfiguration.WINDOW_HEIGHT, nearPlane ,farPlane);
 
-        model.rotate((float) Math.toRadians(rotateAngle), new Vector3f(1.0f, 0.0f, 0.0f), model);
+        model.translate(x, y, 0).rotate((float) Math.toRadians(rotateAngle), new Vector3f(0.0f, 0.0f, 1.0f), model);
 
         shader.sendMatrix("projection", projection, projectionBuffer);
         shader.sendMatrix("model", model, modelBuffer);
