@@ -1,5 +1,6 @@
 package fr.math.minecraft.client.manager;
 
+import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.client.buffers.VBO;
 import fr.math.minecraft.client.fonts.CharInfo;
 import fr.math.minecraft.client.meshs.FontMesh;
@@ -115,7 +116,7 @@ public class FontManager {
     }
 
     public int getTextWidth(FontMesh fontMesh, String text) {
-        return this.getTextWidth(fontMesh, .25f, text);
+        return this.getTextWidth(fontMesh, GameConfiguration.DEFAULT_SCALE, text);
     }
 
     public int getTextWidth(FontMesh fontMesh, float scale, String text) {
