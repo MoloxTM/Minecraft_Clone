@@ -1,5 +1,6 @@
 package fr.math.minecraft.client;
 
+import fr.math.minecraft.client.audio.Sound;
 import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.packet.ConnectionInitPacket;
 import fr.math.minecraft.client.packet.PlayersListPacket;
@@ -7,25 +8,36 @@ import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.tick.TickHandler;
 import fr.math.minecraft.client.world.Chunk;
 import fr.math.minecraft.client.world.World;
+import fr.math.minecraft.logger.LogType;
+import fr.math.minecraft.logger.LoggerUtility;
+import org.apache.log4j.Logger;
 import org.joml.Vector3f;
+import org.lwjgl.openal.AL;
+import org.lwjgl.openal.ALC;
+import org.lwjgl.openal.ALCCapabilities;
+import org.lwjgl.openal.ALCapabilities;
 import org.lwjgl.opengl.GL;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import static org.lwjgl.openal.ALC10.*;
 import static org.lwjgl.opengl.GL33.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 public class Game {
 
     private long window;
+    private long audioContext, audioDevice;
     private static Game instance = null;
     private MinecraftClient client;
     private Map<String, Player> players;
+    private Map<String, Sound> sounds;
     private Player player;
     private World world;
     private Camera camera;
@@ -33,6 +45,7 @@ public class Game {
     private float time;
     private float deltaTime;
     private GameState state;
+    private final static Logger logger = LoggerUtility.getClientLogger(Game.class, LogType.TXT);
 
     private Game() {
         this.initWindow();
@@ -56,6 +69,20 @@ public class Game {
         }
 
         glfwMakeContextCurrent(window);
+        String defaultDeviceName = alcGetString(0, ALC_DEFAULT_DEVICE_SPECIFIER);
+        audioDevice = alcOpenDevice(defaultDeviceName);
+
+        int[] attributes = {0};
+        audioContext = alcCreateContext(audioDevice, attributes);
+        alcMakeContextCurrent(audioContext);
+
+        ALCCapabilities alcCapabilities = ALC.createCapabilities(audioDevice);
+        ALCapabilities alCapabilities = AL.createCapabilities(alcCapabilities);
+
+        if (!alCapabilities.OpenAL10) {
+            assert false : "Audio library not supported!";
+        }
+
         GL.createCapabilities();
 
         glEnable(GL_DEPTH_TEST);
@@ -65,11 +92,19 @@ public class Game {
 
     public void init() {
         this.client = new MinecraftClient(50000);
+        this.sounds = new HashMap<>();
         this.players = new HashMap<>();
         this.updateTimer = 0.0f;
         this.camera = new Camera(GameConfiguration.WINDOW_WIDTH, GameConfiguration.WINDOW_HEIGHT);
         this.world = new World();
         this.state = GameState.MAIN_MENU;
+
+        this.addSound("res/sounds/music/subwoofer_lullaby.ogg", true);
+
+        for (Sound sound : getAllSounds()) {
+            sound.load();
+            sound.play();
+        }
     }
 
     public void run() {
@@ -146,6 +181,11 @@ public class Game {
             glfwPollEvents();
 
         }
+
+        alcDestroyContext(audioContext);
+        alcCloseDevice(audioDevice);
+        glfwDestroyWindow(window);
+        glfwTerminate();
 
     }
 
@@ -227,5 +267,28 @@ public class Game {
 
     public void setState(GameState state) {
         this.state = state;
+    }
+
+    public Map<String, Sound> getSounds() {
+        return sounds;
+    }
+
+    public Collection<Sound> getAllSounds() {
+        return sounds.values();
+    }
+
+    public Sound getSound(String soundFile) {
+        File file = new File(soundFile);
+        return sounds.get(file.getAbsolutePath());
+    }
+
+    public void addSound(String filePath, boolean loops) {
+        File file = new File(filePath);
+        if (sounds.containsKey(file.getAbsolutePath()) || !file.exists()) {
+            logger.warn("Impossible d'ajouter le son " + filePath + ", il est déjà enregistré ou le chemin spécifié n'existe pas.");
+            return;
+        }
+        Sound sound = new Sound(filePath, loops);
+        sounds.put(file.getAbsolutePath(), sound);
     }
 }
