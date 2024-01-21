@@ -6,10 +6,10 @@ layout (location = 2) in vec2 aTexture;
 
 mat4 rotateX(float angle) {
     return mat4(
-    cos(angle),  0, sin(angle), 0,
-    0,           1, 0,          0,
-    -sin(angle), 0, cos(angle), 0,
-    0,           0, 0,          1
+        cos(angle),  0, sin(angle), 0,
+        0,           1, 0,          0,
+        -sin(angle), 0, cos(angle), 0,
+        0,           0, 0,          1
     );
 }
 
