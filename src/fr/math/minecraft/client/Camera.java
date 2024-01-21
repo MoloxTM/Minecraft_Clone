@@ -146,14 +146,14 @@ public class Camera {
 
         Matrix4f projection = new Matrix4f();
         Matrix4f model = new Matrix4f();
-        Vector3f pivot = new Vector3f(x + (fontManager.getTextWidth(fontMesh, text)), y + fontManager.getTextHeight(fontMesh, GameConfiguration.DEFAULT_SCALE, text), 0);
+        Vector3f pivot = new Vector3f(x + (fontManager.getTextWidth(fontMesh, text) / 2.0f), y - fontManager.getTextHeight(fontMesh, GameConfiguration.DEFAULT_SCALE, text), 0);
 
         projection.ortho(0, GameConfiguration.WINDOW_WIDTH, 0, GameConfiguration.WINDOW_HEIGHT, nearPlane ,farPlane);
 
         if(rotateAngle != 0) {
-            model.translate(-fontManager.getTextWidth(fontMesh, text)/2.0f, -fontManager.getTextHeight(fontMesh, GameConfiguration.DEFAULT_SCALE, text)/2.0f, -pivot.z);
+            model.translate(pivot.x, pivot.y, pivot.z);
             model.rotate((float) Math.toRadians(rotateAngle), normal);
-            model.translate(fontManager.getTextWidth(fontMesh, text)/2.0f, fontManager.getTextHeight(fontMesh, GameConfiguration.DEFAULT_SCALE, text)/2.0f, pivot.z);
+            model.translate(-pivot.x, -pivot.y, -pivot.z);
         }
 
         shader.sendMatrix("projection", projection, projectionBuffer);

@@ -49,6 +49,7 @@ public class Game {
     private final static Logger logger = LoggerUtility.getClientLogger(Game.class, LogType.TXT);
     private float splasheScale = GameConfiguration.DEFAULT_SCALE;
     private int scaleFactor = 1;
+    private String splash;
 
     private Game() {
         this.initWindow();
@@ -143,7 +144,7 @@ public class Game {
                 reader = new BufferedReader(new FileReader(GameConfiguration.SPLASHES_FILE_PATH));
                 Random r = new Random();
                 int randomLine = r.nextInt(0, lines);
-                splash = Files.readAllLines(Paths.get(GameConfiguration.SPLASHES_FILE_PATH)).get(randomLine);
+                this.splash = Files.readAllLines(Paths.get(GameConfiguration.SPLASHES_FILE_PATH)).get(randomLine);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -151,39 +152,27 @@ public class Game {
 
 
         while (!glfwWindowShouldClose(window)) {
-
-            if(splasheScale >= 1.1f*GameConfiguration.DEFAULT_SCALE) scaleFactor = -1;
-            if(splasheScale <= GameConfiguration.DEFAULT_SCALE) scaleFactor = 1;
-
             glClearColor(0.58f, 0.83f, 0.99f, 1);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            if (state == GameState.MAIN_MENU) {
-                splasheScale += (scaleFactor*0.0005);
-                renderer.renderMainMenu(camera, splash, splasheScale);
-                player.setYaw(player.getYaw() + .03f);
-                camera.update(player);
-            } else {
 
+            double currentTime = glfwGetTime();
+            double deltaTime = currentTime - lastTime;
 
-                double currentTime = glfwGetTime();
-                double deltaTime = currentTime - lastTime;
+            this.deltaTime = (float) deltaTime;
 
-                this.deltaTime = (float) deltaTime;
+            updateTimer += deltaTime;
 
-                updateTimer += deltaTime;
+            lastTime = currentTime;
 
-                lastTime = currentTime;
-
-                new PlayersListPacket().send();
-
-                while (updateTimer > GameConfiguration.UPDATE_TICK) {
-                    this.update();
-                    updateTimer -= GameConfiguration.UPDATE_TICK;
+            while (updateTimer > GameConfiguration.UPDATE_TICK) {
+                this.update();
+                updateTimer -= GameConfiguration.UPDATE_TICK;
+                if (state == GameState.PLAYING) {
                     player.handleInputs(window);
                 }
-
-                this.render(renderer);
             }
+
+            this.render(renderer);
 
             glfwSwapBuffers(window);
             glfwPollEvents();
@@ -198,6 +187,15 @@ public class Game {
     }
 
     private void update() {
+        if (state == GameState.MAIN_MENU) {
+            if (splasheScale >= 1.1f * GameConfiguration.DEFAULT_SCALE) scaleFactor = -1;
+            if (splasheScale <= GameConfiguration.DEFAULT_SCALE) scaleFactor = 1;
+            splasheScale += (scaleFactor*0.0005);
+            player.setYaw(player.getYaw() + .03f);
+            camera.update(player);
+            return;
+        }
+        new PlayersListPacket().send();
         camera.update(player);
         time += 0.01f;
         for (Player player : players.values()) {
@@ -206,6 +204,10 @@ public class Game {
     }
 
     private void render(Renderer renderer) {
+        if (state == GameState.MAIN_MENU) {
+            renderer.renderMainMenu(camera, splash, splasheScale);
+            return;
+        }
         synchronized (world.getChunks()) {
             for (Chunk chunk : world.getChunks().values()) {
 

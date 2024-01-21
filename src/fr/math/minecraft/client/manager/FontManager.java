@@ -22,6 +22,7 @@ public class FontManager {
     }
 
     public void addCharacter(FontMesh fontMesh, float x, float y, float z, float scale, CharInfo charInfo, int rgb, boolean onWorld) {
+
         if (fontMesh.getSize() >= FontMesh.BATCH_SIZE - 4) {
             fontMesh.flush();
         }
