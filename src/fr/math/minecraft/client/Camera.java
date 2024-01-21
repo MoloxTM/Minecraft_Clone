@@ -2,6 +2,8 @@ package fr.math.minecraft.client;
 
 import fr.math.minecraft.client.animations.Animation;
 import fr.math.minecraft.client.entity.Player;
+import fr.math.minecraft.client.manager.FontManager;
+import fr.math.minecraft.client.meshs.FontMesh;
 import fr.math.minecraft.client.world.Chunk;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -123,17 +125,36 @@ public class Camera {
     }
 
     public void matrixOrtho(Shader shader) {
-        this.matrixOrtho(shader, 0.0f);
+        this.matrixOrtho(shader, 0.0f, 0.0f, 0.0f, 0.0f);
     }
 
-    public void matrixOrtho(Shader shader, float rotateAngle) {
+    public void matrixOrtho(Shader shader, float rotateAngle, float x, float y, float z) {
 
         Matrix4f projection = new Matrix4f();
         Matrix4f model = new Matrix4f();
 
         projection.ortho(0, GameConfiguration.WINDOW_WIDTH, 0, GameConfiguration.WINDOW_HEIGHT, nearPlane ,farPlane);
 
-        model.rotate((float) Math.toRadians(rotateAngle), new Vector3f(1.0f, 0.0f, 0.0f), model);
+        model.rotate((float) Math.toRadians(rotateAngle), new Vector3f(x, y, z));
+
+        shader.sendMatrix("projection", projection, projectionBuffer);
+        shader.sendMatrix("model", model, modelBuffer);
+    }
+    public void matrixOrtho(Shader shader, float rotateAngle, float x, float y, float z, String text, FontMesh fontMesh, Vector3f normal) {
+
+        FontManager fontManager = new FontManager();
+
+        Matrix4f projection = new Matrix4f();
+        Matrix4f model = new Matrix4f();
+        Vector3f pivot = new Vector3f(x + (fontManager.getTextWidth(fontMesh, text)), y + fontManager.getTextHeight(fontMesh, GameConfiguration.DEFAULT_SCALE, text), 0);
+
+        projection.ortho(0, GameConfiguration.WINDOW_WIDTH, 0, GameConfiguration.WINDOW_HEIGHT, nearPlane ,farPlane);
+
+        if(rotateAngle != 0) {
+            model.translate(-fontManager.getTextWidth(fontMesh, text)/2.0f, -fontManager.getTextHeight(fontMesh, GameConfiguration.DEFAULT_SCALE, text)/2.0f, -pivot.z);
+            model.rotate((float) Math.toRadians(rotateAngle), normal);
+            model.translate(fontManager.getTextWidth(fontMesh, text)/2.0f, fontManager.getTextHeight(fontMesh, GameConfiguration.DEFAULT_SCALE, text)/2.0f, pivot.z);
+        }
 
         shader.sendMatrix("projection", projection, projectionBuffer);
         shader.sendMatrix("model", model, modelBuffer);

@@ -12,6 +12,7 @@ import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.ALC;
 import org.lwjgl.openal.ALCCapabilities;
@@ -46,6 +47,8 @@ public class Game {
     private float deltaTime;
     private GameState state;
     private final static Logger logger = LoggerUtility.getClientLogger(Game.class, LogType.TXT);
+    private float splasheScale = GameConfiguration.DEFAULT_SCALE;
+    private int scaleFactor = 1;
 
     private Game() {
         this.initWindow();
@@ -148,10 +151,15 @@ public class Game {
 
 
         while (!glfwWindowShouldClose(window)) {
+
+            if(splasheScale >= 1.1f*GameConfiguration.DEFAULT_SCALE) scaleFactor = -1;
+            if(splasheScale <= GameConfiguration.DEFAULT_SCALE) scaleFactor = 1;
+
             glClearColor(0.58f, 0.83f, 0.99f, 1);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             if (state == GameState.MAIN_MENU) {
-                renderer.renderMainMenu(camera, splash);
+                splasheScale += (scaleFactor*0.0005);
+                renderer.renderMainMenu(camera, splash, splasheScale);
                 player.setYaw(player.getYaw() + .03f);
                 camera.update(player);
             } else {
@@ -215,7 +223,7 @@ public class Game {
             renderer.render(camera, player);
         }
 
-        renderer.renderText(camera, "Hello, World!", 200, 200, 0xFFFFFF);
+        renderer.renderText(camera, "Hello, World!", 200, 200, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE, 0.0f, new Vector3i(0, 0, 0));
     }
 
     public static Game getInstance() {

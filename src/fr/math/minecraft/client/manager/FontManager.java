@@ -127,4 +127,16 @@ public class FontManager {
         return width;
     }
 
+    public float getTextHeight(FontMesh fontMesh, float scale, String text) {
+        float height = 0.0f;
+        for (int i = 0; i < text.length(); i++) {
+            char character = text.charAt(i);
+            CharInfo charInfo = fontMesh.getFont().getCharacter(character);
+            height = Math.max(charInfo.getWidth() * scale, height);
+        }
+
+        return height;
+    }
+
+
 }

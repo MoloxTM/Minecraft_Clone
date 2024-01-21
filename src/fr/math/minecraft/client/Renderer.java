@@ -7,8 +7,11 @@ import fr.math.minecraft.client.meshs.*;
 import fr.math.minecraft.client.packet.SkinRequestPacket;
 import fr.math.minecraft.client.texture.CubemapTexture;
 import fr.math.minecraft.client.texture.Texture;
+import fr.math.minecraft.client.vertex.Vertex;
 import fr.math.minecraft.client.world.Chunk;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector3i;
 
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
@@ -168,16 +171,18 @@ public class Renderer {
         terrainTexture.unbind();
     }
 
-    public void renderText(Camera camera, String text, float x, float y, int rgb) {
-        this.renderText(camera, text, x, y, -10, rgb);
+    public void renderText(Camera camera, String text, float x, float y, int rgb, float scale, float rotateAngle, Vector3i normal) {
+        this.renderText(camera, text, x, y, -10, rgb, scale, rotateAngle, normal);
+    }
+    public void renderText(Camera camera, String text, float x, float y, int rgb, float scale) {
+        this.renderText(camera, text, x, y, -10, rgb, scale, 0.0f, new Vector3i(0 , 0, 0));
+    }
+    public void renderText(Camera camera, String text, float x, float y, float z, int rgb, float scale, float rotateAngle, Vector3i normal) {
+        this.renderString(camera, text, x, y, z, rgb, scale, rotateAngle, normal);
+        this.renderString(camera, text, x + 2, y - 2, z, 0x555555, scale, rotateAngle, normal);
     }
 
-    public void renderText(Camera camera, String text, float x, float y, float z, int rgb) {
-        this.renderString(camera, text, x, y, z, rgb);
-        this.renderString(camera, text, x + 2, y - 2, z, 0x555555);
-    }
-
-    private void renderString(Camera camera, String text, float x, float y, float z, int rgb) {
+    private void renderString(Camera camera, String text, float x, float y, float z, int rgb, float scale, float rotateAngle, Vector3i normal) {
         Texture texture = font.getTexture();
 
         fontShader.enable();
@@ -185,16 +190,16 @@ public class Renderer {
 
         glActiveTexture(GL_TEXTURE0 + texture.getSlot());
         texture.bind();
-        camera.matrixOrtho(fontShader);
+        camera.matrixOrtho(fontShader, rotateAngle, x, y, z, text, fontMesh, new Vector3f(normal.x, normal.y, normal.z));
 
-        fontManager.addText(fontMesh, text, x, y, z, 0.25f, rgb);
+        fontManager.addText(fontMesh, text, x, y, z, scale, rgb);
 
         fontMesh.flush();
 
         texture.unbind();
     }
 
-    public void renderMainMenu(Camera camera, String splash) {
+    public void renderMainMenu(Camera camera, String splash, float splasheScale) {
 
         glDepthFunc(GL_LEQUAL);
 
@@ -211,10 +216,11 @@ public class Renderer {
         glDepthFunc(GL_LESS);
 
         int offset = 5;
-
-        this.renderText(camera, "Minecraft 1.0.0", offset, offset, 0xFFFFFF);
-        this.renderText(camera, "Copyright Me and the hoes.", GameConfiguration.WINDOW_WIDTH - fontManager.getTextWidth(fontMesh, "Copyright Me and the hoes.") - offset, offset, 0xFFFFFF);
-        this.renderText(camera, splash, (float)((GameConfiguration.WINDOW_WIDTH * 0.75) - (fontManager.getTextWidth(fontMesh, splash))), (float) (GameConfiguration.WINDOW_HEIGHT - (GameConfiguration.WINDOW_HEIGHT* 0.25)), 0xFFFF00);
+        float splashOffset = (float) (splasheScale % 0.1) * 100;
+        this.renderText(camera, "0", (float)((GameConfiguration.WINDOW_WIDTH * 0.7) - (fontManager.getTextWidth(fontMesh, ".")/2) - splashOffset), (float) (GameConfiguration.WINDOW_HEIGHT - (GameConfiguration.WINDOW_HEIGHT* 0.25)), -9.0f, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE, 0.0f, new Vector3i(0, 0, 0));
+        this.renderText(camera, "Minecraft 1.0.0", offset, offset, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE, 0.0f, new Vector3i(0, 0, 0));
+        this.renderText(camera, "Copyright Me and the hoes.", GameConfiguration.WINDOW_WIDTH - fontManager.getTextWidth(fontMesh, "Copyright Me and the hoes.") - offset, offset, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE, 0.0f, new Vector3i(0, 0, 0));
+        this.renderText(camera, splash, (float)((GameConfiguration.WINDOW_WIDTH * 0.7) - (fontManager.getTextWidth(fontMesh, splash)/2) - splashOffset), (float) (GameConfiguration.WINDOW_HEIGHT - (GameConfiguration.WINDOW_HEIGHT* 0.25)), -9.0f, 0xFFFF00, splasheScale, 10.0f, new Vector3i(0, 0, 1));
         this.renderImage(camera);
     }
 
