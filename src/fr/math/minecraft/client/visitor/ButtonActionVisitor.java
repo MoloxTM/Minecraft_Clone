@@ -5,7 +5,9 @@ import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.GameState;
 import fr.math.minecraft.client.audio.Sounds;
 import fr.math.minecraft.client.entity.Player;
+import fr.math.minecraft.client.gui.buttons.BackToTitleButton;
 import fr.math.minecraft.client.gui.buttons.PlayButton;
+import fr.math.minecraft.client.gui.menus.ConnectionMenu;
 import fr.math.minecraft.client.gui.menus.MainMenu;
 import fr.math.minecraft.client.manager.MenuManager;
 import fr.math.minecraft.client.manager.SoundManager;
@@ -21,24 +23,32 @@ public class ButtonActionVisitor implements ButtonVisitor<Void> {
 
         Game game = Game.getInstance();
         Player player = game.getPlayer();
-        Camera camera = game.getCamera();
         SoundManager soundManager = game.getSoundManager();
         MenuManager menuManager = game.getMenuManager();
 
-        game.setState(GameState.PLAYING);
-        soundManager.play(Sounds.CLICK);
 
-        player.setYaw(0.0f);
-        camera.update(player);
+        soundManager.play(Sounds.CLICK);
+        menuManager.open(ConnectionMenu.class);
+
+        ConnectionMenu menu = (ConnectionMenu) menuManager.getOpenedMenu();
+        menu.getTitle().setText("Connexion en cours...");
 
         ConnectionInitPacket packet = new ConnectionInitPacket(player);
-        packet.send();
+        packet.start();
 
-        TickHandler tickHandler = new TickHandler();
-        tickHandler.start();
+        return null;
+    }
 
-        menuManager.close(MainMenu.class);
-        glfwSetInputMode(game.getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    @Override
+    public Void visit(BackToTitleButton button) {
+
+        Game game = Game.getInstance();
+        MenuManager menuManager = game.getMenuManager();
+        SoundManager soundManager = game.getSoundManager();
+
+        game.setState(GameState.MAIN_MENU);
+        soundManager.play(Sounds.CLICK);
+        menuManager.open(MainMenu.class);
 
         return null;
     }

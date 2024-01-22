@@ -1,5 +1,7 @@
-package fr.math.minecraft.client.fonts;
+package fr.math.minecraft.client.builder;
 
+import fr.math.minecraft.client.fonts.CFont;
+import fr.math.minecraft.client.fonts.CharInfo;
 import fr.math.minecraft.client.texture.Texture;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;

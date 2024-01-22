@@ -39,7 +39,6 @@ public class ClientMain {
         BufferedImage skin = loadSkin(skinPath);
         game.setPlayer(new Player(args[1]));
         game.getPlayer().setSkin(skin);
-        System.out.println("le jeu se lance");
         game.run();
     }
 

@@ -4,8 +4,8 @@ import fr.math.minecraft.client.GameConfiguration;
 
 public class GuiText {
 
-    private final String text;
-    private final int rgb;
+    private String text;
+    private int rgb;
     private float x, y, z, rotateAngle, scale;
 
     public GuiText(String text, float x, float y, int rgb) {
@@ -28,6 +28,10 @@ public class GuiText {
 
     public String getText() {
         return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
     }
 
     public float getX() {
@@ -59,6 +63,30 @@ public class GuiText {
     }
 
     public void scale(float scale) {
+        this.scale = scale;
+    }
+
+    public void setRgb(int rgb) {
+        this.rgb = rgb;
+    }
+
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    public void setY(float y) {
+        this.y = y;
+    }
+
+    public void setZ(float z) {
+        this.z = z;
+    }
+
+    public void setRotateAngle(float rotateAngle) {
+        this.rotateAngle = rotateAngle;
+    }
+
+    public void setScale(float scale) {
         this.scale = scale;
     }
 }

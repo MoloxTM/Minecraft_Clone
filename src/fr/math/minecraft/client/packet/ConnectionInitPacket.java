@@ -3,9 +3,15 @@ package fr.math.minecraft.client.packet;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.math.minecraft.client.Camera;
 import fr.math.minecraft.client.Game;
+import fr.math.minecraft.client.GameState;
 import fr.math.minecraft.client.MinecraftClient;
 import fr.math.minecraft.client.entity.Player;
+import fr.math.minecraft.client.gui.menus.ConnectionMenu;
+import fr.math.minecraft.client.gui.menus.Menu;
+import fr.math.minecraft.client.manager.MenuManager;
+import fr.math.minecraft.client.tick.TickHandler;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
@@ -16,7 +22,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Base64;
 
-public class ConnectionInitPacket implements ClientPacket {
+import static org.lwjgl.glfw.GLFW.*;
+
+public class ConnectionInitPacket extends Thread implements ClientPacket {
 
     private final ObjectMapper mapper;
     private final Player player;
@@ -28,6 +36,36 @@ public class ConnectionInitPacket implements ClientPacket {
         this.player = player;
         this.logger = LoggerUtility.getClientLogger(ConnectionInitPacket.class, LogType.TXT);
     }
+
+    @Override
+    public void run() {
+
+        Game game = Game.getInstance();
+        Camera camera = game.getCamera();
+        MenuManager menuManager = game.getMenuManager();
+
+        try {
+            this.send();
+
+            menuManager.close(ConnectionMenu.class);
+            glfwSetInputMode(game.getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            game.setState(GameState.PLAYING);
+
+            player.setYaw(0.0f);
+            camera.update(player);
+
+            TickHandler tickHandler = new TickHandler();
+            tickHandler.start();
+        } catch (RuntimeException e) {
+            Menu menu = menuManager.getOpenedMenu();
+
+            if (menu instanceof ConnectionMenu) {
+                ConnectionMenu connectionMenu = (ConnectionMenu) menu;
+                connectionMenu.getTitle().setText("Impossible de se connecter au serveur (timeout)");
+            }
+        }
+    }
+
     @Override
     public void send() {
         MinecraftClient client = Game.getInstance().getClient();
@@ -49,6 +87,7 @@ public class ConnectionInitPacket implements ClientPacket {
 
             player.setUuid(id.substring(0, 36));
             logger.info("Connection initié, ID offert : " + player.getUuid());
+
         } catch (IOException e) {
             logger.error(e.getMessage());
         }

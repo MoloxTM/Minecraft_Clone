@@ -3,6 +3,7 @@ package fr.math.minecraft.client;
 import fr.math.minecraft.client.audio.Sound;
 import fr.math.minecraft.client.audio.Sounds;
 import fr.math.minecraft.client.gui.buttons.BlockButton;
+import fr.math.minecraft.client.gui.menus.ConnectionMenu;
 import fr.math.minecraft.client.gui.menus.MainMenu;
 import fr.math.minecraft.client.gui.menus.Menu;
 import fr.math.minecraft.client.manager.MenuManager;
@@ -130,8 +131,10 @@ public class Game {
         }
 
         Menu mainMenu = new MainMenu(this);
+        Menu connectionMenu = new ConnectionMenu(this);
 
         menuManager.registerMenu(mainMenu);
+        menuManager.registerMenu(connectionMenu);
     }
 
     private void loadSplashText() {

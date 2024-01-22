@@ -1,5 +1,6 @@
 package fr.math.minecraft.client.fonts;
 
+import fr.math.minecraft.client.builder.BitmapBuilder;
 import fr.math.minecraft.client.texture.Texture;
 
 import java.util.Map;

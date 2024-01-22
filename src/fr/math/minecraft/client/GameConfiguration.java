@@ -14,5 +14,6 @@ public class GameConfiguration {
     public final static int CHUNK_RENDER_DISTANCE = 6;
     public final static String SPLASHES_FILE_PATH = "res/splashes.txt";
     public final static float DEFAULT_SCALE = 0.28f;
+    public final static float MENU_TITLE_SCALE = 0.3f;
 
 }

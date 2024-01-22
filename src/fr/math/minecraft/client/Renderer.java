@@ -1,7 +1,9 @@
 package fr.math.minecraft.client;
 
+import fr.math.minecraft.client.builder.TextureBuilder;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.fonts.CFont;
+import fr.math.minecraft.client.gui.buttons.BackToTitleButton;
 import fr.math.minecraft.client.gui.buttons.BlockButton;
 import fr.math.minecraft.client.gui.GuiText;
 import fr.math.minecraft.client.gui.menus.MainMenu;
@@ -39,7 +41,9 @@ public class Renderer {
     private final Texture defaultSkinTexture;
     private final Texture minecraftTitleTexture;
     private final Texture widgetsTexture;
+    private final Texture dirtTexture;
     private final ImageMesh minecraftTitleMesh;
+    private final ImageMesh screenMesh;
     private final FontManager fontManager;
     private final CFont font;
     private final Map<String, Texture> skinsMap;
@@ -51,9 +55,18 @@ public class Renderer {
         this.font = new CFont(GameConfiguration.FONT_FILE_PATH, GameConfiguration.FONT_SIZE);
         this.fontMesh = new FontMesh(font);
         this.skyboxMesh = new SkyboxMesh();
+
         for (int i = 0; i < 256; i++) {
             emptyText += " ";
         }
+
+        String[] panoramas = new String[6];
+        int[] index = new int[]{ 1, 3, 5, 4, 0, 2 };
+
+        for (int i = 0; i < index.length; i++) {
+            panoramas[i] = "res/textures/gui/title/panorama_" + index[i] + ".png";
+        }
+
         this.buttonMesh = new ButtonMesh();
 
         int titleWidth = (int) (1002 * .5f);
@@ -62,9 +75,10 @@ public class Renderer {
         this.minecraftTitleMesh = new ImageMesh(
                 titleWidth,
                 titleHeight,
-                (int) (GameConfiguration.WINDOW_WIDTH - 1002 * .5f) / 2,
-                (int) (GameConfiguration.WINDOW_HEIGHT - 197 * .5f - 100)
+                GameConfiguration.WINDOW_CENTER_X - titleWidth * .5f ,
+                GameConfiguration.WINDOW_HEIGHT - titleHeight * .5f - 150
         );
+        this.screenMesh = new ImageMesh(GameConfiguration.WINDOW_WIDTH, GameConfiguration.WINDOW_HEIGHT, 0, 0);
 
         this.fontManager = new FontManager();
 
@@ -79,16 +93,10 @@ public class Renderer {
         this.terrainTexture = new Texture("res/textures/terrain.png", 1);
         this.defaultSkinTexture = new Texture("res/textures/skin.png", 2);
         this.minecraftTitleTexture = new Texture("res/textures/gui/title/minecraft_title.png", 3);
-        this.widgetsTexture = new Texture("res/textures/gui/widgets.png", 5);
-
-        String[] panoramas = new String[6];
-        int[] index = new int[]{ 1, 3, 5, 4, 0, 2 };
-
-        for (int i = 0; i < index.length; i++) {
-            panoramas[i] = "res/textures/gui/title/panorama_" + index[i] + ".png";
-        }
-
         this.panoramaTexture = new CubemapTexture(panoramas, 4);
+        this.widgetsTexture = new Texture("res/textures/gui/widgets.png", 5);
+        this.dirtTexture = new TextureBuilder().buildDirtBackgroundTexture();
+
         this.skinsMap = new HashMap<>();
 
         this.terrainTexture.load();
@@ -96,6 +104,7 @@ public class Renderer {
         this.minecraftTitleTexture.load();
         this.panoramaTexture.load();
         this.widgetsTexture.load();
+        this.dirtTexture.load();
     }
 
     public void render(Camera camera, Player player) {
@@ -163,7 +172,7 @@ public class Renderer {
 
         fontManager.addText(fontMesh, player.getName(), 0, 0, 0, 1.0f, 0xFFFFFF, true);
 
-        // fontMesh.flush();
+        fontMesh.flush();
 
         texture.unbind();
     }
@@ -238,6 +247,7 @@ public class Renderer {
 
     public void renderImage(Camera camera, ImageMesh imageMesh, Texture texture) {
         imageShader.enable();
+        imageShader.sendFloat("depth", -10);
         imageShader.sendInt("uTexture", texture.getSlot());
 
         glActiveTexture(GL_TEXTURE0 + texture.getSlot());
@@ -253,6 +263,7 @@ public class Renderer {
     public void renderButton(Camera camera, BlockButton button) {
         imageShader.enable();
         imageShader.sendInt("uTexture", widgetsTexture.getSlot());
+        imageShader.sendFloat("depth", button.getZ());
 
         glActiveTexture(GL_TEXTURE0 + widgetsTexture.getSlot());
         widgetsTexture.bind();
@@ -272,10 +283,10 @@ public class Renderer {
 
         widgetsTexture.unbind();
 
-        float width = fontManager.getTextWidth(fontMesh,.25f, button.getText());
-        float height = fontManager.getTextHeight(fontMesh,.25f, button.getText());
+        float width = fontManager.getTextWidth(fontMesh,GameConfiguration.DEFAULT_SCALE, button.getText());
+        float height = fontManager.getTextHeight(fontMesh,GameConfiguration.DEFAULT_SCALE, button.getText());
 
-        this.renderText(camera, button.getText(), button.getX() + (ButtonMesh.BUTTON_WIDTH - width) / 2.0f, button.getY() + (ButtonMesh.BUTTON_HEIGHT - height) / 2.0f, -9, textColor, GameConfiguration.DEFAULT_SCALE);
+        this.renderText(camera, button.getText(), button.getX() + (ButtonMesh.BUTTON_WIDTH - width) / 2.0f, button.getY() + (ButtonMesh.BUTTON_HEIGHT - height) / 2.0f, button.getZ() + 1, textColor, GameConfiguration.DEFAULT_SCALE);
     }
 
     public FontMesh getFontMesh() {
@@ -286,28 +297,55 @@ public class Renderer {
 
         if (menu.getBackgroundType() == MenuBackgroundType.SKYBOX_BACKGROUND) {
             this.renderSkybox(camera);
+        } else {
+            this.renderDirtBackground(camera);
         }
 
         if (menu instanceof MainMenu) {
             this.renderImage(camera, minecraftTitleMesh, minecraftTitleTexture);
         }
 
+        GuiText menuTitle = menu.getTitle();
+
+        if (menuTitle != null) {
+            String title = menuTitle.getText();
+            float titleWidth = fontManager.getTextWidth(fontMesh, GameConfiguration.MENU_TITLE_SCALE, title);
+            // float titleHeight = fontManager.getTextHeight(fontMesh, GameConfiguration.MENU_TITLE_SCALE, title);
+            float titleX = GameConfiguration.WINDOW_CENTER_X - titleWidth / 2.0f;
+            this.renderText(camera, menu.getTitle().getText(), titleX, menu.getTitle().getY(), -8, 0xFFFFFF, menu.getTitle().getScale());
+        }
+
         for (GuiText text : menu.getTexts()) {
             this.renderText(
-                    camera,
-                    text.getText(),
-                    text.getX(),
-                    text.getY(),
-                    text.getZ(),
-                    text.getRgb(),
-                    text.getScale(),
-                    text.getRotateAngle(),
-                    new Vector3i(0, 0, 1)
+                camera,
+                text.getText(),
+                text.getX(),
+                text.getY(),
+                text.getZ(),
+                text.getRgb(),
+                text.getScale(),
+                text.getRotateAngle(),
+                new Vector3i(0, 0, 1)
             );
         }
 
         for (BlockButton button : menu.getButtons()) {
             this.renderButton(camera, button);
         }
+    }
+
+    private void renderDirtBackground(Camera camera) {
+
+        imageShader.enable();
+        imageShader.sendInt("uTexture", dirtTexture.getSlot());
+        imageShader.sendFloat("depth", -10);
+
+        glActiveTexture(GL_TEXTURE0 + dirtTexture.getSlot());
+        dirtTexture.bind();
+
+        camera.matrixOrtho(imageShader, 0, 0);
+        screenMesh.draw();
+
+        dirtTexture.unbind();
     }
 }

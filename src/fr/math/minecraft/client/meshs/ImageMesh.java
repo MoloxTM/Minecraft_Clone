@@ -11,14 +11,14 @@ public class ImageMesh extends Mesh {
 
     private final float[] vertices;
 
-    public ImageMesh(int width, int height, int x, int y) {
+    public ImageMesh(float width, float height, float x, float y) {
         this(width, height, x, y, 1.0f);
     }
 
-    public ImageMesh(int width, int height, int x, int y, float scale) {
+    public ImageMesh(float width, float height, float x, float y, float scale) {
 
-        width = (int) (width * scale);
-        height = (int) (height * scale);
+        width = width * scale;
+        height = height * scale;
 
         this.vertices = new float[] {
             // x, y, u, v (u = texcoords.x, v = texcoords.y)

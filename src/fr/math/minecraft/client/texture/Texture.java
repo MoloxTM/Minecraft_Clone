@@ -88,7 +88,7 @@ public class Texture {
 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width.get(), height.get(), 0, GL_RGBA, GL_UNSIGNED_BYTE, imageBuffer);
 
-        logger.info("Chargement de la texture + " + imagePath + " effectuée avec succès.");
+        logger.info("Chargement de la texture " + imagePath + " effectuée avec succès.");
         STBImage.stbi_image_free(imageBuffer);
 
         MemoryUtil.memFree(width);

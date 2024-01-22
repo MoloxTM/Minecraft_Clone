@@ -7,8 +7,9 @@ out vec2 textureCoords;
 
 uniform mat4 projection;
 uniform mat4 model;
+uniform float depth;
 
 void main() {
-    gl_Position = projection * model * vec4(aPosition, -10.0, 1.0);
+    gl_Position = projection * model * vec4(aPosition, depth, 1.0);
     textureCoords = aTexture;
 }
