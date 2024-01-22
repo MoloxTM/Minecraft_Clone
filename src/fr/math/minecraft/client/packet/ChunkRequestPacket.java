@@ -3,12 +3,12 @@ package fr.math.minecraft.client.packet;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.MinecraftClient;
-import fr.math.minecraft.client.entity.Player;
-import fr.math.minecraft.client.world.Chunk;
+import fr.math.minecraft.logger.LogType;
+import fr.math.minecraft.logger.LoggerUtility;
+import org.apache.log4j.Logger;
 import org.joml.Vector3f;
 
 import java.io.IOException;
@@ -18,6 +18,8 @@ public class ChunkRequestPacket implements  ClientPacket{
     private final ObjectMapper mapper;
     private final Vector3f coordinates;
     private JsonNode chunkData;
+    private final static Logger logger = LoggerUtility.getClientLogger(ChunkRequestPacket.class, LogType.TXT);
+
 
     public ChunkRequestPacket(Vector3f coordinates) {
         this.mapper = new ObjectMapper();
@@ -36,7 +38,12 @@ public class ChunkRequestPacket implements  ClientPacket{
         try {
             String response = client.sendString(message);
 
-            if (response.equals("UNAUTHORIZED_PACKET") || response.equals("CHUNK_UNKNOWN") || response.equals("TIMEOUT_REACHED")) {
+            if (response.equals("CHUNK_UNKNOWN")) {
+                return;
+            }
+
+            if (response.equals("TIMEOUT_REACHED")) {
+                logger.error("Impossible d'envoyer le packet, le serveur a mis trop de temps à répondre ! (timeout)");
                 return;
             }
 

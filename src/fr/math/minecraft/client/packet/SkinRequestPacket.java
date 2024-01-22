@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.MinecraftClient;
+import fr.math.minecraft.logger.LogType;
+import fr.math.minecraft.logger.LoggerUtility;
+import org.apache.log4j.Logger;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -17,6 +20,7 @@ public class SkinRequestPacket implements ClientPacket {
     private final String uuid;
     private final ObjectMapper mapper;
     private BufferedImage skin;
+    private final static Logger logger = LoggerUtility.getClientLogger(SkinRequestPacket.class, LogType.TXT);
 
     public SkinRequestPacket(String uuid) {
         this.mapper = new ObjectMapper();
@@ -34,7 +38,8 @@ public class SkinRequestPacket implements ClientPacket {
         }
         try {
             String base64Skin = client.sendString(message);
-            if (base64Skin.contains("PLAYER_DOESNT_EXISTS") || base64Skin.contains("ERROR")) {
+            if (base64Skin.contains("PLAYER_DOESNT_EXISTS") || base64Skin.contains("ERROR") || base64Skin.equalsIgnoreCase("TIMEOUT_REACHED")) {
+                logger.error("Impossible d'envoyer le packet, le serveur a mis trop de temps à répondre ! (timeout)");
                 return;
             }
 

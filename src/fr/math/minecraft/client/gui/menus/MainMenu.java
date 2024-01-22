@@ -4,8 +4,9 @@ import fr.math.minecraft.client.Camera;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.client.entity.Player;
-import fr.math.minecraft.client.gui.BlockButton;
+import fr.math.minecraft.client.gui.buttons.BlockButton;
 import fr.math.minecraft.client.gui.GuiText;
+import fr.math.minecraft.client.gui.buttons.PlayButton;
 import fr.math.minecraft.client.manager.FontManager;
 import fr.math.minecraft.client.meshs.ButtonMesh;
 import fr.math.minecraft.client.meshs.FontMesh;
@@ -23,8 +24,6 @@ public class MainMenu extends Menu {
 
     @Override
     public void loadContent() {
-        float centerX = GameConfiguration.WINDOW_WIDTH / 2.0f;
-        float centerY = GameConfiguration.WINDOW_HEIGHT / 2.0f;
 
         FontManager fontManager = new FontManager();
         FontMesh fontMesh = Game.getInstance().getRenderer().getFontMesh();
@@ -32,7 +31,7 @@ public class MainMenu extends Menu {
         float splashOffset = (float) (splashScale % 0.1) * 100;
         float splashWidth = fontManager.getTextWidth(fontMesh, game.getSplashText());
 
-        BlockButton playButton = new BlockButton("Jouer", centerX - ButtonMesh.BUTTON_WIDTH / 2.0f, centerY - ButtonMesh.BUTTON_HEIGHT / 2.0f);
+        BlockButton playButton = new PlayButton();
         GuiText versionText = new GuiText("Minecraft 1.0.0", 5, 5, 0xFFFFFF);
         GuiText copyrightText = new GuiText("Copyright Me and the hoes.", GameConfiguration.WINDOW_WIDTH - fontManager.getTextWidth(fontMesh, "Copyright Me and the hoes.") - 5, 5, 0xFFFFFF);
         this.splashText = new GuiText(game.getSplashText(), (float)((GameConfiguration.WINDOW_WIDTH * 0.7) - (splashWidth / 2.0f) - splashOffset), (float) (GameConfiguration.WINDOW_HEIGHT - (GameConfiguration.WINDOW_HEIGHT* 0.25)), -9, 0xFFFF00);

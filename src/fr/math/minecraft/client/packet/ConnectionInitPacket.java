@@ -43,6 +43,10 @@ public class ConnectionInitPacket implements ClientPacket {
                 throw new RuntimeException("Le joueur " + player.getName() + " est déjà connecté !");
             }
 
+            if (id.equalsIgnoreCase("TIMEOUT_REACHED")) {
+                throw new RuntimeException("Impossible d'envoyer le packet, le serveur a mis trop de temps à répondre ! (timeout)");
+            }
+
             player.setUuid(id.substring(0, 36));
             logger.info("Connection initié, ID offert : " + player.getUuid());
         } catch (IOException e) {

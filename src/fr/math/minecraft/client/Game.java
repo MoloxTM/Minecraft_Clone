@@ -2,32 +2,32 @@ package fr.math.minecraft.client;
 
 import fr.math.minecraft.client.audio.Sound;
 import fr.math.minecraft.client.audio.Sounds;
+import fr.math.minecraft.client.gui.buttons.BlockButton;
 import fr.math.minecraft.client.gui.menus.MainMenu;
 import fr.math.minecraft.client.gui.menus.Menu;
 import fr.math.minecraft.client.manager.MenuManager;
 import fr.math.minecraft.client.manager.SoundManager;
 import fr.math.minecraft.client.meshs.ChunkMesh;
-import fr.math.minecraft.client.packet.ConnectionInitPacket;
 import fr.math.minecraft.client.packet.PlayersListPacket;
 import fr.math.minecraft.client.entity.Player;
-import fr.math.minecraft.client.tick.TickHandler;
 import fr.math.minecraft.client.world.Chunk;
 import fr.math.minecraft.client.world.World;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
-import org.joml.Vector3f;
 import org.joml.Vector3i;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.ALC;
 import org.lwjgl.openal.ALCCapabilities;
 import org.lwjgl.openal.ALCapabilities;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.system.MemoryUtil;
 
 import java.io.*;
+import java.nio.DoubleBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -59,6 +59,7 @@ public class Game {
     private String splash;
     private Renderer renderer;
     private MenuManager menuManager;
+    private DoubleBuffer mouseXBuffer, mouseYBuffer;
 
     private Game() {
         this.initWindow();
@@ -115,6 +116,8 @@ public class Game {
         this.soundManager = new SoundManager();
         this.menuManager = new MenuManager(this);
         this.renderer = new Renderer();
+        this.mouseXBuffer = BufferUtils.createDoubleBuffer(1);
+        this.mouseYBuffer = BufferUtils.createDoubleBuffer(1);
 
         this.loadSplashText();
 
@@ -154,7 +157,7 @@ public class Game {
 
     public void run() {
 
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
         double lastTime = glfwGetTime();
 
@@ -198,6 +201,9 @@ public class Game {
 
         }
 
+        MemoryUtil.memFree(mouseXBuffer);
+        MemoryUtil.memFree(mouseYBuffer);
+
         alcDestroyContext(audioContext);
         alcCloseDevice(audioDevice);
         glfwDestroyWindow(window);
@@ -207,8 +213,16 @@ public class Game {
 
     private void update() {
         for (Menu menu : menus.values()) {
-            if (menu.isOpen()) {
-                menu.update();
+            if (!menu.isOpen()) continue;
+
+            menu.update();
+
+            for (BlockButton button : menu.getButtons()) {
+                glfwGetCursorPos(window, mouseXBuffer, mouseYBuffer);
+                button.handleInputs(window, mouseXBuffer.get(), mouseYBuffer.get());
+
+                mouseXBuffer.rewind();
+                mouseYBuffer.rewind();
             }
         }
         if (state == GameState.MAIN_MENU) {
@@ -249,8 +263,6 @@ public class Game {
         for (Player player : players.values()) {
             renderer.render(camera, player);
         }
-
-        renderer.renderText(camera, "Hello, World!", 200, 200, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE, 0.0f, new Vector3i(0, 0, 0));
     }
 
     public static Game getInstance() {
@@ -314,5 +326,13 @@ public class Game {
 
     public String getSplashText() {
         return splash;
+    }
+
+    public SoundManager getSoundManager() {
+        return soundManager;
+    }
+
+    public MenuManager getMenuManager() {
+        return menuManager;
     }
 }

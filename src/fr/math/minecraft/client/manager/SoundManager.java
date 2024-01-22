@@ -67,4 +67,22 @@ public class SoundManager {
         return this.getSound(sound);
     }
 
+    public void play(Sounds soundName) {
+        Sound sound = this.getSound(soundName);
+        if (sound == null) {
+            logger.warn("Impossible de lire le son " + soundName + " ce son est inconnu de la liste.");
+            return;
+        }
+        sound.play();
+    }
+
+    public void stop(Sounds soundName) {
+        Sound sound = this.getSound(soundName);
+        if (sound == null) {
+            logger.warn("Impossible de stopper le son " + soundName + " ce son est inconnu de la liste.");
+            return;
+        }
+        sound.stop();
+    }
+
 }

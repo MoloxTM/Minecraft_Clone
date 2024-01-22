@@ -2,7 +2,7 @@ package fr.math.minecraft.client;
 
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.fonts.CFont;
-import fr.math.minecraft.client.gui.BlockButton;
+import fr.math.minecraft.client.gui.buttons.BlockButton;
 import fr.math.minecraft.client.gui.GuiText;
 import fr.math.minecraft.client.gui.menus.MainMenu;
 import fr.math.minecraft.client.gui.menus.Menu;
@@ -12,9 +12,7 @@ import fr.math.minecraft.client.meshs.*;
 import fr.math.minecraft.client.packet.SkinRequestPacket;
 import fr.math.minecraft.client.texture.CubemapTexture;
 import fr.math.minecraft.client.texture.Texture;
-import fr.math.minecraft.client.vertex.Vertex;
 import fr.math.minecraft.client.world.Chunk;
-import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
@@ -252,23 +250,32 @@ public class Renderer {
         texture.unbind();
     }
 
-    public void renderButton(Camera camera, String text, float x, float y) {
+    public void renderButton(Camera camera, BlockButton button) {
         imageShader.enable();
         imageShader.sendInt("uTexture", widgetsTexture.getSlot());
 
         glActiveTexture(GL_TEXTURE0 + widgetsTexture.getSlot());
         widgetsTexture.bind();
 
-        camera.matrixOrtho(imageShader, x, y);
+        camera.matrixOrtho(imageShader, button.getX(), button.getY());
+
+        int textColor = 0xFFFFFF;
+
+        if (button.isHovered()) {
+            textColor = 0xFFFF00;
+            buttonMesh.hover();
+        } else {
+            buttonMesh.unhover();
+        }
 
         buttonMesh.draw();
 
         widgetsTexture.unbind();
 
-        int width = fontManager.getTextWidth(fontMesh,.25f, text);
-        float height = fontManager.getTextHeight(fontMesh,.25f, text);
+        float width = fontManager.getTextWidth(fontMesh,.25f, button.getText());
+        float height = fontManager.getTextHeight(fontMesh,.25f, button.getText());
 
-        this.renderText(camera, text, x + (ButtonMesh.BUTTON_WIDTH - width) / 2.0f, y + (ButtonMesh.BUTTON_HEIGHT - height) / 2.0f, -9, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
+        this.renderText(camera, button.getText(), button.getX() + (ButtonMesh.BUTTON_WIDTH - width) / 2.0f, button.getY() + (ButtonMesh.BUTTON_HEIGHT - height) / 2.0f, -9, textColor, GameConfiguration.DEFAULT_SCALE);
     }
 
     public FontMesh getFontMesh() {
@@ -300,7 +307,7 @@ public class Renderer {
         }
 
         for (BlockButton button : menu.getButtons()) {
-            this.renderButton(camera, button.getText(), button.getX(), button.getY());
+            this.renderButton(camera, button);
         }
     }
 }

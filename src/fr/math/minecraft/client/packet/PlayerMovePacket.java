@@ -52,6 +52,11 @@ public class PlayerMovePacket implements ClientPacket {
         try {
             String response = client.sendString(message);
 
+            if (response.equalsIgnoreCase("TIMEOUT_REACHED")) {
+                logger.error("Impossible d'envoyer le packet, le serveur a mis trop de temps à répondre ! (timeout)");
+                return;
+            }
+
             JsonNode positionNode = mapper.readTree(response);
 
             player.getPosition().x = positionNode.get("x").floatValue();

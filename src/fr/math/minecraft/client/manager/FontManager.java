@@ -115,12 +115,12 @@ public class FontManager {
         this.addText(fontMesh, text, x, y, z, scale, rgb, false);
     }
 
-    public int getTextWidth(FontMesh fontMesh, String text) {
+    public float getTextWidth(FontMesh fontMesh, String text) {
         return this.getTextWidth(fontMesh, GameConfiguration.DEFAULT_SCALE, text);
     }
 
-    public int getTextWidth(FontMesh fontMesh, float scale, String text) {
-        int width = 0;
+    public float getTextWidth(FontMesh fontMesh, float scale, String text) {
+        float width = 0;
         for (int i = 0; i < text.length(); i++) {
             char character = text.charAt(i);
             CharInfo charInfo = fontMesh.getFont().getCharacter(character);

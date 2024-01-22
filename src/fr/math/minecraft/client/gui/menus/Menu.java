@@ -1,7 +1,7 @@
 package fr.math.minecraft.client.gui.menus;
 
 import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.gui.BlockButton;
+import fr.math.minecraft.client.gui.buttons.BlockButton;
 import fr.math.minecraft.client.gui.GuiText;
 
 import java.util.ArrayList;
