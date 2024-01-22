@@ -196,6 +196,9 @@ public class Game {
         if (state == GameState.MAIN_MENU) {
             player.setYaw(player.getYaw() + .03f);
             camera.update(player);
+            if (splasheScale >= 1.1f * GameConfiguration.DEFAULT_SCALE) scaleFactor = -1;
+            if (splasheScale <= GameConfiguration.DEFAULT_SCALE) scaleFactor = 1;
+            splasheScale += (scaleFactor*0.0005);
             return;
         }
         new PlayersListPacket().send();
@@ -208,7 +211,7 @@ public class Game {
 
     private void render(Renderer renderer) {
         if (state == GameState.MAIN_MENU) {
-            renderer.renderMainMenu(camera, "Pierre mother love!");
+            renderer.renderMainMenu(camera, splash, splasheScale);
             return;
         }
 

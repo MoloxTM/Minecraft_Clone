@@ -181,12 +181,16 @@ public class Renderer {
         terrainTexture.unbind();
     }
 
+    public void renderText(Camera camera, String text, float x, float y, int rgb, float scale) {
+        this.renderText(camera, text, x, y, -10, rgb, scale, 0.0f, new Vector3i(0 , 0, 0));
+    }
+
     public void renderText(Camera camera, String text, float x, float y, int rgb, float scale, float rotateAngle, Vector3i normal) {
         this.renderText(camera, text, x, y, -10, rgb, scale, rotateAngle, normal);
     }
     
-    public void renderText(Camera camera, String text, float x, float y, int rgb, float scale) {
-        this.renderText(camera, text, x, y, -10, rgb, scale, 0.0f, new Vector3i(0 , 0, 0));
+    public void renderText(Camera camera, String text, float x, float y, float z, int rgb, float scale) {
+        this.renderText(camera, text, x, y, z, rgb, scale, 0.0f, new Vector3i(0 , 0, 0));
     }
 
     public void renderText(Camera camera, String text, float x, float y, float z, int rgb, float scale, float rotateAngle, Vector3i normal) {
@@ -195,17 +199,7 @@ public class Renderer {
         this.renderString(camera, text, x + 2, y - 2, z - 1, 0x555555, scale, rotateAngle, normal);
     }
 
-    public void renderText(Camera camera, String text, float x, float y, float z, int rgb) {
-        this.renderString(camera, text, x, y, z, 0.0f, rgb);
-        this.renderString(camera, text, x + 2, y - 2, z, 0.0f, 0x555555);
-    }
-
-    public void renderText(Camera camera, String text, float x, float y, float z, float rotationAngle, int rgb) {
-        this.renderString(camera, text, x, y, z, rotationAngle, rgb);
-        this.renderString(camera, text, x + 2, y - 2, z, rotationAngle, 0x555555);
-    }
-
-    private void renderString(Camera camera, String text, float x, float y, float z, float rotationAngle, int rgb) {
+    private void renderString(Camera camera, String text, float x, float y, float z, int rgb, float scale, float rotateAngle, Vector3i normal) {
         Texture texture = font.getTexture();
 
         fontShader.enable();
@@ -243,7 +237,7 @@ public class Renderer {
         float splashWidth = fontManager.getTextWidth(fontMesh, splash);
 
         this.renderText(camera, splash, (float)((GameConfiguration.WINDOW_WIDTH * 0.7) - (splashWidth / 2.0f) - splashOffset), (float) (GameConfiguration.WINDOW_HEIGHT - (GameConfiguration.WINDOW_HEIGHT* 0.25)), -10.0f, 0xFFFF00, splasheScale, 10.0f, new Vector3i(0, 0, 1));
-        this.renderText(camera, "Copyright Me and the hoes.", GameConfiguration.WINDOW_WIDTH - fontManager.getTextWidth(fontMesh, "Copyright Me and the hoes.") - 4 * offset, offset, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE, 0.0f, new Vector3i(0, 0, 1));
+        this.renderText(camera, "Copyright Me and the hoes.", GameConfiguration.WINDOW_WIDTH - fontManager.getTextWidth(fontMesh, "Copyright Me and the hoes.") - 4 * offset, offset, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
         this.renderText(camera, "Minecraft 1.0.0", offset, offset, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
         this.renderImage(camera);
         this.renderButton(
@@ -261,7 +255,7 @@ public class Renderer {
         glActiveTexture(GL_TEXTURE0 + minecraftTitleTexture.getSlot());
         minecraftTitleTexture.bind();
 
-        camera.matrixOrtho(imageShader);
+        camera.matrixOrtho(imageShader, 0, 0);
 
         minecraftTitleMesh.draw();
 
@@ -284,6 +278,6 @@ public class Renderer {
         int width = fontManager.getTextWidth(fontMesh,.25f, text);
         float height = fontManager.getTextHeight(fontMesh,.25f, text);
 
-        this.renderText(camera, text, x + (ButtonMesh.BUTTON_WIDTH - width) / 2.0f, y + (ButtonMesh.BUTTON_HEIGHT - height) / 2.0f, -9, 0xFFFFFF, fontMesh);
+        this.renderText(camera, text, x + (ButtonMesh.BUTTON_WIDTH - width) / 2.0f, y + (ButtonMesh.BUTTON_HEIGHT - height) / 2.0f, -9, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
     }
 }

@@ -124,36 +124,21 @@ public class Camera {
         shader.sendMatrix("model", model, modelBuffer);
     }
 
-    public void matrixOrtho(Shader shader) {
-        this.matrixOrtho(shader, 0.0f, 0.0f, 0.0f, 0.0f);
-    }
-
-    public void matrixOrtho(Shader shader, float rotateAngle, float x, float y, float z) {
-        this.matrixOrtho(shader, 0.0f, 0.0f, 0.0f);
-    }
-
-    public void matrixOrtho(Shader shader, float rotationAngle) {
-        this.matrixOrtho(shader, rotationAngle, 0.0f, 0.0f);
-    }
 
     public void matrixOrtho(Shader shader, float x, float y) {
-        this.matrixOrtho(shader, 0.0f, x, y);
-    }
-
-    public void matrixOrtho(Shader shader, float rotateAngle, float x, float y) {
 
         Matrix4f projection = new Matrix4f();
         Matrix4f model = new Matrix4f();
 
         projection.ortho(0, GameConfiguration.WINDOW_WIDTH, 0, GameConfiguration.WINDOW_HEIGHT, nearPlane ,farPlane);
-
-        model.rotate((float) Math.toRadians(rotateAngle), new Vector3f(x, y, z));
+        model.translate(x, y, 0);
 
         shader.sendMatrix("projection", projection, projectionBuffer);
         shader.sendMatrix("model", model, modelBuffer);
     }
 
     public void matrixOrtho(Shader shader, float rotateAngle, float x, float y, float z, String text, FontMesh fontMesh, Vector3f normal) {
+
 
         FontManager fontManager = new FontManager();
 
@@ -163,8 +148,7 @@ public class Camera {
 
         projection.ortho(0, GameConfiguration.WINDOW_WIDTH, 0, GameConfiguration.WINDOW_HEIGHT, nearPlane ,farPlane);
 
-        if(rotateAngle != 0) {
-            model.translate(x, y, 0);
+        if (rotateAngle != 0) {
             model.translate(pivot.x, pivot.y, pivot.z);
             model.rotate((float) Math.toRadians(rotateAngle), normal);
             model.translate(-pivot.x, -pivot.y, -pivot.z);
