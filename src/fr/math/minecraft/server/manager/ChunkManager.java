@@ -2,9 +2,6 @@ package fr.math.minecraft.server.manager;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.meshs.ChunkMesh;
-import fr.math.minecraft.client.meshs.builder.MeshBuilder;
-import fr.math.minecraft.client.vertex.Vertex;
 import fr.math.minecraft.client.world.Chunk;
 import fr.math.minecraft.client.world.Coordinates;
 import fr.math.minecraft.client.world.World;

@@ -2,6 +2,9 @@ package fr.math.minecraft.client;
 
 import fr.math.minecraft.client.audio.Sound;
 import fr.math.minecraft.client.audio.Sounds;
+import fr.math.minecraft.client.gui.menus.MainMenu;
+import fr.math.minecraft.client.gui.menus.Menu;
+import fr.math.minecraft.client.manager.MenuManager;
 import fr.math.minecraft.client.manager.SoundManager;
 import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.packet.ConnectionInitPacket;
@@ -41,6 +44,7 @@ public class Game {
     private MinecraftClient client;
     private Map<String, Player> players;
     private Map<String, Sound> sounds;
+    private Map<Class<? extends Menu>, Menu> menus;
     private Player player;
     private World world;
     private Camera camera;
@@ -53,6 +57,8 @@ public class Game {
     private float splasheScale = GameConfiguration.DEFAULT_SCALE;
     private int scaleFactor = 1;
     private String splash;
+    private Renderer renderer;
+    private MenuManager menuManager;
 
     private Game() {
         this.initWindow();
@@ -101,11 +107,16 @@ public class Game {
         this.client = new MinecraftClient(50000);
         this.sounds = new HashMap<>();
         this.players = new HashMap<>();
+        this.menus = new HashMap<>();
         this.updateTimer = 0.0f;
         this.camera = new Camera(GameConfiguration.WINDOW_WIDTH, GameConfiguration.WINDOW_HEIGHT);
         this.world = new World();
         this.state = GameState.MAIN_MENU;
         this.soundManager = new SoundManager();
+        this.menuManager = new MenuManager(this);
+        this.renderer = new Renderer();
+
+        this.loadSplashText();
 
         for (Sounds sound : Sounds.values()) {
             soundManager.addSound(sound.getFilePath(), false);
@@ -114,6 +125,31 @@ public class Game {
         for (Sound sound : soundManager.getAllSounds()) {
             sound.load();
         }
+
+        Menu mainMenu = new MainMenu(this);
+
+        menuManager.registerMenu(mainMenu);
+    }
+
+    private void loadSplashText() {
+        try {
+            int lines = 0;
+            BufferedReader reader = new BufferedReader(new FileReader(GameConfiguration.SPLASHES_FILE_PATH));
+            while (reader.readLine() != null) {
+                lines++;
+            }
+            if (lines == 0) {
+                this.splash = "Miam Miam";
+                return;
+            }
+            Random r = new Random();
+            int randomLine = r.nextInt(0, lines);
+            this.splash = Files.readAllLines(Paths.get(GameConfiguration.SPLASHES_FILE_PATH)).get(randomLine);
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void run() {
@@ -129,33 +165,10 @@ public class Game {
         new ConnectionInitPacket(player).send();
          */
 
-        Renderer renderer = new Renderer();
-        int lines = 0;
-        String splash = "Miam Miam";
-        BufferedReader reader;
-        try {
-            reader = new BufferedReader(new FileReader(GameConfiguration.SPLASHES_FILE_PATH));
-            while (true) {
-                if (!(reader.readLine() != null)) break;
-                lines++;
-            }
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if(lines != 0) {
-            try {
-                reader = new BufferedReader(new FileReader(GameConfiguration.SPLASHES_FILE_PATH));
-                Random r = new Random();
-                int randomLine = r.nextInt(0, lines);
-                this.splash = Files.readAllLines(Paths.get(GameConfiguration.SPLASHES_FILE_PATH)).get(randomLine);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
 
         soundManager.getRandomMusic().play();
+
+        menuManager.open(MainMenu.class);
 
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.58f, 0.83f, 0.99f, 1);
@@ -193,12 +206,12 @@ public class Game {
     }
 
     private void update() {
+        for (Menu menu : menus.values()) {
+            if (menu.isOpen()) {
+                menu.update();
+            }
+        }
         if (state == GameState.MAIN_MENU) {
-            player.setYaw(player.getYaw() + .03f);
-            camera.update(player);
-            if (splasheScale >= 1.1f * GameConfiguration.DEFAULT_SCALE) scaleFactor = -1;
-            if (splasheScale <= GameConfiguration.DEFAULT_SCALE) scaleFactor = 1;
-            splasheScale += (scaleFactor*0.0005);
             return;
         }
         new PlayersListPacket().send();
@@ -210,8 +223,13 @@ public class Game {
     }
 
     private void render(Renderer renderer) {
+        for (Menu menu : menus.values()) {
+            if (menu.isOpen()) {
+                renderer.renderMenu(camera, menu);
+            }
+        }
         if (state == GameState.MAIN_MENU) {
-            renderer.renderMainMenu(camera, splash, splasheScale);
+            // renderer.renderMainMenu(camera, splash, splasheScale);
             return;
         }
 
@@ -286,4 +304,15 @@ public class Game {
         this.state = state;
     }
 
+    public Map<Class<? extends Menu>, Menu> getMenus() {
+        return this.menus;
+    }
+
+    public Renderer getRenderer() {
+        return renderer;
+    }
+
+    public String getSplashText() {
+        return splash;
+    }
 }

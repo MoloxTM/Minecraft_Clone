@@ -3,9 +3,9 @@ package fr.math.minecraft.client.gui;
 public class BlockButton {
 
     private final String text;
-    private final int x, y;
+    private final float x, y;
 
-    public BlockButton(String text, int x, int y) {
+    public BlockButton(String text, float x, float y) {
         this.text = text;
         this.x = x;
         this.y = y;
@@ -15,11 +15,11 @@ public class BlockButton {
         return text;
     }
 
-    public int getX() {
+    public float getX() {
         return x;
     }
 
-    public int getY() {
+    public float getY() {
         return y;
     }
 }

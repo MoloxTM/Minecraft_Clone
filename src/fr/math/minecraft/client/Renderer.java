@@ -3,6 +3,10 @@ package fr.math.minecraft.client;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.fonts.CFont;
 import fr.math.minecraft.client.gui.BlockButton;
+import fr.math.minecraft.client.gui.GuiText;
+import fr.math.minecraft.client.gui.menus.MainMenu;
+import fr.math.minecraft.client.gui.menus.Menu;
+import fr.math.minecraft.client.gui.menus.MenuBackgroundType;
 import fr.math.minecraft.client.manager.FontManager;
 import fr.math.minecraft.client.meshs.*;
 import fr.math.minecraft.client.packet.SkinRequestPacket;
@@ -216,7 +220,7 @@ public class Renderer {
         texture.unbind();
     }
 
-    public void renderMainMenu(Camera camera, String splash, float splasheScale) {
+    public void renderSkybox(Camera camera) {
 
         glDepthFunc(GL_LEQUAL);
 
@@ -232,34 +236,20 @@ public class Renderer {
         panoramaTexture.unbind();
         glDepthFunc(GL_LESS);
 
-        int offset = 5;
-        float splashOffset = (float) (splasheScale % 0.1) * 100;
-        float splashWidth = fontManager.getTextWidth(fontMesh, splash);
-
-        this.renderText(camera, splash, (float)((GameConfiguration.WINDOW_WIDTH * 0.7) - (splashWidth / 2.0f) - splashOffset), (float) (GameConfiguration.WINDOW_HEIGHT - (GameConfiguration.WINDOW_HEIGHT* 0.25)), -10.0f, 0xFFFF00, splasheScale, 10.0f, new Vector3i(0, 0, 1));
-        this.renderText(camera, "Copyright Me and the hoes.", GameConfiguration.WINDOW_WIDTH - fontManager.getTextWidth(fontMesh, "Copyright Me and the hoes.") - 4 * offset, offset, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
-        this.renderText(camera, "Minecraft 1.0.0", offset, offset, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
-        this.renderImage(camera);
-        this.renderButton(
-                camera,
-                "Jouer",
-                (GameConfiguration.WINDOW_WIDTH - ButtonMesh.BUTTON_WIDTH) / 2,
-                (GameConfiguration.WINDOW_HEIGHT - ButtonMesh.BUTTON_HEIGHT) / 2
-        );
     }
 
-    public void renderImage(Camera camera) {
+    public void renderImage(Camera camera, ImageMesh imageMesh, Texture texture) {
         imageShader.enable();
-        imageShader.sendInt("uTexture", minecraftTitleTexture.getSlot());
+        imageShader.sendInt("uTexture", texture.getSlot());
 
-        glActiveTexture(GL_TEXTURE0 + minecraftTitleTexture.getSlot());
-        minecraftTitleTexture.bind();
+        glActiveTexture(GL_TEXTURE0 + texture.getSlot());
+        texture.bind();
 
         camera.matrixOrtho(imageShader, 0, 0);
 
-        minecraftTitleMesh.draw();
+        imageMesh.draw();
 
-        minecraftTitleTexture.unbind();
+        texture.unbind();
     }
 
     public void renderButton(Camera camera, String text, float x, float y) {
@@ -279,5 +269,38 @@ public class Renderer {
         float height = fontManager.getTextHeight(fontMesh,.25f, text);
 
         this.renderText(camera, text, x + (ButtonMesh.BUTTON_WIDTH - width) / 2.0f, y + (ButtonMesh.BUTTON_HEIGHT - height) / 2.0f, -9, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
+    }
+
+    public FontMesh getFontMesh() {
+        return fontMesh;
+    }
+
+    public void renderMenu(Camera camera, Menu menu) {
+
+        if (menu.getBackgroundType() == MenuBackgroundType.SKYBOX_BACKGROUND) {
+            this.renderSkybox(camera);
+        }
+
+        if (menu instanceof MainMenu) {
+            this.renderImage(camera, minecraftTitleMesh, minecraftTitleTexture);
+        }
+
+        for (GuiText text : menu.getTexts()) {
+            this.renderText(
+                    camera,
+                    text.getText(),
+                    text.getX(),
+                    text.getY(),
+                    text.getZ(),
+                    text.getRgb(),
+                    text.getScale(),
+                    text.getRotateAngle(),
+                    new Vector3i(0, 0, 1)
+            );
+        }
+
+        for (BlockButton button : menu.getButtons()) {
+            this.renderButton(camera, button.getText(), button.getX(), button.getY());
+        }
     }
 }

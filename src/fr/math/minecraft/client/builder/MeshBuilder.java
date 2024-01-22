@@ -1,4 +1,4 @@
-package fr.math.minecraft.client.meshs.builder;
+package fr.math.minecraft.client.builder;
 
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.vertex.Vertex;
