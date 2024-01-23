@@ -22,8 +22,13 @@ public class SoundManager {
         this.sounds = new HashMap<>();
         this.musics = new ArrayList<>();
 
-
-        this.musics.add(Sounds.TASWELL);
+        this.musics.add(Sounds.KEY);
+        this.musics.add(Sounds.SWEDEN);
+        this.musics.add(Sounds.SUBWOOFER_LULLABY);
+        this.musics.add(Sounds.DANNY);
+        this.musics.add(Sounds.A_FAMILIAR_ROOM);
+        this.musics.add(Sounds.FLOATING_TREES);
+        this.musics.add(Sounds.LEFT_TO_BLOOM);
     }
 
     public Map<String, Sound> getSounds() {
