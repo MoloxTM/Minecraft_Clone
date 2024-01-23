@@ -1,5 +1,6 @@
 package fr.math.minecraft.client.entity;
 
+import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.animations.Animation;
 import fr.math.minecraft.client.animations.PlayerWalkAnimation;
 import fr.math.minecraft.client.meshs.NametagMesh;
@@ -29,7 +30,9 @@ public class Player {
     private float pitch;
     private float speed;
     private boolean firstMouse;
-    public boolean movingLeft, movingRight, movingForward, movingBackward;
+    private boolean movingLeft, movingRight, movingForward, movingBackward;
+    private boolean debugKeyPressed;
+
     private float lastMouseX, lastMouseY;
     private String name;
     private String uuid;
@@ -53,6 +56,7 @@ public class Player {
         this.movingRight = false;
         this.movingForward = false;
         this.movingBackward = false;
+        this.debugKeyPressed = false;
         this.animations = new ArrayList<>();
         this.nametagMesh = new NametagMesh(name);
         this.skin = null;
@@ -117,6 +121,17 @@ public class Player {
 
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
             packet.setSneaking(true);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_PRESS) {
+            if (!debugKeyPressed) {
+                Game.getInstance().setDebugging(!Game.getInstance().isDebugging());
+                debugKeyPressed = true;
+            }
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_RELEASE) {
+            debugKeyPressed = false;
         }
 
         packet.send();

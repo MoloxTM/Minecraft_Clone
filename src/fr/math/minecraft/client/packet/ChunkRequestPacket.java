@@ -38,10 +38,6 @@ public class ChunkRequestPacket implements  ClientPacket{
         try {
             String response = client.sendString(message);
 
-            if (response.equals("CHUNK_UNKNOWN")) {
-                return;
-            }
-
             if (response.equals("TIMEOUT_REACHED")) {
                 logger.error("Impossible d'envoyer le packet, le serveur a mis trop de temps à répondre ! (timeout)");
                 return;

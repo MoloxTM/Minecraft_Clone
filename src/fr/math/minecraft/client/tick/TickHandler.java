@@ -48,19 +48,23 @@ public class TickHandler extends Thread {
     private void tick() {
         Player player = game.getPlayer();
 
-        int startX = Math.max((int) (player.getPosition().x / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE), 0);
-        int startY = Math.max((int) (player.getPosition().y / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE), 0);
-        int startZ = Math.max((int) (player.getPosition().z / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE), 0);
+        int startX = (int) player.getPosition().x / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE;
+        int startY = (int) player.getPosition().y / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE;
+        int startZ = (int) player.getPosition().z / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE;
 
         int endX = (int) player.getPosition().x / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE;
         int endY = (int) player.getPosition().y / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE;
         int endZ = (int) player.getPosition().z / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE;
 
+
         for (int x = startX; x <= endX; x++) {
             for (int y = startY; y <= endY; y++) {
                 for (int z = startZ; z <= endZ; z++) {
 
+                    if (game.getWorld().getChunk(x, y, z) != null) continue;
+
                     ChunkRequestPacket packet = new ChunkRequestPacket(new Vector3f(x, y, z));
+
                     packet.send();
 
                     if (packet.getChunkData() == null) continue;
@@ -71,6 +75,7 @@ public class TickHandler extends Thread {
                 }
             }
         }
+
     }
 
 }

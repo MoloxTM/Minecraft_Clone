@@ -63,7 +63,7 @@ public class Chunk {
 
     public int getBlocksSize() {
         int count = 0;
-        for (int block : blocks) {
+        for (byte block : blocks) {
             if (block != Material.AIR.getId()) {
                 count++;
             }

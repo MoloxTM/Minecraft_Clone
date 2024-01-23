@@ -348,4 +348,8 @@ public class Renderer {
 
         dirtTexture.unbind();
     }
+
+    public void renderDebugTools(Camera camera, Player player) {
+        this.renderText(camera, "XYZ: " + player.getPosition().x + " / " + player.getPosition().y + " / " + player.getPosition().z, 0, GameConfiguration.WINDOW_HEIGHT - 100,0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
+    }
 }

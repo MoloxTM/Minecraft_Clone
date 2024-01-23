@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
+import fr.math.minecraft.server.world.Coordinates;
 import fr.math.minecraft.server.world.ServerChunk;
 import fr.math.minecraft.server.world.ServerWorld;
 import org.apache.log4j.Logger;
@@ -118,8 +119,9 @@ public class MinecraftServer {
         ServerChunk chunk = world.getChunk(x, y, z);
 
         if (chunk == null) {
-            byte[] buffer = "CHUNK_UNKNOWN".getBytes(StandardCharsets.UTF_8);
-            return new DatagramPacket(buffer, buffer.length, address, clientPort);
+            chunk = new ServerChunk(x, y, z);
+            chunk.generate();
+            world.getChunks().put(new Coordinates(x, y, z), chunk);
         }
 
         String chunkData = chunk.toJSON();

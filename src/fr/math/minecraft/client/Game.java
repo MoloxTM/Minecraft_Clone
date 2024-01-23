@@ -61,6 +61,7 @@ public class Game {
     private Renderer renderer;
     private MenuManager menuManager;
     private DoubleBuffer mouseXBuffer, mouseYBuffer;
+    private boolean debugging;
 
     private Game() {
         this.initWindow();
@@ -119,6 +120,7 @@ public class Game {
         this.renderer = new Renderer();
         this.mouseXBuffer = BufferUtils.createDoubleBuffer(1);
         this.mouseYBuffer = BufferUtils.createDoubleBuffer(1);
+        this.debugging = false;
 
         this.loadSplashText();
 
@@ -258,6 +260,10 @@ public class Game {
         for (Player player : players.values()) {
             renderer.render(camera, player);
         }
+
+        if (isDebugging()) {
+            renderer.renderDebugTools(camera, player);
+        }
     }
 
     public static Game getInstance() {
@@ -329,5 +335,13 @@ public class Game {
 
     public MenuManager getMenuManager() {
         return menuManager;
+    }
+
+    public boolean isDebugging() {
+        return debugging;
+    }
+
+    public void setDebugging(boolean debugging) {
+        this.debugging = debugging;
     }
 }

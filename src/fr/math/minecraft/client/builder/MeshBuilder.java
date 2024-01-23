@@ -14,11 +14,23 @@ import java.util.ArrayList;
 public class MeshBuilder {
 
     public static boolean isEmpty(int worldX, int worldY, int worldZ) {
-        if (worldX < 0 || worldY < 0 || worldZ < 0)return true;
+        int chunkX = (int) Math.floor(worldX / (double) Chunk.SIZE);
+        int chunkY = (int) Math.floor(worldY / (double) Chunk.SIZE);
+        int chunkZ = (int) Math.floor(worldZ / (double) Chunk.SIZE);
+
         World world = Game.getInstance().getWorld();
-        Chunk chunk = world.getChunk(worldX / Chunk.SIZE, worldY / Chunk.SIZE, worldZ / Chunk.SIZE);
+        Chunk chunk = world.getChunk(chunkX, chunkY, chunkZ);
         if (chunk == null) return true;
-        return chunk.getBlock((worldX % Chunk.SIZE), (worldY % Chunk.SIZE), (worldZ % Chunk.SIZE)) == Material.AIR.getId();
+
+        int blockX = worldX % Chunk.SIZE;
+        int blockY = worldY % Chunk.SIZE;
+        int blockZ = worldZ % Chunk.SIZE;
+
+        blockX = blockX < 0 ? blockX + Chunk.SIZE : blockX;
+        blockY = blockY < 0 ? blockY + Chunk.SIZE : blockY;
+        blockZ = blockZ < 0 ? blockZ + Chunk.SIZE : blockZ;
+
+        return chunk.getBlock(blockX, blockY, blockZ) == Material.AIR.getId();
     }
 
     public static Vector2f[] calculateTexCoords(int x, int y, float format) {
