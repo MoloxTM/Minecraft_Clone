@@ -11,6 +11,13 @@ public enum Sounds {
     A_FAMILIAR_ROOM("res/sounds/music/a_familiar_room.ogg"),
     LEFT_TO_BLOOM("res/sounds/music/left_to_bloom.ogg"),
     TASWELL("res/sounds/music/taswell.ogg"),
+    CLARK("res/sounds/music/clark.ogg"),
+    DRY_HANDS("res/sounds/music/dry_hands.ogg"),
+    HAGGSTROM("res/sounds/music/haggstrom.ogg"),
+    LIVING_MICE("res/sounds/music/living_mice.ogg"),
+    MICE_ON_VENUS("res/sounds/music/mice_on_venus.ogg"),
+    OXYGENE("res/sounds/music/oxygene.ogg"),
+    WET_HANDS("res/sounds/music/wet_hands.ogg"),
     CLICK("res/sounds/click.ogg");
 
     private final String filePath;

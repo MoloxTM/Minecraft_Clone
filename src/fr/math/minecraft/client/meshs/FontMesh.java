@@ -36,7 +36,7 @@ public class FontMesh extends Mesh {
 
         vbo = new VBO(BATCH_SIZE * VERTEX_SIZE, GL_DYNAMIC_DRAW);
 
-        int elementsSize = BATCH_SIZE * 3;
+        int elementsSize = BATCH_SIZE * 5;
         int[] elementsBuffer = new int[elementsSize];
 
         for (int i = 0; i < elementsSize; i++) {
