@@ -14,7 +14,7 @@ public enum Material {
 
     private final int x;
     private final int y;
-    private final int id;
+    private final byte id;
     private final String name;
     private final boolean faces;
 
@@ -22,7 +22,7 @@ public enum Material {
 
     Material(String name, int id, int x, int y) {
         this.name = name;
-        this.id = id;
+        this.id = (byte)id;
         this.x = x;
         this.y = y;
         this.px = null;
@@ -35,7 +35,7 @@ public enum Material {
     }
     Material(String name, int id, Vector2i px, Vector2i nx, Vector2i pz, Vector2i nz, Vector2i py, Vector2i ny) {
         this.name = name;
-        this.id = id;
+        this.id = (byte)id;
         this.x = -1;
         this.y = -1;
         this.faces = true;
@@ -51,7 +51,7 @@ public enum Material {
         return name;
     }
 
-    public int getId() {
+    public byte getId() {
         return id;
     }
 
@@ -91,7 +91,7 @@ public enum Material {
         return ny;
     }
 
-    public static Material getMaterialById(int id) {
+    public static Material getMaterialById(byte id) {
         for (Material material : Material.values()) {
             if (id == material.getId()) {
                 return material;

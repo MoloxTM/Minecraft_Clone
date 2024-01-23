@@ -10,12 +10,12 @@ public enum Material {
 
     private final int x;
     private final int y;
-    private final int id;
+    private final byte id;
     private final String name;
 
     Material(String name, int id, int x, int y) {
         this.name = name;
-        this.id = id;
+        this.id = (byte)id;
         this.x = x;
         this.y = y;
     }
@@ -24,7 +24,7 @@ public enum Material {
         return name;
     }
 
-    public int getId() {
+    public byte getId() {
         return id;
     }
 

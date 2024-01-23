@@ -15,7 +15,7 @@ import java.util.List;
 public class ServerChunk {
 
     private final Vector3i position;
-    private final int[] blocks;
+    private final byte[] blocks;
 
     public final static int SIZE = 16;
     public final static int AREA = SIZE * SIZE;
@@ -23,7 +23,7 @@ public class ServerChunk {
     public final static int VOLUME = SIZE * AREA;
     public ServerChunk(int x, int y, int z) {
         this.position = new Vector3i(x, y, z);
-        this.blocks = new int[VOLUME];
+        this.blocks = new byte[VOLUME];
         for (int blockX = 0; blockX < ServerChunk.SIZE; blockX++) {
             for (int blockY = 0; blockY < ServerChunk.SIZE; blockY++) {
                 for (int blockZ = 0; blockZ < ServerChunk.SIZE; blockZ++) {
@@ -38,15 +38,15 @@ public class ServerChunk {
         new OverworldGenerator().generate(this);
     }
 
-    public int[] getBlocks() {
+    public byte[] getBlocks() {
         return blocks;
     }
 
-    public void setBlock(int x, int y, int z, int block) {
+    public void setBlock(int x, int y, int z, byte block) {
         blocks[x + y * AREA + z * SIZE] = block;
     }
 
-    public int getBlock(int x, int y, int z) {
+    public byte getBlock(int x, int y, int z) {
         return blocks[x + y * AREA + z * SIZE];
     }
 

@@ -38,7 +38,7 @@ public class SoundManager {
         this.musics.add(Sounds.MICE_ON_VENUS);
         this.musics.add(Sounds.HAGGSTROM);
         this.musics.add(Sounds.DRY_HANDS);
-        
+
     }
 
     public Map<String, Sound> getSounds() {

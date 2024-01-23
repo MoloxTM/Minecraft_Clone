@@ -13,14 +13,11 @@ import java.util.ArrayList;
 
 public class MeshBuilder {
 
-    private static int blockX = 0, blockY = 0;
-
-    public static boolean isEmpty(int[] blocks, int worldX, int worldY, int worldZ) {
+    public static boolean isEmpty(int worldX, int worldY, int worldZ) {
         if (worldX < 0 || worldY < 0 || worldZ < 0)return true;
         World world = Game.getInstance().getWorld();
         Chunk chunk = world.getChunk(worldX / Chunk.SIZE, worldY / Chunk.SIZE, worldZ / Chunk.SIZE);
         if (chunk == null) return true;
-        //System.out.println("ID : " +( chunk.getBlock((worldX % Chunk.SIZE), (worldY % Chunk.SIZE), (worldZ % Chunk.SIZE)) == Material.AIR.getId()));
         return chunk.getBlock((worldX % Chunk.SIZE), (worldY % Chunk.SIZE), (worldZ % Chunk.SIZE)) == Material.AIR.getId();
     }
 
@@ -49,7 +46,7 @@ public class MeshBuilder {
             for (int y = 0; y < Chunk.SIZE; y++) {
                 for (int z = 0; z < Chunk.SIZE; z++) {
 
-                    int block = chunk.getBlock(x, y, z);
+                    byte block = chunk.getBlock(x, y, z);
                     if (block == Material.AIR.getId()) continue;
 
                     Material material = Material.getMaterialById(block);
@@ -60,12 +57,12 @@ public class MeshBuilder {
                     int worldY = y + chunk.getPosition().y * Chunk.SIZE;
                     int worldZ = z + chunk.getPosition().z * Chunk.SIZE;
 
-                    boolean px = isEmpty(chunk.getBlocks(), worldX + 1, worldY, worldZ);
-                    boolean nx = isEmpty(chunk.getBlocks(), worldX - 1, worldY, worldZ);
-                    boolean py = isEmpty(chunk.getBlocks(), worldX, worldY + 1, worldZ);
-                    boolean ny = isEmpty(chunk.getBlocks(), worldX, worldY - 1, worldZ);
-                    boolean pz = isEmpty(chunk.getBlocks(), worldX, worldY, worldZ + 1);
-                    boolean nz = isEmpty(chunk.getBlocks(), worldX, worldY, worldZ - 1);
+                    boolean px = isEmpty(worldX + 1, worldY, worldZ);
+                    boolean nx = isEmpty(worldX - 1, worldY, worldZ);
+                    boolean py = isEmpty(worldX, worldY + 1, worldZ);
+                    boolean ny = isEmpty(worldX, worldY - 1, worldZ);
+                    boolean pz = isEmpty(worldX, worldY, worldZ + 1);
+                    boolean nz = isEmpty(worldX, worldY, worldZ - 1);
 
                     Vector2f[] textureCoords;
 

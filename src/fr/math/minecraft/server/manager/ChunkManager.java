@@ -30,7 +30,7 @@ public class ChunkManager {
 
             for (int i = 0; i < blocks.size(); i++) {
                 JsonNode blockNode = blocks.get(i);
-                int block = blockNode.asInt();
+                byte block =(byte) blockNode.asInt();
                 chunk.getBlocks()[i] = block;
             }
 
