@@ -29,6 +29,16 @@ public class SoundManager {
         this.musics.add(Sounds.A_FAMILIAR_ROOM);
         this.musics.add(Sounds.FLOATING_TREES);
         this.musics.add(Sounds.LEFT_TO_BLOOM);
+        this.musics.add(Sounds.OXYGENE);
+        this.musics.add(Sounds.LIVING_MICE);
+        this.musics.add(Sounds.CLARK);
+        this.musics.add(Sounds.WET_HANDS);
+        this.musics.add(Sounds.TASWELL);
+        this.musics.add(Sounds.MINECRAFT);
+        this.musics.add(Sounds.MICE_ON_VENUS);
+        this.musics.add(Sounds.HAGGSTROM);
+        this.musics.add(Sounds.DRY_HANDS);
+        
     }
 
     public Map<String, Sound> getSounds() {
