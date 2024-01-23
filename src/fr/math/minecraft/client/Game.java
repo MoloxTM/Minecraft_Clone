@@ -160,21 +160,13 @@ public class Game {
 
     public void run() {
 
-        // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
         double lastTime = glfwGetTime();
-
-        /*
-        TickHandler tickHandler = new TickHandler();
-        tickHandler.start();
-
-        new ConnectionInitPacket(player).send();
-         */
-
 
         soundManager.getRandomMusic().play();
 
         menuManager.open(MainMenu.class);
+
+        PlayersListPacket playersListPacket = new PlayersListPacket();
 
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.58f, 0.83f, 0.99f, 1);
@@ -194,6 +186,7 @@ public class Game {
                 updateTimer -= GameConfiguration.UPDATE_TICK;
                 if (state == GameState.PLAYING) {
                     player.handleInputs(window);
+                    playersListPacket.send();
                 }
             }
 
@@ -231,7 +224,6 @@ public class Game {
         if (state == GameState.MAIN_MENU) {
             return;
         }
-        new PlayersListPacket().send();
         camera.update(player);
         time += 0.01f;
         for (Player player : players.values()) {

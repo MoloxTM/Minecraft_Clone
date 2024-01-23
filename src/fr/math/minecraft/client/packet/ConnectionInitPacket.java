@@ -1,6 +1,5 @@
 package fr.math.minecraft.client.packet;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.Camera;
@@ -28,13 +27,12 @@ public class ConnectionInitPacket extends Thread implements ClientPacket {
 
     private final ObjectMapper mapper;
     private final Player player;
-    private final Logger logger;
+    private final static Logger logger = LoggerUtility.getClientLogger(ConnectionInitPacket.class, LogType.TXT);;
     private String giftedId;
 
     public ConnectionInitPacket(Player player) {
         this.mapper = new ObjectMapper();
         this.player = player;
-        this.logger = LoggerUtility.getClientLogger(ConnectionInitPacket.class, LogType.TXT);
     }
 
     @Override

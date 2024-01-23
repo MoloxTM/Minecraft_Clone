@@ -31,7 +31,7 @@ public class MinecraftServer {
     private boolean running;
     private final byte[] buffer;
     private final int port;
-    private final Logger logger;
+    private final static Logger logger = LoggerUtility.getServerLogger(MinecraftServer.class, LogType.TXT);;
     private final Map<String, Client> clients;
     private final Map<String, String> sockets;
     private final Map<String, Long> lastActivities;
@@ -42,7 +42,6 @@ public class MinecraftServer {
         this.running = false;
         this.buffer = new byte[MAX_REQUEST_SIZE];
         this.port = port;
-        this.logger = LoggerUtility.getServerLogger(MinecraftServer.class, LogType.TXT);
         this.clients = new HashMap<>();
         this.sockets = new HashMap<>();
         this.lastActivities = new HashMap<>();

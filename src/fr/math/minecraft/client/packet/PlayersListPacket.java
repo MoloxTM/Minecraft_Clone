@@ -22,12 +22,12 @@ import java.util.Base64;
 public class PlayersListPacket implements ClientPacket {
 
     private final ObjectMapper mapper;
-    private final Logger logger;
+    private final static Logger logger = LoggerUtility.getClientLogger(PlayersListPacket.class, LogType.TXT);;
 
     public PlayersListPacket() {
         this.mapper = new ObjectMapper();
-        this.logger = LoggerUtility.getClientLogger(PlayersListPacket.class, LogType.TXT);
     }
+
     @Override
     public void send() {
         Game game = Game.getInstance();

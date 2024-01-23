@@ -13,11 +13,10 @@ import java.net.DatagramSocket;
 public class ClientHandler extends Thread {
 
     private final ObjectMapper mapper;
-    private final Logger logger;
+    private final static Logger logger = LoggerUtility.getServerLogger(ClientHandler.class, LogType.TXT);;
 
     public ClientHandler() {
         this.mapper = new ObjectMapper();
-        this.logger = LoggerUtility.getServerLogger(ClientHandler.class, LogType.TXT);
     }
 
     public JsonNode parsePacket(DatagramPacket packet) {

@@ -36,7 +36,7 @@ public class Player {
     private final ArrayList<Animation> animations;
     private NametagMesh nametagMesh;
     private BufferedImage skin;
-    private final Logger logger = LoggerUtility.getClientLogger(Player.class, LogType.TXT);
+    private final static Logger logger = LoggerUtility.getClientLogger(Player.class, LogType.TXT);
 
     public Player(String name) {
         this.position = new Vector3f(0.0f, 0.0f, 0.0f);

@@ -17,11 +17,10 @@ public class MinecraftClient {
     private DatagramSocket socket;
     private InetAddress address;
     private final int serverPort;
-    private final Logger logger;
+    private final static Logger logger = LoggerUtility.getClientLogger(MinecraftClient.class, LogType.TXT);
     private static final String IP_SERVER = "localhost";
 
     public MinecraftClient(int serverPort) {
-        logger = LoggerUtility.getClientLogger(MinecraftClient.class, LogType.TXT);
         this.serverPort = serverPort;
         this.connect();
     }

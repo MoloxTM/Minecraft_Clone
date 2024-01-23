@@ -11,12 +11,11 @@ public class TimeoutHandler extends Thread {
     private final MinecraftServer server;
     private final static double TIMEOUT_DELAY_MS = 5000;
     private final String uuid;
-    private final Logger logger;
+    private final static Logger logger = LoggerUtility.getServerLogger(TimeoutHandler.class, LogType.TXT);;
 
     public TimeoutHandler(MinecraftServer server, String uuid) {
         this.server = server;
         this.uuid = uuid;
-        this.logger = LoggerUtility.getServerLogger(TimeoutHandler.class, LogType.TXT);
     }
 
     @Override

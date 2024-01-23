@@ -17,7 +17,7 @@ public class PlayerMovePacket implements ClientPacket {
 
     private final Player player;
     private final ObjectMapper mapper;
-    private final Logger logger;
+    private final static Logger logger = LoggerUtility.getClientLogger(PlayerMovePacket.class, LogType.TXT);;
     private boolean movingLeft;
     private boolean movingRight;
     private boolean movingForward;
@@ -29,7 +29,6 @@ public class PlayerMovePacket implements ClientPacket {
     public PlayerMovePacket(Player player) {
         this.player = player;
         this.mapper = new ObjectMapper();
-        this.logger = LoggerUtility.getClientLogger(PlayerMovePacket.class, LogType.TXT);
         this.movingLeft = false;
         this.movingRight = false;
         this.movingForward = false;
