@@ -2,14 +2,17 @@ package fr.math.minecraft.server.world;
 
 import fr.math.minecraft.client.meshs.ChunkMesh;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 
 public class ServerWorld {
 
     private final HashMap<Coordinates, ServerChunk> chunks;
-    public final static int WIDTH = 50;
+    public final static int WIDTH = 10;
     public final static int HEIGHT = 10;
-    public final static int DEPTH = 50;
+    public final static int DEPTH = 10;
 
     public ServerWorld() {
         this.chunks = new HashMap<>();
@@ -30,6 +33,9 @@ public class ServerWorld {
 
     public HashMap<Coordinates, ServerChunk> getChunks() {
         return chunks;
+    }
+
+    public void save() {
     }
 
     public ServerChunk getChunk(int x, int y, int z) {

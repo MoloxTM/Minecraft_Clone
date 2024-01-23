@@ -39,7 +39,7 @@ public class OverworldGenerator implements TerrainGenerator {
     }
 
     @Override
-    public void generate(ServerChunk chunk) {
+    public void generateChunk(ServerChunk chunk) {
         this.fillHeightMap(chunk, 0, ServerChunk.SIZE - 1, 0, ServerChunk.SIZE - 1);
         for (int x = 0; x < ServerChunk.SIZE; x++) {
             for (int z = 0; z < ServerChunk.SIZE; z++) {
