@@ -26,7 +26,6 @@ public class ChunkMesh extends Mesh {
         vao.linkAttrib(vbo, 2, 1, GL_FLOAT, 7 * Float.BYTES, 5 * Float.BYTES);
         vao.linkAttrib(vbo, 3, 1, GL_FLOAT, 7 * Float.BYTES, 6 * Float.BYTES);
 
-
         vao.unbind();
         vbo.unbind();
     }
