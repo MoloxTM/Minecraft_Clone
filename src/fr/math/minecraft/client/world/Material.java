@@ -10,7 +10,10 @@ public enum Material {
     DIRT("Dirt", 1, 2, 15),
     GRASS("Grass", 3, new Vector2i(3, 15), new Vector2i(3, 15), new Vector2i(3, 15), new Vector2i(3, 15), new Vector2i(8, 13), new Vector2i(2, 15)),
     DEBUG("Debug", -2, 0, 1),
-    WATER("Water", 2, 15, 2);
+    WATER("Water", 2, 15, 2),
+    SAND("Sand",4,2,14),
+    CACTUS("Cactus",5,new Vector2i(6, 11), new Vector2i(6, 11), new Vector2i(6, 11), new Vector2i(6, 11), new Vector2i(5, 11), new Vector2i(7, 11)),
+    LOG("Log",6,new Vector2i(4, 14), new Vector2i(4, 14), new Vector2i(4, 14), new Vector2i(4, 14), new Vector2i(5, 14), new Vector2i(4, 14));
 
     private final int x;
     private final int y;

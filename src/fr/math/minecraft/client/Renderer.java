@@ -178,7 +178,7 @@ public class Renderer {
     }
 
     public void render(Camera camera, Chunk chunk) {
-
+        Player player = Game.getInstance().getPlayer();
         chunkShader.enable();
         chunkShader.sendInt("uTexture", terrainTexture.getSlot());
 

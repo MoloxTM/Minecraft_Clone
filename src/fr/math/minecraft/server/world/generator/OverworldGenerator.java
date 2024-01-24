@@ -1,9 +1,11 @@
 package fr.math.minecraft.server.world.generator;
 
+import fr.math.minecraft.server.manager.BiomeManager;
 import fr.math.minecraft.server.math.InterpolateMath;
 import fr.math.minecraft.server.world.Coordinates;
 import fr.math.minecraft.server.world.ServerChunk;
 import fr.math.minecraft.server.world.Material;
+import fr.math.minecraft.server.world.biome.AbstractBiome;
 import org.joml.Vector2i;
 
 import java.util.HashMap;
@@ -12,6 +14,7 @@ public class OverworldGenerator implements TerrainGenerator {
 
     private final NoiseGenerator noise;
     private final HashMap<Vector2i, Integer> heightMap;
+
 
     public OverworldGenerator() {
         this.noise = new NoiseGenerator(9, 30, 800.0f, .7f, 25);
@@ -43,6 +46,9 @@ public class OverworldGenerator implements TerrainGenerator {
         this.fillHeightMap(chunk, 0, ServerChunk.SIZE - 1, 0, ServerChunk.SIZE - 1);
         for (int x = 0; x < ServerChunk.SIZE; x++) {
             for (int z = 0; z < ServerChunk.SIZE; z++) {
+                BiomeManager biomeManager = new BiomeManager();
+                AbstractBiome currentBiome = biomeManager.getBiome(x+chunk.getPosition().x*ServerChunk.SIZE,z+chunk.getPosition().z*ServerChunk.SIZE);
+                System.out.println(currentBiome);
 
                 int worldHeight = heightMap.get(new Vector2i(x, z));
 
@@ -54,16 +60,15 @@ public class OverworldGenerator implements TerrainGenerator {
                         if (worldY < worldHeight - 3) {
                             material = Material.STONE;
                         } else {
-                            material = Material.DIRT;
+                            material = currentBiome.getSecondBlock();
                         }
                     } else if (worldY == worldHeight) {
-                        material = Material.GRASS;
+                        material = currentBiome.getUpperBlock();
                     } else {
                         if (worldY <= 24) {
                             material = Material.WATER;
                         }
                     }
-
                     chunk.setBlock(x, y, z, material.getId());
                 }
             }

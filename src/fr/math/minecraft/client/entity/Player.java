@@ -134,6 +134,7 @@ public class Player {
             debugKeyPressed = false;
         }
 
+
         packet.send();
 
         lastMouseX = (float) mouseX.get(0);
@@ -233,4 +234,5 @@ public class Player {
     public void setBodyYaw(float bodyYaw) {
         this.bodyYaw = bodyYaw;
     }
+
 }
