@@ -1,6 +1,10 @@
 package fr.math.minecraft.client.builder;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import fr.math.minecraft.client.Game;
+import fr.math.minecraft.client.manager.ChunkManager;
+import fr.math.minecraft.client.packet.ChunkEmptyPacket;
+import fr.math.minecraft.client.packet.ChunkRequestPacket;
 import fr.math.minecraft.client.vertex.Vertex;
 import fr.math.minecraft.client.meshs.model.BlockModel;
 import fr.math.minecraft.client.world.Chunk;
@@ -8,6 +12,7 @@ import fr.math.minecraft.client.world.Material;
 import fr.math.minecraft.client.world.World;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 
 import java.util.ArrayList;
 
@@ -20,7 +25,14 @@ public class MeshBuilder {
 
         World world = Game.getInstance().getWorld();
         Chunk chunk = world.getChunk(chunkX, chunkY, chunkZ);
-        if (chunk == null) return true;
+
+        if (chunk == null) {
+            ChunkEmptyPacket packet = new ChunkEmptyPacket(new Vector3i(worldX, worldY, worldZ));
+            packet.send();
+
+
+            return packet.getResponse();
+        }
 
         int blockX = worldX % Chunk.SIZE;
         int blockY = worldY % Chunk.SIZE;

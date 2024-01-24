@@ -273,9 +273,8 @@ public class Game {
             renderer.render(camera, player);
         }
 
-        if (isDebugging()) {
-            renderer.renderDebugTools(camera, player, fps);
-        }
+        renderer.renderDebugTools(camera, player, fps);
+
     }
 
     public static Game getInstance() {
