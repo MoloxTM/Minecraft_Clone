@@ -35,9 +35,7 @@ public class ChunkEmptyPacket implements ClientPacket {
 
         try {
 
-            logger.debug("J'envoie un packet.");
             String response = client.sendString(message);
-            logger.debug("J'ai reçu un packet : " + response);
 
             if (response.equals("TIMEOUT_REACHED")) {
                 logger.error("Impossible d'envoyer le packet, le serveur a mis trop de temps à répondre ! (timeout)");

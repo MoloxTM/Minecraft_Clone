@@ -12,7 +12,7 @@ public class ChunkMesh extends Mesh {
     private boolean chunkMeshInitiated;
 
     public ChunkMesh(Chunk chunk) {
-        vertices = MeshBuilder.buildChunkMesh(chunk);
+        vertices = new MeshBuilder().buildChunkMesh(chunk);
         this.chunkMeshInitiated = false;
         //this.init();
     }

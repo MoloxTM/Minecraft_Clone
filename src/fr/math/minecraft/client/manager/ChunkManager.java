@@ -22,28 +22,26 @@ public class ChunkManager {
         int z = chunkData.get("z").asInt();
 
         World world = Game.getInstance().getWorld();
+        Chunk chunk = world.getChunk(x, y, z);
+
+        if (chunk == null) {
+            chunk = new Chunk(x, y, z);
+        }
+
+        for (int i = 0; i < blocks.size(); i++) {
+            JsonNode blockNode = blocks.get(i);
+            byte block =(byte) blockNode.asInt();
+            chunk.getBlocks()[i] = block;
+        }
 
         synchronized (world.getChunks()) {
-            Chunk chunk = world.getChunk(x, y, z);
+            world.addChunk(chunk);
+        }
 
-            if (chunk == null) {
-                chunk = new Chunk(x, y, z);
-            }
-
-            for (int i = 0; i < blocks.size(); i++) {
-                JsonNode blockNode = blocks.get(i);
-                byte block =(byte) blockNode.asInt();
-                chunk.getBlocks()[i] = block;
-            }
-
-            world.getChunks().put(new Coordinates(x, y, z), chunk);
-
-            if (chunk.getBlocksSize() > 0) {
-                ChunkMesh chunkMesh = new ChunkMesh(chunk);
-                chunk.setChunkMesh(chunkMesh);
-                chunk.setEmpty(false);
-            }
-
+        if (chunk.getBlocksSize() > 0) {
+            ChunkMesh chunkMesh = new ChunkMesh(chunk);
+            chunk.setChunkMesh(chunkMesh);
+            chunk.setEmpty(false);
         }
     }
 

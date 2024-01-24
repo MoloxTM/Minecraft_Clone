@@ -8,6 +8,7 @@ import fr.math.minecraft.client.packet.ChunkRequestPacket;
 import fr.math.minecraft.client.vertex.Vertex;
 import fr.math.minecraft.client.meshs.model.BlockModel;
 import fr.math.minecraft.client.world.Chunk;
+import fr.math.minecraft.client.world.Coordinates;
 import fr.math.minecraft.client.world.Material;
 import fr.math.minecraft.client.world.World;
 import org.joml.Vector2f;
@@ -15,10 +16,12 @@ import org.joml.Vector3f;
 import org.joml.Vector3i;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MeshBuilder {
 
-    public static boolean isEmpty(int worldX, int worldY, int worldZ) {
+    public boolean isEmpty(int worldX, int worldY, int worldZ) {
+
         int chunkX = (int) Math.floor(worldX / (double) Chunk.SIZE);
         int chunkY = (int) Math.floor(worldY / (double) Chunk.SIZE);
         int chunkZ = (int) Math.floor(worldZ / (double) Chunk.SIZE);
@@ -29,7 +32,6 @@ public class MeshBuilder {
         if (chunk == null) {
             ChunkEmptyPacket packet = new ChunkEmptyPacket(new Vector3i(worldX, worldY, worldZ));
             packet.send();
-
 
             return packet.getResponse();
         }
@@ -64,7 +66,7 @@ public class MeshBuilder {
     }
 
 
-    public static Vertex[] buildChunkMesh(Chunk chunk) {
+    public Vertex[] buildChunkMesh(Chunk chunk) {
         ArrayList<Vertex> vertices = new ArrayList<>();
         for (int x = 0; x < Chunk.SIZE; x++) {
             for (int y = 0; y < Chunk.SIZE; y++) {
