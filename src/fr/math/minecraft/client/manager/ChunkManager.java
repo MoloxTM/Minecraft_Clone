@@ -1,7 +1,9 @@
-package fr.math.minecraft.server.manager;
+package fr.math.minecraft.client.manager;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.math.minecraft.client.Game;
+import fr.math.minecraft.client.builder.MeshBuilder;
+import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.world.Chunk;
 import fr.math.minecraft.client.world.Coordinates;
 import fr.math.minecraft.client.world.World;
@@ -34,11 +36,14 @@ public class ChunkManager {
                 chunk.getBlocks()[i] = block;
             }
 
+            world.getChunks().put(new Coordinates(x, y, z), chunk);
+
             if (chunk.getBlocksSize() > 0) {
+                ChunkMesh chunkMesh = new ChunkMesh(chunk);
+                chunk.setChunkMesh(chunkMesh);
                 chunk.setEmpty(false);
             }
 
-            world.getChunks().put(new Coordinates(x, y, z), chunk);
         }
     }
 

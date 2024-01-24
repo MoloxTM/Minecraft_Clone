@@ -49,6 +49,7 @@ public class Renderer {
     private final Map<String, Texture> skinsMap;
     private final CubemapTexture panoramaTexture;
     private String emptyText;
+    private static int count = 0;
 
     public Renderer() {
         this.playerMesh = new PlayerMesh();
@@ -188,7 +189,6 @@ public class Renderer {
         camera.matrix(chunkShader, chunk);
 
         chunk.getChunkMesh().draw();
-
         terrainTexture.unbind();
     }
 
@@ -349,7 +349,9 @@ public class Renderer {
         dirtTexture.unbind();
     }
 
-    public void renderDebugTools(Camera camera, Player player) {
+    public void renderDebugTools(Camera camera, Player player, int frames) {
         this.renderText(camera, "XYZ: " + player.getPosition().x + " / " + player.getPosition().y + " / " + player.getPosition().z, 0, GameConfiguration.WINDOW_HEIGHT - 100,0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
+        this.renderText(camera, "FPS: " + frames, 0, GameConfiguration.WINDOW_HEIGHT - 120,0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
+
     }
 }

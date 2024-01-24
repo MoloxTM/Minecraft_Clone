@@ -62,6 +62,7 @@ public class Game {
     private MenuManager menuManager;
     private DoubleBuffer mouseXBuffer, mouseYBuffer;
     private boolean debugging;
+    private int frames, fps;
 
     private Game() {
         this.initWindow();
@@ -121,6 +122,8 @@ public class Game {
         this.mouseXBuffer = BufferUtils.createDoubleBuffer(1);
         this.mouseYBuffer = BufferUtils.createDoubleBuffer(1);
         this.debugging = false;
+        this.frames = 0;
+        this.fps = 0;
 
         this.loadSplashText();
 
@@ -162,7 +165,8 @@ public class Game {
 
     public void run() {
 
-        double lastTime = glfwGetTime();
+        double lastDeltaTime = glfwGetTime();
+        double lastFramesTime = glfwGetTime();
 
         soundManager.getRandomMusic().play();
 
@@ -175,13 +179,19 @@ public class Game {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             double currentTime = glfwGetTime();
-            double deltaTime = currentTime - lastTime;
+            double deltaTime = currentTime - lastDeltaTime;
+
+            if (currentTime - lastFramesTime >= 1) {
+                lastFramesTime = currentTime;
+                fps = frames;
+                frames = 0;
+            }
 
             this.deltaTime = (float) deltaTime;
 
             updateTimer += deltaTime;
 
-            lastTime = currentTime;
+            lastDeltaTime = currentTime;
 
             while (updateTimer > GameConfiguration.UPDATE_TICK) {
                 this.update();
@@ -193,6 +203,8 @@ public class Game {
             }
 
             this.render(renderer);
+
+            frames++;
 
             glfwSwapBuffers(window);
             glfwPollEvents();
@@ -247,13 +259,13 @@ public class Game {
         synchronized (world.getChunks()) {
             for (Chunk chunk : world.getChunks().values()) {
 
-                if (chunk.getChunkMesh() == null && !chunk.isEmpty()) {
-                    chunk.setChunkMesh(new ChunkMesh(chunk));
+                if (chunk.isEmpty()) continue;
+
+                if (!chunk.getChunkMesh().isChunkMeshInitiated()) {
+                    chunk.getChunkMesh().init();
                 }
 
-                if (!chunk.isEmpty()) {
-                    renderer.render(camera, chunk);
-                }
+                renderer.render(camera, chunk);
             }
         }
 
@@ -262,7 +274,7 @@ public class Game {
         }
 
         if (isDebugging()) {
-            renderer.renderDebugTools(camera, player);
+            renderer.renderDebugTools(camera, player, fps);
         }
     }
 

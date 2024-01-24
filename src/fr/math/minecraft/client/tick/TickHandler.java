@@ -6,7 +6,7 @@ import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.packet.ChunkRequestPacket;
 import fr.math.minecraft.client.world.Chunk;
-import fr.math.minecraft.server.manager.ChunkManager;
+import fr.math.minecraft.client.manager.ChunkManager;
 import org.joml.Vector3f;
 
 import static org.lwjgl.glfw.GLFW.*;
