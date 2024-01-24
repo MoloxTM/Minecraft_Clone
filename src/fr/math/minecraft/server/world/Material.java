@@ -9,7 +9,9 @@ public enum Material {
     WATER("Water", 2, 15, 2),
     SAND("Sand",4,2,14),
     CACTUS("Cactus",5,5,7),
-    LOG("Log",6,4,14);
+    OAK_LOG("Oak log",6,4,14),
+    OAK_LEAVES("Oak leaves",7,4,12);
+
     private final int x;
     private final int y;
     private final byte id;

@@ -134,7 +134,6 @@ public class Player {
             debugKeyPressed = false;
         }
 
-
         packet.send();
 
         lastMouseX = (float) mouseX.get(0);

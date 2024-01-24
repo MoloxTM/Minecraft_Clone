@@ -13,7 +13,9 @@ public enum Material {
     WATER("Water", 2, 15, 2),
     SAND("Sand",4,2,14),
     CACTUS("Cactus",5,new Vector2i(6, 11), new Vector2i(6, 11), new Vector2i(6, 11), new Vector2i(6, 11), new Vector2i(5, 11), new Vector2i(7, 11)),
-    LOG("Log",6,new Vector2i(4, 14), new Vector2i(4, 14), new Vector2i(4, 14), new Vector2i(4, 14), new Vector2i(5, 14), new Vector2i(4, 14));
+    OAK_LOG("Log",6,new Vector2i(4, 14), new Vector2i(4, 14), new Vector2i(4, 14), new Vector2i(4, 14), new Vector2i(5, 14), new Vector2i(4, 14)),
+    OAK_LEAVES("Oak leaves",7,4,12);
+
 
     private final int x;
     private final int y;

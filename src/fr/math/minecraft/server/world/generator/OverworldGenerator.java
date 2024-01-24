@@ -6,6 +6,7 @@ import fr.math.minecraft.server.world.Coordinates;
 import fr.math.minecraft.server.world.ServerChunk;
 import fr.math.minecraft.server.world.Material;
 import fr.math.minecraft.server.world.biome.AbstractBiome;
+import fr.math.minecraft.server.world.biome.PlainBiome;
 import org.joml.Vector2i;
 
 import java.util.HashMap;
@@ -43,13 +44,16 @@ public class OverworldGenerator implements TerrainGenerator {
 
     @Override
     public void generateChunk(ServerChunk chunk) {
+
         this.fillHeightMap(chunk, 0, ServerChunk.SIZE - 1, 0, ServerChunk.SIZE - 1);
         for (int x = 0; x < ServerChunk.SIZE; x++) {
             for (int z = 0; z < ServerChunk.SIZE; z++) {
                 BiomeManager biomeManager = new BiomeManager();
                 AbstractBiome currentBiome = biomeManager.getBiome(x+chunk.getPosition().x*ServerChunk.SIZE,z+chunk.getPosition().z*ServerChunk.SIZE);
                 System.out.println(currentBiome);
-
+                if(currentBiome instanceof PlainBiome) {
+                    currentBiome.buildTree(chunk, 7, 0, 7);
+                }
                 int worldHeight = heightMap.get(new Vector2i(x, z));
 
                 for (int y = 0; y < ServerChunk.SIZE; y++) {

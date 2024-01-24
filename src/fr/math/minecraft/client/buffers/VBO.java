@@ -23,8 +23,6 @@ public class VBO {
             data[bufferPosition++] = vertex.getTextureCoords().y;
             data[bufferPosition++] = vertex.getBlockID();
             data[bufferPosition++] = vertex.getBlockFace();
-
-
         }
         FloatBuffer buffer = BufferUtils.createFloatBuffer(vertices.length * 7);
         buffer.put(data).flip();

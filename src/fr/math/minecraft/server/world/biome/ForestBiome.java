@@ -18,7 +18,7 @@ public class ForestBiome extends AbstractBiome{
     public void buildTree(ServerChunk chunk, int x, int y, int z) {
         int treeSize = 10;
         for(int i = 1;i<=treeSize;i++){
-            chunk.setBlock(x,y+i,z,Material.LOG.getId());
+            chunk.setBlock(x,y+i,z,Material.OAK_LOG.getId());
         }
     }
 
