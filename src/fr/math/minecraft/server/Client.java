@@ -27,7 +27,7 @@ public class Client {
         this.position = new Vector3f(0.0f, 0.0f, 0.0f);
         this.yaw = 0.0f;
         this.pitch = 0.0f;
-        this.speed = 0.8f;
+        this.speed = 0.2f;
         this.skin = null;
     }
 
@@ -79,7 +79,7 @@ public class Client {
             position = position.add(new Vector3f(0.0f, .5f, 0.0f));
 
         if (sneaking)
-            position = position.sub(new Vector3f(0.0f, .05f, 0.0f));
+            position = position.sub(new Vector3f(0.0f, .5f, 0.0f));
 
     }
 

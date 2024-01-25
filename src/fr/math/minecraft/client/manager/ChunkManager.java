@@ -37,12 +37,6 @@ public class ChunkManager {
         synchronized (world.getChunks()) {
             world.addChunk(chunk);
         }
-
-        if (chunk.getBlocksSize() > 0) {
-            ChunkMesh chunkMesh = new ChunkMesh(chunk);
-            chunk.setChunkMesh(chunkMesh);
-            chunk.setEmpty(false);
-        }
     }
 
 }

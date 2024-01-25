@@ -1,10 +1,7 @@
 package fr.math.minecraft.client.builder;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.manager.ChunkManager;
 import fr.math.minecraft.client.packet.ChunkEmptyPacket;
-import fr.math.minecraft.client.packet.ChunkRequestPacket;
 import fr.math.minecraft.client.vertex.Vertex;
 import fr.math.minecraft.client.meshs.model.BlockModel;
 import fr.math.minecraft.client.world.Chunk;
@@ -20,7 +17,16 @@ import java.util.HashMap;
 
 public class MeshBuilder {
 
+    private static int counter = 0;
+    private HashMap<Coordinates, Boolean> emptyMap = new HashMap<>();
+
     public boolean isEmpty(int worldX, int worldY, int worldZ) {
+
+        Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
+
+        if (emptyMap.containsKey(coordinates)) {
+            return emptyMap.get(coordinates);
+        }
 
         int chunkX = (int) Math.floor(worldX / (double) Chunk.SIZE);
         int chunkY = (int) Math.floor(worldY / (double) Chunk.SIZE);
@@ -28,13 +34,6 @@ public class MeshBuilder {
 
         World world = Game.getInstance().getWorld();
         Chunk chunk = world.getChunk(chunkX, chunkY, chunkZ);
-
-        if (chunk == null) {
-            ChunkEmptyPacket packet = new ChunkEmptyPacket(new Vector3i(worldX, worldY, worldZ));
-            packet.send();
-
-            return packet.getResponse();
-        }
 
         int blockX = worldX % Chunk.SIZE;
         int blockY = worldY % Chunk.SIZE;
@@ -44,6 +43,7 @@ public class MeshBuilder {
         blockY = blockY < 0 ? blockY + Chunk.SIZE : blockY;
         blockZ = blockZ < 0 ? blockZ + Chunk.SIZE : blockZ;
 
+        emptyMap.put(coordinates, chunk.getBlock(blockX, blockY, blockZ) == Material.AIR.getId());
         return chunk.getBlock(blockX, blockY, blockZ) == Material.AIR.getId();
     }
 
@@ -172,6 +172,7 @@ public class MeshBuilder {
                 }
             }
         }
+        counter = 0;
 
         return vertices.toArray(new Vertex[0]);
     }

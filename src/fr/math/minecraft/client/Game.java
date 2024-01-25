@@ -12,6 +12,7 @@ import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.packet.PlayersListPacket;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.world.Chunk;
+import fr.math.minecraft.client.world.Coordinates;
 import fr.math.minecraft.client.world.World;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
@@ -29,9 +30,7 @@ import java.io.*;
 import java.nio.DoubleBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import static org.lwjgl.openal.ALC10.*;
 import static org.lwjgl.opengl.GL33.*;
@@ -63,6 +62,8 @@ public class Game {
     private DoubleBuffer mouseXBuffer, mouseYBuffer;
     private boolean debugging;
     private int frames, fps;
+    private PriorityQueue<Coordinates> chunkLoadingQueue;
+
 
     private Game() {
         this.initWindow();
@@ -124,6 +125,8 @@ public class Game {
         this.debugging = false;
         this.frames = 0;
         this.fps = 0;
+        Comparator<Coordinates> comparator = (o1, o2) -> Double.compare(o1.compareTo(o2), 0.0);
+        this.chunkLoadingQueue = new PriorityQueue<>(comparator);
 
         this.loadSplashText();
 
@@ -159,6 +162,30 @@ public class Game {
             reader.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+    }
+
+    private void test() {
+        int startX = (int) player.getPosition().x / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE;
+        int startY = (int) player.getPosition().y / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE;
+        int startZ = (int) player.getPosition().z / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE;
+
+        int endX = (int) player.getPosition().x / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE;
+        int endY = (int) player.getPosition().y / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE;
+        int endZ = (int) player.getPosition().z / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE;
+
+        for (int x = startX; x <= endX; x++) {
+            for (int y = startY; y <= endY; y++) {
+                for (int z = startZ; z <= endZ; z++) {
+
+                    if (chunkLoadingQueue.contains(new Coordinates(x, y, z))) return;
+
+                    synchronized (getChunkLoadingQueue()) {
+                        chunkLoadingQueue.add(new Coordinates(x, y, z));
+                    }
+                }
+            }
         }
 
     }
@@ -238,6 +265,8 @@ public class Game {
         if (state == GameState.MAIN_MENU) {
             return;
         }
+
+        test();
         camera.update(player);
         time += 0.01f;
         for (Player player : players.values()) {
@@ -260,6 +289,7 @@ public class Game {
             for (Chunk chunk : world.getChunks().values()) {
 
                 if (chunk.isEmpty()) continue;
+                if (chunk.getChunkMesh() == null) continue;
 
                 if (!chunk.getChunkMesh().isChunkMeshInitiated()) {
                     chunk.getChunkMesh().init();
@@ -354,5 +384,9 @@ public class Game {
 
     public void setDebugging(boolean debugging) {
         this.debugging = debugging;
+    }
+
+    public PriorityQueue<Coordinates> getChunkLoadingQueue() {
+        return chunkLoadingQueue;
     }
 }

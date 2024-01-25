@@ -140,7 +140,6 @@ public class MinecraftServer {
     }
 
     private DatagramPacket handleChunkEmptyPacket(JsonNode packetData, InetAddress address, int clientPort) {
-
         int worldX = packetData.get("x").asInt();
         int worldY = packetData.get("y").asInt();
         int worldZ = packetData.get("z").asInt();

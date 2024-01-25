@@ -10,18 +10,19 @@ import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 
 import java.io.IOException;
 
 public class ChunkRequestPacket implements  ClientPacket{
 
     private final ObjectMapper mapper;
-    private final Vector3f coordinates;
+    private final Vector3i coordinates;
     private JsonNode chunkData;
     private final static Logger logger = LoggerUtility.getClientLogger(ChunkRequestPacket.class, LogType.TXT);
 
 
-    public ChunkRequestPacket(Vector3f coordinates) {
+    public ChunkRequestPacket(Vector3i coordinates) {
         this.mapper = new ObjectMapper();
         this.coordinates = coordinates;
         this.chunkData = null;

@@ -3,17 +3,27 @@ package fr.math.minecraft.client.tick;
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.GameConfiguration;
+import fr.math.minecraft.client.Utils;
 import fr.math.minecraft.client.entity.Player;
+import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.packet.ChunkRequestPacket;
 import fr.math.minecraft.client.world.Chunk;
 import fr.math.minecraft.client.manager.ChunkManager;
+import fr.math.minecraft.client.world.Coordinates;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
+import org.joml.Vector3ic;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.PriorityQueue;
 
 import static org.lwjgl.glfw.GLFW.*;
 
 public class TickHandler extends Thread {
 
-    private final static float TICK_PER_SECONDS = 1.0f;
+    private final static float TICK_PER_SECONDS = 20.0f;
     private final static float TICK_RATE = 1.0f / TICK_PER_SECONDS;
     private final Game game;
     private final ChunkManager chunkManager;
@@ -37,8 +47,9 @@ public class TickHandler extends Thread {
 
             previousTime = currentTime;
 
+            tick();
             while (tickTimer > TICK_RATE) {
-                tick();
+                // tick();
                 tickTimer -= TICK_RATE;
             }
 
@@ -48,34 +59,52 @@ public class TickHandler extends Thread {
     private void tick() {
         Player player = game.getPlayer();
 
-        int startX = (int) player.getPosition().x / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE;
-        int startY = (int) player.getPosition().y / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE;
-        int startZ = (int) player.getPosition().z / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE;
+        System.out.println(game.getChunkLoadingQueue().size());
 
-        int endX = (int) player.getPosition().x / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE;
-        int endY = (int) player.getPosition().y / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE;
-        int endZ = (int) player.getPosition().z / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE;
+        if (game.getChunkLoadingQueue().isEmpty()) {
+            return;
+        }
 
+        Coordinates chunkPosition = game.getChunkLoadingQueue().peek();
 
-        for (int x = startX; x <= endX; x++) {
-            for (int y = startY; y <= endY; y++) {
-                for (int z = startZ; z <= endZ; z++) {
+        int x = chunkPosition.getX();
+        int y = chunkPosition.getY();
+        int z = chunkPosition.getZ();
 
-                    if (game.getWorld().getChunk(x, y, z) != null) continue;
+        Coordinates[] positions = new Coordinates[] {
+            new Coordinates(x, y, z),
+            new Coordinates(x - 1, y, z),
+            new Coordinates(x + 1, y, z),
+            new Coordinates(x, y - 1, z),
+            new Coordinates(x, y + 1, z),
+            new Coordinates(x, y, z - 1),
+            new Coordinates(x, y, z + 1),
+        };
+        for (Coordinates coordinates : positions) {
 
-                    ChunkRequestPacket packet = new ChunkRequestPacket(new Vector3f(x, y, z));
+            if (game.getWorld().getChunk(coordinates.getX(), coordinates.getY(), coordinates.getZ()) != null) continue;
 
-                    packet.send();
+            ChunkRequestPacket packet = new ChunkRequestPacket(new Vector3i(coordinates.getX(), coordinates.getY(), coordinates.getZ()));
+            packet.send();
 
-                    if (packet.getChunkData() == null) continue;
+            if (packet.getChunkData() == null) continue;
 
-                    JsonNode chunkData = packet.getChunkData();
-                    chunkManager.loadChunkData(chunkData);
+            JsonNode chunkData = packet.getChunkData();
+            chunkManager.loadChunkData(chunkData);
+        }
 
-                }
+        Chunk chunk = game.getWorld().getChunk(chunkPosition.getX(), chunkPosition.getY(), chunkPosition.getZ());
+
+        if (chunk.getBlocksSize() > 0) {
+            ChunkMesh chunkMesh = new ChunkMesh(chunk);
+            synchronized (game.getWorld().getChunks()) {
+                chunk.setChunkMesh(chunkMesh);
+                chunk.setEmpty(false);
             }
         }
 
+        synchronized (game.getChunkLoadingQueue()) {
+            game.getChunkLoadingQueue().remove(chunkPosition);
+        }
     }
-
 }

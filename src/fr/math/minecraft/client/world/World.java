@@ -27,7 +27,8 @@ public class World {
 
     public Chunk getChunk(int x, int y, int z) {
         Coordinates coordinates = new Coordinates(x, y, z);
-        if(!chunks.containsKey(coordinates)) return null;
+        if (!chunks.containsKey(coordinates)) return null;
         return chunks.get(coordinates);
     }
+
 }

@@ -1,5 +1,9 @@
 package fr.math.minecraft.client.world;
 
+import fr.math.minecraft.client.Game;
+import fr.math.minecraft.client.Utils;
+import fr.math.minecraft.client.entity.Player;
+
 import java.util.Objects;
 
 public class Coordinates {
@@ -24,6 +28,20 @@ public class Coordinates {
     public int hashCode() {
         return Objects.hash(x, y, z);
     }
+
+    public int compareTo(Coordinates o) {
+        Player player = Game.getInstance().getPlayer();
+        double distance1 = Utils.distance(player, this);
+        double distance2 = Utils.distance(player, o);
+
+        if (distance1 < distance2) {
+            return -1;
+        } else if (distance1 > distance2) {
+            return 1;
+        }
+        return 0;
+    }
+
 
     public int getX() {
         return x;
