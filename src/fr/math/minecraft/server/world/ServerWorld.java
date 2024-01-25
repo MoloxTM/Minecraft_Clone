@@ -16,7 +16,6 @@ public class ServerWorld {
 
     public ServerWorld() {
         this.chunks = new HashMap<>();
-        //this.buildChunks();
     }
 
     public void buildChunks() {

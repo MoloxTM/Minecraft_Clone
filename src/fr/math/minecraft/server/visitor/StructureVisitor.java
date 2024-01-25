@@ -1,4 +1,4 @@
-package fr.math.minecraft.client.visitor;
+package fr.math.minecraft.server.visitor;
 
 import fr.math.minecraft.server.world.biome.DesertBiome;
 import fr.math.minecraft.server.world.biome.ForestBiome;

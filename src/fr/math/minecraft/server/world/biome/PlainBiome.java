@@ -1,6 +1,6 @@
 package fr.math.minecraft.server.world.biome;
 
-import fr.math.minecraft.client.builder.StructureBuilder;
+import fr.math.minecraft.server.builder.StructureBuilder;
 import fr.math.minecraft.server.world.Material;
 import fr.math.minecraft.server.world.ServerChunk;
 

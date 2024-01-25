@@ -1,9 +1,7 @@
 package fr.math.minecraft.server.world.generator;
 
-import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.server.manager.BiomeManager;
 import fr.math.minecraft.server.math.InterpolateMath;
-import fr.math.minecraft.server.world.Coordinates;
 import fr.math.minecraft.server.world.ServerChunk;
 import fr.math.minecraft.server.world.Material;
 import fr.math.minecraft.server.world.biome.AbstractBiome;

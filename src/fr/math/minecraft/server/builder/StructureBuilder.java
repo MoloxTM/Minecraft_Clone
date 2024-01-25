@@ -1,4 +1,4 @@
-package fr.math.minecraft.client.builder;
+package fr.math.minecraft.server.builder;
 
 import fr.math.minecraft.server.world.Material;
 import fr.math.minecraft.server.world.ServerChunk;
