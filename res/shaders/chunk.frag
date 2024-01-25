@@ -13,8 +13,9 @@ bool equals(float a, float b) {
 }
 
 void main() {
+    if (texture(uTexture, textureCoord).a <= 0) discard;
     vec3 tex = texture(uTexture, textureCoord).rgb;
-
+    float opacity = 1;
     if (equals(blockID, 7.0f)) {
         tex.rgb *= vec3(0.5, 0.75, 0.4);
     }
@@ -23,6 +24,5 @@ void main() {
         tex.rgb *= vec3(0.5, 0.75, 0.4);
     }
 
-
-    FragColor = vec4(tex,1);
+    FragColor = vec4(tex, opacity);
 }

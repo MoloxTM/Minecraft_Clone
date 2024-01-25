@@ -50,12 +50,16 @@ public class OverworldGenerator implements TerrainGenerator {
             for (int z = 0; z < ServerChunk.SIZE; z++) {
                 BiomeManager biomeManager = new BiomeManager();
                 AbstractBiome currentBiome = biomeManager.getBiome(x+chunk.getPosition().x*ServerChunk.SIZE,z+chunk.getPosition().z*ServerChunk.SIZE);
-                System.out.println(currentBiome);
-                if(currentBiome instanceof PlainBiome) {
-                    currentBiome.buildTree(chunk, 7, 0, 7);
-                }
-                int worldHeight = heightMap.get(new Vector2i(x, z));
 
+                int worldHeight = heightMap.get(new Vector2i(x, z));
+                if(worldHeight < 0)System.out.println("WorldHeight:" + worldHeight);
+
+                /*
+                if(currentBiome instanceof PlainBiome) {
+                    if(worldHeight != 0 && worldHeight >0) {
+                        currentBiome.buildTree(chunk, 7, worldHeight, 7);
+                    }
+                }*/
                 for (int y = 0; y < ServerChunk.SIZE; y++) {
                     int worldY = y + chunk.getPosition().y * ServerChunk.SIZE;
                     Material material = Material.AIR;

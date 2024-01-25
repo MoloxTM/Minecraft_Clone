@@ -54,7 +54,7 @@ public class PlainBiome extends AbstractBiome{
         chunk.setBlock(x-1, y+5, z-2, Material.OAK_LEAVES.getId());
 
         chunk.setBlock(x-2, y+5, z+1, Material.OAK_LEAVES.getId());
-        chunk.setBlock(x-1, y+5, z, Material.OAK_LEAVES.getId());
+        chunk.setBlock(x-2, y+5, z, Material.OAK_LEAVES.getId());
         chunk.setBlock(x-2, y+5, z-1, Material.OAK_LEAVES.getId());
         chunk.setBlock(x-2, y+5, z-2, Material.OAK_LEAVES.getId());
 
