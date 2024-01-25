@@ -7,6 +7,7 @@ import fr.math.minecraft.server.world.Coordinates;
 import fr.math.minecraft.server.world.ServerChunk;
 import fr.math.minecraft.server.world.Material;
 import fr.math.minecraft.server.world.biome.AbstractBiome;
+import fr.math.minecraft.server.world.biome.DesertBiome;
 import fr.math.minecraft.server.world.biome.PlainBiome;
 import org.joml.Vector2i;
 
@@ -78,6 +79,8 @@ public class OverworldGenerator implements TerrainGenerator {
                     }
                 }
                 if(currentBiome instanceof PlainBiome && yTree != -1) {
+                    currentBiome.buildTree(chunk, 7, yTree, 7);
+                } else if(currentBiome instanceof DesertBiome && yTree != -1) {
                     currentBiome.buildTree(chunk, 7, yTree, 7);
                 }
 

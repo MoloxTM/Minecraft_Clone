@@ -62,4 +62,11 @@ public class StructureBuilder {
             chunk.setBlock(x, y+i, z, Material.OAK_LOG.getId());
         }
     }
+
+    public static void buildSimpleCactus(ServerChunk chunk, int x, int y, int z) {
+        int cactusSize = 3;
+        for(int i=1; i<=cactusSize;i++){
+            chunk.setBlock(x,y+i,z,Material.CACTUS.getId());
+        }
+    }
 }
