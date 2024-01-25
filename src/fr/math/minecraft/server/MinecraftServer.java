@@ -37,7 +37,7 @@ public class MinecraftServer {
     private final Map<String, String> sockets;
     private final Map<String, Long> lastActivities;
     private final ServerWorld world;
-    private final static int MAX_REQUEST_SIZE = 4096;
+    private final static int MAX_REQUEST_SIZE = 16384;
 
     private MinecraftServer(int port) {
         this.running = false;

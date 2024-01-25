@@ -47,7 +47,6 @@ public class OverworldGenerator implements TerrainGenerator {
 
     @Override
     public void generateChunk(ServerChunk chunk) {
-        int yTree = -1;
         this.fillHeightMap(chunk, 0, ServerChunk.SIZE - 1, 0, ServerChunk.SIZE - 1);
         for (int x = 0; x < ServerChunk.SIZE; x++) {
             for (int z = 0; z < ServerChunk.SIZE; z++) {
@@ -74,17 +73,33 @@ public class OverworldGenerator implements TerrainGenerator {
                         }
                     }
                     chunk.setBlock(x, y, z, material.getId());
-                    if(x == 7 && z == 7 && material.equals(currentBiome.getUpperBlock()) && (y + 8) < ServerChunk.SIZE) {
+                }
+            }
+        }
+    }
+
+    @Override
+    public void generateStructure(ServerChunk chunk) {
+        int yTree = -1;
+
+        for (int x = 0; x < ServerChunk.SIZE; x++) {
+            for (int z = 0; z < ServerChunk.SIZE; z++) {
+                BiomeManager biomeManager = new BiomeManager();
+                AbstractBiome currentBiome = biomeManager.getBiome(x+chunk.getPosition().x*ServerChunk.SIZE,z+chunk.getPosition().z*ServerChunk.SIZE);
+                int worldHeight = heightMap.get(new Vector2i(x, z));
+                for (int y = 0; y < ServerChunk.SIZE; y++) {
+                    int worldY = y + chunk.getPosition().y * ServerChunk.SIZE;
+                    Material material = Material.AIR;
+                    if(x == 7 && z == 7 && worldY == worldHeight && (y + 8) < ServerChunk.SIZE) {
                         yTree = y;
                     }
                 }
+
                 if(currentBiome instanceof PlainBiome && yTree != -1) {
                     currentBiome.buildTree(chunk, 7, yTree, 7);
                 } else if(currentBiome instanceof DesertBiome && yTree != -1) {
                     currentBiome.buildTree(chunk, 7, yTree, 7);
                 }
-
-
             }
         }
     }

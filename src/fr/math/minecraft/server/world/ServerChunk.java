@@ -34,7 +34,9 @@ public class ServerChunk {
     }
 
     public void generate() {
-        new OverworldGenerator().generateChunk(this);
+        OverworldGenerator overworldGenerator = new OverworldGenerator();
+        overworldGenerator.generateChunk(this);
+        overworldGenerator.generateStructure(this);
     }
 
     public byte[] getBlocks() {
