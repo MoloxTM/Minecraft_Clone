@@ -34,6 +34,10 @@ public class ChunkManager {
             chunk.getBlocks()[i] = block;
         }
 
+        if (chunk.getBlocksSize() > 0) {
+            chunk.setEmpty(false);
+        }
+
         synchronized (world.getChunks()) {
             world.addChunk(chunk);
         }

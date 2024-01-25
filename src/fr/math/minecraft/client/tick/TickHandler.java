@@ -47,64 +47,15 @@ public class TickHandler extends Thread {
 
             previousTime = currentTime;
 
-            tick();
             while (tickTimer > TICK_RATE) {
-                // tick();
+                tick();
                 tickTimer -= TICK_RATE;
             }
-
         }
     }
 
     private void tick() {
-        Player player = game.getPlayer();
 
-        System.out.println(game.getChunkLoadingQueue().size());
-
-        if (game.getChunkLoadingQueue().isEmpty()) {
-            return;
-        }
-
-        Coordinates chunkPosition = game.getChunkLoadingQueue().peek();
-
-        int x = chunkPosition.getX();
-        int y = chunkPosition.getY();
-        int z = chunkPosition.getZ();
-
-        Coordinates[] positions = new Coordinates[] {
-            new Coordinates(x, y, z),
-            new Coordinates(x - 1, y, z),
-            new Coordinates(x + 1, y, z),
-            new Coordinates(x, y - 1, z),
-            new Coordinates(x, y + 1, z),
-            new Coordinates(x, y, z - 1),
-            new Coordinates(x, y, z + 1),
-        };
-        for (Coordinates coordinates : positions) {
-
-            if (game.getWorld().getChunk(coordinates.getX(), coordinates.getY(), coordinates.getZ()) != null) continue;
-
-            ChunkRequestPacket packet = new ChunkRequestPacket(new Vector3i(coordinates.getX(), coordinates.getY(), coordinates.getZ()));
-            packet.send();
-
-            if (packet.getChunkData() == null) continue;
-
-            JsonNode chunkData = packet.getChunkData();
-            chunkManager.loadChunkData(chunkData);
-        }
-
-        Chunk chunk = game.getWorld().getChunk(chunkPosition.getX(), chunkPosition.getY(), chunkPosition.getZ());
-
-        if (chunk.getBlocksSize() > 0) {
-            ChunkMesh chunkMesh = new ChunkMesh(chunk);
-            synchronized (game.getWorld().getChunks()) {
-                chunk.setChunkMesh(chunkMesh);
-                chunk.setEmpty(false);
-            }
-        }
-
-        synchronized (game.getChunkLoadingQueue()) {
-            game.getChunkLoadingQueue().remove(chunkPosition);
-        }
     }
+
 }

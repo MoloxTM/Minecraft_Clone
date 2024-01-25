@@ -9,9 +9,6 @@ import java.util.HashMap;
 public class World {
 
     private final HashMap<Coordinates, Chunk> chunks;
-    public final static int WIDTH = 10;
-    public final static int HEIGHT = 10;
-    public final static int DEPTH = 10;
 
     public World() {
         this.chunks = new HashMap<>();
@@ -27,7 +24,9 @@ public class World {
 
     public Chunk getChunk(int x, int y, int z) {
         Coordinates coordinates = new Coordinates(x, y, z);
-        if (!chunks.containsKey(coordinates)) return null;
+        if (!chunks.containsKey(coordinates)) {
+            return null;
+        }
         return chunks.get(coordinates);
     }
 

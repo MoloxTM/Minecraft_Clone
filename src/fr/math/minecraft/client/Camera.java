@@ -15,7 +15,7 @@ import java.nio.FloatBuffer;
 public class Camera {
 
     private Vector3f position;
-    private Vector3f front;
+    private Vector3f front, right;
     private float width, height;
     private float yaw, pitch;
     private float fov;
@@ -26,6 +26,7 @@ public class Camera {
         this.width = width;
         this.height = height;
         front = new Vector3f();
+        right = new Vector3f();
         position = new Vector3f();
         yaw = 0.0f;
         pitch = 0.0f;
@@ -57,7 +58,7 @@ public class Camera {
         Matrix4f view = new Matrix4f();
         Matrix4f model = new Matrix4f();
 
-        Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
+        right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
         Vector3f up = new Vector3f(right).cross(front).normalize();
 
         Vector3f newPosition = new Vector3f(position).add(0, 1 + 0.25f, 0);
@@ -79,7 +80,7 @@ public class Camera {
         Matrix4f view = new Matrix4f();
         Matrix4f model = new Matrix4f();
 
-        Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
+        right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
         Vector3f up = new Vector3f(right).cross(front).normalize();
 
         projection.perspective((float) Math.toRadians(fov), width / height, nearPlane ,farPlane);
@@ -109,7 +110,7 @@ public class Camera {
         Matrix4f view = new Matrix4f();
         Matrix4f model = new Matrix4f();
 
-        Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
+        right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
         Vector3f up = new Vector3f(right).cross(front).normalize();
 
         projection.perspective((float) Math.toRadians(fov), width / height, nearPlane ,farPlane);
@@ -167,7 +168,7 @@ public class Camera {
         Matrix4f projection = new Matrix4f();
         Matrix4f view = new Matrix4f();
 
-        Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
+        right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
         Vector3f up = new Vector3f(right).cross(front).normalize();
 
         projection.perspective((float) Math.toRadians(fov), width / height, nearPlane ,farPlane);
@@ -180,5 +181,13 @@ public class Camera {
 
     public Vector3f getPosition() {
         return position;
+    }
+
+    public Vector3f getFront() {
+        return front;
+    }
+
+    public Vector3f getRight() {
+        return right;
     }
 }

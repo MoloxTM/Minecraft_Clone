@@ -12,11 +12,13 @@ import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.packet.PlayersListPacket;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.world.Chunk;
+import fr.math.minecraft.client.world.ChunkGenerationWorker;
 import fr.math.minecraft.client.world.Coordinates;
 import fr.math.minecraft.client.world.World;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
+import org.joml.Vector3f;
 import org.joml.Vector3i;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL;
@@ -31,6 +33,9 @@ import java.nio.DoubleBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import static org.lwjgl.openal.ALC10.*;
 import static org.lwjgl.opengl.GL33.*;
@@ -62,8 +67,8 @@ public class Game {
     private DoubleBuffer mouseXBuffer, mouseYBuffer;
     private boolean debugging;
     private int frames, fps;
-    private PriorityQueue<Coordinates> chunkLoadingQueue;
-
+    private ThreadPoolExecutor chunkLoadingQueue;
+    private HashMap<Coordinates, Boolean> exploredChunks;
 
     private Game() {
         this.initWindow();
@@ -125,8 +130,8 @@ public class Game {
         this.debugging = false;
         this.frames = 0;
         this.fps = 0;
-        Comparator<Coordinates> comparator = (o1, o2) -> Double.compare(o1.compareTo(o2), 0.0);
-        this.chunkLoadingQueue = new PriorityQueue<>(comparator);
+        this.chunkLoadingQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
+        this.exploredChunks = new HashMap<>();
 
         this.loadSplashText();
 
@@ -166,28 +171,29 @@ public class Game {
 
     }
 
-    private void test() {
-        int startX = (int) player.getPosition().x / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE;
-        int startY = (int) player.getPosition().y / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE;
-        int startZ = (int) player.getPosition().z / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE;
+    public void loadChunks() {
 
-        int endX = (int) player.getPosition().x / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE;
+        int startX = (int) (player.getPosition().x / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE);
+        int startY = (int) player.getPosition().y / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE;
+        int startZ = (int) (player.getPosition().z / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE);
+
+        int endX = (int) (player.getPosition().x / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE);
         int endY = (int) player.getPosition().y / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE;
-        int endZ = (int) player.getPosition().z / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE;
+        int endZ = (int) (player.getPosition().z / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE);
 
         for (int x = startX; x <= endX; x++) {
             for (int y = startY; y <= endY; y++) {
                 for (int z = startZ; z <= endZ; z++) {
 
-                    if (chunkLoadingQueue.contains(new Coordinates(x, y, z))) return;
+                    Coordinates coordinates = new Coordinates(x, y, z);
 
-                    synchronized (getChunkLoadingQueue()) {
-                        chunkLoadingQueue.add(new Coordinates(x, y, z));
-                    }
+                    if (exploredChunks.containsKey(coordinates)) continue;
+
+                    chunkLoadingQueue.submit(new ChunkGenerationWorker(this, coordinates));
+                    exploredChunks.put(coordinates, true);
                 }
             }
         }
-
     }
 
     public void run() {
@@ -266,7 +272,7 @@ public class Game {
             return;
         }
 
-        test();
+        this.loadChunks();
         camera.update(player);
         time += 0.01f;
         for (Player player : players.values()) {
@@ -298,6 +304,7 @@ public class Game {
                 renderer.render(camera, chunk);
             }
         }
+
 
         for (Player player : players.values()) {
             renderer.render(camera, player);
@@ -386,7 +393,4 @@ public class Game {
         this.debugging = debugging;
     }
 
-    public PriorityQueue<Coordinates> getChunkLoadingQueue() {
-        return chunkLoadingQueue;
-    }
 }

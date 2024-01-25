@@ -35,9 +35,9 @@ public class Coordinates {
         double distance2 = Utils.distance(player, o);
 
         if (distance1 < distance2) {
-            return -1;
-        } else if (distance1 > distance2) {
             return 1;
+        } else if (distance1 > distance2) {
+            return -1;
         }
         return 0;
     }
