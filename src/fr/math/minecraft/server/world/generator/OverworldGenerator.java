@@ -1,5 +1,6 @@
 package fr.math.minecraft.server.world.generator;
 
+import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.server.manager.BiomeManager;
 import fr.math.minecraft.server.math.InterpolateMath;
 import fr.math.minecraft.server.world.Coordinates;
@@ -20,6 +21,7 @@ public class OverworldGenerator implements TerrainGenerator {
     public OverworldGenerator() {
         this.noise = new NoiseGenerator(9, 30, 800.0f, .7f, 25);
         this.heightMap = new HashMap<>();
+
     }
 
     public void fillHeightMap(ServerChunk chunk, int xMin, int xMax, int zMin, int zMax) {
@@ -44,7 +46,7 @@ public class OverworldGenerator implements TerrainGenerator {
 
     @Override
     public void generateChunk(ServerChunk chunk) {
-
+        int yTree = -1;
         this.fillHeightMap(chunk, 0, ServerChunk.SIZE - 1, 0, ServerChunk.SIZE - 1);
         for (int x = 0; x < ServerChunk.SIZE; x++) {
             for (int z = 0; z < ServerChunk.SIZE; z++) {
@@ -52,14 +54,7 @@ public class OverworldGenerator implements TerrainGenerator {
                 AbstractBiome currentBiome = biomeManager.getBiome(x+chunk.getPosition().x*ServerChunk.SIZE,z+chunk.getPosition().z*ServerChunk.SIZE);
 
                 int worldHeight = heightMap.get(new Vector2i(x, z));
-                if(worldHeight < 0)System.out.println("WorldHeight:" + worldHeight);
 
-                /*
-                if(currentBiome instanceof PlainBiome) {
-                    if(worldHeight != 0 && worldHeight >0) {
-                        currentBiome.buildTree(chunk, 7, worldHeight, 7);
-                    }
-                }*/
                 for (int y = 0; y < ServerChunk.SIZE; y++) {
                     int worldY = y + chunk.getPosition().y * ServerChunk.SIZE;
                     Material material = Material.AIR;
@@ -78,7 +73,15 @@ public class OverworldGenerator implements TerrainGenerator {
                         }
                     }
                     chunk.setBlock(x, y, z, material.getId());
+                    if(x == 7 && z == 7 && material.equals(currentBiome.getUpperBlock()) && (y + 8) < ServerChunk.SIZE) {
+                        yTree = y;
+                    }
                 }
+                if(currentBiome instanceof PlainBiome && yTree != -1) {
+                    currentBiome.buildTree(chunk, 7, yTree, 7);
+                }
+
+
             }
         }
     }
