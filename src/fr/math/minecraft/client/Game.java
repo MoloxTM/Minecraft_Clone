@@ -191,7 +191,7 @@ public class Game {
                     int worldY = y * Chunk.SIZE;
                     int worldZ = z * Chunk.SIZE;
 
-                    if (Utils.distance(player, new Vector3f(worldX, worldY, worldZ)) >= 3 * Chunk.SIZE) {
+                    if (Utils.distance(player, new Vector3f(worldX, worldY, worldZ)) >= GameConfiguration.CHUNK_RENDER_DISTANCE * Chunk.SIZE) {
                         continue;
                     }
 
