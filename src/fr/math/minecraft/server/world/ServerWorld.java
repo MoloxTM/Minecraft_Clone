@@ -1,6 +1,7 @@
 package fr.math.minecraft.server.world;
 
 import fr.math.minecraft.client.meshs.ChunkMesh;
+import fr.math.minecraft.server.Structure;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -13,9 +14,11 @@ public class ServerWorld {
     public final static int WIDTH = 10;
     public final static int HEIGHT = 10;
     public final static int DEPTH = 10;
+    private final HashMap<Coordinates, Structure> structures;
 
     public ServerWorld() {
         this.chunks = new HashMap<>();
+        this.structures = new HashMap<>();
     }
 
     public void buildChunks() {

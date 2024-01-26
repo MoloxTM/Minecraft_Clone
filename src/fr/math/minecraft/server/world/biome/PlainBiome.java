@@ -4,6 +4,8 @@ import fr.math.minecraft.server.builder.StructureBuilder;
 import fr.math.minecraft.server.world.Material;
 import fr.math.minecraft.server.world.ServerChunk;
 
+import java.util.Random;
+
 public class PlainBiome extends AbstractBiome{
     @Override
     public Material getUpperBlock() {
@@ -17,7 +19,11 @@ public class PlainBiome extends AbstractBiome{
 
     @Override
     public void buildTree(ServerChunk chunk, int x, int y, int z) {
-        StructureBuilder.buildSimpleTree(chunk, x, y, z);
+        Random random = new Random();
+        float dropRate = random.nextFloat() * 100.0f;
+        if(dropRate < 1.0f) {
+            StructureBuilder.buildSimpleTree(chunk, x, y, z);
+        }
     }
 
     @Override
