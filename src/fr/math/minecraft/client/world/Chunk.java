@@ -1,5 +1,6 @@
 package fr.math.minecraft.client.world;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import fr.math.minecraft.client.meshs.ChunkMesh;
 import org.joml.Vector3i;
 
@@ -27,6 +28,19 @@ public class Chunk {
         }
         this.empty = true;
         this.chunkMesh = null;
+    }
+
+    public Chunk(JsonNode chunkData) {
+        this.position = new Vector3i(chunkData.get("x").asInt(), chunkData.get("y").asInt(), chunkData.get("z").asInt());
+        this.blocks = new byte[VOLUME];
+
+        JsonNode dataBlocks = chunkData.get("blocks");
+
+        for (int i = 0; i < dataBlocks.size(); i++) {
+            JsonNode blockNode = dataBlocks.get(i);
+            byte block =(byte) blockNode.asInt();
+            blocks[i] = block;
+        }
     }
 
     public byte[] getBlocks() {
@@ -70,4 +84,5 @@ public class Chunk {
         }
         return count;
     }
+
 }

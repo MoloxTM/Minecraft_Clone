@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.math.minecraft.client.world.Chunk;
+import fr.math.minecraft.client.world.Material;
+import fr.math.minecraft.client.world.World;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.server.world.Coordinates;
@@ -100,6 +103,11 @@ public class MinecraftServer {
 
                     socket.send(packet);
                     break;
+                case "CHUNK_EMPTY":
+                    packet = this.handleChunkEmptyPacket(packetData, address, clientPort);
+
+                    socket.send(packet);
+                    break;
                 default:
                     String message = "UNAUTHORIZED_PACKET";
                     buffer = message.getBytes(StandardCharsets.UTF_8);
@@ -129,6 +137,37 @@ public class MinecraftServer {
 
         return new DatagramPacket(buffer, buffer.length, address, clientPort);
 
+    }
+
+    private DatagramPacket handleChunkEmptyPacket(JsonNode packetData, InetAddress address, int clientPort) {
+        int worldX = packetData.get("x").asInt();
+        int worldY = packetData.get("y").asInt();
+        int worldZ = packetData.get("z").asInt();
+
+        int chunkX = (int) Math.floor(worldX / (double) ServerChunk.SIZE);
+        int chunkY = (int) Math.floor(worldY / (double) ServerChunk.SIZE);
+        int chunkZ = (int) Math.floor(worldZ / (double) ServerChunk.SIZE);
+
+        ServerChunk chunk = world.getChunk(chunkX, chunkY, chunkZ);
+
+        if (chunk == null) {
+            chunk = new ServerChunk(chunkX, chunkY, chunkZ);
+            chunk.generate();
+            world.getChunks().put(new Coordinates(chunkX, chunkY, chunkZ), chunk);
+        }
+
+        int blockX = worldX % ServerChunk.SIZE;
+        int blockY = worldY % ServerChunk.SIZE;
+        int blockZ = worldZ % ServerChunk.SIZE;
+
+        blockX = blockX < 0 ? blockX + ServerChunk.SIZE : blockX;
+        blockY = blockY < 0 ? blockY + ServerChunk.SIZE : blockY;
+        blockZ = blockZ < 0 ? blockZ + ServerChunk.SIZE : blockZ;
+
+        String response = chunk.getBlock(blockX, blockY, blockZ) == Material.AIR.getId() ? "true" : "false";
+        byte[] buffer = response.getBytes(StandardCharsets.UTF_8);
+
+        return new DatagramPacket(buffer, buffer.length, address, clientPort);
     }
 
     private DatagramPacket handleSkinRequest(JsonNode packetData, InetAddress address, int clientPort) {

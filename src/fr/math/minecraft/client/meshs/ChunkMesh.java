@@ -9,9 +9,12 @@ import static org.lwjgl.opengl.GL33.*;
 
 public class ChunkMesh extends Mesh {
 
+    private boolean chunkMeshInitiated;
+
     public ChunkMesh(Chunk chunk) {
-        vertices = MeshBuilder.buildChunkMesh(chunk);
-        this.init();
+        vertices = new MeshBuilder().buildChunkMesh(chunk);
+        this.chunkMeshInitiated = false;
+        //this.init();
     }
 
     @Override
@@ -28,6 +31,8 @@ public class ChunkMesh extends Mesh {
 
         vao.unbind();
         vbo.unbind();
+
+        chunkMeshInitiated = true;
     }
 
     @Override
@@ -35,5 +40,13 @@ public class ChunkMesh extends Mesh {
         vao.bind();
         glDrawArrays(GL_TRIANGLES, 0, vertices.length);
         vao.unbind();
+    }
+
+    public boolean isChunkMeshInitiated() {
+        return chunkMeshInitiated;
+    }
+
+    public void setChunkMeshInitiated(boolean chunkMeshInitiated) {
+        this.chunkMeshInitiated = chunkMeshInitiated;
     }
 }

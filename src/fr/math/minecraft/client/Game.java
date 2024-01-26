@@ -12,10 +12,13 @@ import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.packet.PlayersListPacket;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.world.Chunk;
+import fr.math.minecraft.client.world.ChunkGenerationWorker;
+import fr.math.minecraft.client.world.Coordinates;
 import fr.math.minecraft.client.world.World;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
+import org.joml.Vector3f;
 import org.joml.Vector3i;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL;
@@ -29,9 +32,10 @@ import java.io.*;
 import java.nio.DoubleBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import static org.lwjgl.openal.ALC10.*;
 import static org.lwjgl.opengl.GL33.*;
@@ -62,6 +66,9 @@ public class Game {
     private MenuManager menuManager;
     private DoubleBuffer mouseXBuffer, mouseYBuffer;
     private boolean debugging;
+    private int frames, fps;
+    private ThreadPoolExecutor chunkLoadingQueue;
+    private HashMap<Coordinates, Boolean> exploredChunks;
 
     private Game() {
         this.initWindow();
@@ -121,6 +128,10 @@ public class Game {
         this.mouseXBuffer = BufferUtils.createDoubleBuffer(1);
         this.mouseYBuffer = BufferUtils.createDoubleBuffer(1);
         this.debugging = false;
+        this.frames = 0;
+        this.fps = 0;
+        this.chunkLoadingQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
+        this.exploredChunks = new HashMap<>();
 
         this.loadSplashText();
 
@@ -160,9 +171,43 @@ public class Game {
 
     }
 
+    public void loadChunks() {
+
+        int startX = (int) (player.getPosition().x / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE);
+        int startY = (int) player.getPosition().y / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE;
+        int startZ = (int) (player.getPosition().z / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE);
+
+        int endX = (int) (player.getPosition().x / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE);
+        int endY = (int) player.getPosition().y / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE;
+        int endZ = (int) (player.getPosition().z / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE);
+
+        for (int x = startX; x <= endX; x++) {
+            for (int y = startY; y <= endY; y++) {
+                for (int z = startZ; z <= endZ; z++) {
+
+                    Coordinates coordinates = new Coordinates(x, y, z);
+
+                    int worldX = x * Chunk.SIZE;
+                    int worldY = y * Chunk.SIZE;
+                    int worldZ = z * Chunk.SIZE;
+
+                    if (Utils.distance(player, new Vector3f(worldX, worldY, worldZ)) >= GameConfiguration.CHUNK_RENDER_DISTANCE * Chunk.SIZE) {
+                        continue;
+                    }
+
+                    if (exploredChunks.containsKey(coordinates)) continue;
+
+                    chunkLoadingQueue.submit(new ChunkGenerationWorker(this, coordinates));
+                    exploredChunks.put(coordinates, true);
+                }
+            }
+        }
+    }
+
     public void run() {
 
-        double lastTime = glfwGetTime();
+        double lastDeltaTime = glfwGetTime();
+        double lastFramesTime = glfwGetTime();
 
         soundManager.getRandomMusic().play();
 
@@ -175,13 +220,19 @@ public class Game {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             double currentTime = glfwGetTime();
-            double deltaTime = currentTime - lastTime;
+            double deltaTime = currentTime - lastDeltaTime;
+
+            if (currentTime - lastFramesTime >= 1) {
+                lastFramesTime = currentTime;
+                fps = frames;
+                frames = 0;
+            }
 
             this.deltaTime = (float) deltaTime;
 
             updateTimer += deltaTime;
 
-            lastTime = currentTime;
+            lastDeltaTime = currentTime;
 
             while (updateTimer > GameConfiguration.UPDATE_TICK) {
                 this.update();
@@ -193,6 +244,8 @@ public class Game {
             }
 
             this.render(renderer);
+
+            frames++;
 
             glfwSwapBuffers(window);
             glfwPollEvents();
@@ -226,6 +279,8 @@ public class Game {
         if (state == GameState.MAIN_MENU) {
             return;
         }
+
+        this.loadChunks();
         camera.update(player);
         time += 0.01f;
         for (Player player : players.values()) {
@@ -247,23 +302,24 @@ public class Game {
         synchronized (world.getChunks()) {
             for (Chunk chunk : world.getChunks().values()) {
 
-                if (chunk.getChunkMesh() == null && !chunk.isEmpty()) {
-                    chunk.setChunkMesh(new ChunkMesh(chunk));
+                if (chunk.isEmpty()) continue;
+                if (chunk.getChunkMesh() == null) continue;
+
+                if (!chunk.getChunkMesh().isChunkMeshInitiated()) {
+                    chunk.getChunkMesh().init();
                 }
 
-                if (!chunk.isEmpty()) {
-                    renderer.render(camera, chunk);
-                }
+                renderer.render(camera, chunk);
             }
         }
+
 
         for (Player player : players.values()) {
             renderer.render(camera, player);
         }
 
-        if (isDebugging()) {
-            renderer.renderDebugTools(camera, player);
-        }
+        renderer.renderDebugTools(camera, player, fps);
+
     }
 
     public static Game getInstance() {
@@ -344,4 +400,5 @@ public class Game {
     public void setDebugging(boolean debugging) {
         this.debugging = debugging;
     }
+
 }

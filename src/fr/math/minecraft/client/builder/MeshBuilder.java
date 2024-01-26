@@ -1,26 +1,39 @@
 package fr.math.minecraft.client.builder;
 
 import fr.math.minecraft.client.Game;
+import fr.math.minecraft.client.packet.ChunkEmptyPacket;
 import fr.math.minecraft.client.vertex.Vertex;
 import fr.math.minecraft.client.meshs.model.BlockModel;
 import fr.math.minecraft.client.world.Chunk;
+import fr.math.minecraft.client.world.Coordinates;
 import fr.math.minecraft.client.world.Material;
 import fr.math.minecraft.client.world.World;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MeshBuilder {
 
-    public static boolean isEmpty(int worldX, int worldY, int worldZ) {
+    private static int counter = 0;
+    private HashMap<Coordinates, Boolean> emptyMap = new HashMap<>();
+
+    public boolean isEmpty(int worldX, int worldY, int worldZ) {
+
+        Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
+
+        if (emptyMap.containsKey(coordinates)) {
+            return emptyMap.get(coordinates);
+        }
+
         int chunkX = (int) Math.floor(worldX / (double) Chunk.SIZE);
         int chunkY = (int) Math.floor(worldY / (double) Chunk.SIZE);
         int chunkZ = (int) Math.floor(worldZ / (double) Chunk.SIZE);
 
         World world = Game.getInstance().getWorld();
         Chunk chunk = world.getChunk(chunkX, chunkY, chunkZ);
-        if (chunk == null) return true;
 
         int blockX = worldX % Chunk.SIZE;
         int blockY = worldY % Chunk.SIZE;
@@ -30,6 +43,7 @@ public class MeshBuilder {
         blockY = blockY < 0 ? blockY + Chunk.SIZE : blockY;
         blockZ = blockZ < 0 ? blockZ + Chunk.SIZE : blockZ;
 
+        emptyMap.put(coordinates, chunk.getBlock(blockX, blockY, blockZ) == Material.AIR.getId());
         return chunk.getBlock(blockX, blockY, blockZ) == Material.AIR.getId();
     }
 
@@ -52,7 +66,7 @@ public class MeshBuilder {
     }
 
 
-    public static Vertex[] buildChunkMesh(Chunk chunk) {
+    public Vertex[] buildChunkMesh(Chunk chunk) {
         ArrayList<Vertex> vertices = new ArrayList<>();
         for (int x = 0; x < Chunk.SIZE; x++) {
             for (int y = 0; y < Chunk.SIZE; y++) {
@@ -158,6 +172,7 @@ public class MeshBuilder {
                 }
             }
         }
+        counter = 0;
 
         return vertices.toArray(new Vertex[0]);
     }

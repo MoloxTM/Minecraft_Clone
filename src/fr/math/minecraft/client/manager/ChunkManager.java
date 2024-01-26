@@ -1,7 +1,9 @@
-package fr.math.minecraft.server.manager;
+package fr.math.minecraft.client.manager;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.math.minecraft.client.Game;
+import fr.math.minecraft.client.builder.MeshBuilder;
+import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.world.Chunk;
 import fr.math.minecraft.client.world.Coordinates;
 import fr.math.minecraft.client.world.World;
@@ -20,25 +22,24 @@ public class ChunkManager {
         int z = chunkData.get("z").asInt();
 
         World world = Game.getInstance().getWorld();
+        Chunk chunk = world.getChunk(x, y, z);
+
+        if (chunk == null) {
+            chunk = new Chunk(x, y, z);
+        }
+
+        for (int i = 0; i < blocks.size(); i++) {
+            JsonNode blockNode = blocks.get(i);
+            byte block =(byte) blockNode.asInt();
+            chunk.getBlocks()[i] = block;
+        }
+
+        if (chunk.getBlocksSize() > 0) {
+            chunk.setEmpty(false);
+        }
 
         synchronized (world.getChunks()) {
-            Chunk chunk = world.getChunk(x, y, z);
-
-            if (chunk == null) {
-                chunk = new Chunk(x, y, z);
-            }
-
-            for (int i = 0; i < blocks.size(); i++) {
-                JsonNode blockNode = blocks.get(i);
-                byte block =(byte) blockNode.asInt();
-                chunk.getBlocks()[i] = block;
-            }
-
-            if (chunk.getBlocksSize() > 0) {
-                chunk.setEmpty(false);
-            }
-
-            world.getChunks().put(new Coordinates(x, y, z), chunk);
+            world.addChunk(chunk);
         }
     }
 

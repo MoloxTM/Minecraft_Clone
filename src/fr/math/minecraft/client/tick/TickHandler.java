@@ -3,17 +3,27 @@ package fr.math.minecraft.client.tick;
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.GameConfiguration;
+import fr.math.minecraft.client.Utils;
 import fr.math.minecraft.client.entity.Player;
+import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.packet.ChunkRequestPacket;
 import fr.math.minecraft.client.world.Chunk;
-import fr.math.minecraft.server.manager.ChunkManager;
+import fr.math.minecraft.client.manager.ChunkManager;
+import fr.math.minecraft.client.world.Coordinates;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
+import org.joml.Vector3ic;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.PriorityQueue;
 
 import static org.lwjgl.glfw.GLFW.*;
 
 public class TickHandler extends Thread {
 
-    private final static float TICK_PER_SECONDS = 1.0f;
+    private final static float TICK_PER_SECONDS = 20.0f;
     private final static float TICK_RATE = 1.0f / TICK_PER_SECONDS;
     private final Game game;
     private final ChunkManager chunkManager;
@@ -41,40 +51,10 @@ public class TickHandler extends Thread {
                 tick();
                 tickTimer -= TICK_RATE;
             }
-
         }
     }
 
     private void tick() {
-        Player player = game.getPlayer();
-
-        int startX = (int) player.getPosition().x / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE;
-        int startY = (int) player.getPosition().y / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE;
-        int startZ = (int) player.getPosition().z / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE;
-
-        int endX = (int) player.getPosition().x / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE;
-        int endY = (int) player.getPosition().y / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE;
-        int endZ = (int) player.getPosition().z / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE;
-
-
-        for (int x = startX; x <= endX; x++) {
-            for (int y = startY; y <= endY; y++) {
-                for (int z = startZ; z <= endZ; z++) {
-
-                    if (game.getWorld().getChunk(x, y, z) != null) continue;
-
-                    ChunkRequestPacket packet = new ChunkRequestPacket(new Vector3f(x, y, z));
-
-                    packet.send();
-
-                    if (packet.getChunkData() == null) continue;
-
-                    JsonNode chunkData = packet.getChunkData();
-                    chunkManager.loadChunkData(chunkData);
-
-                }
-            }
-        }
 
     }
 

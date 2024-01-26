@@ -35,9 +35,9 @@ public class ClientMain {
 
         System.out.println("Instance de game ClientMain :" + Game.getInstance() + "\n");
         Game game = Game.getInstance();
+        game.setPlayer(new Player(args[1]));
         game.init();
         BufferedImage skin = loadSkin(skinPath);
-        game.setPlayer(new Player(args[1]));
         game.getPlayer().setSkin(skin);
         game.run();
     }

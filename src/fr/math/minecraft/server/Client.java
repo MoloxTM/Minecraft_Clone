@@ -79,7 +79,7 @@ public class Client {
             position = position.add(new Vector3f(0.0f, .5f, 0.0f));
 
         if (sneaking)
-            position = position.sub(new Vector3f(0.0f, .05f, 0.0f));
+            position = position.sub(new Vector3f(0.0f, .5f, 0.0f));
 
     }
 
