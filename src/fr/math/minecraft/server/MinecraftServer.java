@@ -279,6 +279,10 @@ public class MinecraftServer {
         return instance;
     }
 
+    public ServerWorld getWorld() {
+        return world;
+    }
+
     public Map<String, Long> getLastActivities() {
         return lastActivities;
     }

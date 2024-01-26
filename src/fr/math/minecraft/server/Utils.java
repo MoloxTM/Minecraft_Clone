@@ -1,7 +1,7 @@
-package fr.math.minecraft.client;
+package fr.math.minecraft.server;
 
 import fr.math.minecraft.client.entity.Player;
-import fr.math.minecraft.client.world.Coordinates;
+import fr.math.minecraft.server.world.Coordinates;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 

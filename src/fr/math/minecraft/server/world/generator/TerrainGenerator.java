@@ -5,6 +5,5 @@ import fr.math.minecraft.server.world.ServerChunk;
 public interface TerrainGenerator {
 
     void generateChunk(ServerChunk chunk);
-    void generateStructure(ServerChunk chunk);
 
 }

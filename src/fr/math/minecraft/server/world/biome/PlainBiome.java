@@ -1,12 +1,19 @@
 package fr.math.minecraft.server.world.biome;
 
-import fr.math.minecraft.server.builder.StructureBuilder;
+import fr.math.minecraft.server.world.Coordinates;
 import fr.math.minecraft.server.world.Material;
 import fr.math.minecraft.server.world.ServerChunk;
+import fr.math.minecraft.server.world.generator.NoiseGenerator;
 
-import java.util.Random;
+import java.util.ArrayList;
 
 public class PlainBiome extends AbstractBiome{
+
+    public PlainBiome() {
+        this.noise = new NoiseGenerator(9, 30, 1000.0f, .6f, 25);
+        this.biomeName = "Plains";
+    }
+
     @Override
     public Material getUpperBlock() {
         return Material.GRASS;
@@ -18,12 +25,8 @@ public class PlainBiome extends AbstractBiome{
     }
 
     @Override
-    public void buildTree(ServerChunk chunk, int x, int y, int z) {
-        Random random = new Random();
-        float dropRate = random.nextFloat() * 100.0f;
-        if(dropRate < 1.0f) {
-            StructureBuilder.buildSimpleTree(chunk, x, y, z);
-        }
+    public void buildTree(ServerChunk chunk, int x, int y, int z, ArrayList<Coordinates> trees) {
+
     }
 
     @Override

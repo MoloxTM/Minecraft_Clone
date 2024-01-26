@@ -5,6 +5,7 @@ out vec4 FragColor;
 in vec2 textureCoord;
 in float blockID;
 in float blockFace;
+in float brightnessFace;
 
 uniform sampler2D uTexture;
 
@@ -23,6 +24,8 @@ void main() {
     if(equals(blockID, 3.0f) && equals(blockFace, 2.0f)){
         tex.rgb *= vec3(0.5, 0.75, 0.4);
     }
+
+    tex.rgb *= brightnessFace;
 
     FragColor = vec4(tex, opacity);
 }
