@@ -187,6 +187,14 @@ public class Game {
 
                     Coordinates coordinates = new Coordinates(x, y, z);
 
+                    int worldX = x * Chunk.SIZE;
+                    int worldY = y * Chunk.SIZE;
+                    int worldZ = z * Chunk.SIZE;
+
+                    if (Utils.distance(player, new Vector3f(worldX, worldY, worldZ)) >= 3 * Chunk.SIZE) {
+                        continue;
+                    }
+
                     if (exploredChunks.containsKey(coordinates)) continue;
 
                     chunkLoadingQueue.submit(new ChunkGenerationWorker(this, coordinates));
