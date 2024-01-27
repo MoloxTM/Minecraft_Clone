@@ -1,5 +1,6 @@
 package fr.math.minecraft.server.builder;
 
+import fr.math.minecraft.server.RandomSeed;
 import fr.math.minecraft.server.world.Material;
 import fr.math.minecraft.server.world.ServerChunk;
 import fr.math.minecraft.server.world.biome.PlainBiome;
@@ -64,9 +65,18 @@ public class StructureBuilder {
     }
 
     public static void buildSimpleCactus(ServerChunk chunk, int x, int y, int z) {
-        int cactusSize = 3;
-        for(int i=1; i<=cactusSize;i++){
+        RandomSeed randomSeed = RandomSeed.getInstance();
+        int cactusSize = randomSeed.nextInt(3, 4);
+        for(int i = 1; i<=cactusSize;i++){
             chunk.setBlock(x,y+i,z,Material.CACTUS.getId());
+            chunk.setBlock(x-1,y+i,z-1,Material.AIR.getId());
+            chunk.setBlock(x,y+i,z-1,Material.AIR.getId());
+            chunk.setBlock(x + 1,y+i,z-1,Material.AIR.getId());
+            chunk.setBlock(x-1,y+i,z,Material.AIR.getId());
+            chunk.setBlock(x+1,y+i,z,Material.AIR.getId());
+            chunk.setBlock(x-1,y+i,z+1,Material.AIR.getId());
+            chunk.setBlock(x,y+i,z+1,Material.AIR.getId());
+            chunk.setBlock(x+1,y+i,z+1,Material.AIR.getId());
         }
     }
 }

@@ -11,6 +11,7 @@ import fr.math.minecraft.server.world.Material;
 import fr.math.minecraft.server.world.biome.AbstractBiome;
 import fr.math.minecraft.server.world.biome.DesertBiome;
 import fr.math.minecraft.server.world.biome.ForestBiome;
+import fr.math.minecraft.server.world.biome.PlainBiome;
 import org.joml.Vector2i;
 import org.joml.Vector3i;
 
@@ -79,7 +80,10 @@ public class OverworldGenerator implements TerrainGenerator {
                         material = currentBiome.getUpperBlock();
 
                         if(currentBiome instanceof ForestBiome && ((x - 2) >= 0) && ((x + 2) <= 15) && ((z - 2) >= 0) && ((z + 2) <= 15) && ((y + 8) < ServerChunk.SIZE)){
-
+                            currentBiome.buildTree(chunk, x, y, z, minecraftServer.getWorld().getTrees());
+                        } else if(currentBiome instanceof PlainBiome && ((x - 2) >= 0) && ((x + 2) <= 15) && ((z - 2) >= 0) && ((z + 2) <= 15) && ((y + 8) < ServerChunk.SIZE)){
+                            currentBiome.buildTree(chunk, x, y, z, minecraftServer.getWorld().getTrees());
+                        }else if(currentBiome instanceof DesertBiome && ((x - 2) >= 0) && ((x + 2) <= 15) && ((z - 2) >= 0) && ((z + 2) <= 15) && ((y + 4) < ServerChunk.SIZE)){
                             currentBiome.buildTree(chunk, x, y, z, minecraftServer.getWorld().getTrees());
                         }
 
