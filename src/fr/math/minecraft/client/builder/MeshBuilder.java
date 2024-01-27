@@ -1,6 +1,7 @@
 package fr.math.minecraft.client.builder;
 
 import fr.math.minecraft.client.Game;
+import fr.math.minecraft.client.meshs.model.NatureModel;
 import fr.math.minecraft.client.packet.ChunkEmptyPacket;
 import fr.math.minecraft.client.vertex.Vertex;
 import fr.math.minecraft.client.meshs.model.BlockModel;
@@ -74,10 +75,12 @@ public class MeshBuilder {
 
                     byte block = chunk.getBlock(x, y, z);
                     if (block == Material.AIR.getId()) continue;
+                    if(block == Material.WEED.getId()) System.out.println("J'ai trouvé de la weed");
 
                     Material material = Material.getMaterialById(block);
 
                     if (material == null) material = Material.DEBUG;
+
 
                     int worldX = x + chunk.getPosition().x * Chunk.SIZE;
                     int worldY = y + chunk.getPosition().y * Chunk.SIZE;
@@ -167,6 +170,21 @@ public class MeshBuilder {
                         for (int k = 0; k < 6; k++)  {
                             Vector3f blockVector = new Vector3f(x, y, z);
                             vertices.add(new Vertex(blockVector.add(BlockModel.NZ_POS[k]), textureCoords[k],material.getId(),5));
+                        }
+                    }
+
+                    if(material == Material.WEED) {
+                        System.out.println("C'est de la weed");
+                        textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
+                        vertices = new ArrayList<>();
+
+                        for (int k = 0; k < 6; k++)  {
+                            Vector3f blockVector = new Vector3f(x, y, z);
+                            vertices.add(new Vertex(blockVector.add(NatureModel.FIRST_FACE[k]), textureCoords[k],material.getId(),0));
+                        }
+                        for (int k = 0; k < 6; k++)  {
+                            Vector3f blockVector = new Vector3f(x, y, z);
+                            vertices.add(new Vertex(blockVector.add(NatureModel.SECOND_FACE[k]), textureCoords[k],material.getId(),0));
                         }
                     }
                 }

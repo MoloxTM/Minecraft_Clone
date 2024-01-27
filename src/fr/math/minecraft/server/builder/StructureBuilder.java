@@ -5,7 +5,7 @@ import fr.math.minecraft.server.world.Material;
 import fr.math.minecraft.server.world.ServerChunk;
 import fr.math.minecraft.server.world.biome.PlainBiome;
 
-public class StructureBuilder {
+public class  StructureBuilder {
 
     public static void buildSimpleTree(ServerChunk chunk, int x, int y, int z) {
 
@@ -66,17 +66,41 @@ public class StructureBuilder {
 
     public static void buildSimpleCactus(ServerChunk chunk, int x, int y, int z) {
         RandomSeed randomSeed = RandomSeed.getInstance();
-        int cactusSize = randomSeed.nextInt(3, 4);
-        for(int i = 1; i<=cactusSize;i++){
-            chunk.setBlock(x,y+i,z,Material.CACTUS.getId());
-            chunk.setBlock(x-1,y+i,z-1,Material.AIR.getId());
-            chunk.setBlock(x,y+i,z-1,Material.AIR.getId());
-            chunk.setBlock(x + 1,y+i,z-1,Material.AIR.getId());
-            chunk.setBlock(x-1,y+i,z,Material.AIR.getId());
-            chunk.setBlock(x+1,y+i,z,Material.AIR.getId());
-            chunk.setBlock(x-1,y+i,z+1,Material.AIR.getId());
-            chunk.setBlock(x,y+i,z+1,Material.AIR.getId());
-            chunk.setBlock(x+1,y+i,z+1,Material.AIR.getId());
+        int cactusSize = randomSeed.nextInt(3, 5);
+        float cactusSizeDrop = randomSeed.nextFloat(100);
+        if(cactusSizeDrop <= 99) {
+            for(int i = 1; i<=cactusSize;i++){
+                chunk.setBlock(x,y+i,z,Material.CACTUS.getId());
+                chunk.setBlock(x-1,y+i,z-1,Material.AIR.getId());
+                chunk.setBlock(x,y+i,z-1,Material.AIR.getId());
+                chunk.setBlock(x + 1,y+i,z-1,Material.AIR.getId());
+                chunk.setBlock(x-1,y+i,z,Material.AIR.getId());
+                chunk.setBlock(x+1,y+i,z,Material.AIR.getId());
+                chunk.setBlock(x-1,y+i,z+1,Material.AIR.getId());
+                chunk.setBlock(x,y+i,z+1,Material.AIR.getId());
+                chunk.setBlock(x+1,y+i,z+1,Material.AIR.getId());
+            }
+        } else {
+            for(int i = 1; i<=cactusSize;i++){
+                chunk.setBlock(x,y+i,z,Material.CACTUS.getId());
+                chunk.setBlock(x-1,y+i,z-1,Material.AIR.getId());
+                chunk.setBlock(x,y+i,z-1,Material.AIR.getId());
+                chunk.setBlock(x + 1,y+i,z-1,Material.AIR.getId());
+                chunk.setBlock(x-1,y+i,z,Material.AIR.getId());
+                chunk.setBlock(x+1,y+i,z,Material.AIR.getId());
+                chunk.setBlock(x-1,y+i,z+1,Material.AIR.getId());
+                chunk.setBlock(x,y+i,z+1,Material.AIR.getId());
+                chunk.setBlock(x+1,y+i,z+1,Material.AIR.getId());
+            }
+            chunk.setBlock(x-1,y+1,z,Material.CACTUS.getId());
+            chunk.setBlock(x+1,y+1,z,Material.CACTUS.getId());
         }
+        System.out.println("Cactus size :" + cactusSize);
+    }
+
+    public static void buildWeed(ServerChunk chunk, int x, int y, int z) {
+        chunk.setBlock(x, y, z, Material.WEED.getId());
+        //System.out.println("Build weed" + "Le b:" + chunk.getBlock(x, y, z));
+
     }
 }

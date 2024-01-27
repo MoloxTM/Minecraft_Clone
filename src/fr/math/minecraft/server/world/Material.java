@@ -10,7 +10,8 @@ public enum Material {
     SAND("Sand",4,2,14),
     CACTUS("Cactus",5,5,7),
     OAK_LOG("Oak log",6,4,14),
-    OAK_LEAVES("Oak leaves",7,4,12);
+    OAK_LEAVES("Oak leaves",7,4,12),
+    WEED("Weed", 8, 6, 13);
 
     private final int x;
     private final int y;
