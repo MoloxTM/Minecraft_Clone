@@ -276,20 +276,19 @@ public class Game {
             ChunkManager chunkManager = new ChunkManager();
             ArrayList<Chunk> chunkToRemove = new ArrayList<>();
             for (Chunk chunk : world.getChunks().values()) {
-                Coordinates coordinates = new Coordinates(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z);
                 if (chunk.isOutOfView(player)) {
                     chunkToRemove.add(chunk);
-                    chunksToLoad.remove(coordinates);
-                    loadingChunks.remove(coordinates);
                 }
             }
             for (Chunk chunk : chunkToRemove) {
                 ChunkMesh mesh = chunk.getMesh();
+                Coordinates coordinates = new Coordinates(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z);
                 if (mesh != null && mesh.isInitiated()) {
                     mesh.delete();
+                    chunk.setMesh(null);
+                    chunkManager.deleteChunk(world, chunk);
+                    loadingChunks.remove(coordinates);
                 }
-                chunk.setMesh(null);
-                chunkManager.deleteChunk(world, chunk);
             }
         }
 
