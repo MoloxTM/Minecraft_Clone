@@ -3,7 +3,6 @@ package fr.math.minecraft.client;
 import fr.math.minecraft.client.builder.TextureBuilder;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.fonts.CFont;
-import fr.math.minecraft.client.gui.buttons.BackToTitleButton;
 import fr.math.minecraft.client.gui.buttons.BlockButton;
 import fr.math.minecraft.client.gui.GuiText;
 import fr.math.minecraft.client.gui.menus.MainMenu;
@@ -49,7 +48,6 @@ public class Renderer {
     private final Map<String, Texture> skinsMap;
     private final CubemapTexture panoramaTexture;
     private String emptyText;
-    private static int count = 0;
 
     public Renderer() {
         this.playerMesh = new PlayerMesh();
@@ -188,7 +186,7 @@ public class Renderer {
 
         camera.matrix(chunkShader, chunk);
 
-        chunk.getChunkMesh().draw();
+        chunk.getMesh().draw();
         terrainTexture.unbind();
     }
 

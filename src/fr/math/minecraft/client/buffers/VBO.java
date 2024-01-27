@@ -65,9 +65,8 @@ public class VBO {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
-    public void bufferFloat(int size, int drawMethod) {
+    public void bufferFloat(FloatBuffer buffer, int drawMethod) {
         this.bind();
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(size);
         glBufferData(GL_ARRAY_BUFFER, buffer, drawMethod);
     }
 
@@ -82,4 +81,9 @@ public class VBO {
     public void unbind() {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
+
+    public void delete() {
+        glDeleteBuffers(id);
+    }
+
 }

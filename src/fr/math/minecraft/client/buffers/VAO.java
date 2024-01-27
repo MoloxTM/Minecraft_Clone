@@ -24,4 +24,7 @@ public class VAO {
         glBindVertexArray(0);
     }
 
+    public void delete() {
+        glDeleteVertexArrays(id);
+    }
 }

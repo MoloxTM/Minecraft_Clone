@@ -1,20 +1,26 @@
 package fr.math.minecraft.client.world;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import fr.math.minecraft.client.GameConfiguration;
+import fr.math.minecraft.client.entity.Player;
+import fr.math.minecraft.client.math.MathUtils;
 import fr.math.minecraft.client.meshs.ChunkMesh;
+import org.joml.Vector3f;
 import org.joml.Vector3i;
 
 public class Chunk {
 
     private final Vector3i position;
+    private Vector3f center;
     private final byte[] blocks;
     private boolean empty;
 
     public final static int SIZE = 16;
     public final static int AREA = SIZE * SIZE;
-
     public final static int VOLUME = SIZE * AREA;
-    private ChunkMesh chunkMesh;
+    public final static float SPHERE_RADIUS = (float) (SIZE * Math.sqrt(3) / 2.0);
+    private ChunkMesh mesh;
+    private boolean deleted;
 
     public Chunk(int x, int y, int z) {
         this.position = new Vector3i(x, y, z);
@@ -26,8 +32,10 @@ public class Chunk {
                 }
             }
         }
+        this.center = this.calculateCenter();
         this.empty = true;
-        this.chunkMesh = null;
+        this.mesh = null;
+        this.deleted = false;
     }
 
     public Chunk(JsonNode chunkData) {
@@ -59,12 +67,12 @@ public class Chunk {
         return position;
     }
 
-    public ChunkMesh getChunkMesh() {
-        return chunkMesh;
+    public ChunkMesh getMesh() {
+        return mesh;
     }
 
-    public void setChunkMesh(ChunkMesh chunkMesh) {
-        this.chunkMesh = chunkMesh;
+    public void setMesh(ChunkMesh chunkMesh) {
+        this.mesh = chunkMesh;
     }
 
     public boolean isEmpty() {
@@ -85,4 +93,34 @@ public class Chunk {
         return count;
     }
 
+    private Vector3f calculateCenter() {
+        float centerX = (position.x + 0.5f) * SIZE;
+        float centerY = (position.y + 0.5f) * SIZE;
+        float centerZ = (position.z + 0.5f) * SIZE;
+
+        return new Vector3f(centerX, centerY, centerZ);
+    }
+
+    public Vector3f getCenter() {
+        return center;
+    }
+
+    public boolean isOutOfView(Player player) {
+
+        int minX = (int) (player.getPosition().x / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE);
+        int minZ = (int) (player.getPosition().z / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE);
+
+        int maxX = (int) (player.getPosition().x / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE);
+        int maxZ = (int) (player.getPosition().z / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE);
+
+        return this.position.x < minX || this.position.x > maxX || this.position.z < minZ || this.position.z > maxZ;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
 }

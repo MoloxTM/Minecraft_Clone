@@ -90,6 +90,10 @@ public class Texture {
 
         logger.info("Chargement de la texture " + imagePath + " effectuée avec succès.");
 
+        if (imagePath != null) {
+            STBImage.stbi_image_free(imageBuffer);
+        }
+
         this.unbind();
     }
 

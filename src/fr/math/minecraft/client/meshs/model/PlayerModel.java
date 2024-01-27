@@ -17,7 +17,7 @@ public class PlayerModel {
 
     public final static float LEG_HEIGHT = CHEST_HEIGHT;
 
-    public static final PlayerVertex[] PLAYER_HEAD_POS = {
+    public final PlayerVertex[] PLAYER_HEAD_POS = {
         // PZ_POS (Backward)
         new PlayerVertex(new Vector3f(-0.25f, -0.25f, 0.25f), new Vector2f(8.0f / SKIN_SIZE, 48.0f / SKIN_SIZE), PlayerVertex.HEAD_PART_ID),
         new PlayerVertex(new Vector3f(-0.25f, 0.25f, 0.25f), new Vector2f(8.0f / SKIN_SIZE, 56.0f / SKIN_SIZE), PlayerVertex.HEAD_PART_ID),
@@ -67,7 +67,7 @@ public class PlayerModel {
         new PlayerVertex(new Vector3f(-0.25f, -0.25f, 0.25f), new Vector2f(16.0f / SKIN_SIZE, 56.0f / SKIN_SIZE), PlayerVertex.HEAD_PART_ID)
     };
 
-    public static final PlayerVertex[] PLAYER_CHEST_POS = {
+    public final PlayerVertex[] PLAYER_CHEST_POS = {
         // PZ_POS
         new PlayerVertex(new Vector3f(-0.25f, -0.25f - CHEST_HEIGHT, 0.25f / 2.0f),    new Vector2f(20.0f / SKIN_SIZE, 32.0f / SKIN_SIZE), PlayerVertex.CHEST_PART_ID),
         new PlayerVertex(new Vector3f(-0.25f, -0.25f               , 0.25f / 2.0f),    new Vector2f(20.0f / SKIN_SIZE, 44.0f / SKIN_SIZE), PlayerVertex.CHEST_PART_ID),
@@ -118,7 +118,7 @@ public class PlayerModel {
         new PlayerVertex(new Vector3f(-0.25f, -0.25f - CHEST_HEIGHT, 0.25f / 2.0f), new Vector2f(28.0f / SKIN_SIZE, 44.0f / SKIN_SIZE), PlayerVertex.CHEST_PART_ID),
     };
 
-    public final static PlayerVertex[] PLAYER_LEFT_HAND = {
+    public final PlayerVertex[] PLAYER_LEFT_HAND = {
         // PZ
         new PlayerVertex(new Vector3f(-0.25f - HAND_WIDTH, -0.25f - CHEST_HEIGHT, .25f / 2.0f), new Vector2f(44.0f / SKIN_SIZE, 32.0f / SKIN_SIZE), PlayerVertex.LEFT_HAND_PART_ID),
         new PlayerVertex(new Vector3f(-0.25f - HAND_WIDTH, -0.25f               , .25f / 2.0f), new Vector2f(44.0f / SKIN_SIZE, 44.0f / SKIN_SIZE), PlayerVertex.LEFT_HAND_PART_ID),
@@ -168,7 +168,7 @@ public class PlayerModel {
         new PlayerVertex(new Vector3f(-0.25f - HAND_WIDTH, -0.25f - HAND_HEIGHT, .25f / 2.0f), new Vector2f(48.0f / SKIN_SIZE, 44.0f / SKIN_SIZE), PlayerVertex.LEFT_HAND_PART_ID),
     };
 
-    public final static PlayerVertex[] PLAYER_RIGHT_HAND = {
+    public final PlayerVertex[] PLAYER_RIGHT_HAND = {
         // PZ
         new PlayerVertex(new Vector3f(-0.25f - HAND_WIDTH + CHEST_WIDTH, -0.25f - CHEST_HEIGHT, .25f / 2.0f), new Vector2f(44.0f / SKIN_SIZE, 32.0f / SKIN_SIZE), PlayerVertex.RIGHT_HAND_PART_ID),
         new PlayerVertex(new Vector3f(-0.25f - HAND_WIDTH + CHEST_WIDTH, -0.25f               , .25f / 2.0f), new Vector2f(44.0f / SKIN_SIZE, 44.0f / SKIN_SIZE), PlayerVertex.RIGHT_HAND_PART_ID),
@@ -218,7 +218,7 @@ public class PlayerModel {
         new PlayerVertex(new Vector3f(-0.25f - HAND_WIDTH + CHEST_WIDTH, -0.25f - HAND_HEIGHT, .25f / 2.0f), new Vector2f(48.0f / SKIN_SIZE, 44.0f / SKIN_SIZE), PlayerVertex.RIGHT_HAND_PART_ID),
     };
 
-    public final static PlayerVertex[] PLAYER_RIGHT_LEG = {
+    public final PlayerVertex[] PLAYER_RIGHT_LEG = {
 
         // PZ
         new PlayerVertex(new Vector3f(-0.25f - HAND_WIDTH + LEG_WIDTH, -0.25f - CHEST_HEIGHT - LEG_HEIGHT, .25f / 2.0f), new Vector2f(4.0f / SKIN_SIZE, 32.0f / SKIN_SIZE), PlayerVertex.RIGHT_LEG_PART_ID),
@@ -269,7 +269,7 @@ public class PlayerModel {
         new PlayerVertex(new Vector3f(-0.25f - HAND_WIDTH + LEG_WIDTH, -0.25f - HAND_HEIGHT - LEG_HEIGHT, .25f / 2.0f), new Vector2f(8.0f / SKIN_SIZE, 44.0f / SKIN_SIZE), PlayerVertex.RIGHT_LEG_PART_ID),
     };
 
-    public final static PlayerVertex[] PLAYER_LEFT_LEG = {
+    public final PlayerVertex[] PLAYER_LEFT_LEG = {
 
             // PZ
             new PlayerVertex(new Vector3f(-0.25f - HAND_WIDTH + LEG_WIDTH , -0.25f - CHEST_HEIGHT - LEG_HEIGHT, .25f / 2.0f), new Vector2f(4.0f / SKIN_SIZE, 32.0f / SKIN_SIZE), PlayerVertex.LEFT_LEG_PART_ID),

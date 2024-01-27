@@ -5,6 +5,9 @@ import fr.math.minecraft.client.buffers.EBO;
 import fr.math.minecraft.client.buffers.VAO;
 import fr.math.minecraft.client.buffers.VBO;
 import fr.math.minecraft.client.fonts.CFont;
+import org.lwjgl.BufferUtils;
+
+import java.nio.FloatBuffer;
 
 import static org.lwjgl.opengl.GL33.*;
 
@@ -15,6 +18,7 @@ public class FontMesh extends Mesh {
     private final float[] vertices;
     private int size;
     private final CFont font;
+    private final FloatBuffer buffer;
 
     public FontMesh(CFont font) {
         this.size = 0;
@@ -24,6 +28,7 @@ public class FontMesh extends Mesh {
             0, 1, 3,
             1, 2, 3
         };
+        this.buffer = BufferUtils.createFloatBuffer(BATCH_SIZE * VERTEX_SIZE);
         this.init();
     }
 
@@ -79,7 +84,7 @@ public class FontMesh extends Mesh {
 
     public void flush() {
         vbo.bind();
-        vbo.bufferFloat(VERTEX_SIZE * BATCH_SIZE, GL_DYNAMIC_DRAW);
+        vbo.bufferFloat(buffer, GL_DYNAMIC_DRAW);
         glBufferSubData(GL_ARRAY_BUFFER, 0, vertices);
         this.draw();
         size = 0;

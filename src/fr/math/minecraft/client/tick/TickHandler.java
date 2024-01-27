@@ -1,23 +1,7 @@
 package fr.math.minecraft.client.tick;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.GameConfiguration;
-import fr.math.minecraft.client.Utils;
-import fr.math.minecraft.client.entity.Player;
-import fr.math.minecraft.client.meshs.ChunkMesh;
-import fr.math.minecraft.client.packet.ChunkRequestPacket;
-import fr.math.minecraft.client.world.Chunk;
 import fr.math.minecraft.client.manager.ChunkManager;
-import fr.math.minecraft.client.world.Coordinates;
-import org.joml.Vector3f;
-import org.joml.Vector3i;
-import org.joml.Vector3ic;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.PriorityQueue;
 
 import static org.lwjgl.glfw.GLFW.*;
 

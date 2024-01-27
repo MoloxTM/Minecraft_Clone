@@ -28,4 +28,8 @@ public class EBO {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
+    public void delete() {
+        glDeleteBuffers(id);
+    }
+
 }

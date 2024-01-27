@@ -3,6 +3,9 @@ package fr.math.minecraft.client.meshs;
 import fr.math.minecraft.client.buffers.EBO;
 import fr.math.minecraft.client.buffers.VAO;
 import fr.math.minecraft.client.buffers.VBO;
+import org.lwjgl.BufferUtils;
+
+import java.nio.FloatBuffer;
 
 import static org.lwjgl.opengl.GL33.*;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
@@ -13,10 +16,11 @@ public class ButtonMesh extends Mesh {
     private float[] vertices;
     public static final float BUTTON_WIDTH = 200 * 2;
     public static final float BUTTON_HEIGHT = 20 * 2;
+    private final FloatBuffer buffer;
 
     public ButtonMesh() {
         int x = 0, y = 0;
-
+        this.buffer = BufferUtils.createFloatBuffer(4 * 4);
         this.vertices = new float[] {
             // x, y, u, v (u = texcoords.x, v = texcoords.y)
             x, y, 0.0f, 170.f / 256.0f,
@@ -43,7 +47,7 @@ public class ButtonMesh extends Mesh {
             x + BUTTON_WIDTH, y, 200.0f / 256.0f, 150.f / 256.0f
         };
         vbo.bind();
-        vbo.bufferFloat(4 * 4, GL_STATIC_DRAW);
+        vbo.bufferFloat(buffer, GL_STATIC_DRAW);
         glBufferSubData(GL_ARRAY_BUFFER, 0, vertices);
         vbo.unbind();
     }
@@ -59,7 +63,7 @@ public class ButtonMesh extends Mesh {
                 x + BUTTON_WIDTH, y, 200.0f / 256.0f, 170.f / 256.0f
         };
         vbo.bind();
-        vbo.bufferFloat(4 * 4, GL_STATIC_DRAW);
+        vbo.bufferFloat(buffer, GL_STATIC_DRAW);
         glBufferSubData(GL_ARRAY_BUFFER, 0, vertices);
         vbo.unbind();
     }

@@ -1,4 +1,4 @@
-package fr.math.minecraft.client;
+package fr.math.minecraft.client.math;
 
 public class AnimationMath {
 

@@ -6,6 +6,8 @@ import fr.math.minecraft.client.gui.buttons.BlockButton;
 import fr.math.minecraft.client.gui.menus.ConnectionMenu;
 import fr.math.minecraft.client.gui.menus.MainMenu;
 import fr.math.minecraft.client.gui.menus.Menu;
+import fr.math.minecraft.client.manager.ChunkManager;
+import fr.math.minecraft.client.manager.FontManager;
 import fr.math.minecraft.client.manager.MenuManager;
 import fr.math.minecraft.client.manager.SoundManager;
 import fr.math.minecraft.client.meshs.ChunkMesh;
@@ -18,8 +20,6 @@ import fr.math.minecraft.client.world.World;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
-import org.joml.Vector3f;
-import org.joml.Vector3i;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.ALC;
@@ -33,7 +33,6 @@ import java.nio.DoubleBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -58,6 +57,7 @@ public class Game {
     private float deltaTime;
     private GameState state;
     private SoundManager soundManager;
+    private FontManager fontManager;
     private final static Logger logger = LoggerUtility.getClientLogger(Game.class, LogType.TXT);
     private float splasheScale = GameConfiguration.DEFAULT_SCALE;
     private int scaleFactor = 1;
@@ -68,7 +68,7 @@ public class Game {
     private boolean debugging;
     private int frames, fps;
     private ThreadPoolExecutor chunkLoadingQueue;
-    private HashMap<Coordinates, Boolean> exploredChunks;
+    private Map<Coordinates, Boolean> loadingChunks;
 
     private Game() {
         this.initWindow();
@@ -131,7 +131,8 @@ public class Game {
         this.frames = 0;
         this.fps = 0;
         this.chunkLoadingQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
-        this.exploredChunks = new HashMap<>();
+        this.loadingChunks = new HashMap<>();
+        this.fontManager = new FontManager();
 
         this.loadSplashText();
 
@@ -171,37 +172,27 @@ public class Game {
 
     }
 
-    public void loadChunks() {
+    public Set<Coordinates> determineChunksToLoad() {
+
+        Set<Coordinates> chunks = new HashSet<>();
 
         int startX = (int) (player.getPosition().x / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE);
-        int startY = (int) player.getPosition().y / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE;
         int startZ = (int) (player.getPosition().z / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE);
 
         int endX = (int) (player.getPosition().x / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE);
-        int endY = (int) player.getPosition().y / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE;
         int endZ = (int) (player.getPosition().z / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE);
 
         for (int x = startX; x <= endX; x++) {
-            for (int y = startY; y <= endY; y++) {
+            for (int y = -3; y <= 10; y++) {
                 for (int z = startZ; z <= endZ; z++) {
 
-                    Coordinates coordinates = new Coordinates(x, y, z);
+                    Coordinates chunkCoordinates = new Coordinates(x, y, z);
 
-                    int worldX = x * Chunk.SIZE;
-                    int worldY = y * Chunk.SIZE;
-                    int worldZ = z * Chunk.SIZE;
-
-                    if (Utils.distance(player, new Vector3f(worldX, worldY, worldZ)) >= GameConfiguration.CHUNK_RENDER_DISTANCE * Chunk.SIZE) {
-                        continue;
-                    }
-
-                    if (exploredChunks.containsKey(coordinates)) continue;
-
-                    chunkLoadingQueue.submit(new ChunkGenerationWorker(this, coordinates));
-                    exploredChunks.put(coordinates, true);
+                    chunks.add(chunkCoordinates);
                 }
             }
         }
+        return chunks;
     }
 
     public void run() {
@@ -280,7 +271,38 @@ public class Game {
             return;
         }
 
-        this.loadChunks();
+        Set<Coordinates> chunksToLoad = this.determineChunksToLoad();
+        synchronized (world.getChunks()) {
+            ChunkManager chunkManager = new ChunkManager();
+            ArrayList<Chunk> chunkToRemove = new ArrayList<>();
+            for (Chunk chunk : world.getChunks().values()) {
+                Coordinates coordinates = new Coordinates(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z);
+                if (chunk.isOutOfView(player)) {
+                    chunkToRemove.add(chunk);
+                    chunksToLoad.remove(coordinates);
+                    loadingChunks.remove(coordinates);
+                }
+            }
+            for (Chunk chunk : chunkToRemove) {
+                ChunkMesh mesh = chunk.getMesh();
+                if (mesh != null && mesh.isInitiated()) {
+                    mesh.delete();
+                }
+                chunk.setMesh(null);
+                chunkManager.deleteChunk(world, chunk);
+            }
+        }
+
+        for (Coordinates coordinates : chunksToLoad) {
+
+            if (loadingChunks.containsKey(coordinates)) {
+                continue;
+            }
+
+            loadingChunks.put(coordinates, true);
+            chunkLoadingQueue.submit(new ChunkGenerationWorker(this, coordinates));
+        }
+
         camera.update(player);
         time += 0.01f;
         for (Player player : players.values()) {
@@ -294,8 +316,8 @@ public class Game {
                 renderer.renderMenu(camera, menu);
             }
         }
+
         if (state == GameState.MAIN_MENU) {
-            // renderer.renderMainMenu(camera, splash, splasheScale);
             return;
         }
 
@@ -303,10 +325,20 @@ public class Game {
             for (Chunk chunk : world.getChunks().values()) {
 
                 if (chunk.isEmpty()) continue;
-                if (chunk.getChunkMesh() == null) continue;
+                if (chunk.getMesh() == null) continue;
 
-                if (!chunk.getChunkMesh().isChunkMeshInitiated()) {
-                    chunk.getChunkMesh().init();
+                if (!chunk.getMesh().isInitiated()) {
+                    chunk.getMesh().init();
+                }
+
+                /*
+                if (chunk.isOutOfView(player)) {
+                    continue;
+                }
+                 */
+
+                if (!camera.getFrustrum().isVisible(chunk)) {
+                    continue;
                 }
 
                 renderer.render(camera, chunk);
@@ -401,4 +433,11 @@ public class Game {
         this.debugging = debugging;
     }
 
+    public FontManager getFontManager() {
+        return fontManager;
+    }
+
+    public Map<Coordinates, Boolean> getLoadingChunks() {
+        return loadingChunks;
+    }
 }

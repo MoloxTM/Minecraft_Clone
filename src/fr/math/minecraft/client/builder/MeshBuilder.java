@@ -67,6 +67,7 @@ public class MeshBuilder {
 
 
     public Vertex[] buildChunkMesh(Chunk chunk) {
+        BlockModel blockModel = new BlockModel();
         ArrayList<Vertex> vertices = new ArrayList<>();
         for (int x = 0; x < Chunk.SIZE; x++) {
             for (int y = 0; y < Chunk.SIZE; y++) {
@@ -101,7 +102,7 @@ public class MeshBuilder {
                         }
                         for (int k = 0; k < 6; k++)  {
                             Vector3f blockVector = new Vector3f(x, y, z);
-                            vertices.add(new Vertex(blockVector.add(BlockModel.PX_POS[k]), textureCoords[k]));
+                            vertices.add(new Vertex(blockVector.add(blockModel.PX_POS[k]), textureCoords[k]));
                         }
                     }
 
@@ -114,7 +115,7 @@ public class MeshBuilder {
                         }
                         for (int k = 0; k < 6; k++)  {
                             Vector3f blockVector = new Vector3f(x, y, z);
-                            vertices.add(new Vertex(blockVector.add(BlockModel.NX_POS[k]), textureCoords[k]));
+                            vertices.add(new Vertex(blockVector.add(blockModel.NX_POS[k]), textureCoords[k]));
                         }
                     }
 
@@ -127,7 +128,7 @@ public class MeshBuilder {
                         }
                         for (int k = 0; k < 6; k++)  {
                             Vector3f blockVector = new Vector3f(x, y, z);
-                            vertices.add(new Vertex(blockVector.add(BlockModel.PY_POS[k]), textureCoords[k]));
+                            vertices.add(new Vertex(blockVector.add(blockModel.PY_POS[k]), textureCoords[k]));
                         }
                     }
 
@@ -140,7 +141,7 @@ public class MeshBuilder {
                         }
                         for (int k = 0; k < 6; k++)  {
                             Vector3f blockVector = new Vector3f(x, y, z);
-                            vertices.add(new Vertex(blockVector.add(BlockModel.NY_POS[k]), textureCoords[k]));
+                            vertices.add(new Vertex(blockVector.add(blockModel.NY_POS[k]), textureCoords[k]));
                         }
                     }
 
@@ -153,7 +154,7 @@ public class MeshBuilder {
                         }
                         for (int k = 0; k < 6; k++)  {
                             Vector3f blockVector = new Vector3f(x, y, z);
-                            vertices.add(new Vertex(blockVector.add(BlockModel.PZ_POS[k]), textureCoords[k]));
+                            vertices.add(new Vertex(blockVector.add(blockModel.PZ_POS[k]), textureCoords[k]));
                         }
                     }
 
@@ -166,7 +167,7 @@ public class MeshBuilder {
                         }
                         for (int k = 0; k < 6; k++)  {
                             Vector3f blockVector = new Vector3f(x, y, z);
-                            vertices.add(new Vertex(blockVector.add(BlockModel.NZ_POS[k]), textureCoords[k]));
+                            vertices.add(new Vertex(blockVector.add(blockModel.NZ_POS[k]), textureCoords[k]));
                         }
                     }
                 }

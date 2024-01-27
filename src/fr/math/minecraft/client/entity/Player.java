@@ -233,4 +233,5 @@ public class Player {
     public void setBodyYaw(float bodyYaw) {
         this.bodyYaw = bodyYaw;
     }
+
 }

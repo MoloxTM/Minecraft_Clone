@@ -21,13 +21,14 @@ public class PlayerMesh extends Mesh {
     }
 
     private void build() {
+        PlayerModel playerModel = new PlayerModel();
         ArrayList<PlayerVertex> vertex = new ArrayList<>();
-        this.addFace(vertex, PlayerModel.PLAYER_HEAD_POS);
-        this.addFace(vertex, PlayerModel.PLAYER_CHEST_POS);
-        this.addFace(vertex, PlayerModel.PLAYER_LEFT_HAND);
-        this.addFace(vertex, PlayerModel.PLAYER_RIGHT_HAND);
-        this.addFace(vertex, PlayerModel.PLAYER_RIGHT_LEG);
-        this.addFace(vertex, PlayerModel.PLAYER_LEFT_LEG);
+        this.addFace(vertex, playerModel.PLAYER_HEAD_POS);
+        this.addFace(vertex, playerModel.PLAYER_CHEST_POS);
+        this.addFace(vertex, playerModel.PLAYER_LEFT_HAND);
+        this.addFace(vertex, playerModel.PLAYER_RIGHT_HAND);
+        this.addFace(vertex, playerModel.PLAYER_RIGHT_LEG);
+        this.addFace(vertex, playerModel.PLAYER_LEFT_LEG);
 
         vertices = vertex.toArray(new PlayerVertex[0]);
     }

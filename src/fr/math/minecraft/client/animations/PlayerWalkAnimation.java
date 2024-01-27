@@ -1,6 +1,5 @@
 package fr.math.minecraft.client.animations;
 
-import fr.math.minecraft.client.AnimationMath;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.Shader;
 import fr.math.minecraft.client.entity.Player;

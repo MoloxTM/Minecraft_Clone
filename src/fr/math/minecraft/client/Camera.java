@@ -3,6 +3,7 @@ package fr.math.minecraft.client;
 import fr.math.minecraft.client.animations.Animation;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.manager.FontManager;
+import fr.math.minecraft.client.math.FrustrumCulling;
 import fr.math.minecraft.client.meshs.FontMesh;
 import fr.math.minecraft.client.world.Chunk;
 import org.joml.Matrix3f;
@@ -15,18 +16,23 @@ import java.nio.FloatBuffer;
 public class Camera {
 
     private Vector3f position;
-    private Vector3f front, right;
-    private float width, height;
+    private Vector3f front, right, up;
+    private final float width, height;
     private float yaw, pitch;
     private float fov;
-    private float nearPlane, farPlane;
+    private final float nearPlane, farPlane;
     private final FloatBuffer modelBuffer, projectionBuffer, viewBuffer;
+    private final FrustrumCulling frustrum;
+    private final Matrix4f projection;
+    private final Matrix4f model;
+    private Matrix4f view;
 
     public Camera(float width, float height) {
         this.width = width;
         this.height = height;
         front = new Vector3f();
         right = new Vector3f();
+        up = new Vector3f();
         position = new Vector3f();
         yaw = 0.0f;
         pitch = 0.0f;
@@ -36,6 +42,10 @@ public class Camera {
         projectionBuffer = BufferUtils.createFloatBuffer(16);
         this.nearPlane = 0.1f;
         this.farPlane = 999.0f;
+        this.frustrum = new FrustrumCulling(this);
+        this.projection = new Matrix4f();
+        this.view = new Matrix4f();
+        this.model = new Matrix4f();
     }
 
     public void update(Player player) {
@@ -54,12 +64,12 @@ public class Camera {
     public void matrix(Shader shader, Chunk chunk) {
         this.calculateFront(front);
 
-        Matrix4f projection = new Matrix4f();
-        Matrix4f view = new Matrix4f();
-        Matrix4f model = new Matrix4f();
+        projection.identity();
+        view.identity();
+        model.identity();
 
         right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
-        Vector3f up = new Vector3f(right).cross(front).normalize();
+        up = new Vector3f(right).cross(front).normalize();
 
         Vector3f newPosition = new Vector3f(position).add(0, 1 + 0.25f, 0);
 
@@ -76,12 +86,12 @@ public class Camera {
 
         this.calculateFront(front);
 
-        Matrix4f projection = new Matrix4f();
-        Matrix4f view = new Matrix4f();
-        Matrix4f model = new Matrix4f();
+        projection.identity();
+        view.identity();
+        model.identity();
 
         right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
-        Vector3f up = new Vector3f(right).cross(front).normalize();
+        up = new Vector3f(right).cross(front).normalize();
 
         projection.perspective((float) Math.toRadians(fov), width / height, nearPlane ,farPlane);
         view.lookAt(position, new Vector3f(position).add(front), up);
@@ -106,12 +116,12 @@ public class Camera {
 
         this.calculateFront(front);
 
-        Matrix4f projection = new Matrix4f();
-        Matrix4f view = new Matrix4f();
-        Matrix4f model = new Matrix4f();
+        projection.identity();
+        view.identity();
+        model.identity();
 
         right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
-        Vector3f up = new Vector3f(right).cross(front).normalize();
+        up = new Vector3f(right).cross(front).normalize();
 
         projection.perspective((float) Math.toRadians(fov), width / height, nearPlane ,farPlane);
         view.lookAt(position, new Vector3f(position).add(front), up);
@@ -126,8 +136,9 @@ public class Camera {
     }
 
     public void matrixOrtho(Shader shader, float x, float y, float z) {
-        Matrix4f projection = new Matrix4f();
-        Matrix4f model = new Matrix4f();
+
+        projection.identity();
+        model.identity();
 
         projection.ortho(0, GameConfiguration.WINDOW_WIDTH, 0, GameConfiguration.WINDOW_HEIGHT, nearPlane ,farPlane);
         model.translate(x, y, z);
@@ -142,11 +153,11 @@ public class Camera {
 
     public void matrixOrtho(Shader shader, float rotateAngle, float x, float y, float z, String text, FontMesh fontMesh, Vector3f normal) {
 
+        FontManager fontManager = Game.getInstance().getFontManager();
 
-        FontManager fontManager = new FontManager();
+        projection.identity();
+        model.identity();
 
-        Matrix4f projection = new Matrix4f();
-        Matrix4f model = new Matrix4f();
         Vector3f pivot = new Vector3f(x + (fontManager.getTextWidth(fontMesh, text) / 2.0f), y - fontManager.getTextHeight(fontMesh, GameConfiguration.DEFAULT_SCALE, text), 0);
 
         projection.ortho(0, GameConfiguration.WINDOW_WIDTH, 0, GameConfiguration.WINDOW_HEIGHT, nearPlane ,farPlane);
@@ -165,11 +176,11 @@ public class Camera {
 
         this.calculateFront(front);
 
-        Matrix4f projection = new Matrix4f();
-        Matrix4f view = new Matrix4f();
+        projection.identity();
+        view.identity();
 
         right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
-        Vector3f up = new Vector3f(right).cross(front).normalize();
+        up = new Vector3f(right).cross(front).normalize();
 
         projection.perspective((float) Math.toRadians(fov), width / height, nearPlane ,farPlane);
         view.lookAt(position, new Vector3f(position).add(front), up);
@@ -177,6 +188,14 @@ public class Camera {
 
         shader.sendMatrix("projection", projection, projectionBuffer);
         shader.sendMatrix("view", view, viewBuffer);
+    }
+
+    public float getNearPlane() {
+        return nearPlane;
+    }
+
+    public float getFarPlane() {
+        return farPlane;
     }
 
     public Vector3f getPosition() {
@@ -189,5 +208,17 @@ public class Camera {
 
     public Vector3f getRight() {
         return right;
+    }
+
+    public float getFov() {
+        return fov;
+    }
+
+    public Vector3f getUp() {
+        return up;
+    }
+
+    public FrustrumCulling getFrustrum() {
+        return frustrum;
     }
 }

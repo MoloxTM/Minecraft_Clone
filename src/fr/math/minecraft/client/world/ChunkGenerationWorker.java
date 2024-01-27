@@ -60,7 +60,7 @@ public class ChunkGenerationWorker implements Runnable {
         if (!chunk.isEmpty()) {
             ChunkMesh chunkMesh = new ChunkMesh(chunk);
             synchronized (game.getWorld().getChunks()) {
-                chunk.setChunkMesh(chunkMesh);
+                chunk.setMesh(chunkMesh);
             }
         }
     }

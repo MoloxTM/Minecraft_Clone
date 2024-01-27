@@ -18,6 +18,13 @@ public class World {
         return chunks;
     }
 
+    public void removeChunk(Chunk chunk) {
+        Coordinates coordinates = new Coordinates(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z);
+        synchronized (this.getChunks()) {
+            chunks.remove(coordinates);
+        }
+    }
+
     public void addChunk(Chunk chunk) {
         chunks.put(new Coordinates(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z), chunk);
     }
