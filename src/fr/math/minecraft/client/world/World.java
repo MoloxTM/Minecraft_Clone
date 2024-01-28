@@ -9,10 +9,12 @@ public class World {
 
     private final HashMap<Coordinates, Chunk> chunks;
     private final Set<Coordinates> loadingChunks;
+    private final ArrayList<Byte> transparents;
 
     public World() {
         this.chunks = new HashMap<>();
         this.loadingChunks = new HashSet<>();
+        this.transparents = initTransparents();
     }
 
     public HashMap<Coordinates, Chunk> getChunks() {
@@ -40,5 +42,18 @@ public class World {
 
     public Set<Coordinates> getLoadingChunks() {
         return loadingChunks;
+    }
+    
+    public ArrayList<Byte> initTransparents() {
+        ArrayList<Byte> transparent = new ArrayList<>();
+        transparent.add(Material.AIR.getId());
+        transparent.add(Material.OAK_LEAVES.getId());
+        transparent.add(Material.WEED.getId());
+        transparent.add(Material.ROSE.getId());
+        return transparent;
+    }
+
+    public ArrayList<Byte> getTransparents() {
+        return transparents;
     }
 }

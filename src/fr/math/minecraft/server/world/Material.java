@@ -6,7 +6,13 @@ public enum Material {
     STONE("Stone", 0, 10, 15),
     DIRT("Dirt", 1, 2, 15),
     GRASS("Grass", 3, 3, 6),
-    WATER("Water", 2, 15, 2);
+    WATER("Water", 2, 15, 2),
+    SAND("Sand",4,2,14),
+    CACTUS("Cactus",5,5,7),
+    OAK_LOG("Oak log",6,4,14),
+    OAK_LEAVES("Oak leaves",7,4,12),
+    WEED("Weed", 8, 7, 13),
+    ROSE("Rose", 9, 12, 15);
 
     private final int x;
     private final int y;

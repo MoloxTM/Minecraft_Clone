@@ -14,6 +14,7 @@ import fr.math.minecraft.client.packet.SkinRequestPacket;
 import fr.math.minecraft.client.texture.CubemapTexture;
 import fr.math.minecraft.client.texture.Texture;
 import fr.math.minecraft.client.world.Chunk;
+import fr.math.minecraft.server.manager.BiomeManager;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
@@ -177,7 +178,7 @@ public class Renderer {
     }
 
     public void render(Camera camera, Chunk chunk) {
-
+        Player player = Game.getInstance().getPlayer();
         chunkShader.enable();
         chunkShader.sendInt("uTexture", terrainTexture.getSlot());
 
@@ -350,6 +351,7 @@ public class Renderer {
     public void renderDebugTools(Camera camera, Player player, int frames) {
         this.renderText(camera, "XYZ: " + player.getPosition().x + " / " + player.getPosition().y + " / " + player.getPosition().z, 0, GameConfiguration.WINDOW_HEIGHT - 100,0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
         this.renderText(camera, "FPS: " + frames, 0, GameConfiguration.WINDOW_HEIGHT - 120,0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
-
+        BiomeManager biomeManager = new BiomeManager();
+        this.renderText(camera, "BIOME: " + biomeManager.getBiome((int) player.getPosition().x, (int)player.getPosition().z).getBiomeName(), 0, GameConfiguration.WINDOW_HEIGHT - 140, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
     }
 }

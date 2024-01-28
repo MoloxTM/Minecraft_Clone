@@ -13,7 +13,7 @@ public class VBO {
 
     public VBO(Vertex[] vertices) {
         id = glGenBuffers();
-        float[] data = new float[vertices.length * 5];
+        float[] data = new float[vertices.length * 7];
         int bufferPosition = 0;
         for (Vertex vertex : vertices) {
             data[bufferPosition++] = vertex.getPosition().x;
@@ -21,8 +21,10 @@ public class VBO {
             data[bufferPosition++] = vertex.getPosition().z;
             data[bufferPosition++] = vertex.getTextureCoords().x;
             data[bufferPosition++] = vertex.getTextureCoords().y;
+            data[bufferPosition++] = vertex.getBlockID();
+            data[bufferPosition++] = vertex.getBlockFace();
         }
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(vertices.length * 5);
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(vertices.length * 7);
         buffer.put(data).flip();
         glBindBuffer(GL_ARRAY_BUFFER, id);
         glBufferData(GL_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);

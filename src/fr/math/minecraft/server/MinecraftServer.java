@@ -40,7 +40,7 @@ public class MinecraftServer {
     private final Map<String, String> sockets;
     private final Map<String, Long> lastActivities;
     private final ServerWorld world;
-    private final static int MAX_REQUEST_SIZE = 4096;
+    private final static int MAX_REQUEST_SIZE = 16384;
 
     private MinecraftServer(int port) {
         this.running = false;
@@ -128,7 +128,7 @@ public class MinecraftServer {
 
         if (chunk == null) {
             chunk = new ServerChunk(x, y, z);
-            chunk.generate();
+            chunk. generate();
             world.getChunks().put(new Coordinates(x, y, z), chunk);
         }
 
@@ -277,6 +277,10 @@ public class MinecraftServer {
             instance = new MinecraftServer(50000);
         }
         return instance;
+    }
+
+    public ServerWorld getWorld() {
+        return world;
     }
 
     public Map<String, Long> getLastActivities() {

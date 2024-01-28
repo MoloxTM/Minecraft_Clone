@@ -1,11 +1,11 @@
-package fr.math.minecraft.client.math;
+package fr.math.minecraft.server;
 
 import fr.math.minecraft.client.entity.Player;
-import fr.math.minecraft.client.world.Coordinates;
+import fr.math.minecraft.server.world.Coordinates;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
-public class MathUtils {
+public class Utils {
 
     public static double distance(Player player, Vector3i position) {
 
