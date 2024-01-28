@@ -172,9 +172,9 @@ public class Game {
 
     }
 
-    public Set<Coordinates> determineChunksToLoad() {
+    public Map<Coordinates, Boolean> determineChunksToLoad() {
 
-        Set<Coordinates> chunks = new HashSet<>();
+        Map<Coordinates, Boolean> chunks = new HashMap<>();
 
         int startX = (int) (player.getPosition().x / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE);
         int startZ = (int) (player.getPosition().z / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE);
@@ -186,9 +186,12 @@ public class Game {
             for (int y = -3; y <= 10; y++) {
                 for (int z = startZ; z <= endZ; z++) {
 
-                    Coordinates chunkCoordinates = new Coordinates(x, y, z);
+                    if (x < startX || x > endX || z < startZ || z > endZ) {
+                        continue;
+                    }
 
-                    chunks.add(chunkCoordinates);
+                    Coordinates chunkCoordinates = new Coordinates(x, y, z);
+                    chunks.put(chunkCoordinates, true);
                 }
             }
         }
@@ -271,28 +274,31 @@ public class Game {
             return;
         }
 
-        Set<Coordinates> chunksToLoad = this.determineChunksToLoad();
+        Map<Coordinates, Boolean> chunksToLoad = this.determineChunksToLoad();
+        ChunkManager chunkManager = new ChunkManager();
+        ArrayList<Chunk> chunkToRemove = new ArrayList<>();
+
         synchronized (world.getChunks()) {
-            ChunkManager chunkManager = new ChunkManager();
-            ArrayList<Chunk> chunkToRemove = new ArrayList<>();
             for (Chunk chunk : world.getChunks().values()) {
                 if (chunk.isOutOfView(player)) {
                     chunkToRemove.add(chunk);
                 }
             }
-            for (Chunk chunk : chunkToRemove) {
-                ChunkMesh mesh = chunk.getMesh();
-                Coordinates coordinates = new Coordinates(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z);
-                if (mesh != null && mesh.isInitiated()) {
-                    mesh.delete();
-                    chunk.setMesh(null);
-                    chunkManager.deleteChunk(world, chunk);
-                    loadingChunks.remove(coordinates);
-                }
+        }
+
+        for (Chunk chunk : chunkToRemove) {
+            ChunkMesh mesh = chunk.getMesh();
+            Coordinates coordinates = new Coordinates(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z);
+            if (mesh != null && mesh.isInitiated()) {
+                mesh.delete();
+                chunk.setMesh(null);
+                chunkManager.deleteChunk(world, chunk);
+                chunksToLoad.remove(coordinates);
+                loadingChunks.remove(coordinates);
             }
         }
 
-        for (Coordinates coordinates : chunksToLoad) {
+        for (Coordinates coordinates : chunksToLoad.keySet()) {
 
             if (loadingChunks.containsKey(coordinates)) {
                 continue;
@@ -330,11 +336,9 @@ public class Game {
                     chunk.getMesh().init();
                 }
 
-                /*
                 if (chunk.isOutOfView(player)) {
                     continue;
                 }
-                 */
 
                 if (!camera.getFrustrum().isVisible(chunk)) {
                     continue;
