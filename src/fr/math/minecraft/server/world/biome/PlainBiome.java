@@ -59,7 +59,6 @@ public class PlainBiome extends AbstractBiome{
         float dropRate = randomSeed.nextFloat() * 100.0f;
         if(dropRate < 50.0f) {
             StructureBuilder.buildWeed(chunk, x, y, z);
-            System.out.println("J'ai mis de la weed");
         }
     }
 };

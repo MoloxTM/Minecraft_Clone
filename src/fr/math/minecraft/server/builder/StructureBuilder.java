@@ -95,12 +95,9 @@ public class  StructureBuilder {
             chunk.setBlock(x-1,y+1,z,Material.CACTUS.getId());
             chunk.setBlock(x+1,y+1,z,Material.CACTUS.getId());
         }
-        System.out.println("Cactus size :" + cactusSize);
     }
 
     public static void buildWeed(ServerChunk chunk, int x, int y, int z) {
-        chunk.setBlock(x, y, z, Material.WEED.getId());
-        //System.out.println("Build weed" + "Le b:" + chunk.getBlock(x, y, z));
-
+        chunk.setBlock(x, y+1, z, Material.WEED.getId());
     }
 }

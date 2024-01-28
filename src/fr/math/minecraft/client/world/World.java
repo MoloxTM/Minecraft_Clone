@@ -9,9 +9,11 @@ import java.util.HashMap;
 public class World {
 
     private final HashMap<Coordinates, Chunk> chunks;
+    private final ArrayList<Byte> transparents;
 
     public World() {
         this.chunks = new HashMap<>();
+        this.transparents = initTransparents();
     }
 
     public HashMap<Coordinates, Chunk> getChunks() {
@@ -30,4 +32,15 @@ public class World {
         return chunks.get(coordinates);
     }
 
+    public ArrayList<Byte> initTransparents() {
+        ArrayList<Byte> transparent = new ArrayList<>();
+        transparent.add(Material.AIR.getId());
+        transparent.add(Material.OAK_LEAVES.getId());
+        transparent.add(Material.WEED.getId());
+        return transparent;
+    }
+
+    public ArrayList<Byte> getTransparents() {
+        return transparents;
+    }
 }

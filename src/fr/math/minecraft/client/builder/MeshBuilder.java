@@ -44,8 +44,8 @@ public class MeshBuilder {
         blockY = blockY < 0 ? blockY + Chunk.SIZE : blockY;
         blockZ = blockZ < 0 ? blockZ + Chunk.SIZE : blockZ;
 
-        emptyMap.put(coordinates, chunk.getBlock(blockX, blockY, blockZ) == Material.AIR.getId());
-        return chunk.getBlock(blockX, blockY, blockZ) == Material.AIR.getId();
+        emptyMap.put(coordinates, world.getTransparents().contains(chunk.getBlock(blockX, blockY, blockZ)));
+        return world.getTransparents().contains(chunk.getBlock(blockX, blockY, blockZ));
     }
 
     public static Vector2f[] calculateTexCoords(int x, int y, float format) {
@@ -75,7 +75,6 @@ public class MeshBuilder {
 
                     byte block = chunk.getBlock(x, y, z);
                     if (block == Material.AIR.getId()) continue;
-                    if(block == Material.WEED.getId()) System.out.println("J'ai trouvé de la weed");
 
                     Material material = Material.getMaterialById(block);
 
@@ -174,7 +173,6 @@ public class MeshBuilder {
                     }
 
                     if(material == Material.WEED) {
-                        System.out.println("C'est de la weed");
                         textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
                         vertices = new ArrayList<>();
 
