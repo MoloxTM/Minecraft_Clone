@@ -57,8 +57,8 @@ public class PlainBiome extends AbstractBiome{
     public void buildWeeds(ServerChunk chunk, int x, int y, int z) {
         RandomSeed randomSeed = RandomSeed.getInstance();
         float dropRate = randomSeed.nextFloat() * 100.0f;
-        if(dropRate < 50.0f) {
+        if(dropRate > 97.0f) {
             StructureBuilder.buildWeed(chunk, x, y, z);
         }
     }
-};
+}

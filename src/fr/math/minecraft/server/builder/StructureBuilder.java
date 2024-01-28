@@ -98,6 +98,12 @@ public class  StructureBuilder {
     }
 
     public static void buildWeed(ServerChunk chunk, int x, int y, int z) {
-        chunk.setBlock(x, y+1, z, Material.WEED.getId());
+        RandomSeed randomSeed = RandomSeed.getInstance();
+        float dropRate = randomSeed.nextFloat() * 100.0f;
+        if(dropRate < 5) {
+            chunk.setBlock(x, y+1, z, Material.ROSE.getId());
+        } else {
+            chunk.setBlock(x, y+1, z, Material.WEED.getId());
+        }
     }
 }

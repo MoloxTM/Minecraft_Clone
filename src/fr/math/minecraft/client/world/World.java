@@ -37,6 +37,7 @@ public class World {
         transparent.add(Material.AIR.getId());
         transparent.add(Material.OAK_LEAVES.getId());
         transparent.add(Material.WEED.getId());
+        transparent.add(Material.ROSE.getId());
         return transparent;
     }
 

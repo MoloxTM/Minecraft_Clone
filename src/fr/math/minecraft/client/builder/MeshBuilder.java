@@ -94,87 +94,8 @@ public class MeshBuilder {
 
                     Vector2f[] textureCoords;
 
-                    if (px) {
-                        if(material.isFaces()) {
-                            textureCoords = calculateTexCoords(material.getPx().x, material.getPx().y, 16.0f);
-                        } else {
-                            textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
-
-                        }
-                        for (int k = 0; k < 6; k++)  {
-                            Vector3f blockVector = new Vector3f(x, y, z);
-                            vertices.add(new Vertex(blockVector.add(BlockModel.PX_POS[k]), textureCoords[k],material.getId(),0));
-                        }
-                    }
-
-                    if (nx) {
-                        if(material.isFaces()) {
-                            textureCoords = calculateTexCoords(material.getNx().x, material.getNx().y, 16.0f);
-                        } else {
-                            textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
-
-                        }
-                        for (int k = 0; k < 6; k++)  {
-                            Vector3f blockVector = new Vector3f(x, y, z);
-                            vertices.add(new Vertex(blockVector.add(BlockModel.NX_POS[k]), textureCoords[k],material.getId(),1));
-                        }
-                    }
-
-                    if (py) {
-                        if(material.isFaces()) {
-                            textureCoords = calculateTexCoords(material.getPy().x, material.getPy().y, 16.0f);
-                        } else {
-                            textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
-
-                        }
-                        for (int k = 0; k < 6; k++)  {
-                            Vector3f blockVector = new Vector3f(x, y, z);
-                            vertices.add(new Vertex(blockVector.add(BlockModel.PY_POS[k]), textureCoords[k],material.getId(),2));
-                        }
-                    }
-
-                    if (ny) {
-                        if(material.isFaces()) {
-                            textureCoords = calculateTexCoords(material.getNy().x, material.getNy().y, 16.0f);
-                        } else {
-                            textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
-
-                        }
-                        for (int k = 0; k < 6; k++)  {
-                            Vector3f blockVector = new Vector3f(x, y, z);
-                            vertices.add(new Vertex(blockVector.add(BlockModel.NY_POS[k]), textureCoords[k],material.getId(),3));
-                        }
-                    }
-
-                    if (pz) {
-                        if(material.isFaces()) {
-                            textureCoords = calculateTexCoords(material.getPz().x, material.getPz().y, 16.0f);
-                        } else {
-                            textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
-
-                        }
-                        for (int k = 0; k < 6; k++)  {
-                            Vector3f blockVector = new Vector3f(x, y, z);
-                            vertices.add(new Vertex(blockVector.add(BlockModel.PZ_POS[k]), textureCoords[k],material.getId(),4));
-                        }
-                    }
-
-                    if (nz) {
-                        if(material.isFaces()) {
-                            textureCoords = calculateTexCoords(material.getNz().x, material.getNz().y, 16.0f);
-                        } else {
-                            textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
-
-                        }
-                        for (int k = 0; k < 6; k++)  {
-                            Vector3f blockVector = new Vector3f(x, y, z);
-                            vertices.add(new Vertex(blockVector.add(BlockModel.NZ_POS[k]), textureCoords[k],material.getId(),5));
-                        }
-                    }
-
-                    if(material == Material.WEED) {
+                    if(material == Material.WEED || material == Material.ROSE) {
                         textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
-                        vertices = new ArrayList<>();
 
                         for (int k = 0; k < 6; k++)  {
                             Vector3f blockVector = new Vector3f(x, y, z);
@@ -184,7 +105,114 @@ public class MeshBuilder {
                             Vector3f blockVector = new Vector3f(x, y, z);
                             vertices.add(new Vertex(blockVector.add(NatureModel.SECOND_FACE[k]), textureCoords[k],material.getId(),0));
                         }
+                        /*
+                        for (int k = 0; k < 6; k++)  {
+                            Vector3f blockVector = new Vector3f(x, y, z);
+                            vertices.add(new Vertex(blockVector.add(BlockModel.PX_POS[k]), textureCoords[k],material.getId(),0));
+                        }
+                        for (int k = 0; k < 6; k++)  {
+                            Vector3f blockVector = new Vector3f(x, y, z);
+                            vertices.add(new Vertex(blockVector.add(BlockModel.NX_POS[k]), textureCoords[k],material.getId(),0));
+                        }
+                        for (int k = 0; k < 6; k++)  {
+                            Vector3f blockVector = new Vector3f(x, y, z);
+                            vertices.add(new Vertex(blockVector.add(BlockModel.PY_POS[k]), textureCoords[k],material.getId(),0));
+                        }
+                        for (int k = 0; k < 6; k++)  {
+                            Vector3f blockVector = new Vector3f(x, y, z);
+                            vertices.add(new Vertex(blockVector.add(BlockModel.NY_POS[k]), textureCoords[k],material.getId(),0));
+                        }
+                        for (int k = 0; k < 6; k++)  {
+                            Vector3f blockVector = new Vector3f(x, y, z);
+                            vertices.add(new Vertex(blockVector.add(BlockModel.PZ_POS[k]), textureCoords[k],material.getId(),0));
+                        }
+                        for (int k = 0; k < 6; k++)  {
+                            Vector3f blockVector = new Vector3f(x, y, z);
+                            vertices.add(new Vertex(blockVector.add(BlockModel.NZ_POS[k]), textureCoords[k],material.getId(),0));
+                        }
+                        */
+                    } else {
+                        if (px) {
+                            if(material.isFaces()) {
+                                textureCoords = calculateTexCoords(material.getPx().x, material.getPx().y, 16.0f);
+                            } else {
+                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
+
+                            }
+                            for (int k = 0; k < 6; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(BlockModel.PX_POS[k]), textureCoords[k],material.getId(),0));
+                            }
+                        }
+
+                        if (nx) {
+                            if(material.isFaces()) {
+                                textureCoords = calculateTexCoords(material.getNx().x, material.getNx().y, 16.0f);
+                            } else {
+                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
+
+                            }
+                            for (int k = 0; k < 6; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(BlockModel.NX_POS[k]), textureCoords[k],material.getId(),1));
+                            }
+                        }
+
+                        if (py) {
+                            if(material.isFaces()) {
+                                textureCoords = calculateTexCoords(material.getPy().x, material.getPy().y, 16.0f);
+                            } else {
+                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
+
+                            }
+                            for (int k = 0; k < 6; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(BlockModel.PY_POS[k]), textureCoords[k],material.getId(),2));
+                            }
+                        }
+
+                        if (ny) {
+                            if(material.isFaces()) {
+                                textureCoords = calculateTexCoords(material.getNy().x, material.getNy().y, 16.0f);
+                            } else {
+                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
+
+                            }
+                            for (int k = 0; k < 6; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(BlockModel.NY_POS[k]), textureCoords[k],material.getId(),3));
+                            }
+                        }
+
+                        if (pz) {
+                            if(material.isFaces()) {
+                                textureCoords = calculateTexCoords(material.getPz().x, material.getPz().y, 16.0f);
+                            } else {
+                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
+
+                            }
+                            for (int k = 0; k < 6; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(BlockModel.PZ_POS[k]), textureCoords[k],material.getId(),4));
+                            }
+                        }
+
+                        if (nz) {
+                            if(material.isFaces()) {
+                                textureCoords = calculateTexCoords(material.getNz().x, material.getNz().y, 16.0f);
+                            } else {
+                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
+
+                            }
+                            for (int k = 0; k < 6; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(BlockModel.NZ_POS[k]), textureCoords[k],material.getId(),5));
+                            }
+                        }
                     }
+
+
+
                 }
             }
         }
