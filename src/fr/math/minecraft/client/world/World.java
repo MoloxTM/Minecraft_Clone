@@ -38,6 +38,8 @@ public class World {
         transparent.add(Material.OAK_LEAVES.getId());
         transparent.add(Material.WEED.getId());
         transparent.add(Material.ROSE.getId());
+        transparent.add(Material.CACTUS.getId());
+        transparent.add(Material.DEAD_BUSH.getId());
         return transparent;
     }
 

@@ -12,7 +12,9 @@ public enum Material {
     OAK_LOG("Oak log",6,4,14),
     OAK_LEAVES("Oak leaves",7,4,12),
     WEED("Weed", 8, 7, 13),
-    ROSE("Rose", 9, 12, 15);
+    ROSE("Rose", 9, 12, 15),
+    DEAD_BUSH("Dead bush", 10, 7, 12);
+
 
     private final int x;
     private final int y;

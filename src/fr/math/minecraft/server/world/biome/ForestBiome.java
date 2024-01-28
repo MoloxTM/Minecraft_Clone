@@ -53,7 +53,7 @@ public class ForestBiome extends AbstractBiome{
     }
 
     @Override
-    public void buildWeeds(ServerChunk chunk, int x, int y, int z) {
+    public void buildWeeds(ServerChunk chunk, int x, int y, int z, ArrayList<Coordinates> trees) {
 
     }
 }

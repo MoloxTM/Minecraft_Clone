@@ -53,8 +53,26 @@ public class DesertBiome extends AbstractBiome{
     }
 
     @Override
-    public void buildWeeds(ServerChunk chunk, int x, int y, int z) {
+    public void buildWeeds(ServerChunk chunk, int x, int y, int z, ArrayList<Coordinates> trees) {
+        ServerWorld world = MinecraftServer.getInstance().getWorld();
 
+        int worldX = chunk.getPosition().x * ServerChunk.SIZE + x;
+        int worldZ = chunk.getPosition().x * ServerChunk.SIZE + z;
+        int worldY = chunk.getPosition().x * ServerChunk.SIZE + y;
+
+        Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
+        //Calul distance
+        for (Coordinates coordinates1 : trees) {
+            double dist = Utils.distance(coordinates, coordinates1);
+            if(dist <= 10)return;
+        }
+
+        RandomSeed randomSeed = RandomSeed.getInstance();
+        float dropRate = randomSeed.nextFloat() * 100.0f;
+        if(dropRate < 3.0f) {
+            StructureBuilder.buildDeadBush(chunk, x, y, z);
+            world.getTrees().add(coordinates);
+        }
     }
 
 }

@@ -106,4 +106,8 @@ public class  StructureBuilder {
             chunk.setBlock(x, y+1, z, Material.WEED.getId());
         }
     }
+
+    public static void buildDeadBush(ServerChunk chunk, int x, int y, int z) {
+        chunk.setBlock(x, y+1, z, Material.DEAD_BUSH.getId());
+    }
 }
