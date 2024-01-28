@@ -11,7 +11,7 @@ public class GameConfiguration {
     public final static String FONT_FILE_PATH = "res/fonts/Monocraft.ttf";
     public final static int FONT_SIZE = 64;
     public final static float NAMETAG_FONT_SIZE = 32.0f;
-    public final static int CHUNK_RENDER_DISTANCE = 5;
+    public final static int CHUNK_RENDER_DISTANCE = 8;
     public final static String SPLASHES_FILE_PATH = "res/splashes.txt";
     public final static float DEFAULT_SCALE = 0.28f;
     public final static float MENU_TITLE_SCALE = 0.3f;

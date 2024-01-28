@@ -3,7 +3,6 @@ package fr.math.minecraft.client.world;
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.client.entity.Player;
-import fr.math.minecraft.client.math.MathUtils;
 import fr.math.minecraft.client.meshs.ChunkMesh;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
@@ -20,7 +19,8 @@ public class Chunk {
     public final static int VOLUME = SIZE * AREA;
     public final static float SPHERE_RADIUS = (float) (SIZE * Math.sqrt(3) / 2.0);
     private ChunkMesh mesh;
-    private boolean deleted;
+    private boolean shouldDelete;
+    private boolean loaded;
 
     public Chunk(int x, int y, int z) {
         this.position = new Vector3i(x, y, z);
@@ -35,7 +35,8 @@ public class Chunk {
         this.center = this.calculateCenter();
         this.empty = true;
         this.mesh = null;
-        this.deleted = false;
+        this.shouldDelete = false;
+        this.loaded = false;
     }
 
     public Chunk(JsonNode chunkData) {
@@ -116,11 +117,19 @@ public class Chunk {
         return this.position.x < minX || this.position.x > maxX || this.position.z < minZ || this.position.z > maxZ;
     }
 
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
+    public void setShouldDelete(boolean shouldDelete) {
+        this.shouldDelete = shouldDelete;
     }
 
-    public boolean isDeleted() {
-        return deleted;
+    public boolean shouldDelete() {
+        return shouldDelete;
+    }
+
+    public boolean isLoaded() {
+        return loaded;
+    }
+
+    public void setLoaded(boolean loaded) {
+        this.loaded = loaded;
     }
 }

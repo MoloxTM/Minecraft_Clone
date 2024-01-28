@@ -3,9 +3,12 @@ package fr.math.minecraft.client.world;
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.manager.ChunkManager;
+import fr.math.minecraft.client.manager.WorldManager;
 import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.packet.ChunkRequestPacket;
 import org.joml.Vector3i;
+
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class ChunkGenerationWorker implements Runnable {
 
@@ -26,6 +29,8 @@ public class ChunkGenerationWorker implements Runnable {
         int y = chunkPosition.getY();
         int z = chunkPosition.getZ();
 
+        World world = game.getWorld();
+
         Coordinates[] positions = new Coordinates[] {
                 new Coordinates(x, y, z),
                 new Coordinates(x - 1, y, z),
@@ -38,7 +43,7 @@ public class ChunkGenerationWorker implements Runnable {
         for (int i = 0; i < positions.length; i++) {
 
             Coordinates coordinates = positions[i];
-            Chunk chunk = game.getWorld().getChunk(coordinates.getX(), coordinates.getY(), coordinates.getZ());
+            Chunk chunk = world.getChunk(coordinates.getX(), coordinates.getY(), coordinates.getZ());
 
             if (chunk != null) continue;
 
@@ -50,12 +55,14 @@ public class ChunkGenerationWorker implements Runnable {
             JsonNode chunkData = packet.getChunkData();
             chunkManager.loadChunkData(chunkData);
 
-            if (i == 0 && game.getWorld().getChunk(coordinates.getX(), coordinates.getY(), coordinates.getZ()).isEmpty()) {
+            if (i == 0 && world.getChunk(coordinates.getX(), coordinates.getY(), coordinates.getZ()).isEmpty()) {
+                world.getChunk(coordinates.getX(), coordinates.getY(), coordinates.getZ()).setLoaded(true);
+                world.getLoadingChunks().remove(chunkPosition);
                 return;
             }
         }
 
-        Chunk chunk = game.getWorld().getChunk(chunkPosition.getX(), chunkPosition.getY(), chunkPosition.getZ());
+        Chunk chunk = world.getChunk(chunkPosition.getX(), chunkPosition.getY(), chunkPosition.getZ());
 
         if (!chunk.isEmpty()) {
             ChunkMesh chunkMesh = new ChunkMesh(chunk);
@@ -63,5 +70,8 @@ public class ChunkGenerationWorker implements Runnable {
                 chunk.setMesh(chunkMesh);
             }
         }
+
+        chunk.setLoaded(true);
+        world.getLoadingChunks().remove(chunkPosition);
     }
 }

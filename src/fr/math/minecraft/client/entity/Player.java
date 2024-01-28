@@ -3,6 +3,8 @@ package fr.math.minecraft.client.entity;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.animations.Animation;
 import fr.math.minecraft.client.animations.PlayerWalkAnimation;
+import fr.math.minecraft.client.events.EventListener;
+import fr.math.minecraft.client.events.PlayerMoveEvent;
 import fr.math.minecraft.client.meshs.NametagMesh;
 import fr.math.minecraft.client.packet.PlayerMovePacket;
 import fr.math.minecraft.logger.LogType;
@@ -15,6 +17,7 @@ import org.lwjgl.BufferUtils;
 import java.awt.image.BufferedImage;
 import java.nio.DoubleBuffer;
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -31,6 +34,7 @@ public class Player {
     private float speed;
     private boolean firstMouse;
     private boolean movingLeft, movingRight, movingForward, movingBackward;
+    private boolean flying, sneaking;
     private boolean debugKeyPressed;
 
     private float lastMouseX, lastMouseY;
@@ -40,6 +44,7 @@ public class Player {
     private NametagMesh nametagMesh;
     private BufferedImage skin;
     private final static Logger logger = LoggerUtility.getClientLogger(Player.class, LogType.TXT);
+    private final List<EventListener> eventListeners;
 
     public Player(String name) {
         this.position = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -57,9 +62,12 @@ public class Player {
         this.movingForward = false;
         this.movingBackward = false;
         this.debugKeyPressed = false;
+        this.sneaking = false;
+        this.flying = false;
         this.animations = new ArrayList<>();
         this.nametagMesh = new NametagMesh(name);
         this.skin = null;
+        this.eventListeners = new ArrayList<>();
         this.initAnimations();
     }
 
@@ -94,6 +102,7 @@ public class Player {
         }
 
         PlayerMovePacket packet = new PlayerMovePacket(this);
+        this.resetMoving();
 
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
             movingForward = true;
@@ -116,10 +125,12 @@ public class Player {
         }
 
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+            flying = true;
             packet.setFlying(true);
         }
 
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+            sneaking = true;
             packet.setSneaking(true);
         }
 
@@ -134,10 +145,22 @@ public class Player {
             debugKeyPressed = false;
         }
 
-        packet.send();
+        if (movingLeft || movingRight || movingForward || movingBackward || sneaking || flying) {
+            packet.send();
+            this.notifyEvent(new PlayerMoveEvent(this));
+        }
 
         lastMouseX = (float) mouseX.get(0);
         lastMouseY = (float) mouseY.get(0);
+    }
+
+    private void resetMoving() {
+        movingLeft = false;
+        movingRight = false;
+        movingForward = false;
+        movingBackward = false;
+        flying = false;
+        sneaking = false;
     }
 
     public void update() {
@@ -147,7 +170,7 @@ public class Player {
     }
 
     public boolean isMoving() {
-        return movingLeft || movingRight || movingForward || movingBackward;
+        return movingLeft || movingRight || movingForward || movingBackward || sneaking || flying;
     }
 
     public float getSpeed() {
@@ -232,6 +255,20 @@ public class Player {
 
     public void setBodyYaw(float bodyYaw) {
         this.bodyYaw = bodyYaw;
+    }
+
+    public void notifyEvent(PlayerMoveEvent event) {
+        for (EventListener eventListener : eventListeners) {
+            eventListener.onPlayerMove(event);
+        }
+    }
+
+    public void addEventListener(EventListener event) {
+        eventListeners.add(event);
+    }
+
+    public void removeEventListener(EventListener event) {
+        eventListeners.remove(event);
     }
 
 }

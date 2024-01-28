@@ -10,6 +10,7 @@ import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.gui.menus.ConnectionMenu;
 import fr.math.minecraft.client.gui.menus.Menu;
 import fr.math.minecraft.client.manager.MenuManager;
+import fr.math.minecraft.client.manager.WorldManager;
 import fr.math.minecraft.client.tick.TickHandler;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
@@ -41,6 +42,7 @@ public class ConnectionInitPacket extends Thread implements ClientPacket {
         Game game = Game.getInstance();
         Camera camera = game.getCamera();
         MenuManager menuManager = game.getMenuManager();
+        WorldManager worldManager = game.getWorldManager();
 
         try {
             this.send();
@@ -54,6 +56,8 @@ public class ConnectionInitPacket extends Thread implements ClientPacket {
 
             TickHandler tickHandler = new TickHandler();
             tickHandler.start();
+
+            worldManager.loadChunks(game.getWorld());
         } catch (RuntimeException e) {
             Menu menu = menuManager.getOpenedMenu();
 

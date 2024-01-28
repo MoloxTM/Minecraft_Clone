@@ -1,7 +1,9 @@
 package fr.math.minecraft.client.tick;
 
 import fr.math.minecraft.client.Game;
+import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.manager.ChunkManager;
+import fr.math.minecraft.client.manager.WorldManager;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -22,6 +24,8 @@ public class TickHandler extends Thread {
     public void run() {
         float tickTimer = 0.0f;
         double previousTime = glfwGetTime();
+        Player player = game.getPlayer();
+        WorldManager worldManager = new WorldManager();
 
         while (!glfwWindowShouldClose(game.getWindow())) {
             double currentTime = glfwGetTime();
@@ -30,6 +34,8 @@ public class TickHandler extends Thread {
             tickTimer += deltaTime;
 
             previousTime = currentTime;
+
+
 
             while (tickTimer > TICK_RATE) {
                 tick();

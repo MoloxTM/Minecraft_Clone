@@ -2,14 +2,12 @@ package fr.math.minecraft.client;
 
 import fr.math.minecraft.client.audio.Sound;
 import fr.math.minecraft.client.audio.Sounds;
+import fr.math.minecraft.client.events.PlayerListener;
 import fr.math.minecraft.client.gui.buttons.BlockButton;
 import fr.math.minecraft.client.gui.menus.ConnectionMenu;
 import fr.math.minecraft.client.gui.menus.MainMenu;
 import fr.math.minecraft.client.gui.menus.Menu;
-import fr.math.minecraft.client.manager.ChunkManager;
-import fr.math.minecraft.client.manager.FontManager;
-import fr.math.minecraft.client.manager.MenuManager;
-import fr.math.minecraft.client.manager.SoundManager;
+import fr.math.minecraft.client.manager.*;
 import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.packet.PlayersListPacket;
 import fr.math.minecraft.client.entity.Player;
@@ -58,6 +56,7 @@ public class Game {
     private GameState state;
     private SoundManager soundManager;
     private FontManager fontManager;
+    private WorldManager worldManager;
     private final static Logger logger = LoggerUtility.getClientLogger(Game.class, LogType.TXT);
     private float splasheScale = GameConfiguration.DEFAULT_SCALE;
     private int scaleFactor = 1;
@@ -108,6 +107,7 @@ public class Game {
 
         GL.createCapabilities();
 
+        glfwSwapInterval(0);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -124,15 +124,18 @@ public class Game {
         this.state = GameState.MAIN_MENU;
         this.soundManager = new SoundManager();
         this.menuManager = new MenuManager(this);
+        this.worldManager = new WorldManager();
         this.renderer = new Renderer();
         this.mouseXBuffer = BufferUtils.createDoubleBuffer(1);
         this.mouseYBuffer = BufferUtils.createDoubleBuffer(1);
         this.debugging = false;
         this.frames = 0;
         this.fps = 0;
-        this.chunkLoadingQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
+        this.chunkLoadingQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(8);
         this.loadingChunks = new HashMap<>();
         this.fontManager = new FontManager();
+
+        player.addEventListener(new PlayerListener());
 
         this.loadSplashText();
 
@@ -149,6 +152,7 @@ public class Game {
 
         menuManager.registerMenu(mainMenu);
         menuManager.registerMenu(connectionMenu);
+
     }
 
     private void loadSplashText() {
@@ -170,32 +174,6 @@ public class Game {
             e.printStackTrace();
         }
 
-    }
-
-    public Map<Coordinates, Boolean> determineChunksToLoad() {
-
-        Map<Coordinates, Boolean> chunks = new HashMap<>();
-
-        int startX = (int) (player.getPosition().x / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE);
-        int startZ = (int) (player.getPosition().z / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE);
-
-        int endX = (int) (player.getPosition().x / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE);
-        int endZ = (int) (player.getPosition().z / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE);
-
-        for (int x = startX; x <= endX; x++) {
-            for (int y = -3; y <= 10; y++) {
-                for (int z = startZ; z <= endZ; z++) {
-
-                    if (x < startX || x > endX || z < startZ || z > endZ) {
-                        continue;
-                    }
-
-                    Coordinates chunkCoordinates = new Coordinates(x, y, z);
-                    chunks.put(chunkCoordinates, true);
-                }
-            }
-        }
-        return chunks;
     }
 
     public void run() {
@@ -274,39 +252,11 @@ public class Game {
             return;
         }
 
-        Map<Coordinates, Boolean> chunksToLoad = this.determineChunksToLoad();
-        ChunkManager chunkManager = new ChunkManager();
-        ArrayList<Chunk> chunkToRemove = new ArrayList<>();
-
-        synchronized (world.getChunks()) {
-            for (Chunk chunk : world.getChunks().values()) {
-                if (chunk.isOutOfView(player)) {
-                    chunkToRemove.add(chunk);
-                }
-            }
+        if (player.isMoving()) {
+            worldManager.loadChunks(world);
+            worldManager.cleanChunks(world);
         }
 
-        for (Chunk chunk : chunkToRemove) {
-            ChunkMesh mesh = chunk.getMesh();
-            Coordinates coordinates = new Coordinates(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z);
-            if (mesh != null && mesh.isInitiated()) {
-                mesh.delete();
-                chunk.setMesh(null);
-                chunkManager.deleteChunk(world, chunk);
-                chunksToLoad.remove(coordinates);
-                loadingChunks.remove(coordinates);
-            }
-        }
-
-        for (Coordinates coordinates : chunksToLoad.keySet()) {
-
-            if (loadingChunks.containsKey(coordinates)) {
-                continue;
-            }
-
-            loadingChunks.put(coordinates, true);
-            chunkLoadingQueue.submit(new ChunkGenerationWorker(this, coordinates));
-        }
 
         camera.update(player);
         time += 0.01f;
@@ -331,13 +281,10 @@ public class Game {
 
                 if (chunk.isEmpty()) continue;
                 if (chunk.getMesh() == null) continue;
+                // if (chunk.isOutOfView(player)) continue;
 
                 if (!chunk.getMesh().isInitiated()) {
                     chunk.getMesh().init();
-                }
-
-                if (chunk.isOutOfView(player)) {
-                    continue;
                 }
 
                 if (!camera.getFrustrum().isVisible(chunk)) {
@@ -442,5 +389,13 @@ public class Game {
 
     public Map<Coordinates, Boolean> getLoadingChunks() {
         return loadingChunks;
+    }
+
+    public ThreadPoolExecutor getChunkLoadingQueue() {
+        return chunkLoadingQueue;
+    }
+
+    public WorldManager getWorldManager() {
+        return worldManager;
     }
 }

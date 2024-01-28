@@ -3,15 +3,16 @@ package fr.math.minecraft.client.world;
 import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.entity.Player;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
 public class World {
 
     private final HashMap<Coordinates, Chunk> chunks;
+    private final Set<Coordinates> loadingChunks;
 
     public World() {
         this.chunks = new HashMap<>();
+        this.loadingChunks = new HashSet<>();
     }
 
     public HashMap<Coordinates, Chunk> getChunks() {
@@ -37,4 +38,7 @@ public class World {
         return chunks.get(coordinates);
     }
 
+    public Set<Coordinates> getLoadingChunks() {
+        return loadingChunks;
+    }
 }
