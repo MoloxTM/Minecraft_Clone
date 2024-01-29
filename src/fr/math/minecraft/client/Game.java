@@ -252,11 +252,7 @@ public class Game {
             return;
         }
 
-        if (player.isMoving()) {
-            worldManager.loadChunks(world);
-            worldManager.cleanChunks(world);
-        }
-
+        worldManager.cleanChunks(world);
 
         camera.update(player);
         time += 0.01f;

@@ -45,11 +45,9 @@ public class WorldManager {
                     loadingChunks.add(coordinates);
 
                     chunkLoadingQueue.submit(new ChunkGenerationWorker(game, coordinates));
-
                 }
             }
         }
-
     }
 
     public void cleanChunks(World world) {
