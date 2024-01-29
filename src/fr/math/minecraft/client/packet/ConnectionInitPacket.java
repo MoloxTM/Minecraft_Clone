@@ -12,6 +12,7 @@ import fr.math.minecraft.client.gui.menus.Menu;
 import fr.math.minecraft.client.manager.MenuManager;
 import fr.math.minecraft.client.manager.WorldManager;
 import fr.math.minecraft.client.tick.TickHandler;
+import fr.math.minecraft.client.world.loader.ChunkMeshLoader;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
@@ -57,7 +58,9 @@ public class ConnectionInitPacket extends Thread implements ClientPacket {
             TickHandler tickHandler = new TickHandler();
             tickHandler.start();
 
-            worldManager.loadChunks(game.getWorld());
+            ChunkMeshLoader meshThread = new ChunkMeshLoader(game);
+            meshThread.start();
+
         } catch (RuntimeException e) {
             Menu menu = menuManager.getOpenedMenu();
 

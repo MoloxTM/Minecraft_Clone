@@ -4,6 +4,12 @@ import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.manager.ChunkManager;
 import fr.math.minecraft.client.manager.WorldManager;
+import fr.math.minecraft.client.world.Chunk;
+import fr.math.minecraft.client.world.Coordinates;
+import fr.math.minecraft.client.world.World;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -26,6 +32,7 @@ public class TickHandler extends Thread {
         double previousTime = glfwGetTime();
         Player player = game.getPlayer();
         WorldManager worldManager = new WorldManager();
+        World world = game.getWorld();
 
         while (!glfwWindowShouldClose(game.getWindow())) {
             double currentTime = glfwGetTime();
@@ -34,8 +41,6 @@ public class TickHandler extends Thread {
             tickTimer += deltaTime;
 
             previousTime = currentTime;
-
-
 
             while (tickTimer > TICK_RATE) {
                 worldManager.loadChunks(game.getWorld());

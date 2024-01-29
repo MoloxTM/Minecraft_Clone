@@ -8,11 +8,9 @@ import fr.math.minecraft.client.gui.menus.ConnectionMenu;
 import fr.math.minecraft.client.gui.menus.MainMenu;
 import fr.math.minecraft.client.gui.menus.Menu;
 import fr.math.minecraft.client.manager.*;
-import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.packet.PlayersListPacket;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.world.Chunk;
-import fr.math.minecraft.client.world.ChunkGenerationWorker;
 import fr.math.minecraft.client.world.Coordinates;
 import fr.math.minecraft.client.world.World;
 import fr.math.minecraft.logger.LogType;
@@ -68,6 +66,7 @@ public class Game {
     private int frames, fps;
     private ThreadPoolExecutor chunkLoadingQueue;
     private Map<Coordinates, Boolean> loadingChunks;
+    private Queue<Chunk> pendingChunks;
 
     private Game() {
         this.initWindow();
@@ -134,6 +133,7 @@ public class Game {
         this.chunkLoadingQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(8);
         this.loadingChunks = new HashMap<>();
         this.fontManager = new FontManager();
+        this.pendingChunks = new LinkedList<>();
 
         player.addEventListener(new PlayerListener());
 
@@ -205,6 +205,7 @@ public class Game {
             updateTimer += deltaTime;
 
             lastDeltaTime = currentTime;
+            this.render(renderer);
 
             while (updateTimer > GameConfiguration.UPDATE_TICK) {
                 this.update();
@@ -215,7 +216,6 @@ public class Game {
                 }
             }
 
-            this.render(renderer);
 
             frames++;
 
@@ -252,7 +252,17 @@ public class Game {
             return;
         }
 
-        worldManager.cleanChunks(world);
+        Map<Coordinates, Chunk> pendingChunks;
+        synchronized (world.getPendingChunks()) {
+            pendingChunks = new HashMap<>(world.getPendingChunks());
+        }
+        for (Chunk chunk : pendingChunks.values()) {
+            world.addChunk(chunk);
+        }
+
+        pendingChunks.clear();
+
+        // worldManager.cleanChunks(world);
 
         camera.update(player);
         time += 0.01f;
@@ -272,23 +282,21 @@ public class Game {
             return;
         }
 
-        synchronized (world.getChunks()) {
-            for (Chunk chunk : world.getChunks().values()) {
+        for (Chunk chunk : world.getChunks().values()) {
 
-                if (chunk.isEmpty()) continue;
-                if (chunk.getMesh() == null) continue;
-                // if (chunk.isOutOfView(player)) continue;
+            if (chunk.isEmpty()) continue;
+            if (chunk.getMesh() == null) continue;
+            if (chunk.isOutOfView(player)) continue;
 
-                if (!chunk.getMesh().isInitiated()) {
-                    chunk.getMesh().init();
-                }
-
-                if (!camera.getFrustrum().isVisible(chunk)) {
-                    continue;
-                }
-
-                renderer.render(camera, chunk);
+            if (!chunk.getMesh().isInitiated()) {
+                chunk.getMesh().init();
             }
+
+            if (!camera.getFrustrum().isVisible(chunk)) {
+                continue;
+            }
+
+            renderer.render(camera, chunk);
         }
 
 
@@ -393,5 +401,9 @@ public class Game {
 
     public WorldManager getWorldManager() {
         return worldManager;
+    }
+
+    public Queue<Chunk> getPendingChunks() {
+        return pendingChunks;
     }
 }

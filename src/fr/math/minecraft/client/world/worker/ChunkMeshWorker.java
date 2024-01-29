@@ -1,0 +1,32 @@
+package fr.math.minecraft.client.world.worker;
+
+import fr.math.minecraft.client.Game;
+import fr.math.minecraft.client.meshs.ChunkMesh;
+import fr.math.minecraft.client.world.Chunk;
+import fr.math.minecraft.client.world.Coordinates;
+import fr.math.minecraft.client.world.World;
+
+public class ChunkMeshWorker implements Runnable {
+
+    private final Chunk chunk;
+
+    public ChunkMeshWorker(Chunk chunk) {
+        this.chunk = chunk;
+    }
+
+    @Override
+    public void run() {
+        World world = Game.getInstance().getWorld();
+        Coordinates chunkPosition = new Coordinates(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z);
+        ChunkMesh chunkMesh = new ChunkMesh(chunk);
+        //synchronized (game.getWorld().getChunks()) {
+        chunk.setMesh(chunkMesh);
+        //}
+        chunk.setLoaded(true);
+        world.getLoadingChunks().remove(chunkPosition);
+    }
+
+    public Chunk getChunk() {
+        return chunk;
+    }
+}

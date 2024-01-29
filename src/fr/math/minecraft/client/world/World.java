@@ -8,11 +8,13 @@ import java.util.*;
 public class World {
 
     private final HashMap<Coordinates, Chunk> chunks;
+    private final HashMap<Coordinates, Chunk> pendingChunks;
     private final Set<Coordinates> loadingChunks;
     private final ArrayList<Byte> transparents;
 
     public World() {
         this.chunks = new HashMap<>();
+        this.pendingChunks = new HashMap<>();
         this.loadingChunks = new HashSet<>();
         this.transparents = initTransparents();
     }
@@ -32,12 +34,18 @@ public class World {
         chunks.put(new Coordinates(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z), chunk);
     }
 
+    public void addPendingChunk(Chunk chunk) {
+        pendingChunks.put(new Coordinates(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z), chunk);
+    }
+
     public Chunk getChunk(int x, int y, int z) {
         Coordinates coordinates = new Coordinates(x, y, z);
-        if (!chunks.containsKey(coordinates)) {
-            return null;
+        if (chunks.containsKey(coordinates)) {
+            return chunks.get(coordinates);
+        } else if (pendingChunks.containsKey(coordinates)) {
+            return pendingChunks.get(coordinates);
         }
-        return chunks.get(coordinates);
+        return null;
     }
 
     public Set<Coordinates> getLoadingChunks() {
@@ -55,5 +63,9 @@ public class World {
 
     public ArrayList<Byte> getTransparents() {
         return transparents;
+    }
+
+    public HashMap<Coordinates, Chunk> getPendingChunks() {
+        return pendingChunks;
     }
 }

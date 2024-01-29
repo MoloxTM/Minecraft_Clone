@@ -44,6 +44,8 @@ public class MeshBuilder {
         blockY = blockY < 0 ? blockY + Chunk.SIZE : blockY;
         blockZ = blockZ < 0 ? blockZ + Chunk.SIZE : blockZ;
 
+        if (chunk == null) return true;
+
         emptyMap.put(coordinates, world.getTransparents().contains(chunk.getBlock(blockX, blockY, blockZ)));
         return world.getTransparents().contains(chunk.getBlock(blockX, blockY, blockZ));
     }
