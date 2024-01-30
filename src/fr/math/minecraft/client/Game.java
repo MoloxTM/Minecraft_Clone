@@ -65,6 +65,7 @@ public class Game {
     private boolean debugging;
     private int frames, fps;
     private ThreadPoolExecutor chunkLoadingQueue;
+    private ThreadPoolExecutor packetQueue;
     private Map<Coordinates, Boolean> loadingChunks;
     private Queue<Chunk> pendingChunks;
 
@@ -131,6 +132,7 @@ public class Game {
         this.frames = 0;
         this.fps = 0;
         this.chunkLoadingQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(8);
+        this.packetQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(7);
         this.loadingChunks = new HashMap<>();
         this.fontManager = new FontManager();
         this.pendingChunks = new LinkedList<>();
@@ -230,7 +232,6 @@ public class Game {
         alcCloseDevice(audioDevice);
         glfwDestroyWindow(window);
         glfwTerminate();
-
     }
 
     private void update() {
@@ -295,19 +296,15 @@ public class Game {
                     continue;
                 }
 
-
-
                 renderer.render(camera, chunk);
             }
         }
-
 
         for (Player player : players.values()) {
             renderer.render(camera, player);
         }
 
         renderer.renderDebugTools(camera, player, fps);
-
     }
 
     public static Game getInstance() {
@@ -409,4 +406,7 @@ public class Game {
         return pendingChunks;
     }
 
+    public ThreadPoolExecutor getPacketQueue() {
+        return packetQueue;
+    }
 }

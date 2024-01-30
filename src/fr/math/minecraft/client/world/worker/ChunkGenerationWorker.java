@@ -11,6 +11,10 @@ import fr.math.minecraft.client.world.Coordinates;
 import fr.math.minecraft.client.world.World;
 import org.joml.Vector3i;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 
 public class ChunkGenerationWorker implements Runnable {
@@ -31,18 +35,21 @@ public class ChunkGenerationWorker implements Runnable {
         int x = chunkPosition.getX();
         int y = chunkPosition.getY();
         int z = chunkPosition.getZ();
+        ThreadPoolExecutor packetQueue = game.getPacketQueue();
 
         World world = game.getWorld();
 
         Coordinates[] positions = new Coordinates[] {
-                new Coordinates(x, y, z),
-                new Coordinates(x - 1, y, z),
-                new Coordinates(x + 1, y, z),
-                new Coordinates(x, y - 1, z),
-                new Coordinates(x, y + 1, z),
-                new Coordinates(x, y, z - 1),
-                new Coordinates(x, y, z + 1),
+            new Coordinates(x, y, z),
+            new Coordinates(x - 1, y, z),
+            new Coordinates(x + 1, y, z),
+            new Coordinates(x, y - 1, z),
+            new Coordinates(x, y + 1, z),
+            new Coordinates(x, y, z - 1),
+            new Coordinates(x, y, z + 1),
         };
+
+        List<Future<?>> futures = new ArrayList<>();
         for (int i = 0; i < positions.length; i++) {
 
             Coordinates coordinates = positions[i];
@@ -50,18 +57,22 @@ public class ChunkGenerationWorker implements Runnable {
 
             if (chunk != null) continue;
 
-            ChunkRequestPacket packet = new ChunkRequestPacket(new Vector3i(coordinates.getX(), coordinates.getY(), coordinates.getZ()));
-            packet.send();
+            Future<?> future = packetQueue.submit(() -> {
+                ChunkRequestPacket packet = new ChunkRequestPacket(new Vector3i(coordinates.getX(), coordinates.getY(), coordinates.getZ()));
+                packet.send();
 
-            if (packet.getChunkData() == null) continue;
+                JsonNode chunkData = packet.getChunkData();
+                chunkManager.loadChunkData(chunkData);
+            });
 
-            JsonNode chunkData = packet.getChunkData();
-            chunkManager.loadChunkData(chunkData);
+            futures.add(future);
+        }
 
-            if (i == 0 && world.getChunk(coordinates.getX(), coordinates.getY(), coordinates.getZ()).isEmpty()) {
-                world.getChunk(coordinates.getX(), coordinates.getY(), coordinates.getZ()).setLoaded(true);
-                world.getLoadingChunks().remove(chunkPosition);
-                return;
+        for (Future<?> future : futures) {
+            try {
+                future.get();
+            } catch (ExecutionException | InterruptedException e) {
+                e.printStackTrace();
             }
         }
 
