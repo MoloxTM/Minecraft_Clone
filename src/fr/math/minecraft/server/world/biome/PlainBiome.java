@@ -50,7 +50,6 @@ public class PlainBiome extends AbstractBiome{
             StructureBuilder.buildSimpleTree(chunk, x, y, z);
             world.getTrees().add(coordinates);
         }
-
     }
 
     @Override

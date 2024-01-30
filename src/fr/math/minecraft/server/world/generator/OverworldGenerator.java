@@ -88,12 +88,14 @@ public class OverworldGenerator implements TerrainGenerator {
                                 currentBiome.buildTree(chunk, x, y, z, minecraftServer.getWorld().getTrees());
                             }
                         }else if(currentBiome instanceof DesertBiome && ((x - 2) >= 0) && ((x + 2) <= 15) && ((z - 2) >= 0) && ((z + 2) <= 15) && ((y + 4) < ServerChunk.SIZE)){
-                            if((y + 1) < ServerChunk.SIZE) currentBiome.buildWeeds(chunk, x, y, z, minecraftServer.getWorld().getTrees());
-                            currentBiome.buildTree(chunk, x, y, z, minecraftServer.getWorld().getTrees());
+                            if((y + 1) < ServerChunk.SIZE){
+                                currentBiome.buildWeeds(chunk, x, y, z, minecraftServer.getWorld().getTrees());
+                                currentBiome.buildTree(chunk, x, y, z, minecraftServer.getWorld().getTrees());
+                            }
                         }
 
                     } else {
-                        if (worldY <= 24) {
+                        if (worldY <= 40) {
                             material = Material.WATER;
                         }
                     }

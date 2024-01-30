@@ -46,7 +46,7 @@ public class DesertBiome extends AbstractBiome{
 
         RandomSeed randomSeed = RandomSeed.getInstance();
         float dropRate = randomSeed.nextFloat() * 100.0f;
-        if(dropRate < 0.1f) {
+        if(dropRate < 0.3f) {
             StructureBuilder.buildSimpleCactus(chunk, x, y, z);
             world.getTrees().add(coordinates);
         }
@@ -62,14 +62,16 @@ public class DesertBiome extends AbstractBiome{
 
         Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
         //Calul distance
+        /*
         for (Coordinates coordinates1 : trees) {
             double dist = Utils.distance(coordinates, coordinates1);
             if(dist <= 10)return;
         }
+        */
 
         RandomSeed randomSeed = RandomSeed.getInstance();
         float dropRate = randomSeed.nextFloat() * 100.0f;
-        if(dropRate < 3.0f) {
+        if(dropRate < 0.4f) {
             StructureBuilder.buildDeadBush(chunk, x, y, z);
             world.getTrees().add(coordinates);
         }
