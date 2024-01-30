@@ -216,7 +216,6 @@ public class Game {
                 }
             }
 
-
             frames++;
 
             glfwSwapBuffers(window);
@@ -252,16 +251,11 @@ public class Game {
             return;
         }
 
-        Map<Coordinates, Chunk> pendingChunks;
-        synchronized (world.getPendingChunks()) {
-            pendingChunks = new HashMap<>(world.getPendingChunks());
-        }
-        for (Chunk chunk : pendingChunks.values()) {
+        for (Chunk chunk : world.getPendingChunks().values()) {
             world.addChunk(chunk);
         }
 
-        pendingChunks.clear();
-
+        world.getPendingChunks().clear();
         // worldManager.cleanChunks(world);
 
         camera.update(player);
@@ -282,21 +276,29 @@ public class Game {
             return;
         }
 
-        for (Chunk chunk : world.getChunks().values()) {
+        synchronized (world.getChunks()) {
+            for (Chunk chunk : world.getChunks().values()) {
 
-            if (chunk.isEmpty()) continue;
-            if (chunk.getMesh() == null) continue;
-            if (chunk.isOutOfView(player)) continue;
+                if (chunk.isEmpty()) continue;
+                if (chunk.getMesh() == null) continue;
+                if (chunk.isOutOfView(player)) continue;
 
-            if (!chunk.getMesh().isInitiated()) {
-                chunk.getMesh().init();
+                if (!chunk.isLoaded()) {
+                    continue;
+                }
+
+                if (!chunk.getMesh().isInitiated()) {
+                    chunk.getMesh().init();
+                }
+
+                if (!camera.getFrustrum().isVisible(chunk)) {
+                    continue;
+                }
+
+
+
+                renderer.render(camera, chunk);
             }
-
-            if (!camera.getFrustrum().isVisible(chunk)) {
-                continue;
-            }
-
-            renderer.render(camera, chunk);
         }
 
 
@@ -406,4 +408,5 @@ public class Game {
     public Queue<Chunk> getPendingChunks() {
         return pendingChunks;
     }
+
 }

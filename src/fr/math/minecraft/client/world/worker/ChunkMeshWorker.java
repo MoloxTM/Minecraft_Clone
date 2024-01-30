@@ -1,10 +1,13 @@
 package fr.math.minecraft.client.world.worker;
 
 import fr.math.minecraft.client.Game;
+import fr.math.minecraft.client.GameConfiguration;
+import fr.math.minecraft.client.math.MathUtils;
 import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.world.Chunk;
 import fr.math.minecraft.client.world.Coordinates;
 import fr.math.minecraft.client.world.World;
+import org.joml.Vector3f;
 
 public class ChunkMeshWorker implements Runnable {
 
@@ -16,14 +19,17 @@ public class ChunkMeshWorker implements Runnable {
 
     @Override
     public void run() {
-        World world = Game.getInstance().getWorld();
-        Coordinates chunkPosition = new Coordinates(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z);
+
+        Game game = Game.getInstance();
+
+        World world = game.getWorld();
+        // Coordinates chunkPosition = new Coordinates(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z);
         ChunkMesh chunkMesh = new ChunkMesh(chunk);
-        //synchronized (game.getWorld().getChunks()) {
-        chunk.setMesh(chunkMesh);
-        //}
+        synchronized (world.getChunks()) {
+            chunk.setMesh(chunkMesh);
+        }
         chunk.setLoaded(true);
-        world.getLoadingChunks().remove(chunkPosition);
+        // world.getLoadingChunks().remove(chunkPosition);
     }
 
     public Chunk getChunk() {

@@ -4,17 +4,18 @@ import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.entity.Player;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class World {
 
     private final HashMap<Coordinates, Chunk> chunks;
-    private final HashMap<Coordinates, Chunk> pendingChunks;
+    private final ConcurrentHashMap<Coordinates, Chunk> pendingChunks;
     private final Set<Coordinates> loadingChunks;
     private final ArrayList<Byte> transparents;
 
     public World() {
         this.chunks = new HashMap<>();
-        this.pendingChunks = new HashMap<>();
+        this.pendingChunks = new ConcurrentHashMap<>();
         this.loadingChunks = new HashSet<>();
         this.transparents = initTransparents();
     }
@@ -65,7 +66,7 @@ public class World {
         return transparents;
     }
 
-    public HashMap<Coordinates, Chunk> getPendingChunks() {
+    public ConcurrentHashMap<Coordinates, Chunk> getPendingChunks() {
         return pendingChunks;
     }
 }

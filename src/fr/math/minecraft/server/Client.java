@@ -27,7 +27,7 @@ public class Client {
         this.position = new Vector3f(0.0f, 0.0f, 0.0f);
         this.yaw = 0.0f;
         this.pitch = 0.0f;
-        this.speed = 0.1f;
+        this.speed = 0.6f;
         this.skin = null;
     }
 

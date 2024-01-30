@@ -13,7 +13,7 @@ import org.joml.Vector3i;
 
 import java.util.concurrent.ThreadPoolExecutor;
 
-public class ChunkGenerationWorker {
+public class ChunkGenerationWorker implements Runnable {
 
     private final Game game;
     private final ChunkManager chunkManager;
@@ -25,7 +25,8 @@ public class ChunkGenerationWorker {
         this.chunkManager = new ChunkManager();
     }
 
-    public void work() {
+    @Override
+    public void run() {
 
         int x = chunkPosition.getX();
         int y = chunkPosition.getY();
@@ -70,6 +71,12 @@ public class ChunkGenerationWorker {
             synchronized (game.getPendingChunks()) {
                 game.getPendingChunks().add(chunk);
             }
+//            Coordinates chunkPosition = new Coordinates(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z);
+            ChunkMesh chunkMesh = new ChunkMesh(chunk);
+            synchronized (world.getChunks()) {
+                chunk.setMesh(chunkMesh);
+            }
+            chunk.setLoaded(true);
         }
     }
 }
