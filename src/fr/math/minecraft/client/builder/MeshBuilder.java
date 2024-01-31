@@ -20,6 +20,7 @@ public class MeshBuilder {
 
     private static int counter = 0;
     private HashMap<Coordinates, Boolean> emptyMap = new HashMap<>();
+    private final int SQUARE_POINTS = 4;
 
     public boolean isEmpty(int worldX, int worldY, int worldZ) {
 
@@ -60,17 +61,28 @@ public class MeshBuilder {
             texCoordsBottomLeft,
             texCoordsUpLeft,
             texCoordsUpRight,
-            texCoordsUpRight,
             texCoordsBottomRight,
-            texCoordsBottomLeft,
         };
 
         return texCoords;
     }
 
+    private int updateIndice(ArrayList<Integer> indices, int currentIndice) {
+        indices.add(currentIndice);
+        indices.add(currentIndice + 1);
+        indices.add(currentIndice + 2);
+        indices.add(currentIndice + 2);
+        indices.add(currentIndice + 3);
+        indices.add(currentIndice);
 
-    public Vertex[] buildChunkMesh(Chunk chunk) {
-        BlockModel blockModel = new BlockModel();
+        currentIndice += SQUARE_POINTS;
+
+        return currentIndice;
+    }
+
+    public Vertex[] buildChunkMesh(Chunk chunk, ArrayList<Integer> indices) {
+        int currentIndice = 0;
+
         ArrayList<Vertex> vertices = new ArrayList<>();
         for (int x = 0; x < Chunk.SIZE; x++) {
             for (int y = 0; y < Chunk.SIZE; y++) {
@@ -100,52 +112,34 @@ public class MeshBuilder {
                     if(material == Material.WEED || material == Material.ROSE) {
                         textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
 
-                        for (int k = 0; k < 6; k++)  {
+                        for (int k = 0; k < SQUARE_POINTS; k++)  {
                             Vector3f blockVector = new Vector3f(x, y, z);
                             vertices.add(new Vertex(blockVector.add(NatureModel.FIRST_FACE[k]), textureCoords[k],material.getId(),0));
                         }
-                        for (int k = 0; k < 6; k++)  {
+
+                        currentIndice = this.updateIndice(indices, currentIndice);
+
+                        for (int k = 0; k < SQUARE_POINTS; k++)  {
                             Vector3f blockVector = new Vector3f(x, y, z);
                             vertices.add(new Vertex(blockVector.add(NatureModel.SECOND_FACE[k]), textureCoords[k],material.getId(),0));
                         }
-                        /*
-                        for (int k = 0; k < 6; k++)  {
-                            Vector3f blockVector = new Vector3f(x, y, z);
-                            vertices.add(new Vertex(blockVector.add(BlockModel.PX_POS[k]), textureCoords[k],material.getId(),0));
-                        }
-                        for (int k = 0; k < 6; k++)  {
-                            Vector3f blockVector = new Vector3f(x, y, z);
-                            vertices.add(new Vertex(blockVector.add(BlockModel.NX_POS[k]), textureCoords[k],material.getId(),0));
-                        }
-                        for (int k = 0; k < 6; k++)  {
-                            Vector3f blockVector = new Vector3f(x, y, z);
-                            vertices.add(new Vertex(blockVector.add(BlockModel.PY_POS[k]), textureCoords[k],material.getId(),0));
-                        }
-                        for (int k = 0; k < 6; k++)  {
-                            Vector3f blockVector = new Vector3f(x, y, z);
-                            vertices.add(new Vertex(blockVector.add(BlockModel.NY_POS[k]), textureCoords[k],material.getId(),0));
-                        }
-                        for (int k = 0; k < 6; k++)  {
-                            Vector3f blockVector = new Vector3f(x, y, z);
-                            vertices.add(new Vertex(blockVector.add(BlockModel.PZ_POS[k]), textureCoords[k],material.getId(),0));
-                        }
-                        for (int k = 0; k < 6; k++)  {
-                            Vector3f blockVector = new Vector3f(x, y, z);
-                            vertices.add(new Vertex(blockVector.add(BlockModel.NZ_POS[k]), textureCoords[k],material.getId(),0));
-                        }
-                        */
+
+                        currentIndice = this.updateIndice(indices, currentIndice);
+
                     } else {
                         if (px) {
                             if(material.isFaces()) {
                                 textureCoords = calculateTexCoords(material.getPx().x, material.getPx().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
-
                             }
-                            for (int k = 0; k < 6; k++)  {
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
                                 Vector3f blockVector = new Vector3f(x, y, z);
                                 vertices.add(new Vertex(blockVector.add(BlockModel.PX_POS[k]), textureCoords[k],material.getId(),0));
                             }
+
+                            currentIndice = this.updateIndice(indices, currentIndice);
+
                         }
 
                         if (nx) {
@@ -155,10 +149,12 @@ public class MeshBuilder {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
 
                             }
-                            for (int k = 0; k < 6; k++)  {
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
                                 Vector3f blockVector = new Vector3f(x, y, z);
                                 vertices.add(new Vertex(blockVector.add(BlockModel.NX_POS[k]), textureCoords[k],material.getId(),1));
                             }
+
+                            currentIndice = this.updateIndice(indices, currentIndice);
                         }
 
                         if (py) {
@@ -168,10 +164,12 @@ public class MeshBuilder {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
 
                             }
-                            for (int k = 0; k < 6; k++)  {
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
                                 Vector3f blockVector = new Vector3f(x, y, z);
                                 vertices.add(new Vertex(blockVector.add(BlockModel.PY_POS[k]), textureCoords[k],material.getId(),2));
                             }
+
+                            currentIndice = this.updateIndice(indices, currentIndice);
                         }
 
                         if (ny) {
@@ -181,10 +179,12 @@ public class MeshBuilder {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
 
                             }
-                            for (int k = 0; k < 6; k++)  {
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
                                 Vector3f blockVector = new Vector3f(x, y, z);
                                 vertices.add(new Vertex(blockVector.add(BlockModel.NY_POS[k]), textureCoords[k],material.getId(),3));
                             }
+
+                            currentIndice = this.updateIndice(indices, currentIndice);
                         }
 
                         if (pz) {
@@ -194,10 +194,12 @@ public class MeshBuilder {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
 
                             }
-                            for (int k = 0; k < 6; k++)  {
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
                                 Vector3f blockVector = new Vector3f(x, y, z);
                                 vertices.add(new Vertex(blockVector.add(BlockModel.PZ_POS[k]), textureCoords[k],material.getId(),4));
                             }
+
+                            currentIndice = this.updateIndice(indices, currentIndice);
                         }
 
                         if (nz) {
@@ -207,10 +209,12 @@ public class MeshBuilder {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
 
                             }
-                            for (int k = 0; k < 6; k++)  {
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
                                 Vector3f blockVector = new Vector3f(x, y, z);
                                 vertices.add(new Vertex(blockVector.add(BlockModel.NZ_POS[k]), textureCoords[k],material.getId(),5));
                             }
+
+                            currentIndice = this.updateIndice(indices, currentIndice);
                         }
                     }
                 }

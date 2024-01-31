@@ -82,12 +82,6 @@ public class ChunkGenerationWorker implements Runnable {
             synchronized (game.getPendingChunks()) {
                 game.getPendingChunks().add(chunk);
             }
-//            Coordinates chunkPosition = new Coordinates(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z);
-            ChunkMesh chunkMesh = new ChunkMesh(chunk);
-            synchronized (world.getChunks()) {
-                chunk.setMesh(chunkMesh);
-            }
-            chunk.setLoaded(true);
         }
     }
 }

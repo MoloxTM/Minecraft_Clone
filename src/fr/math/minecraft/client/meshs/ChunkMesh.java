@@ -1,9 +1,12 @@
 package fr.math.minecraft.client.meshs;
 
+import fr.math.minecraft.client.buffers.EBO;
 import fr.math.minecraft.client.buffers.VAO;
 import fr.math.minecraft.client.buffers.VBO;
 import fr.math.minecraft.client.builder.MeshBuilder;
 import fr.math.minecraft.client.world.Chunk;
+
+import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL33.*;
 
@@ -11,8 +14,12 @@ public class ChunkMesh extends Mesh {
 
     private boolean chunkMeshInitiated;
 
+
+
     public ChunkMesh(Chunk chunk) {
-        vertices = new MeshBuilder().buildChunkMesh(chunk);
+        ArrayList<Integer> elements = new ArrayList<>();
+        vertices = new MeshBuilder().buildChunkMesh(chunk, elements);
+        this.indices = elements.stream().mapToInt(Integer::valueOf).toArray();
         this.chunkMeshInitiated = false;
         //this.init();
     }
@@ -23,6 +30,7 @@ public class ChunkMesh extends Mesh {
         vao.bind();
 
         vbo = new VBO(vertices);
+        ebo = new EBO(indices);
 
         vao.linkAttrib(vbo, 0, 3, GL_FLOAT, 7 * Float.BYTES, 0);
         vao.linkAttrib(vbo, 1, 2, GL_FLOAT, 7 * Float.BYTES, 3 * Float.BYTES);
@@ -31,6 +39,7 @@ public class ChunkMesh extends Mesh {
 
         vao.unbind();
         vbo.unbind();
+        ebo.unbind();
 
         chunkMeshInitiated = true;
     }
@@ -38,7 +47,7 @@ public class ChunkMesh extends Mesh {
     @Override
     public void draw() {
         vao.bind();
-        glDrawArrays(GL_TRIANGLES, 0, vertices.length);
+        glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
         vao.unbind();
     }
 
