@@ -4,6 +4,7 @@ import fr.math.minecraft.client.vertex.PlayerVertex;
 import fr.math.minecraft.client.vertex.Vertex;
 import org.lwjgl.BufferUtils;
 
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
 import static org.lwjgl.opengl.GL33.*;
@@ -13,19 +14,14 @@ public class VBO {
 
     public VBO(Vertex[] vertices) {
         id = glGenBuffers();
-        float[] data = new float[vertices.length * 7];
-        int bufferPosition = 0;
+        int dataSize = vertices.length * (1 + 2);
+        ByteBuffer buffer = BufferUtils.createByteBuffer(dataSize * Float.BYTES);
         for (Vertex vertex : vertices) {
-            data[bufferPosition++] = vertex.getPosition().x;
-            data[bufferPosition++] = vertex.getPosition().y;
-            data[bufferPosition++] = vertex.getPosition().z;
-            data[bufferPosition++] = vertex.getTextureCoords().x;
-            data[bufferPosition++] = vertex.getTextureCoords().y;
-            data[bufferPosition++] = vertex.getBlockID();
-            data[bufferPosition++] = vertex.getBlockFace();
+            buffer.putFloat(vertex.getPackedData());
+            buffer.putFloat(vertex.getTextureCoords().x);
+            buffer.putFloat(vertex.getTextureCoords().y);
         }
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(vertices.length * 7);
-        buffer.put(data).flip();
+        buffer.flip();
         glBindBuffer(GL_ARRAY_BUFFER, id);
         glBufferData(GL_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
