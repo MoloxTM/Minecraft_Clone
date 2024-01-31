@@ -2,6 +2,7 @@ package fr.math.minecraft.client.world;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.math.minecraft.client.meshs.ChunkMesh;
+import fr.math.minecraft.server.world.biome.AbstractBiome;
 import org.joml.Vector3i;
 
 public class Chunk {
@@ -15,6 +16,7 @@ public class Chunk {
 
     public final static int VOLUME = SIZE * AREA;
     private ChunkMesh chunkMesh;
+    private int biome;
 
     public Chunk(int x, int y, int z) {
         this.position = new Vector3i(x, y, z);
@@ -28,6 +30,7 @@ public class Chunk {
         }
         this.empty = true;
         this.chunkMesh = null;
+        this.biome = -1;
     }
 
     public Chunk(JsonNode chunkData) {
@@ -85,4 +88,11 @@ public class Chunk {
         return count;
     }
 
+    public int getBiome() {
+        return biome;
+    }
+
+    public void setBiome(int biome) {
+        this.biome = biome;
+    }
 }

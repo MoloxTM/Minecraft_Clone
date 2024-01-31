@@ -17,6 +17,7 @@ public class PlainBiome extends AbstractBiome{
     public PlainBiome() {
         this.noise = new NoiseGenerator(9, 30, 1000.0f, .6f, 25);
         this.biomeName = "Plains";
+        this.biomeID = 3;
     }
 
     @Override

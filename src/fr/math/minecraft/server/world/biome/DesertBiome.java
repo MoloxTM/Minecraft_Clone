@@ -17,6 +17,7 @@ public class DesertBiome extends AbstractBiome{
     public DesertBiome() {
         this.noise = new NoiseGenerator(9, 30, 500.0f, .5f, 25);
         this.biomeName = "Deserts";
+        this.biomeID = 0;
     }
 
     public Material getUpperBlock() {

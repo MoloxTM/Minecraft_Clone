@@ -20,6 +20,7 @@ public class ChunkManager {
         int x = chunkData.get("x").asInt();
         int y = chunkData.get("y").asInt();
         int z = chunkData.get("z").asInt();
+        int biome = chunkData.get("biome").asInt();
 
         World world = Game.getInstance().getWorld();
         Chunk chunk = world.getChunk(x, y, z);
@@ -37,6 +38,8 @@ public class ChunkManager {
         if (chunk.getBlocksSize() > 0) {
             chunk.setEmpty(false);
         }
+
+        chunk.setBiome(biome);
 
         synchronized (world.getChunks()) {
             world.addChunk(chunk);

@@ -65,6 +65,7 @@ public class OverworldGenerator implements TerrainGenerator {
 
                 BiomeManager biomeManager = new BiomeManager();
                 AbstractBiome currentBiome = biomeManager.getBiome(x+chunk.getPosition().x*ServerChunk.SIZE,z+chunk.getPosition().z*ServerChunk.SIZE);
+                chunk.setBiome(currentBiome);
 
                 int worldHeight = heightMap.get(new Vector2i(x, z));
 

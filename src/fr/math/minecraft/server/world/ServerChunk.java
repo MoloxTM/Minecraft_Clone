@@ -4,9 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.math.minecraft.server.world.biome.*;
 import fr.math.minecraft.server.world.generator.OverworldGenerator;
 import org.joml.Vector3i;
 
+import javax.xml.crypto.Data;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -20,6 +22,9 @@ public class ServerChunk {
     public final static int AREA = SIZE * SIZE;
 
     public final static int VOLUME = SIZE * AREA;
+
+    private int biomeID;
+
     public ServerChunk(int x, int y, int z) {
         this.position = new Vector3i(x, y, z);
         this.blocks = new byte[VOLUME];
@@ -31,6 +36,7 @@ public class ServerChunk {
             }
         }
         this.generate();
+        this.biomeID = -1;
     }
 
     public void generate() {
@@ -66,7 +72,9 @@ public class ServerChunk {
         node.put("x", position.x);
         node.put("y", position.y);
         node.put("z", position.z);
+        node.put("biome", biomeID);
         node.set("blocks", blocksArray);
+
 
         try {
             return mapper.writeValueAsString(node);
@@ -77,4 +85,11 @@ public class ServerChunk {
 
     }
 
+    public int getBiome() {
+        return biomeID;
+    }
+
+    public void setBiome(AbstractBiome biome) {
+        this.biomeID = biome.getBiomeID();
+    }
 }

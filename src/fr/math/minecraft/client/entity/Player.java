@@ -41,6 +41,8 @@ public class Player {
     private BufferedImage skin;
     private final static Logger logger = LoggerUtility.getClientLogger(Player.class, LogType.TXT);
 
+    public static float r,g,b;
+
     public Player(String name) {
         this.position = new Vector3f(0.0f, 0.0f, 0.0f);
         this.yaw = 0.0f;
@@ -61,6 +63,9 @@ public class Player {
         this.nametagMesh = new NametagMesh(name);
         this.skin = null;
         this.initAnimations();
+        this.r = 0;
+        this.g = 0;
+        this.b = 0;
     }
 
     private void initAnimations() {
@@ -133,7 +138,31 @@ public class Player {
         if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_RELEASE) {
             debugKeyPressed = false;
         }
+        /*
+        if(glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+            r += 0.001f;
+        }
+        if(glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
+            g += 0.001f;
+        }
+        if(glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS) {
+            b += 0.001f;
+        }
 
+        if(glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {
+            r -= 0.001f;
+        }
+        if(glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS) {
+            g -= 0.001f;
+        }
+        if(glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) {
+            b -= 0.001f;
+        }
+
+        if(glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
+            System.out.println("R:"+ r + "G:" + g + "B:" + b);
+        }
+        */
         packet.send();
 
         lastMouseX = (float) mouseX.get(0);
@@ -234,4 +263,13 @@ public class Player {
         this.bodyYaw = bodyYaw;
     }
 
+    public float getR() {
+        return r;
+    }
+    public float getG() {
+        return g;
+    }
+    public float getB() {
+        return b;
+    }
 }

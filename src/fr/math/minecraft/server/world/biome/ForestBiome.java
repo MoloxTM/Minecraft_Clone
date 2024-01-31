@@ -17,6 +17,7 @@ public class ForestBiome extends AbstractBiome{
     public ForestBiome() {
         this.noise = new NoiseGenerator(9, 30, 800.0f, .7f, 25);
         this.biomeName = "Forests";
+        this.biomeID = 1;
     }
     @Override
     public Material getUpperBlock() {

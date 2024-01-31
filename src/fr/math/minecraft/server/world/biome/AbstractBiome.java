@@ -10,6 +10,7 @@ import java.util.ArrayList;
 public abstract class AbstractBiome {
     protected NoiseGenerator noise;
     protected String biomeName;
+    protected int biomeID;
     public abstract Material getUpperBlock();
     public abstract Material getSecondBlock();
     public abstract void buildTree(ServerChunk chunk, int x, int y, int z, ArrayList<Coordinates> trees);
@@ -19,5 +20,8 @@ public abstract class AbstractBiome {
     }
     public String getBiomeName() {
         return biomeName;
+    }
+    public int getBiomeID() {
+        return biomeID;
     }
 }
