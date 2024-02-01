@@ -18,6 +18,7 @@ import java.util.HashMap;
 
 public class MeshBuilder {
 
+    private static int counter = 0;
     private HashMap<Coordinates, Boolean> emptyMap = new HashMap<>();
     private final int SQUARE_POINTS = 4;
 
@@ -66,30 +67,6 @@ public class MeshBuilder {
         return texCoords;
     }
 
-
-    /*
-    x : 6 bits, y : 6 bits, z : 6 bits, blockId : 8 bits, blockFace : 3 bits, occlusion : 2 bits
-     */
-    private float packData(float x, float y, float z, int blockId, int blockFace) {
-        int xSize = 6, ySize = 6, zSize = 6, blockIdSize = 8, blockFaceSize = 3;
-
-        int packFactor = 64 / (Chunk.SIZE + 1);
-
-        int packedX = (int) ((x + .5f) * packFactor);
-        int packedY = (int) ((y + .5f) * packFactor);
-        int packedZ = (int) ((z + .5f) * packFactor);
-
-        int packedData = (
-            packedX << (ySize + zSize + blockIdSize + blockFaceSize) |
-            packedY << (zSize + blockIdSize + blockFaceSize) |
-            packedZ << (blockIdSize + blockFaceSize) |
-            blockId << (blockFaceSize) |
-            blockFace
-        );
-
-        return Float.intBitsToFloat(packedData);
-    }
-
     private int updateIndice(ArrayList<Integer> indices, int currentIndice) {
         indices.add(currentIndice);
         indices.add(currentIndice + 1);
@@ -101,14 +78,6 @@ public class MeshBuilder {
         currentIndice += SQUARE_POINTS;
 
         return currentIndice;
-    }
-
-    private void addChunkVertex(ArrayList<Vertex> vertices, int x, int y, int z, Vector3f[] vertex, Vector2f[] textureCoords, Material material, int blockFace) {
-        for (int k = 0; k < SQUARE_POINTS; k++)  {
-            Vector3f blockVector = new Vector3f(x, y, z).add(vertex[k]);
-            float packedData = this.packData(blockVector.x, blockVector.y, blockVector.z, material.getId(), blockFace);
-            vertices.add(new Vertex(packedData, textureCoords[k]));
-        }
     }
 
     public Vertex[] buildChunkMesh(Chunk chunk, ArrayList<Integer> indices) {
@@ -143,11 +112,20 @@ public class MeshBuilder {
                     if(material == Material.WEED || material == Material.ROSE) {
                         textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
 
-                        this.addChunkVertex(vertices, x, y, z, NatureModel.FIRST_FACE, textureCoords, material, 0);
+                        for (int k = 0; k < SQUARE_POINTS; k++)  {
+                            Vector3f blockVector = new Vector3f(x, y, z);
+                            vertices.add(new Vertex(blockVector.add(NatureModel.FIRST_FACE[k]), textureCoords[k],material.getId(),0));
+                        }
+
                         currentIndice = this.updateIndice(indices, currentIndice);
 
-                        this.addChunkVertex(vertices, x, y, z, NatureModel.SECOND_FACE, textureCoords, material, 0);
+                        for (int k = 0; k < SQUARE_POINTS; k++)  {
+                            Vector3f blockVector = new Vector3f(x, y, z);
+                            vertices.add(new Vertex(blockVector.add(NatureModel.SECOND_FACE[k]), textureCoords[k],material.getId(),0));
+                        }
+
                         currentIndice = this.updateIndice(indices, currentIndice);
+
                     } else {
                         if (px) {
                             if(material.isFaces()) {
@@ -155,8 +133,11 @@ public class MeshBuilder {
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
                             }
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(BlockModel.PX_POS[k]), textureCoords[k],material.getId(),0));
+                            }
 
-                            this.addChunkVertex(vertices, x, y, z, BlockModel.PX_POS, textureCoords, material, 0);
                             currentIndice = this.updateIndice(indices, currentIndice);
 
                         }
@@ -168,8 +149,11 @@ public class MeshBuilder {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
 
                             }
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(BlockModel.NX_POS[k]), textureCoords[k],material.getId(),1));
+                            }
 
-                            this.addChunkVertex(vertices, x, y, z, BlockModel.NX_POS, textureCoords, material, 1);
                             currentIndice = this.updateIndice(indices, currentIndice);
                         }
 
@@ -180,7 +164,11 @@ public class MeshBuilder {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
 
                             }
-                            this.addChunkVertex(vertices, x, y, z, BlockModel.PY_POS, textureCoords, material, 2);
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(BlockModel.PY_POS[k]), textureCoords[k],material.getId(),2));
+                            }
+
                             currentIndice = this.updateIndice(indices, currentIndice);
                         }
 
@@ -191,8 +179,11 @@ public class MeshBuilder {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
 
                             }
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(BlockModel.NY_POS[k]), textureCoords[k],material.getId(),3));
+                            }
 
-                            this.addChunkVertex(vertices, x, y, z, BlockModel.NY_POS, textureCoords, material, 3);
                             currentIndice = this.updateIndice(indices, currentIndice);
                         }
 
@@ -203,7 +194,11 @@ public class MeshBuilder {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
 
                             }
-                            this.addChunkVertex(vertices, x, y, z, BlockModel.PZ_POS, textureCoords, material, 4);
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(BlockModel.PZ_POS[k]), textureCoords[k],material.getId(),4));
+                            }
+
                             currentIndice = this.updateIndice(indices, currentIndice);
                         }
 
@@ -214,14 +209,18 @@ public class MeshBuilder {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
 
                             }
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(BlockModel.NZ_POS[k]), textureCoords[k],material.getId(),5));
+                            }
 
-                            this.addChunkVertex(vertices, x, y, z, BlockModel.NZ_POS, textureCoords, material, 5);
                             currentIndice = this.updateIndice(indices, currentIndice);
                         }
                     }
                 }
             }
         }
+        counter = 0;
 
         return vertices.toArray(new Vertex[0]);
     }

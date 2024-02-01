@@ -10,19 +10,9 @@ public class Vertex {
 
     private final Vector3f position;
     private final Vector2f textureCoords;
-    private final int blockID;
-    private final int blockFace;
-    private float packedData;
-
-    public Vertex(float packedData, Vector2f textureCoords) {
-        this.packedData = packedData;
-        this.position = null;
-        this.textureCoords = textureCoords;
-        this.blockFace = -1;
-        this.blockID = -1;
-    }
-
-    public Vertex(Vector3f position, Vector2f textureCoords, int blockID, int blockFace) {
+    private final float blockID;
+    private final float blockFace;
+    public Vertex(Vector3f position, Vector2f textureCoords, float blockID, float blockFace) {
         this.position = position;
         this.textureCoords = textureCoords;
         this.blockID=blockID;
@@ -44,11 +34,8 @@ public class Vertex {
         return textureCoords;
     }
 
-    public int getBlockID() { return blockID; }
+    public float getBlockID() {return blockID;}
 
-    public int getBlockFace() { return blockFace; }
+    public float getBlockFace(){return blockFace;}
 
-    public float getPackedData() {
-        return packedData;
-    }
 }
