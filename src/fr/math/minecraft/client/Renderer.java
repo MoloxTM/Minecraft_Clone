@@ -10,7 +10,7 @@ import fr.math.minecraft.client.gui.menus.Menu;
 import fr.math.minecraft.client.gui.menus.MenuBackgroundType;
 import fr.math.minecraft.client.manager.FontManager;
 import fr.math.minecraft.client.meshs.*;
-import fr.math.minecraft.client.packet.SkinRequestPacket;
+import fr.math.minecraft.client.network.packet.SkinRequestPacket;
 import fr.math.minecraft.client.texture.CubemapTexture;
 import fr.math.minecraft.client.texture.Texture;
 import fr.math.minecraft.client.world.Chunk;

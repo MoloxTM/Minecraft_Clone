@@ -1,6 +1,5 @@
 package fr.math.minecraft.client.visitor;
 
-import fr.math.minecraft.client.Camera;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.GameState;
 import fr.math.minecraft.client.audio.Sounds;
@@ -11,10 +10,7 @@ import fr.math.minecraft.client.gui.menus.ConnectionMenu;
 import fr.math.minecraft.client.gui.menus.MainMenu;
 import fr.math.minecraft.client.manager.MenuManager;
 import fr.math.minecraft.client.manager.SoundManager;
-import fr.math.minecraft.client.packet.ConnectionInitPacket;
-import fr.math.minecraft.client.tick.TickHandler;
-
-import static org.lwjgl.glfw.GLFW.*;
+import fr.math.minecraft.client.network.packet.ConnectionInitPacket;
 
 public class ButtonActionVisitor implements ButtonVisitor<Void> {
 

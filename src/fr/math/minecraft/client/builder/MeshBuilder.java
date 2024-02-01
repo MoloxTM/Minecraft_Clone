@@ -2,7 +2,6 @@ package fr.math.minecraft.client.builder;
 
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.meshs.model.NatureModel;
-import fr.math.minecraft.client.packet.ChunkEmptyPacket;
 import fr.math.minecraft.client.vertex.Vertex;
 import fr.math.minecraft.client.meshs.model.BlockModel;
 import fr.math.minecraft.client.world.Chunk;
@@ -11,7 +10,6 @@ import fr.math.minecraft.client.world.Material;
 import fr.math.minecraft.client.world.World;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.joml.Vector3i;
 
 import java.util.ArrayList;
 import java.util.HashMap;

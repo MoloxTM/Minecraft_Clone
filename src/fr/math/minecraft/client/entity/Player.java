@@ -6,11 +6,10 @@ import fr.math.minecraft.client.animations.PlayerWalkAnimation;
 import fr.math.minecraft.client.events.EventListener;
 import fr.math.minecraft.client.events.PlayerMoveEvent;
 import fr.math.minecraft.client.meshs.NametagMesh;
-import fr.math.minecraft.client.packet.PlayerMovePacket;
+import fr.math.minecraft.client.network.packet.PlayerMovePacket;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
-import org.joml.Math;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 
@@ -43,6 +42,7 @@ public class Player {
     private final ArrayList<Animation> animations;
     private NametagMesh nametagMesh;
     private BufferedImage skin;
+    private float sensitivity;
     private final static Logger logger = LoggerUtility.getClientLogger(Player.class, LogType.TXT);
     private final List<EventListener> eventListeners;
 
@@ -54,7 +54,8 @@ public class Player {
         this.firstMouse = true;
         this.lastMouseX = 0.0f;
         this.lastMouseY = 0.0f;
-        this.speed = 0.05f;
+        this.speed = 0.2f;
+        this.sensitivity = 0.1f;
         this.name = name;
         this.uuid = null;
         this.movingLeft = false;
@@ -89,49 +90,42 @@ public class Player {
         double mouseOffsetX = mouseX.get(0) - lastMouseX;
         double mouseOffsetY = mouseY.get(0) - lastMouseY;
 
-        yaw += (float) mouseOffsetX * speed;
+        yaw += (float) mouseOffsetX * sensitivity;
         if (yaw > 360.0f || yaw < -360.0f){
             yaw = 0.0f;
         }
 
-        pitch -= (float) mouseOffsetY * speed;
+        pitch -= (float) mouseOffsetY * sensitivity;
         if (pitch > 90.0f){
             pitch = 89.0f;
         } else if (pitch < -90.0f){
             pitch = -89.0f;
         }
 
-        PlayerMovePacket packet = new PlayerMovePacket(this);
         this.resetMoving();
 
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
             movingForward = true;
-            packet.setMovingForward(true);
         }
 
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
             movingLeft = true;
-            packet.setMovingLeft(true);
         }
 
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
             movingBackward = true;
-            packet.setMovingBackward(true);
         }
 
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
             movingRight = true;
-            packet.setMovingRight(true);
         }
 
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
             flying = true;
-            packet.setFlying(true);
         }
 
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
             sneaking = true;
-            packet.setSneaking(true);
         }
 
         if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_PRESS) {
@@ -146,7 +140,6 @@ public class Player {
         }
 
         if (movingLeft || movingRight || movingForward || movingBackward || sneaking || flying) {
-            packet.send();
             this.notifyEvent(new PlayerMoveEvent(this));
         }
 
@@ -271,4 +264,27 @@ public class Player {
         eventListeners.remove(event);
     }
 
+    public boolean isMovingLeft() {
+        return movingLeft;
+    }
+
+    public boolean isMovingRight() {
+        return movingRight;
+    }
+
+    public boolean isMovingForward() {
+        return movingForward;
+    }
+
+    public boolean isMovingBackward() {
+        return movingBackward;
+    }
+
+    public boolean isFlying() {
+        return flying;
+    }
+
+    public boolean isSneaking() {
+        return sneaking;
+    }
 }

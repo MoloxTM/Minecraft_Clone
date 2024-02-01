@@ -7,8 +7,10 @@ import fr.math.minecraft.client.gui.buttons.BlockButton;
 import fr.math.minecraft.client.gui.menus.ConnectionMenu;
 import fr.math.minecraft.client.gui.menus.MainMenu;
 import fr.math.minecraft.client.gui.menus.Menu;
+import fr.math.minecraft.client.handler.PacketHandler;
+import fr.math.minecraft.client.handler.PlayerMovementHandler;
 import fr.math.minecraft.client.manager.*;
-import fr.math.minecraft.client.packet.PlayersListPacket;
+import fr.math.minecraft.client.network.packet.PlayersListPacket;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.world.Chunk;
 import fr.math.minecraft.client.world.Coordinates;
@@ -68,6 +70,7 @@ public class Game {
     private ThreadPoolExecutor packetQueue;
     private Map<Coordinates, Boolean> loadingChunks;
     private Queue<Chunk> pendingChunks;
+    private PlayerMovementHandler playerMovementHandler;
 
     private Game() {
         this.initWindow();
@@ -136,6 +139,7 @@ public class Game {
         this.loadingChunks = new HashMap<>();
         this.fontManager = new FontManager();
         this.pendingChunks = new LinkedList<>();
+        this.playerMovementHandler = new PlayerMovementHandler();
 
         player.addEventListener(new PlayerListener());
 
@@ -187,8 +191,6 @@ public class Game {
 
         menuManager.open(MainMenu.class);
 
-        PlayersListPacket playersListPacket = new PlayersListPacket();
-
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.58f, 0.83f, 0.99f, 1);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -212,10 +214,6 @@ public class Game {
             while (updateTimer > GameConfiguration.UPDATE_TICK) {
                 this.update();
                 updateTimer -= GameConfiguration.UPDATE_TICK;
-                if (state == GameState.PLAYING) {
-                    player.handleInputs(window);
-                    playersListPacket.send();
-                }
             }
 
             frames++;
@@ -235,6 +233,18 @@ public class Game {
     }
 
     private void update() {
+
+        if (state == GameState.PLAYING) {
+            player.handleInputs(window);
+            playerMovementHandler.handle(player);
+            camera.update(player);
+            PacketHandler packetHandler = PacketHandler.getInstance();
+            synchronized (packetHandler.getPacketsQueue()) {
+                packetHandler.enqueue(new PlayersListPacket());
+            }
+            // playersListPacket.send();
+        }
+
         for (Menu menu : menus.values()) {
             if (!menu.isOpen()) continue;
 
@@ -259,7 +269,7 @@ public class Game {
         world.getPendingChunks().clear();
         // worldManager.cleanChunks(world);
 
-        camera.update(player);
+        // camera.update(player);
         time += 0.01f;
         for (Player player : players.values()) {
             player.update();
@@ -296,11 +306,16 @@ public class Game {
                     continue;
                 }
 
-                renderer.render(camera, chunk);
+                synchronized (this.getCamera()) {
+                    renderer.render(camera, chunk);
+                }
             }
         }
 
         for (Player player : players.values()) {
+            if (!player.getNametagMesh().isInitiated()) {
+                player.getNametagMesh().init();
+            }
             renderer.render(camera, player);
         }
 
@@ -408,5 +423,9 @@ public class Game {
 
     public ThreadPoolExecutor getPacketQueue() {
         return packetQueue;
+    }
+
+    public PlayerMovementHandler getPlayerMovementHandler() {
+        return playerMovementHandler;
     }
 }

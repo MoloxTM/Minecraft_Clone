@@ -15,6 +15,7 @@ public class NametagMesh extends Mesh {
 
     private final float width;
     private final float[] vertices;
+    private boolean initiated;
 
     public NametagMesh(String text) {
         this.width = text.length() * 0.25f;
@@ -30,8 +31,8 @@ public class NametagMesh extends Mesh {
             0, 1, 2,
             2, 3, 0
         };
-
-        this.init();
+        initiated = false;
+        // this.init();
     }
 
     @Override
@@ -47,6 +48,8 @@ public class NametagMesh extends Mesh {
         vao.unbind();
         vbo.unbind();
         ebo.unbind();
+
+        initiated = true;
     }
 
     @Override
@@ -54,5 +57,9 @@ public class NametagMesh extends Mesh {
         vao.bind();
         glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
         vao.unbind();
+    }
+
+    public boolean isInitiated() {
+        return initiated;
     }
 }

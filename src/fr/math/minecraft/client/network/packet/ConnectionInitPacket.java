@@ -1,4 +1,4 @@
-package fr.math.minecraft.client.packet;
+package fr.math.minecraft.client.network.packet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -9,9 +9,10 @@ import fr.math.minecraft.client.MinecraftClient;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.gui.menus.ConnectionMenu;
 import fr.math.minecraft.client.gui.menus.Menu;
+import fr.math.minecraft.client.handler.PacketHandler;
 import fr.math.minecraft.client.manager.MenuManager;
 import fr.math.minecraft.client.manager.WorldManager;
-import fr.math.minecraft.client.tick.TickHandler;
+import fr.math.minecraft.client.handler.TickHandler;
 import fr.math.minecraft.client.world.loader.ChunkMeshLoader;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
@@ -58,8 +59,13 @@ public class ConnectionInitPacket extends Thread implements ClientPacket {
             TickHandler tickHandler = new TickHandler();
             tickHandler.start();
 
+            PacketHandler packetHandler = PacketHandler.getInstance();
+            packetHandler.start();
+
             ChunkMeshLoader meshThread = new ChunkMeshLoader(game);
             meshThread.start();
+
+            worldManager.loadChunks(game.getWorld());
 
         } catch (RuntimeException e) {
             Menu menu = menuManager.getOpenedMenu();

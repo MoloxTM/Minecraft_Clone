@@ -1,15 +1,10 @@
-package fr.math.minecraft.client.tick;
+package fr.math.minecraft.client.handler;
 
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.manager.ChunkManager;
 import fr.math.minecraft.client.manager.WorldManager;
-import fr.math.minecraft.client.world.Chunk;
-import fr.math.minecraft.client.world.Coordinates;
 import fr.math.minecraft.client.world.World;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -43,7 +38,6 @@ public class TickHandler extends Thread {
             previousTime = currentTime;
 
             while (tickTimer > TICK_RATE) {
-                worldManager.loadChunks(game.getWorld());
                 tick();
                 tickTimer -= TICK_RATE;
             }
@@ -51,6 +45,7 @@ public class TickHandler extends Thread {
     }
 
     private void tick() {
+
 
     }
 

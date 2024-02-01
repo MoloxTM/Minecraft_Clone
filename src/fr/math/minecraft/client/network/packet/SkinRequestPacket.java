@@ -1,7 +1,6 @@
-package fr.math.minecraft.client.packet;
+package fr.math.minecraft.client.network.packet;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.Game;
@@ -9,24 +8,26 @@ import fr.math.minecraft.client.MinecraftClient;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
-import org.joml.Vector3f;
-import org.joml.Vector3i;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Base64;
 
-public class ChunkRequestPacket implements  ClientPacket{
+public class SkinRequestPacket implements ClientPacket {
 
+    private final String uuid;
     private final ObjectMapper mapper;
-    private final Vector3i coordinates;
-    private JsonNode chunkData;
-    private final static Logger logger = LoggerUtility.getClientLogger(ChunkRequestPacket.class, LogType.TXT);
+    private BufferedImage skin;
+    private final static Logger logger = LoggerUtility.getClientLogger(SkinRequestPacket.class, LogType.TXT);
 
-
-    public ChunkRequestPacket(Vector3i coordinates) {
+    public SkinRequestPacket(String uuid) {
         this.mapper = new ObjectMapper();
-        this.coordinates = coordinates;
-        this.chunkData = null;
+        this.uuid = uuid;
+        this.skin = null;
     }
+
     @Override
     public void send() {
         MinecraftClient client = Game.getInstance().getClient();
@@ -35,38 +36,38 @@ public class ChunkRequestPacket implements  ClientPacket{
         if (message == null) {
             return;
         }
-
         try {
-            String response = client.sendString(message);
-
-            if (response.equals("TIMEOUT_REACHED")) {
+            String base64Skin = client.sendString(message);
+            if (base64Skin.contains("PLAYER_DOESNT_EXISTS") || base64Skin.contains("ERROR") || base64Skin.equalsIgnoreCase("TIMEOUT_REACHED")) {
                 logger.error("Impossible d'envoyer le packet, le serveur a mis trop de temps à répondre ! (timeout)");
                 return;
             }
 
-            this.chunkData = mapper.readTree(response);
-
+            byte[] skinBytes = Base64.getDecoder().decode(base64Skin);
+            skin = ImageIO.read(new ByteArrayInputStream(skinBytes));
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
     @Override
     public String toJSON() {
         ObjectNode node = mapper.createObjectNode();
-        node.put("type", "CHUNK_REQUEST");
-        node.put("x", coordinates.x);
-        node.put("y", coordinates.y);
-        node.put("z", coordinates.z);
+
+        node.put("type", "SKIN_REQUEST");
+        node.put("uuid", uuid);
 
         try {
             return mapper.writeValueAsString(node);
         } catch (JsonProcessingException e) {
             return null;
         }
+
     }
 
-    public JsonNode getChunkData() {
-        return this.chunkData;
+    public BufferedImage getSkin() {
+        return skin;
     }
+
 }

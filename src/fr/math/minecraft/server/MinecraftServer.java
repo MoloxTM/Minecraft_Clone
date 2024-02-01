@@ -262,6 +262,7 @@ public class MinecraftServer {
         client.updatePosition(packetData);
 
         ObjectNode positionNode = new ObjectMapper().createObjectNode();
+        positionNode.put("tick", packetData.get("tick").asInt());
         positionNode.put("x", client.getPosition().x);
         positionNode.put("y", client.getPosition().y);
         positionNode.put("z", client.getPosition().z);

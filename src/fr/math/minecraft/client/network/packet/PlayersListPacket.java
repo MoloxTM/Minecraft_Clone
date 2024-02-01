@@ -1,4 +1,4 @@
-package fr.math.minecraft.client.packet;
+package fr.math.minecraft.client.network.packet;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -16,7 +16,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Base64;
 
 public class PlayersListPacket implements ClientPacket {
@@ -51,7 +50,9 @@ public class PlayersListPacket implements ClientPacket {
                 } else {
                     player = new Player(playerNode.get("name").asText());
                     player.setUuid(uuid);
-                    game.getPlayers().put(uuid, player);
+                    synchronized (game.getPlayers()) {
+                        game.getPlayers().put(uuid, player);
+                    }
                 }
 
                 float playerX = playerNode.get("x").floatValue();

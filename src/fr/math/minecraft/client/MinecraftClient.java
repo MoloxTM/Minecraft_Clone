@@ -1,14 +1,11 @@
 package fr.math.minecraft.client;
 
-import fr.math.minecraft.client.packet.ConnectionInitPacket;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
-import org.joml.Vector3f;
 
 import java.io.IOException;
 import java.net.*;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 public class MinecraftClient {
@@ -28,7 +25,7 @@ public class MinecraftClient {
     public void connect()  {
         try {
             this.socket = new DatagramSocket();
-            this.socket.setSoTimeout(2000);
+            this.socket.setSoTimeout(10000);
             this.address = InetAddress.getByName(IP_SERVER);
 
         } catch (UnknownHostException | SocketException e) {
