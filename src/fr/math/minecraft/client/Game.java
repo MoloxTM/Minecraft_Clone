@@ -271,8 +271,10 @@ public class Game {
 
         // camera.update(player);
         time += 0.01f;
-        for (Player player : players.values()) {
-            player.update();
+        synchronized (this.getPlayers()) {
+            for (Player player : this.getPlayers().values()) {
+                player.update();
+            }
         }
     }
 
@@ -312,12 +314,15 @@ public class Game {
             }
         }
 
-        for (Player player : players.values()) {
-            if (!player.getNametagMesh().isInitiated()) {
-                player.getNametagMesh().init();
+        synchronized (this.getPlayers()) {
+            for (Player player : this.getPlayers().values()) {
+                if (!player.getNametagMesh().isInitiated()) {
+                    player.getNametagMesh().init();
+                }
+                renderer.render(camera, player);
             }
-            renderer.render(camera, player);
         }
+
 
         renderer.renderDebugTools(camera, player, fps);
     }

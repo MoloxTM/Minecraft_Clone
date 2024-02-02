@@ -36,7 +36,9 @@ public class PlayersListPacket implements ClientPacket {
             String players = client.sendString(message);
 
             ArrayNode playersNode = (ArrayNode) mapper.readTree(players);
-            game.getPlayers().clear();
+            synchronized (game.getPlayers()) {
+                game.getPlayers().clear();
+            }
             for (int i = 0; i < playersNode.size(); i++) {
                 JsonNode playerNode = playersNode.get(i);
 
@@ -45,12 +47,12 @@ public class PlayersListPacket implements ClientPacket {
 
                 if (uuid.equalsIgnoreCase(game.getPlayer().getUuid())) continue;
 
-                if (game.getPlayers().containsKey(uuid)) {
-                    player = game.getPlayers().get(uuid);
-                } else {
-                    player = new Player(playerNode.get("name").asText());
-                    player.setUuid(uuid);
-                    synchronized (game.getPlayers()) {
+                synchronized (game.getPlayers()) {
+                    if (game.getPlayers().containsKey(uuid)) {
+                        player = game.getPlayers().get(uuid);
+                    } else {
+                        player = new Player(playerNode.get("name").asText());
+                        player.setUuid(uuid);
                         game.getPlayers().put(uuid, player);
                     }
                 }

@@ -5,9 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import fr.math.minecraft.client.world.Chunk;
 import fr.math.minecraft.client.world.Material;
-import fr.math.minecraft.client.world.World;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.server.world.Coordinates;
@@ -56,6 +54,10 @@ public class MinecraftServer {
         this.running = true;
         socket = new DatagramSocket(this.port);
         System.out.println("Serveur en écoute sur le port " + this.port + "...");
+
+        TickHandler tickHandler = new TickHandler();
+        tickHandler.start();
+
         while (this.running) {
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
             socket.receive(packet);
@@ -209,7 +211,7 @@ public class MinecraftServer {
 
         String uuid = UUID.randomUUID().toString();
         byte[] buffer = uuid.getBytes(StandardCharsets.UTF_8);
-        clients.put(uuid, new Client(uuid, playerName));
+        clients.put(uuid, new Client(uuid, playerName, address, clientPort));
 
         byte[] skinBytes = Base64.getDecoder().decode(packetData.get("skin").asText());
         try {
@@ -259,7 +261,7 @@ public class MinecraftServer {
 
     public DatagramPacket handleMovement(Client client, JsonNode packetData, InetAddress address, int clientPort) throws JsonProcessingException {
 
-        client.updatePosition(packetData);
+        client.handleInputs(packetData);
 
         ObjectNode positionNode = new ObjectMapper().createObjectNode();
         positionNode.put("tick", packetData.get("tick").asInt());
@@ -290,5 +292,22 @@ public class MinecraftServer {
 
     public Map<String, Client> getClients() {
         return clients;
+    }
+
+    public void broadcast(String message) {
+        synchronized (this.getClients()) {
+            byte[] buffer = message.getBytes(StandardCharsets.UTF_8);
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+            for (Client client : this.getClients().values()) {
+                packet.setAddress(client.getAddress());
+                packet.setPort(client.getPort());
+
+                try {
+                    socket.send(packet);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }

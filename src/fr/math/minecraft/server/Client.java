@@ -6,11 +6,14 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.joml.Vector3f;
 
 import java.awt.image.BufferedImage;
+import java.net.InetAddress;
 
 public class Client {
 
     private final String name;
     private final String uuid;
+    private final InetAddress address;
+    private final int port;
     private Vector3f position;
     private Vector3f front;
     private float yaw;
@@ -19,8 +22,11 @@ public class Client {
     private float speed;
     private BufferedImage skin;
     private boolean movingLeft, movingRight, movingForward, movingBackward;
+    private boolean flying, sneaking;
 
-    public Client(String uuid, String name) {
+    public Client(String uuid, String name, InetAddress address, int port) {
+        this.address = address;
+        this.port = port;
         this.uuid = uuid;
         this.name = name;
         this.front = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -29,13 +35,19 @@ public class Client {
         this.pitch = 0.0f;
         this.speed = 0.1f;
         this.skin = null;
+        this.movingLeft = false;
+        this.movingRight = false;
+        this.movingBackward = false;
+        this.movingForward = false;
+        this.flying = false;
+        this.sneaking = false;
     }
 
     public String getName() {
         return name;
     }
 
-    public void updatePosition(JsonNode packetData) {
+    public void handleInputs(JsonNode packetData) {
         boolean movingLeft = packetData.get("left").asBoolean();
         boolean movingRight = packetData.get("right").asBoolean();
         boolean movingForward = packetData.get("forward").asBoolean();
@@ -56,6 +68,11 @@ public class Client {
         this.movingForward = movingForward;
         this.movingBackward = movingBackward;
 
+        this.flying = flying;
+        this.sneaking = sneaking;
+    }
+
+    private void updatePosition() {
         front.x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
         front.y = (float) Math.sin(Math.toRadians(0.0f));
         front.z = (float) (Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
@@ -80,7 +97,6 @@ public class Client {
 
         if (sneaking)
             position = position.sub(new Vector3f(0.0f, .5f, 0.0f));
-
     }
 
     public Vector3f getPosition() {
@@ -111,5 +127,17 @@ public class Client {
 
     public float getBodyYaw() {
         return bodyYaw;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public InetAddress getAddress() {
+        return address;
+    }
+
+    public void update() {
+        this.updatePosition();
     }
 }
