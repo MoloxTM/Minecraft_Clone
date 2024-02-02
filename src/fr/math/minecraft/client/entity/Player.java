@@ -45,6 +45,7 @@ public class Player {
     private float sensitivity;
     private final static Logger logger = LoggerUtility.getClientLogger(Player.class, LogType.TXT);
     private final List<EventListener> eventListeners;
+    private int ping;
 
     public Player(String name) {
         this.position = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -55,6 +56,7 @@ public class Player {
         this.lastMouseX = 0.0f;
         this.lastMouseY = 0.0f;
         this.speed = 0.2f;
+        this.ping = 0;
         this.sensitivity = 0.1f;
         this.name = name;
         this.uuid = null;
@@ -286,5 +288,13 @@ public class Player {
 
     public boolean isSneaking() {
         return sneaking;
+    }
+
+    public int getPing() {
+        return ping;
+    }
+
+    public void setPing(int ping) {
+        this.ping = ping;
     }
 }

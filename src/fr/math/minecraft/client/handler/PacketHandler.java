@@ -1,6 +1,7 @@
 package fr.math.minecraft.client.handler;
 
 import fr.math.minecraft.client.Game;
+import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.network.packet.ClientPacket;
 import fr.math.minecraft.client.network.packet.PlayerMovePacket;
 
@@ -21,8 +22,17 @@ public class PacketHandler extends Thread {
     @Override
     public void run() {
         Game game = Game.getInstance();
-
+        Player player = game.getPlayer();
+        double lastPingTime = glfwGetTime();
+        int ping = 0;
         while (!glfwWindowShouldClose(game.getWindow())) {
+
+            double currentTime = glfwGetTime();
+
+            if (currentTime - lastPingTime >= 1.0) {
+                player.setPing(ping);
+                lastPingTime = currentTime;
+            }
 
             ClientPacket packet = null;
             synchronized (this.getPacketsQueue()) {
@@ -35,8 +45,10 @@ public class PacketHandler extends Thread {
 
             if (packet == null) continue;
 
+            long start = System.currentTimeMillis();
             packet.send();
-
+            long end = System.currentTimeMillis();
+            ping = (int) (end - start);
         }
     }
 
