@@ -33,7 +33,7 @@ public class PlayerMovementHandler {
         inputBuffer[bufferIndex] = inputPayload;
 
         StatePayload statePayload = new StatePayload(inputPayload);
-        // statePayload.predictMovement(player);
+        statePayload.predictMovement(player);
         statePayload.send();
 
         stateBuffer[bufferIndex] = statePayload;

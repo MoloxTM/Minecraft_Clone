@@ -28,6 +28,8 @@ public class PacketReceiver extends Thread {
     private final static Logger logger = LoggerUtility.getClientLogger(PacketReceiver.class, LogType.TXT);
     private static PacketReceiver instance = null;
     private boolean receiving;
+    private int ping;
+    private double lastPingTime;
 
     private PacketReceiver() {
         this.setName("PacketReceiver");
@@ -35,6 +37,7 @@ public class PacketReceiver extends Thread {
         this.packetListeners = new ArrayList<>();
         this.eventListeners = new ArrayList<>();
         this.receiving = false;
+        this.lastPingTime = System.currentTimeMillis();
 
         this.addEventListener(new PacketListener());
         this.addEventListener(new PlayerListener());
@@ -42,7 +45,15 @@ public class PacketReceiver extends Thread {
 
     @Override
     public void run() {
+        double lastTime = glfwGetTime();
         while (!glfwWindowShouldClose(game.getWindow())) {
+
+            double currentTime = glfwGetTime();
+
+            if (currentTime - lastTime >= 1.0) {
+                game.getPlayer().setPing(ping);
+                lastTime = currentTime;
+            }
 
             this.handlePacket();
 
@@ -57,6 +68,11 @@ public class PacketReceiver extends Thread {
             String response = client.receive();
 
             if (response == null) return;
+            double currentTime = System.currentTimeMillis();
+
+            ping = (int) (currentTime - lastPingTime);
+
+            lastPingTime = currentTime;
 
             JsonNode responseData = mapper.readTree(response);
             String packetType = responseData.get("type").asText();

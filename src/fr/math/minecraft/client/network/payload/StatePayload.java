@@ -71,8 +71,6 @@ public class StatePayload {
         if (sneaking)
             position.sub(new Vector3f(0.0f, .5f, 0.0f));
 
-        Vector3f position = player.getPosition();
-
         this.position = new Vector3f(position);
     }
 

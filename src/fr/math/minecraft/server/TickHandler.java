@@ -80,6 +80,9 @@ public class TickHandler extends Thread {
         int bufferIndex = -1;
         while (!inputQueue.isEmpty()) {
             InputPayload inputPayload = inputQueue.poll();
+
+            if (inputPayload == null) continue;
+
             String uuid = inputPayload.getClientUuid();
             Client client = server.getClients().get(uuid);
 

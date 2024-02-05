@@ -38,11 +38,6 @@ public class PacketHandler extends Thread {
 
             tickTimer += deltaTime;
 
-            if (currentTime - lastPingTime >= 1.0) {
-                player.setPing(ping);
-                lastPingTime = currentTime;
-            }
-
             lastTickTime = currentTime;
 
             while (tickTimer >= GameConfiguration.TICK_RATE) {

@@ -71,6 +71,7 @@ public class Game {
     private Map<Coordinates, Boolean> loadingChunks;
     private Queue<Chunk> pendingChunks;
     private PlayerMovementHandler playerMovementHandler;
+    private double lastPingTime;
 
     private Game() {
         this.initWindow();
@@ -140,6 +141,7 @@ public class Game {
         this.fontManager = new FontManager();
         this.pendingChunks = new LinkedList<>();
         this.playerMovementHandler = new PlayerMovementHandler();
+        this.lastPingTime = 0;
 
         player.addEventListener(new PlayerListener());
 
@@ -236,6 +238,7 @@ public class Game {
 
         if (state == GameState.PLAYING) {
             player.handleInputs(window);
+            player.updatePosition();
             camera.update(player);
         }
 
@@ -427,5 +430,9 @@ public class Game {
 
     public PlayerMovementHandler getPlayerMovementHandler() {
         return playerMovementHandler;
+    }
+
+    public void setLastPingTime(double lastPingTime) {
+        this.lastPingTime = lastPingTime;
     }
 }
