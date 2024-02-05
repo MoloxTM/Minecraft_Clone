@@ -28,7 +28,7 @@ public class ChunkMeshLoader extends Thread {
                 chunk = game.getPendingChunks().poll();
             }
             ChunkMeshWorker worker = new ChunkMeshWorker(chunk);
-            //worker.run();
+            // worker.run();
             game.getChunkLoadingQueue().submit(worker);
 
         }

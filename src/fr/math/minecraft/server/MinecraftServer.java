@@ -8,6 +8,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.world.Material;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
+import fr.math.minecraft.server.handler.ConnectionACKHandler;
+import fr.math.minecraft.server.handler.ConnectionInitHandler;
+import fr.math.minecraft.server.handler.PlayerMoveHandler;
+import fr.math.minecraft.server.handler.SkinRequestHandler;
 import fr.math.minecraft.server.world.Coordinates;
 import fr.math.minecraft.server.world.ServerChunk;
 import fr.math.minecraft.server.world.ServerWorld;
@@ -25,6 +29,8 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class MinecraftServer {
 
@@ -39,6 +45,7 @@ public class MinecraftServer {
     private final Map<String, Long> lastActivities;
     private final ServerWorld world;
     private final static int MAX_REQUEST_SIZE = 16384;
+    private final ThreadPoolExecutor packetQueue;
 
     private MinecraftServer(int port) {
         this.running = false;
@@ -48,6 +55,7 @@ public class MinecraftServer {
         this.sockets = new HashMap<>();
         this.lastActivities = new HashMap<>();
         this.world = new ServerWorld();
+        this.packetQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(8);
     }
 
     public void start() throws IOException {
@@ -74,10 +82,13 @@ public class MinecraftServer {
             String packetType = packetData.get("type").asText();
             byte[] buffer;
             switch (packetType) {
+                case "CONNECTION_INIT_ACK":
+                    ConnectionACKHandler ackHandler = new ConnectionACKHandler(packetData, address, clientPort);
+                    ackHandler.run();
+                    break;
                 case "CONNECTION_INIT":
-                    packet = this.handleConnectionInit(packet, packetData, address, clientPort);
-
-                    socket.send(packet);
+                    ConnectionInitHandler connectionInitHandler = new ConnectionInitHandler(packetData, address, clientPort);
+                    connectionInitHandler.run();
                     break;
                 case "PLAYER_MOVE":
                     String playerId = packetData.get("uuid").asText();
@@ -85,194 +96,29 @@ public class MinecraftServer {
                     Client client = clients.get(playerId);
                     if (client == null) break;
 
-                    packet = this.handleMovement(client, packetData, address, clientPort);
-
-                    socket.send(packet);
-
-                    break;
-                case "PLAYERS_LIST_REQUEST":
-                    packet = this.handlePlayerList(packetData, address, clientPort);
-
-                    socket.send(packet);
+                    PlayerMoveHandler moveHandler = new PlayerMoveHandler(client, packetData, address, clientPort);
+                    packetQueue.submit(moveHandler);
                     break;
                 case "SKIN_REQUEST":
-                    packet = this.handleSkinRequest(packetData, address, clientPort);
-
-                    socket.send(packet);
-                    break;
-                case "CHUNK_REQUEST":
-                    packet = this.handleChunkRequest(packetData, address, clientPort);
-
-                    socket.send(packet);
-                    break;
-                case "CHUNK_EMPTY":
-                    packet = this.handleChunkEmptyPacket(packetData, address, clientPort);
-
-                    socket.send(packet);
+                    SkinRequestHandler skinHandler = new SkinRequestHandler(packetData, address, clientPort);
+                    skinHandler.run();
                     break;
                 default:
                     String message = "UNAUTHORIZED_PACKET";
                     buffer = message.getBytes(StandardCharsets.UTF_8);
-                    socket.send(new DatagramPacket(buffer, buffer.length, address, clientPort));
+                    this.sendPacket(new DatagramPacket(buffer, buffer.length, address, clientPort));
                     logger.error("Type de packet : " + packetType + " non reconnu.");
             }
         }
         socket.close();
     }
 
-    private DatagramPacket handleChunkRequest(JsonNode packetData, InetAddress address, int clientPort) {
-
-        int x = packetData.get("x").asInt();
-        int y = packetData.get("y").asInt();
-        int z = packetData.get("z").asInt();
-
-        ServerChunk chunk = world.getChunk(x, y, z);
-
-        if (chunk == null) {
-            chunk = new ServerChunk(x, y, z);
-            chunk. generate();
-            world.getChunks().put(new Coordinates(x, y, z), chunk);
-        }
-
-        String chunkData = chunk.toJSON();
-        byte[] buffer = chunkData.getBytes(StandardCharsets.UTF_8);
-
-        return new DatagramPacket(buffer, buffer.length, address, clientPort);
-
-    }
-
-    private DatagramPacket handleChunkEmptyPacket(JsonNode packetData, InetAddress address, int clientPort) {
-        int worldX = packetData.get("x").asInt();
-        int worldY = packetData.get("y").asInt();
-        int worldZ = packetData.get("z").asInt();
-
-        int chunkX = (int) Math.floor(worldX / (double) ServerChunk.SIZE);
-        int chunkY = (int) Math.floor(worldY / (double) ServerChunk.SIZE);
-        int chunkZ = (int) Math.floor(worldZ / (double) ServerChunk.SIZE);
-
-        ServerChunk chunk = world.getChunk(chunkX, chunkY, chunkZ);
-
-        if (chunk == null) {
-            chunk = new ServerChunk(chunkX, chunkY, chunkZ);
-            chunk.generate();
-            world.getChunks().put(new Coordinates(chunkX, chunkY, chunkZ), chunk);
-        }
-
-        int blockX = worldX % ServerChunk.SIZE;
-        int blockY = worldY % ServerChunk.SIZE;
-        int blockZ = worldZ % ServerChunk.SIZE;
-
-        blockX = blockX < 0 ? blockX + ServerChunk.SIZE : blockX;
-        blockY = blockY < 0 ? blockY + ServerChunk.SIZE : blockY;
-        blockZ = blockZ < 0 ? blockZ + ServerChunk.SIZE : blockZ;
-
-        String response = chunk.getBlock(blockX, blockY, blockZ) == Material.AIR.getId() ? "true" : "false";
-        byte[] buffer = response.getBytes(StandardCharsets.UTF_8);
-
-        return new DatagramPacket(buffer, buffer.length, address, clientPort);
-    }
-
-    private DatagramPacket handleSkinRequest(JsonNode packetData, InetAddress address, int clientPort) {
-        String uuid = packetData.get("uuid").asText();
-
-        File file = new File("skins/" + uuid + ".png");
-        if (!file.exists()) {
-            byte[] buffer = "PLAYER_DOESNT_EXISTS".getBytes(StandardCharsets.UTF_8);
-            return new DatagramPacket(buffer, buffer.length, address, clientPort);
-        }
-
+    public synchronized void sendPacket(DatagramPacket packet) {
         try {
-            BufferedImage skin = ImageIO.read(file);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(skin, "png", baos);
-            String base64Skin = Base64.getEncoder().encodeToString(baos.toByteArray());
-            byte[] buffer = base64Skin.getBytes();
-
-            return new DatagramPacket(buffer, buffer.length, address, clientPort);
-        } catch (IOException e) {
-            byte[] buffer = "ERROR".getBytes(StandardCharsets.UTF_8);
-            logger.error(e.getMessage());
-            return new DatagramPacket(buffer, buffer.length, address, clientPort);
-        }
-    }
-
-    private DatagramPacket handleConnectionInit(DatagramPacket receivedPacket, JsonNode packetData, InetAddress address, int clientPort) {
-        String playerName = packetData.get("playerName").asText();
-
-        /*
-        for (Client client : clients.values()) {
-            if (client.getName().equalsIgnoreCase(playerName)) {
-                byte[] buffer = "USERNAME_NOT_AVAILABLE".getBytes(StandardCharsets.UTF_8);
-                return new DatagramPacket(buffer, buffer.length, address, clientPort);
-            }
-        }
-         */
-
-
-        String uuid = UUID.randomUUID().toString();
-        byte[] buffer = uuid.getBytes(StandardCharsets.UTF_8);
-        clients.put(uuid, new Client(uuid, playerName, address, clientPort));
-
-        byte[] skinBytes = Base64.getDecoder().decode(packetData.get("skin").asText());
-        try {
-            BufferedImage skin = ImageIO.read(new ByteArrayInputStream(skinBytes));
-            ImageIO.write(skin, "png", new File("skins/" + uuid + ".png"));
-            logger.info("Le skin du joueur" + playerName + " (" + uuid + ") a été sauvegardé avec succès.");
+            socket.send(packet);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, clientPort);
-        logger.info(playerName + " a rejoint le serveur ! (" + clients.size() + "/???)");
-
-        if (!lastActivities.containsKey(uuid)) {
-            lastActivities.put(uuid, System.currentTimeMillis());
-            TimeoutHandler handler = new TimeoutHandler(this, uuid);
-            handler.start();
-        }
-
-
-        return packet;
-    }
-
-    private DatagramPacket handlePlayerList(JsonNode packetData, InetAddress address, int clientPort) {
-        ObjectMapper mapper = new ObjectMapper();
-        ArrayNode playersNode = mapper.createArrayNode();
-
-        for (Map.Entry<String, Client> entrySet : clients.entrySet()) {
-            Client client = entrySet.getValue();
-            playersNode.add(client.toJSON());
-        }
-
-        String uuid = packetData.get("uuid").asText();
-        lastActivities.put(uuid, System.currentTimeMillis());
-
-        try {
-            String message = mapper.writeValueAsString(playersNode);
-            byte[] buffer = message.getBytes();
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, clientPort);
-
-            return packet;
-        } catch (JsonProcessingException e) {
-            return null;
-        }
-
-    }
-
-    public DatagramPacket handleMovement(Client client, JsonNode packetData, InetAddress address, int clientPort) throws JsonProcessingException {
-
-        client.handleInputs(packetData);
-
-        ObjectNode positionNode = new ObjectMapper().createObjectNode();
-        positionNode.put("tick", packetData.get("tick").asInt());
-        positionNode.put("x", client.getPosition().x);
-        positionNode.put("y", client.getPosition().y);
-        positionNode.put("z", client.getPosition().z);
-
-        String response = new ObjectMapper().writeValueAsString(positionNode);
-        byte[] buffer = response.getBytes(StandardCharsets.UTF_8);
-
-        return new DatagramPacket(buffer, buffer.length, address, clientPort);
     }
 
     public static MinecraftServer getInstance() {
@@ -299,15 +145,16 @@ public class MinecraftServer {
             byte[] buffer = message.getBytes(StandardCharsets.UTF_8);
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
             for (Client client : this.getClients().values()) {
+                if (!client.isActive()) continue;
                 packet.setAddress(client.getAddress());
                 packet.setPort(client.getPort());
 
-                try {
-                    socket.send(packet);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                this.sendPacket(packet);
             }
         }
+    }
+
+    public DatagramSocket getSocket() {
+        return socket;
     }
 }

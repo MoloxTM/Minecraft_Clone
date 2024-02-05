@@ -8,6 +8,7 @@ import fr.math.minecraft.client.gui.GuiText;
 import fr.math.minecraft.client.gui.menus.MainMenu;
 import fr.math.minecraft.client.gui.menus.Menu;
 import fr.math.minecraft.client.gui.menus.MenuBackgroundType;
+import fr.math.minecraft.client.handler.PacketHandler;
 import fr.math.minecraft.client.manager.FontManager;
 import fr.math.minecraft.client.meshs.*;
 import fr.math.minecraft.client.network.packet.SkinRequestPacket;
@@ -20,7 +21,9 @@ import org.joml.Vector3i;
 
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static org.lwjgl.opengl.GL33.*;
 
@@ -49,13 +52,14 @@ public class Renderer {
     private final Map<String, Texture> skinsMap;
     private final CubemapTexture panoramaTexture;
     private String emptyText;
+    private Set<String> loadedSkins;
 
     public Renderer() {
         this.playerMesh = new PlayerMesh();
         this.font = new CFont(GameConfiguration.FONT_FILE_PATH, GameConfiguration.FONT_SIZE);
         this.fontMesh = new FontMesh(font);
         this.skyboxMesh = new SkyboxMesh();
-
+        this.loadedSkins = new HashSet<>();
         for (int i = 0; i < 256; i++) {
             emptyText += " ";
         }
@@ -113,18 +117,17 @@ public class Renderer {
 
         if (skinsMap.containsKey(player.getUuid())) {
             skinTexture = skinsMap.get(player.getUuid());
-        } else {
-            SkinRequestPacket packet = new SkinRequestPacket(player.getUuid());
-            packet.send();
-            BufferedImage skin = packet.getSkin();
-            if (skin != null) {
-                player.setSkin(skin);
-                skinTexture = new Texture(player.getSkin(), 2);
+            if (!skinTexture.isLoaded()) {
                 skinTexture.load();
-                skinsMap.put(player.getUuid(), skinTexture);
-            } else {
-                skinTexture = defaultSkinTexture;
             }
+        } else {
+            BufferedImage skin = player.getSkin();
+            if (skin == null) {
+                return;
+            }
+            skinTexture = new Texture(skin, 2);
+            skinTexture.load();
+            skinsMap.put(player.getUuid(), skinTexture);
         }
 
         playerShader.enable();
@@ -354,5 +357,9 @@ public class Renderer {
         this.renderText(camera, "Ping: " + player.getPing() + "ms", 0, GameConfiguration.WINDOW_HEIGHT - 140,0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
         BiomeManager biomeManager = new BiomeManager();
         this.renderText(camera, "BIOME: " + biomeManager.getBiome((int) player.getPosition().x, (int)player.getPosition().z).getBiomeName(), 0, GameConfiguration.WINDOW_HEIGHT - 160, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
+    }
+
+    public Map<String, Texture> getSkinsMap() {
+        return skinsMap;
     }
 }

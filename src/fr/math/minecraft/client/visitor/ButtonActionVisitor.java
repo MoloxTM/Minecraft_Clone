@@ -30,7 +30,8 @@ public class ButtonActionVisitor implements ButtonVisitor<Void> {
         menu.getTitle().setText("Connexion en cours...");
 
         ConnectionInitPacket packet = new ConnectionInitPacket(player);
-        packet.start();
+        Thread thread = new Thread(packet);
+        thread.start();
 
         return null;
     }

@@ -21,6 +21,7 @@ public class ChunkManager {
     public void loadChunkData(JsonNode chunkData) {
 
         JsonNode blocks = chunkData.get("blocks");
+        Game game = Game.getInstance();
 
         if (blocks == null) return;
         if (!blocks.isArray()) return;
@@ -38,7 +39,7 @@ public class ChunkManager {
 
         for (int i = 0; i < blocks.size(); i++) {
             JsonNode blockNode = blocks.get(i);
-            byte block =(byte) blockNode.asInt();
+            byte block = (byte) blockNode.asInt();
             chunk.getBlocks()[i] = block;
         }
 
@@ -47,6 +48,11 @@ public class ChunkManager {
         }
         synchronized (world.getPendingChunks()) {
             world.addPendingChunk(chunk);
+            if (!chunk.isEmpty()) {
+                synchronized (game.getPendingChunks()) {
+                    game.getPendingChunks().add(chunk);
+                }
+            }
         }
     }
 

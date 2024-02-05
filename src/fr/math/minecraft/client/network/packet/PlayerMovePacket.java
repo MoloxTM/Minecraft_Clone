@@ -1,13 +1,11 @@
 package fr.math.minecraft.client.network.packet;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.MinecraftClient;
 import fr.math.minecraft.client.entity.Player;
-import fr.math.minecraft.client.handler.PlayerMovementHandler;
 import fr.math.minecraft.client.network.payload.InputPayload;
 import fr.math.minecraft.client.network.payload.StatePayload;
 import fr.math.minecraft.logger.LogType;
@@ -16,7 +14,7 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 
-public class PlayerMovePacket implements ClientPacket {
+public class PlayerMovePacket extends ClientPacket {
 
     private final ObjectMapper mapper;
     private final static Logger logger = LoggerUtility.getClientLogger(PlayerMovePacket.class, LogType.TXT);;
@@ -29,6 +27,7 @@ public class PlayerMovePacket implements ClientPacket {
     private boolean movingHead;
     private final StatePayload statePayload;
     private final int tick;
+    private String response;
 
     public PlayerMovePacket(StatePayload statePayload, InputPayload inputPayload) {
         this.statePayload = statePayload;
@@ -41,42 +40,7 @@ public class PlayerMovePacket implements ClientPacket {
         this.flying = inputPayload.isFlying();
         this.sneaking = inputPayload.isSneaking();
         this.movingHead = false;
-    }
-
-    @Override
-    public void send() {
-
-        Game game = Game.getInstance();
-        MinecraftClient client = game.getClient();
-        PlayerMovementHandler handler = game.getPlayerMovementHandler();
-
-        String message = this.toJSON();
-        if (message == null) {
-            logger.error("PlayerMovePacket: Impossible d'envoyer le packet, le JSON vaut null.");
-            return;
-        }
-        try {
-            String response = client.sendString(message);
-
-            if (response.equalsIgnoreCase("TIMEOUT_REACHED")) {
-                logger.error("Impossible d'envoyer le packet, le serveur a mis trop de temps à répondre ! (timeout)");
-                return;
-            }
-
-            JsonNode positionData = mapper.readTree(response);
-            statePayload.setData(positionData);
-
-            handler.setLastServerState(statePayload);
-
-            /*
-            player.getPosition().x = positionNode.get("x").floatValue();
-            player.getPosition().y = positionNode.get("y").floatValue();
-            player.getPosition().z = positionNode.get("z").floatValue();
-             */
-
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
+        this.response = "";
     }
 
     @Override
@@ -104,6 +68,10 @@ public class PlayerMovePacket implements ClientPacket {
         } catch (JsonProcessingException e) {
             return null;
         }
+    }
+
+    public String getResponse() {
+        return response;
     }
 
     public StatePayload getStatePayload() {

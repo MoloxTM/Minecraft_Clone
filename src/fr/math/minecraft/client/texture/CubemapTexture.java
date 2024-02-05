@@ -19,6 +19,7 @@ public class CubemapTexture extends Texture {
     public CubemapTexture(String[] filePaths, int slot) {
         super("", slot);
         this.filePaths = filePaths;
+        this.loaded = false;
     }
 
     @Override
@@ -63,6 +64,7 @@ public class CubemapTexture extends Texture {
             MemoryUtil.memFree(channels);
 
             logger.info("Texture " + this.filePaths[i] + " chargée avec succès");
+            this.loaded = true;
         }
 
     }

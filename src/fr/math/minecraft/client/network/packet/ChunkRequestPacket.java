@@ -13,7 +13,7 @@ import org.joml.Vector3i;
 
 import java.io.IOException;
 
-public class ChunkRequestPacket implements  ClientPacket{
+public class ChunkRequestPacket extends ClientPacket {
 
     private final ObjectMapper mapper;
     private final Vector3i coordinates;
@@ -26,6 +26,8 @@ public class ChunkRequestPacket implements  ClientPacket{
         this.coordinates = coordinates;
         this.chunkData = null;
     }
+
+    /*
     @Override
     public void send() {
         MinecraftClient client = Game.getInstance().getClient();
@@ -49,6 +51,7 @@ public class ChunkRequestPacket implements  ClientPacket{
             e.printStackTrace();
         }
     }
+     */
 
     @Override
     public String toJSON() {
@@ -65,7 +68,13 @@ public class ChunkRequestPacket implements  ClientPacket{
         }
     }
 
+    @Override
+    public String getResponse() {
+        return null;
+    }
+
     public JsonNode getChunkData() {
         return this.chunkData;
     }
+
 }

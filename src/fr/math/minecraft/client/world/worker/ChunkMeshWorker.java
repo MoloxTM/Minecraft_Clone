@@ -21,7 +21,6 @@ public class ChunkMeshWorker implements Runnable {
     public void run() {
 
         Game game = Game.getInstance();
-
         World world = game.getWorld();
         // Coordinates chunkPosition = new Coordinates(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z);
         ChunkMesh chunkMesh = new ChunkMesh(chunk);

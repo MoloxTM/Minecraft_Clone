@@ -35,6 +35,8 @@ public class MeshBuilder {
         World world = Game.getInstance().getWorld();
         Chunk chunk = world.getChunk(chunkX, chunkY, chunkZ);
 
+        if (chunk == null) return true;
+
         int blockX = worldX % Chunk.SIZE;
         int blockY = worldY % Chunk.SIZE;
         int blockZ = worldZ % Chunk.SIZE;
@@ -42,8 +44,6 @@ public class MeshBuilder {
         blockX = blockX < 0 ? blockX + Chunk.SIZE : blockX;
         blockY = blockY < 0 ? blockY + Chunk.SIZE : blockY;
         blockZ = blockZ < 0 ? blockZ + Chunk.SIZE : blockZ;
-
-        if (chunk == null) return true;
 
         emptyMap.put(coordinates, world.getTransparents().contains(chunk.getBlock(blockX, blockY, blockZ)));
         return world.getTransparents().contains(chunk.getBlock(blockX, blockY, blockZ));

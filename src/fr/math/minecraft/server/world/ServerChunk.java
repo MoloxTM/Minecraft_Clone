@@ -63,6 +63,7 @@ public class ServerChunk {
             blocksArray.add(block);
         }
 
+        node.put("type", "CHUNK_PACKET");
         node.put("x", position.x);
         node.put("y", position.y);
         node.put("z", position.z);

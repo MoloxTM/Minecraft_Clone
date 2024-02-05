@@ -5,8 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.joml.Vector3f;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Base64;
 
 public class Client {
 
@@ -23,6 +28,7 @@ public class Client {
     private BufferedImage skin;
     private boolean movingLeft, movingRight, movingForward, movingBackward;
     private boolean flying, sneaking;
+    private boolean active;
 
     public Client(String uuid, String name, InetAddress address, int port) {
         this.address = address;
@@ -41,6 +47,7 @@ public class Client {
         this.movingForward = false;
         this.flying = false;
         this.sneaking = false;
+        this.active = false;
     }
 
     public String getName() {
@@ -103,6 +110,20 @@ public class Client {
         return position;
     }
 
+    public ObjectNode toJSONWithSkin() {
+        ObjectNode node = this.toJSON();
+
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(skin, "png", baos);
+            node.put("skin", Base64.getEncoder().encodeToString(baos.toByteArray()));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return node;
+    }
+
     public ObjectNode toJSON() {
         ObjectNode node = new ObjectMapper().createObjectNode();
         node.put("name", this.name);
@@ -139,5 +160,21 @@ public class Client {
 
     public void update() {
         this.updatePosition();
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public void setSkin(BufferedImage skin) {
+        this.skin = skin;
+    }
+
+    public String getUuid() {
+        return uuid;
     }
 }

@@ -18,74 +18,13 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Base64;
 
-public class PlayersListPacket implements ClientPacket {
+public class PlayersListPacket extends ClientPacket {
 
     private final ObjectMapper mapper;
     private final static Logger logger = LoggerUtility.getClientLogger(PlayersListPacket.class, LogType.TXT);;
 
     public PlayersListPacket() {
         this.mapper = new ObjectMapper();
-    }
-
-    @Override
-    public void send() {
-        Game game = Game.getInstance();
-        MinecraftClient client = game.getClient();
-        String message = this.toJSON();
-        try {
-            String players = client.sendString(message);
-
-            ArrayNode playersNode = (ArrayNode) mapper.readTree(players);
-            synchronized (game.getPlayers()) {
-                game.getPlayers().clear();
-            }
-            for (int i = 0; i < playersNode.size(); i++) {
-                JsonNode playerNode = playersNode.get(i);
-
-                String uuid = playerNode.get("uuid").asText();
-                Player player;
-
-                if (uuid.equalsIgnoreCase(game.getPlayer().getUuid())) continue;
-
-                synchronized (game.getPlayers()) {
-                    if (game.getPlayers().containsKey(uuid)) {
-                        player = game.getPlayers().get(uuid);
-                    } else {
-                        player = new Player(playerNode.get("name").asText());
-                        player.setUuid(uuid);
-                        game.getPlayers().put(uuid, player);
-                    }
-                }
-
-                float playerX = playerNode.get("x").floatValue();
-                float playerY = playerNode.get("y").floatValue();
-                float playerZ = playerNode.get("z").floatValue();
-                float pitch = playerNode.get("pitch").floatValue();
-                float yaw = playerNode.get("yaw").floatValue();
-                float bodyYaw = playerNode.get("bodyYaw").floatValue();
-
-                boolean movingLeft = playerNode.get("movingLeft").asBoolean();
-                boolean movingRight = playerNode.get("movingRight").asBoolean();
-                boolean movingForward = playerNode.get("movingForward").asBoolean();
-                boolean movingBackward = playerNode.get("movingBackward").asBoolean();
-
-                player.getPosition().x = playerX;
-                player.getPosition().y = playerY;
-                player.getPosition().z = playerZ;
-
-                player.setYaw(yaw);
-                player.setBodyYaw(bodyYaw);
-                player.setPitch(pitch);
-
-                player.setMovingLeft(movingLeft);
-                player.setMovingRight(movingRight);
-                player.setMovingForward(movingForward);
-                player.setMovingBackward(movingBackward);
-
-            }
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
     }
 
     private BufferedImage loadSkin(String base64Skin) {
@@ -109,4 +48,10 @@ public class PlayersListPacket implements ClientPacket {
             return null;
         }
     }
+
+    @Override
+    public String getResponse() {
+        return null;
+    }
+
 }

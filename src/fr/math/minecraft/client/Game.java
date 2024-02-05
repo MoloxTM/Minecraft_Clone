@@ -2,7 +2,7 @@ package fr.math.minecraft.client;
 
 import fr.math.minecraft.client.audio.Sound;
 import fr.math.minecraft.client.audio.Sounds;
-import fr.math.minecraft.client.events.PlayerListener;
+import fr.math.minecraft.client.events.listeners.PlayerListener;
 import fr.math.minecraft.client.gui.buttons.BlockButton;
 import fr.math.minecraft.client.gui.menus.ConnectionMenu;
 import fr.math.minecraft.client.gui.menus.MainMenu;
@@ -150,7 +150,7 @@ public class Game {
         }
 
         for (Sound sound : soundManager.getAllSounds()) {
-            sound.load();
+            //sound.load();
         }
 
         Menu mainMenu = new MainMenu(this);
@@ -187,7 +187,7 @@ public class Game {
         double lastDeltaTime = glfwGetTime();
         double lastFramesTime = glfwGetTime();
 
-        soundManager.getRandomMusic().play();
+        //soundManager.getRandomMusic().play();
 
         menuManager.open(MainMenu.class);
 
@@ -238,11 +238,6 @@ public class Game {
             player.handleInputs(window);
             playerMovementHandler.handle(player);
             camera.update(player);
-            PacketHandler packetHandler = PacketHandler.getInstance();
-            synchronized (packetHandler.getPacketsQueue()) {
-                packetHandler.enqueue(new PlayersListPacket());
-            }
-            // playersListPacket.send();
         }
 
         for (Menu menu : menus.values()) {
@@ -258,6 +253,7 @@ public class Game {
                 mouseYBuffer.rewind();
             }
         }
+
         if (state == GameState.MAIN_MENU) {
             return;
         }

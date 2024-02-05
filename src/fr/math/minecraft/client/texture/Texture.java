@@ -17,16 +17,19 @@ public class Texture {
     private BufferedImage image;
     private final static Logger logger = LoggerUtility.getClientLogger(Texture.class, LogType.TXT);
     protected int id, slot;
+    protected boolean loaded;
 
     public Texture(String imagePath, int slot) {
         this.imagePath = imagePath;
         this.slot = slot;
+        this.loaded = false;
     }
 
     public Texture(BufferedImage image, int slot) {
         this.image = image;
         this.slot = slot;
         this.imagePath = null;
+        this.loaded = false;
     }
 
     public void load() {
@@ -95,6 +98,11 @@ public class Texture {
         }
 
         this.unbind();
+        this.loaded = true;
+    }
+
+    public boolean isLoaded() {
+        return loaded;
     }
 
     public void bind() {

@@ -69,10 +69,7 @@ public class StatePayload {
 
     public void send() {
         PlayerMovePacket packet = new PlayerMovePacket(this, payload);
-        PacketHandler packetHandler = PacketHandler.getInstance();
-        synchronized (packetHandler.getPacketsQueue()) {
-            packetHandler.enqueue(packet);
-        }
+        PacketHandler.getInstance().enqueue(packet);
     }
 
     public JsonNode getData() {

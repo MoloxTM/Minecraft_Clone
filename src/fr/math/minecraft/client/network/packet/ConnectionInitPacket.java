@@ -12,7 +12,7 @@ import fr.math.minecraft.client.gui.menus.Menu;
 import fr.math.minecraft.client.handler.PacketHandler;
 import fr.math.minecraft.client.manager.MenuManager;
 import fr.math.minecraft.client.manager.WorldManager;
-import fr.math.minecraft.client.handler.TickHandler;
+import fr.math.minecraft.client.handler.PacketReceiver;
 import fr.math.minecraft.client.world.loader.ChunkMeshLoader;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
@@ -26,7 +26,7 @@ import java.util.Base64;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class ConnectionInitPacket extends Thread implements ClientPacket {
+public class ConnectionInitPacket extends ClientPacket implements Runnable {
 
     private final ObjectMapper mapper;
     private final Player player;
@@ -56,16 +56,14 @@ public class ConnectionInitPacket extends Thread implements ClientPacket {
             player.setYaw(0.0f);
             camera.update(player);
 
-            TickHandler tickHandler = new TickHandler();
-            tickHandler.start();
+            PacketReceiver packetReceiver = PacketReceiver.getInstance();
+            packetReceiver.start();
 
             PacketHandler packetHandler = PacketHandler.getInstance();
             packetHandler.start();
 
             ChunkMeshLoader meshThread = new ChunkMeshLoader(game);
             meshThread.start();
-
-            worldManager.loadChunks(game.getWorld());
 
         } catch (RuntimeException e) {
             Menu menu = menuManager.getOpenedMenu();
@@ -99,6 +97,11 @@ public class ConnectionInitPacket extends Thread implements ClientPacket {
             player.setUuid(id.substring(0, 36));
             logger.info("Connection initié, ID offert : " + player.getUuid());
 
+            ObjectNode node = mapper.createObjectNode();
+            node.put("type", "CONNECTION_INIT_ACK");
+            node.put("uuid", player.getUuid());
+
+            client.sendMessage(mapper.writeValueAsString(node));
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
@@ -122,6 +125,11 @@ public class ConnectionInitPacket extends Thread implements ClientPacket {
         } catch (IOException e) {
             return null;
         }
+    }
+
+    @Override
+    public String getResponse() {
+        return null;
     }
 
     public String getGiftedId() {

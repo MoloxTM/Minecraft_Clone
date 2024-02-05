@@ -1,9 +1,12 @@
 package fr.math.minecraft.client.handler;
 
 import fr.math.minecraft.client.Game;
+import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.client.entity.Player;
+import fr.math.minecraft.client.manager.WorldManager;
 import fr.math.minecraft.client.network.packet.ClientPacket;
 import fr.math.minecraft.client.network.packet.PlayerMovePacket;
+import fr.math.minecraft.client.network.packet.PlayersListPacket;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -13,10 +16,12 @@ public class PacketHandler extends Thread {
 
     private static PacketHandler instance = null;
     private final Queue<ClientPacket> packetsQueue;
+    private int ping;
 
     private PacketHandler() {
         this.setName("PacketHandler");
         this.packetsQueue = new LinkedList<>();
+        this.ping = 0;
     }
 
     @Override
@@ -24,41 +29,37 @@ public class PacketHandler extends Thread {
         Game game = Game.getInstance();
         Player player = game.getPlayer();
         double lastPingTime = glfwGetTime();
-        int ping = 0;
+        double lastTickTime = glfwGetTime();
+        double tickTimer = 0;
         while (!glfwWindowShouldClose(game.getWindow())) {
 
             double currentTime = glfwGetTime();
+            double deltaTime = currentTime - lastTickTime;
+
+            tickTimer += deltaTime;
 
             if (currentTime - lastPingTime >= 1.0) {
                 player.setPing(ping);
                 lastPingTime = currentTime;
             }
 
-            ClientPacket packet = null;
-            synchronized (this.getPacketsQueue()) {
-                if (packetsQueue.isEmpty()) {
-                    continue;
-                }
+            lastTickTime = currentTime;
 
-                packet = packetsQueue.poll();
+            while (tickTimer >= GameConfiguration.TICK_RATE) {
+                tick();
+                tickTimer -= GameConfiguration.TICK_RATE;
             }
-
-            if (packet == null) continue;
-
-            long start = System.currentTimeMillis();
-            packet.send();
-            long end = System.currentTimeMillis();
-            ping = (int) (end - start);
         }
     }
 
     private void tick() {
+        if (packetsQueue.isEmpty()) {
+            return;
+        }
 
-    }
+        ClientPacket packet = packetsQueue.poll();
+        packet.send();
 
-
-    public void enqueue(ClientPacket packet) {
-        packetsQueue.add(packet);
     }
 
     public static PacketHandler getInstance() {
@@ -66,6 +67,10 @@ public class PacketHandler extends Thread {
             instance = new PacketHandler();
         }
         return instance;
+    }
+
+    public synchronized void enqueue(ClientPacket packet) {
+        packetsQueue.add(packet);
     }
 
     public Queue<ClientPacket> getPacketsQueue() {
