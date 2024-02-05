@@ -4,13 +4,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.client.MinecraftClient;
 import fr.math.minecraft.client.events.*;
 import fr.math.minecraft.client.events.listeners.EventListener;
 import fr.math.minecraft.client.events.listeners.PacketEventListener;
 import fr.math.minecraft.client.events.listeners.PacketListener;
 import fr.math.minecraft.client.events.listeners.PlayerListener;
+import fr.math.minecraft.client.network.payload.StatePayload;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
@@ -72,8 +72,9 @@ public class PacketReceiver extends Thread {
                 case "PLAYERS_LIST_PACKET":
                     this.notifyEvent(new PlayerListPacketEvent((ArrayNode) responseData.get("players")));
                     break;
-                case "PLAYER_MOVE_PACKET":
-                    this.notifyEvent(new PlayerPacketMoveEvent(response));
+                case "STATE_PAYLOAD":
+                    StatePayload statePayload = new StatePayload(responseData);
+                    this.notifyEvent(new ServerStateEvent(statePayload));
                     break;
                 case "SKIN_PACKET":
                     String base64Skin = responseData.get("skin").asText();
@@ -94,9 +95,9 @@ public class PacketReceiver extends Thread {
         }
     }
 
-    private void notifyEvent(PlayerPacketMoveEvent event) {
+    private void notifyEvent(ServerStateEvent event) {
         for (PacketEventListener listener : packetListeners) {
-            listener.onPlayerMovePacket(event);
+            listener.onServerState(event);
         }
     }
 

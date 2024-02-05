@@ -9,7 +9,7 @@ import fr.math.minecraft.client.Renderer;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.events.ChunkPacketEvent;
 import fr.math.minecraft.client.events.PlayerListPacketEvent;
-import fr.math.minecraft.client.events.PlayerPacketMoveEvent;
+import fr.math.minecraft.client.events.ServerStateEvent;
 import fr.math.minecraft.client.events.SkinPacketEvent;
 import fr.math.minecraft.client.handler.PacketHandler;
 import fr.math.minecraft.client.handler.PlayerMovementHandler;
@@ -39,26 +39,11 @@ public class PacketListener implements PacketEventListener {
     }
 
     @Override
-    public void onPlayerMovePacket(PlayerPacketMoveEvent event) {
-        String response = event.getMessage();
-        ObjectMapper mapper = new ObjectMapper();
+    public void onServerState(ServerStateEvent event) {
+        StatePayload payload = event.getStatePayload();
         PlayerMovementHandler handler = game.getPlayerMovementHandler();
-        // StatePayload payload = packet.getStatePayload();
 
-        if (response.equalsIgnoreCase("TIMEOUT_REACHED")) {
-            logger.error("Impossible d'envoyer le packet, le serveur a mis trop de temps à répondre ! (timeout)");
-            return;
-        }
-
-        JsonNode positionData = null;
-        try {
-            positionData = mapper.readTree(response);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
-        // payload.setData(positionData);
-        // handler.setLastServerState(payload);
+        handler.setLastServerState(payload);
     }
 
     @Override
@@ -101,8 +86,6 @@ public class PacketListener implements PacketEventListener {
             player.getPosition().x = playerX;
             player.getPosition().y = playerY;
             player.getPosition().z = playerZ;
-
-            System.out.println(player.getName() + " " + player.getPosition());
 
             player.setYaw(yaw);
             player.setBodyYaw(bodyYaw);

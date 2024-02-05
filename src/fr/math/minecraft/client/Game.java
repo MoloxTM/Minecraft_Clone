@@ -236,7 +236,6 @@ public class Game {
 
         if (state == GameState.PLAYING) {
             player.handleInputs(window);
-            playerMovementHandler.handle(player);
             camera.update(player);
         }
 

@@ -1,5 +1,6 @@
 package fr.math.minecraft.client.entity;
 
+import fr.math.minecraft.client.Camera;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.animations.Animation;
 import fr.math.minecraft.client.animations.PlayerWalkAnimation;
@@ -295,5 +296,38 @@ public class Player {
 
     public void setPing(int ping) {
         this.ping = ping;
+    }
+
+    public void updatePosition() {
+
+        Vector3f front = new Vector3f();
+        Game game = Game.getInstance();
+
+        front.x = (float) (Math.cos(Math.toRadians(yaw) * Math.cos(Math.toRadians(pitch))));
+        front.y = (float) Math.sin(Math.toRadians(0.0f));
+        front.z = (float) (Math.sin(Math.toRadians(yaw) * Math.cos(Math.toRadians(pitch))));
+
+        front.normalize();
+
+        Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
+
+        if (movingForward)
+            position.add(new Vector3f(front).mul(speed));
+
+        if (movingBackward)
+            position.sub(new Vector3f(front).mul(speed));
+
+        if (movingLeft)
+            position.sub(new Vector3f(right).mul(speed));
+
+        if (movingRight)
+            position.add(new Vector3f(right).mul(speed));
+
+        if (flying)
+            position.add(new Vector3f(0.0f, .5f, 0.0f));
+
+        if (sneaking)
+            position.sub(new Vector3f(0.0f, .5f, 0.0f));
+
     }
 }

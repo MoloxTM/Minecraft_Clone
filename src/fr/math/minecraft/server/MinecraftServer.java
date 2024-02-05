@@ -46,6 +46,7 @@ public class MinecraftServer {
     private final ServerWorld world;
     private final static int MAX_REQUEST_SIZE = 16384;
     private final ThreadPoolExecutor packetQueue;
+    private final TickHandler tickHandler;
 
     private MinecraftServer(int port) {
         this.running = false;
@@ -56,6 +57,7 @@ public class MinecraftServer {
         this.lastActivities = new HashMap<>();
         this.world = new ServerWorld();
         this.packetQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(8);
+        this.tickHandler = new TickHandler();
     }
 
     public void start() throws IOException {
@@ -63,7 +65,6 @@ public class MinecraftServer {
         socket = new DatagramSocket(this.port);
         System.out.println("Serveur en écoute sur le port " + this.port + "...");
 
-        TickHandler tickHandler = new TickHandler();
         tickHandler.start();
 
         while (this.running) {
@@ -156,5 +157,9 @@ public class MinecraftServer {
 
     public DatagramSocket getSocket() {
         return socket;
+    }
+
+    public TickHandler getTickHandler() {
+        return tickHandler;
     }
 }

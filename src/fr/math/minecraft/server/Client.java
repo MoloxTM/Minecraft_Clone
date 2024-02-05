@@ -79,13 +79,15 @@ public class Client {
         this.sneaking = sneaking;
     }
 
-    private void updatePosition() {
+    public void updatePosition() {
         front.x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
         front.y = (float) Math.sin(Math.toRadians(0.0f));
         front.z = (float) (Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
 
         front.normalize();
         Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
+
+        // System.out.println(name + ": Moving forward " + movingForward + " Back " + movingBackward + " Left " + movingLeft + " Right " + movingRight);
 
         if (movingForward)
             position = position.add(new Vector3f(front).mul(speed));
@@ -156,10 +158,6 @@ public class Client {
 
     public InetAddress getAddress() {
         return address;
-    }
-
-    public void update() {
-        this.updatePosition();
     }
 
     public boolean isActive() {

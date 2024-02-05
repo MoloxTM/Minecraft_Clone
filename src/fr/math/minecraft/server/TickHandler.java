@@ -4,9 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.server.manager.ClientManager;
+import fr.math.minecraft.server.payload.InputPayload;
+import fr.math.minecraft.server.payload.StatePayload;
 
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -14,9 +18,14 @@ public class TickHandler extends Thread {
 
     private final static long TICK_PER_SECONDS = 20;
     private final static long TICK_RATE_MS = 1000 / TICK_PER_SECONDS;
+    private final static int BUFFER_SIZE = 1024;
+    private final Queue<InputPayload> inputQueue;
+    private final StatePayload[] stateBuffer;
 
     public TickHandler() {
         this.setName("TickHandler");
+        this.inputQueue = new LinkedList<>();
+        this.stateBuffer = new StatePayload[BUFFER_SIZE];
     }
 
     @Override
@@ -48,10 +57,6 @@ public class TickHandler extends Thread {
             for (Client client : server.getClients().values()) {
                 if (!client.isActive()) continue;
                 playersNode.add(client.toJSON());
-
-                if (client.getName().equalsIgnoreCase("SuperUser")) {
-                    System.out.println("SuperUser " + client.getPosition());
-                }
             }
         }
         try {
@@ -66,14 +71,39 @@ public class TickHandler extends Thread {
         }
     }
 
+    public synchronized void enqueue(InputPayload payload) {
+        inputQueue.add(payload);
+    }
+
     private void tick() {
         MinecraftServer server = MinecraftServer.getInstance();
-        synchronized (server.getClients()) {
-            for (Client client : server.getClients().values()) {
-                if (!client.isActive()) continue;
-                client.update();
+        int bufferIndex = -1;
+        while (!inputQueue.isEmpty()) {
+            InputPayload inputPayload = inputQueue.poll();
+            String uuid = inputPayload.getClientUuid();
+            Client client = server.getClients().get(uuid);
+
+            if (client == null) {
+                continue;
             }
+
+            if (!client.isActive()) {
+                continue;
+            }
+
+            bufferIndex = inputPayload.getTick() % BUFFER_SIZE;
+            StatePayload statePayload = new StatePayload(inputPayload);
+            statePayload.predictMovement(client);
+            statePayload.send();
+
+            stateBuffer[bufferIndex] = statePayload;
         }
+
+        if (bufferIndex != -1) {
+            StatePayload payload = stateBuffer[bufferIndex];
+            payload.send();
+        }
+
         this.sendPlayers();
         // this.sendChunks();
     }

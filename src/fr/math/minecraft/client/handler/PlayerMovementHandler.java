@@ -33,7 +33,7 @@ public class PlayerMovementHandler {
         inputBuffer[bufferIndex] = inputPayload;
 
         StatePayload statePayload = new StatePayload(inputPayload);
-        statePayload.predictMovement(player);
+        // statePayload.predictMovement(player);
         statePayload.send();
 
         stateBuffer[bufferIndex] = statePayload;
@@ -43,15 +43,14 @@ public class PlayerMovementHandler {
 
     public void reconcile(Player player) {
 
-        JsonNode serverData = lastServerState.getData();
-        int serverTick = serverData.get("tick").asInt();
-        Vector3f serverPosition = new Vector3f(serverData.get("x").floatValue(), serverData.get("y").floatValue(), serverData.get("z").floatValue());
+        int serverTick = lastServerState.getInputPayload().getTick();
+        Vector3f serverPosition = lastServerState.getPosition();
 
         StatePayload payload = stateBuffer[serverTick % BUFFER_SIZE];
 
         float positionError = serverPosition.distance(payload.getPosition());
 
-        if (positionError > 0.001f) {
+        if (positionError > 0.2f) {
             System.out.println("[Reconciliation] ServerTick : " + serverTick + " ClientTick : " + currentTick + " Error : " + positionError + " ServerPosition " + serverPosition + " PayloadPosition " + payload.getPosition());
             stateBuffer[serverTick % BUFFER_SIZE] = lastServerState;
 

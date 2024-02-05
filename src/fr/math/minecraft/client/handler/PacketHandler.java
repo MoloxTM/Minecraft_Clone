@@ -53,12 +53,17 @@ public class PacketHandler extends Thread {
     }
 
     private void tick() {
+        Game game = Game.getInstance();
+        game.getPlayerMovementHandler().handle(game.getPlayer());
+
         if (packetsQueue.isEmpty()) {
             return;
         }
 
+
         ClientPacket packet = packetsQueue.poll();
         packet.send();
+
 
     }
 

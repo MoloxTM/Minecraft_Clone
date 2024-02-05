@@ -10,10 +10,10 @@ import org.joml.Vector3f;
 
 public class StatePayload {
 
-    private final InputPayload payload;
+    private InputPayload payload;
     private JsonNode data;
-    private final boolean movingLeft, movingRight, movingForward, movingBackward;
-    private final boolean sneaking, flying;
+    private boolean movingLeft, movingRight, movingForward, movingBackward;
+    private boolean sneaking, flying;
     private Vector3f position;
 
     public StatePayload(InputPayload payload) {
@@ -28,21 +28,30 @@ public class StatePayload {
         this.data = null;
     }
 
+    public StatePayload(JsonNode stateData) {
+        this.position = new Vector3f();
+        this.payload = new InputPayload(stateData.get("tick").asInt());
+        position.x = stateData.get("x").floatValue();
+        position.y = stateData.get("y").floatValue();
+        position.z = stateData.get("z").floatValue();
+    }
+
     public void predictMovement(Player player) {
 
         Vector3f front = new Vector3f();
         Game game = Game.getInstance();
-        Camera camera = game.getCamera();
+        float yaw = player.getYaw();
+        float speed = player.getSpeed();
+        float pitch = player.getPitch();
 
-        front.x = (float) (Math.cos(Math.toRadians(player.getYaw())) * Math.cos(Math.toRadians(player.getPitch())));
+        front.x = (float) (Math.cos(Math.toRadians(yaw) * Math.cos(Math.toRadians(pitch))));
         front.y = (float) Math.sin(Math.toRadians(0.0f));
-        front.z = (float) (Math.sin(Math.toRadians(player.getYaw())) * Math.cos(Math.toRadians(player.getPitch())));
+        front.z = (float) (Math.sin(Math.toRadians(yaw) * Math.cos(Math.toRadians(pitch))));
 
         front.normalize();
 
         Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
-        Vector3f position = player.getPosition();
-        float speed = player.getSpeed();
+        position = new Vector3f(player.getPosition());
 
         if (movingForward)
             position.add(new Vector3f(front).mul(speed));
@@ -62,7 +71,7 @@ public class StatePayload {
         if (sneaking)
             position.sub(new Vector3f(0.0f, .5f, 0.0f));
 
-        camera.update(player);
+        Vector3f position = player.getPosition();
 
         this.position = new Vector3f(position);
     }
@@ -82,5 +91,9 @@ public class StatePayload {
 
     public Vector3f getPosition() {
         return position;
+    }
+
+    public InputPayload getInputPayload() {
+        return payload;
     }
 }

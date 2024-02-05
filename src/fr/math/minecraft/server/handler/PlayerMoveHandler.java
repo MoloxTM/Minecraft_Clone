@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.server.Client;
 import fr.math.minecraft.server.MinecraftServer;
+import fr.math.minecraft.server.TickHandler;
+import fr.math.minecraft.server.payload.InputPayload;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -23,27 +25,13 @@ public class PlayerMoveHandler extends PacketHandler implements Runnable {
     @Override
     public void run() {
         MinecraftServer server = MinecraftServer.getInstance();
+        InputPayload payload = new InputPayload(packetData);
+        TickHandler tickHandler = server.getTickHandler();
+        String uuid = packetData.get("uuid").asText();
+
         client.handleInputs(packetData);
+        tickHandler.enqueue(payload);
+        server.getLastActivities().put(uuid, System.currentTimeMillis());
 
-        ObjectNode positionNode = new ObjectMapper().createObjectNode();
-        positionNode.put("type", "PLAYER_MOVE_PACKET");
-        positionNode.put("tick", packetData.get("tick").asInt());
-        positionNode.put("x", client.getPosition().x);
-        positionNode.put("y", client.getPosition().y);
-        positionNode.put("z", client.getPosition().z);
-
-        String response = null;
-        try {
-            response = new ObjectMapper().writeValueAsString(positionNode);
-            byte[] buffer = response.getBytes(StandardCharsets.UTF_8);
-
-            String uuid = packetData.get("uuid").asText();
-            server.getLastActivities().put(uuid, System.currentTimeMillis());
-
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, clientPort);
-            server.sendPacket(packet);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
     }
 }
