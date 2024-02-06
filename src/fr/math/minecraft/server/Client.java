@@ -42,7 +42,7 @@ public class Client {
         this.inputVector = new Vector3i(0, 0, 0);
         this.yaw = 0.0f;
         this.pitch = 0.0f;
-        this.speed = 0.1f;
+        this.speed = 0.2f;
         this.skin = null;
         this.movingLeft = false;
         this.movingRight = false;
@@ -91,7 +91,7 @@ public class Client {
     }
 
     public void updatePosition(InputPayload payload) {
-        Vector3i inputVector = payload.getInputVector();
+        Vector3i inputVector = new Vector3i(payload.getInputVector());
         float yaw = payload.getYaw();
         float pitch = payload.getPitch();
 
@@ -122,11 +122,16 @@ public class Client {
             inputVector.x--;
         }
 
-        if (flying)
+        while (inputVector.y > 0) {
             position = position.add(new Vector3f(0.0f, .5f, 0.0f));
+            inputVector.y--;
+        }
 
-        if (sneaking)
+        while (inputVector.y < 0) {
             position = position.sub(new Vector3f(0.0f, .5f, 0.0f));
+            inputVector.y++;
+        }
+
     }
 
     public Vector3f getPosition() {

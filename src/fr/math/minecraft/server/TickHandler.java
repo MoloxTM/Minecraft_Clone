@@ -94,8 +94,6 @@ public class TickHandler extends Thread {
                 continue;
             }
 
-            System.out.println(inputPayload.getInputVector());
-
             bufferIndex = inputPayload.getTick() % BUFFER_SIZE;
             StatePayload statePayload = new StatePayload(inputPayload);
             statePayload.predictMovement(client);

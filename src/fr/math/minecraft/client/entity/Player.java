@@ -58,7 +58,7 @@ public class Player {
         this.firstMouse = true;
         this.lastMouseX = 0.0f;
         this.lastMouseY = 0.0f;
-        this.speed = 0.1f;
+        this.speed = 0.2f;
         this.ping = 0;
         this.sensitivity = 0.1f;
         this.name = name;
@@ -134,10 +134,12 @@ public class Player {
 
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
             flying = true;
+            inputVector.y++;
         }
 
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
             sneaking = true;
+            inputVector.y--;
         }
 
         if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_PRESS) {

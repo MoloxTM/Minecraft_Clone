@@ -34,6 +34,9 @@ public class StatePayload {
         position.x = stateData.get("x").floatValue();
         position.y = stateData.get("y").floatValue();
         position.z = stateData.get("z").floatValue();
+        inputVector.x = stateData.get("inputX").asInt();
+        inputVector.y = stateData.get("inputY").asInt();
+        inputVector.z = stateData.get("inputZ").asInt();
     }
 
     public void predictMovement(Player player) {

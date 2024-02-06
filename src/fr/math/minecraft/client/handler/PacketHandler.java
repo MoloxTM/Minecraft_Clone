@@ -29,20 +29,20 @@ public class PacketHandler extends Thread {
         Game game = Game.getInstance();
         Player player = game.getPlayer();
         double lastPingTime = glfwGetTime();
-        double lastTickTime = glfwGetTime();
+        long lastTickTime = System.currentTimeMillis();
         double tickTimer = 0;
         while (!glfwWindowShouldClose(game.getWindow())) {
 
-            double currentTime = glfwGetTime();
-            double deltaTime = currentTime - lastTickTime;
+            long currentTime = System.currentTimeMillis();
+            long deltaTime = currentTime - lastTickTime;
 
             tickTimer += deltaTime;
 
             lastTickTime = currentTime;
 
-            while (tickTimer >= GameConfiguration.TICK_RATE) {
+            while (tickTimer >= 50) {
                 tick();
-                tickTimer -= GameConfiguration.TICK_RATE;
+                tickTimer -= 50;
             }
         }
     }

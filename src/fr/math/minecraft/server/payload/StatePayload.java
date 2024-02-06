@@ -52,6 +52,9 @@ public class StatePayload {
         payloadNode.put("x", position.x);
         payloadNode.put("y", position.y);
         payloadNode.put("z", position.z);
+        payloadNode.put("inputX", payload.getInputVector().x);
+        payloadNode.put("inputY", payload.getInputVector().y);
+        payloadNode.put("inputZ", payload.getInputVector().z);
 
         try {
             String payloadData = mapper.writeValueAsString(payloadNode);

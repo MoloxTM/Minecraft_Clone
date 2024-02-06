@@ -37,8 +37,6 @@ public class PlayerMovementHandler {
         statePayload.predictMovement(player);
         statePayload.send();
 
-        System.out.println(statePayload.getInputPayload().getInputVector());
-
         stateBuffer[bufferIndex] = statePayload;
 
         synchronized (player.getInputVector()) {
@@ -59,8 +57,8 @@ public class PlayerMovementHandler {
 
         float positionError = serverPosition.distance(payload.getPosition());
 
-        if (positionError > 0.1f) {
-            // System.out.println("[Reconciliation] ServerTick : " + serverTick + " ClientTick : " + currentTick + " Error : " + positionError + " ServerPosition " + serverPosition + " PayloadPosition " + payload.getPosition());
+        if (positionError > 0.001f) {
+            System.out.println("[Reconciliation] ServerTick : " + serverTick + " ClientTick : " + currentTick + " Error : " + positionError + " ServerPosition " + serverPosition + " PayloadPosition " + payload.getPosition());
             stateBuffer[serverTick % BUFFER_SIZE] = lastServerState;
 
             int tickToProcess = serverTick + 1;
@@ -76,12 +74,23 @@ public class PlayerMovementHandler {
                 StatePayload statePayload = new StatePayload(inputBuffer[tickToProcess % BUFFER_SIZE]);
                 statePayload.predictMovement(player);
 
+                player.getPosition().x = statePayload.getPosition().x;
+                player.getPosition().y = statePayload.getPosition().y;
+                player.getPosition().z = statePayload.getPosition().z;
+
+                Game.getInstance().getCamera().update(player);
+
                 int bufferIndex = tickToProcess % BUFFER_SIZE;
                 stateBuffer[bufferIndex] = statePayload;
 
                 tickToProcess++;
             }
         }
+
+    }
+
+    public StatePayload getLastServerState() {
+        return lastServerState;
     }
 
     public void setLastServerState(StatePayload lastServerState) {
