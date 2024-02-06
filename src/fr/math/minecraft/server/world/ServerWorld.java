@@ -3,6 +3,8 @@ package fr.math.minecraft.server.world;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.client.world.Chunk;
+import fr.math.minecraft.server.world.generator.OverworldGenerator;
+import fr.math.minecraft.server.world.generator.TerrainGenerator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,15 +15,13 @@ public class ServerWorld {
     public final static int WIDTH = 10;
     public final static int HEIGHT = 10;
     public final static int DEPTH = 10;
-    private final HashMap<Coordinates, ServerChunk> structures;
-    private final ArrayList<Coordinates> trees;
     private final int seed;
+    private TerrainGenerator overworldGenerator;
 
     public ServerWorld() {
         this.chunks = new HashMap<>();
-        this.structures = new HashMap<>();
-        this.trees = new ArrayList<>();
         this.seed = 0;
+        this.overworldGenerator = new OverworldGenerator();
     }
 
     public void buildChunks() {
@@ -40,8 +40,6 @@ public class ServerWorld {
         return chunks;
     }
 
-    public void save() {
-    }
 
     public void addChunk(ServerChunk chunk) {
         Coordinates coordinates = new Coordinates(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z);
@@ -79,15 +77,25 @@ public class ServerWorld {
         return chunk.getBlock(blockX, blockY, blockZ);
     }
 
-    public HashMap<Coordinates, ServerChunk> getStructures() {
-        return structures;
-    }
+    public void setBlock(int worldX, int worldY, int worldZ, byte block) {
+        ServerChunk serverChunk = getChunkAt(worldX, worldY, worldZ);
+        if(serverChunk == null) return;
+        int blockX = worldX % Chunk.SIZE;
+        int blockY = worldY % Chunk.SIZE;
+        int blockZ = worldZ % Chunk.SIZE;
 
-    public ArrayList<Coordinates> getTrees() {
-        return trees;
+        blockX = blockX < 0 ? blockX + Chunk.SIZE : blockX;
+        blockY = blockY < 0 ? blockY + Chunk.SIZE : blockY;
+        blockZ = blockZ < 0 ? blockZ + Chunk.SIZE : blockZ;
+
+        serverChunk.setBlock(blockX, blockY, blockZ, block);
     }
 
     public int getSeed() {
         return seed;
+    }
+
+    public TerrainGenerator getOverworldGenerator() {
+        return overworldGenerator;
     }
 }

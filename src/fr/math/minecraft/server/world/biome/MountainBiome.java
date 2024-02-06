@@ -3,9 +3,10 @@ package fr.math.minecraft.server.world.biome;
 import fr.math.minecraft.server.world.Coordinates;
 import fr.math.minecraft.server.world.Material;
 import fr.math.minecraft.server.world.ServerChunk;
+import fr.math.minecraft.server.world.Structure;
 import fr.math.minecraft.server.world.generator.NoiseGenerator;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MountainBiome extends AbstractBiome{
 
@@ -25,12 +26,12 @@ public class MountainBiome extends AbstractBiome{
     }
 
     @Override
-    public void buildTree(ServerChunk chunk, int x, int y, int z, ArrayList<Coordinates> trees) {
+    public void buildTree(ServerChunk chunk, int x, int y, int z, Structure structure) {
 
     }
 
     @Override
-    public void buildWeeds(ServerChunk chunk, int x, int y, int z, ArrayList<Coordinates> trees) {
+    public void buildWeeds(ServerChunk chunk, int x, int y, int z, Structure structure) {
 
     }
 }

@@ -4,13 +4,10 @@ import fr.math.minecraft.server.MinecraftServer;
 import fr.math.minecraft.server.RandomSeed;
 import fr.math.minecraft.server.Utils;
 import fr.math.minecraft.server.builder.StructureBuilder;
-import fr.math.minecraft.server.world.Coordinates;
-import fr.math.minecraft.server.world.Material;
-import fr.math.minecraft.server.world.ServerChunk;
-import fr.math.minecraft.server.world.ServerWorld;
+import fr.math.minecraft.server.world.*;
 import fr.math.minecraft.server.world.generator.NoiseGenerator;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 public class PlainBiome extends AbstractBiome{
 
@@ -31,7 +28,7 @@ public class PlainBiome extends AbstractBiome{
     }
 
     @Override
-    public void buildTree(ServerChunk chunk, int x, int y, int z, ArrayList<Coordinates> trees) {
+    public void buildTree(ServerChunk chunk, int x, int y, int z, Structure structure) {
         ServerWorld world = MinecraftServer.getInstance().getWorld();
 
         int worldX = chunk.getPosition().x * ServerChunk.SIZE + x;
@@ -40,7 +37,7 @@ public class PlainBiome extends AbstractBiome{
 
         Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
         //Calul distance
-        for (Coordinates coordinates1 : trees) {
+        for (Coordinates coordinates1 : structure.getStructureMap().keySet()) {
             double dist = Utils.distance(coordinates, coordinates1);
             if(dist <= 2)return;
         }
@@ -48,17 +45,16 @@ public class PlainBiome extends AbstractBiome{
         RandomSeed randomSeed = RandomSeed.getInstance();
         float dropRate = randomSeed.nextFloat() * 100.0f;
         if(dropRate < 0.2f) {
-            StructureBuilder.buildSimpleTree(chunk, x, y, z);
-            world.getTrees().add(coordinates);
+            StructureBuilder.buildSimpleTree(structure, x, y, z);
         }
     }
 
     @Override
-    public void buildWeeds(ServerChunk chunk, int x, int y, int z, ArrayList<Coordinates> trees) {
+    public void buildWeeds(ServerChunk chunk, int x, int y, int z, Structure structure) {
         RandomSeed randomSeed = RandomSeed.getInstance();
         float dropRate = randomSeed.nextFloat() * 100.0f;
         if(dropRate > 97.0f) {
-            StructureBuilder.buildWeed(chunk, x, y, z);
+            StructureBuilder.buildWeed(structure, x, y, z);
         }
     }
 }

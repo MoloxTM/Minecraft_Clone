@@ -4,8 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.math.minecraft.client.Game;
+import fr.math.minecraft.client.MinecraftClient;
+import fr.math.minecraft.server.MinecraftServer;
 import fr.math.minecraft.server.world.biome.*;
 import fr.math.minecraft.server.world.generator.OverworldGenerator;
+import fr.math.minecraft.server.world.generator.TerrainGenerator;
 import org.joml.Vector3i;
 
 import javax.xml.crypto.Data;
@@ -40,9 +44,9 @@ public class ServerChunk {
     }
 
     public void generate() {
-        OverworldGenerator overworldGenerator = new OverworldGenerator();
+        TerrainGenerator overworldGenerator = MinecraftServer.getInstance().getWorld().getOverworldGenerator();
         overworldGenerator.generateChunk(this);
-        //overworldGenerator.generateStructure(this);
+        overworldGenerator.generateStructure(this);
     }
 
     public byte[] getBlocks() {

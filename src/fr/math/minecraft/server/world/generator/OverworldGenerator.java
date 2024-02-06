@@ -1,18 +1,18 @@
 package fr.math.minecraft.server.world.generator;
 
 import fr.math.minecraft.client.Game;
+import fr.math.minecraft.client.MinecraftClient;
 import fr.math.minecraft.client.world.Chunk;
 import fr.math.minecraft.server.MinecraftServer;
-import fr.math.minecraft.server.world.ServerWorld;
-import fr.math.minecraft.server.world.Structure;
+import fr.math.minecraft.server.Utils;
+import fr.math.minecraft.server.world.*;
 import fr.math.minecraft.server.manager.BiomeManager;
 import fr.math.minecraft.server.math.InterpolateMath;
-import fr.math.minecraft.server.world.ServerChunk;
-import fr.math.minecraft.server.world.Material;
 import fr.math.minecraft.server.world.biome.AbstractBiome;
 import fr.math.minecraft.server.world.biome.DesertBiome;
 import fr.math.minecraft.server.world.biome.ForestBiome;
 import fr.math.minecraft.server.world.biome.PlainBiome;
+import jdk.jshell.execution.Util;
 import org.joml.Vector2i;
 import org.joml.Vector3i;
 
@@ -20,11 +20,11 @@ import java.util.HashMap;
 
 public class OverworldGenerator implements TerrainGenerator {
     private final HashMap<Vector2i, Integer> heightMap;
-    private final HashMap<Vector3i, Structure> structureMap;
 
+    private Structure structure;
     public OverworldGenerator() {
         this.heightMap = new HashMap<>();
-        this.structureMap = new HashMap<>();
+        this.structure = new Structure();
     }
 
     public float calculBiomeHeight(int worldX, int worldZ) {
@@ -81,20 +81,19 @@ public class OverworldGenerator implements TerrainGenerator {
                     } else if (worldY == worldHeight) {
                         material = currentBiome.getUpperBlock();
 
-                        if(currentBiome instanceof ForestBiome && ((x - 2) >= 0) && ((x + 2) <= 15) && ((z - 2) >= 0) && ((z + 2) <= 15) && ((y + 8) < ServerChunk.SIZE)){
-                            currentBiome.buildTree(chunk, x, y, z, minecraftServer.getWorld().getTrees());
+                        if(currentBiome instanceof ForestBiome  && ((x + 2) <= 15) && ((z - 2) >= 0) && ((z + 2) <= 15) && ((y + 8) < ServerChunk.SIZE)){
+                            currentBiome.buildTree(chunk, x, y, z, structure);
                         } else if(currentBiome instanceof PlainBiome) {
-                            if((y + 1) < ServerChunk.SIZE) currentBiome.buildWeeds(chunk, x, y, z, minecraftServer.getWorld().getTrees());
+                            if((y + 1) < ServerChunk.SIZE) currentBiome.buildWeeds(chunk, x, y, z, structure);
                             if(((x - 2) >= 0) && ((x + 2) <= 15) && ((z - 2) >= 0) && ((z + 2) <= 15) && ((y + 8) < ServerChunk.SIZE)){
-                                currentBiome.buildTree(chunk, x, y, z, minecraftServer.getWorld().getTrees());
+                                currentBiome.buildTree(chunk, x, y, z, structure);
                             }
                         }else if(currentBiome instanceof DesertBiome && ((x - 2) >= 0) && ((x + 2) <= 15) && ((z - 2) >= 0) && ((z + 2) <= 15) && ((y + 4) < ServerChunk.SIZE)){
                             if((y + 1) < ServerChunk.SIZE){
-                                currentBiome.buildWeeds(chunk, x, y, z, minecraftServer.getWorld().getTrees());
-                                currentBiome.buildTree(chunk, x, y, z, minecraftServer.getWorld().getTrees());
+                                currentBiome.buildWeeds(chunk, x, y, z, structure);
+                                currentBiome.buildTree(chunk, x, y, z, structure);
                             }
                         }
-
                     } else {
                         if (worldY <= 40) {
                             material = Material.WATER;
@@ -107,6 +106,29 @@ public class OverworldGenerator implements TerrainGenerator {
         }
     }
 
+    @Override
+    public void generateStructure(ServerChunk chunk) {
+        HashMap<Coordinates, Byte> structMap = this.getStructure().getStructureMap();
+        //System.out.println("\nCoos Chunk:" + chunk.getPosition().toString());
+        for (Coordinates coordinates : structMap.keySet()) {
+
+            //System.out.println("Coos blocs:" + coordinates.toString());
 
 
+            if (Utils.isInChunk(coordinates, chunk)) {
+
+                int worldX = coordinates.getX();
+                int worldY = coordinates.getY();
+                int worldZ = coordinates.getZ();
+
+                byte block = structMap.get(coordinates);
+
+                MinecraftServer.getInstance().getWorld().setBlock(worldX, worldY, worldZ, block);
+            }
+        }
+    }
+
+    public Structure getStructure() {
+        return structure;
+    }
 }
