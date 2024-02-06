@@ -25,11 +25,11 @@ public class PlayerMoveHandler extends PacketHandler implements Runnable {
     @Override
     public void run() {
         MinecraftServer server = MinecraftServer.getInstance();
+        client.handleInputs(packetData);
         InputPayload payload = new InputPayload(packetData);
         TickHandler tickHandler = server.getTickHandler();
         String uuid = packetData.get("uuid").asText();
 
-        client.handleInputs(packetData);
         tickHandler.enqueue(payload);
         server.getLastActivities().put(uuid, System.currentTimeMillis());
 

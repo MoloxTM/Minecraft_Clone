@@ -2,7 +2,7 @@ package fr.math.minecraft.client;
 
 public class GameConfiguration {
 
-    public final static float UPS = 200.0f;
+    public final static float UPS = 60.0f;
     public final static float TICK_PER_SECONDS = 20.0f;
     public final static float TICK_RATE = 1.0f / TICK_PER_SECONDS;
     public final static float UPDATE_TICK = 1.0f / UPS;

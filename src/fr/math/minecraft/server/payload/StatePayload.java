@@ -32,9 +32,8 @@ public class StatePayload {
     }
 
     public void predictMovement(Client client) {
-        client.updatePosition();
-        Vector3f position = client.getPosition();
-        this.position = new Vector3f(position);
+        client.updatePosition(payload);
+        this.position = new Vector3f(client.getPosition());
     }
 
     public void send() {

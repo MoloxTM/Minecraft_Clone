@@ -16,8 +16,8 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class TickHandler extends Thread {
 
-    private final static long TICK_PER_SECONDS = 20;
-    private final static long TICK_RATE_MS = 1000 / TICK_PER_SECONDS;
+    public final static long TICK_PER_SECONDS = 20;
+    public final static long TICK_RATE_MS = 1000 / TICK_PER_SECONDS;
     private final static int BUFFER_SIZE = 1024;
     private final Queue<InputPayload> inputQueue;
     private final StatePayload[] stateBuffer;
@@ -94,10 +94,12 @@ public class TickHandler extends Thread {
                 continue;
             }
 
+            System.out.println(inputPayload.getInputVector());
+
             bufferIndex = inputPayload.getTick() % BUFFER_SIZE;
             StatePayload statePayload = new StatePayload(inputPayload);
             statePayload.predictMovement(client);
-            statePayload.send();
+            //statePayload.send();
 
             stateBuffer[bufferIndex] = statePayload;
         }

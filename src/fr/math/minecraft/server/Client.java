@@ -3,12 +3,13 @@ package fr.math.minecraft.server;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.math.minecraft.server.payload.InputPayload;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Base64;
@@ -29,6 +30,7 @@ public class Client {
     private boolean movingLeft, movingRight, movingForward, movingBackward;
     private boolean flying, sneaking;
     private boolean active;
+    private final Vector3i inputVector;
 
     public Client(String uuid, String name, InetAddress address, int port) {
         this.address = address;
@@ -37,6 +39,7 @@ public class Client {
         this.name = name;
         this.front = new Vector3f(0.0f, 0.0f, 0.0f);
         this.position = new Vector3f(0.0f, 0.0f, 0.0f);
+        this.inputVector = new Vector3i(0, 0, 0);
         this.yaw = 0.0f;
         this.pitch = 0.0f;
         this.speed = 0.1f;
@@ -66,6 +69,10 @@ public class Client {
         float bodyYaw = packetData.get("bodyYaw").floatValue();
         float pitch = packetData.get("pitch").floatValue();
 
+        int inputX = packetData.get("inputX").intValue();
+        int inputY = packetData.get("inputY").intValue();
+        int inputZ = packetData.get("inputZ").intValue();
+
         this.yaw = yaw;
         this.bodyYaw = bodyYaw;
         this.pitch = pitch;
@@ -75,11 +82,19 @@ public class Client {
         this.movingForward = movingForward;
         this.movingBackward = movingBackward;
 
+        this.inputVector.x = inputX;
+        this.inputVector.y = inputY;
+        this.inputVector.z = inputZ;
+
         this.flying = flying;
         this.sneaking = sneaking;
     }
 
-    public void updatePosition() {
+    public void updatePosition(InputPayload payload) {
+        Vector3i inputVector = payload.getInputVector();
+        float yaw = payload.getYaw();
+        float pitch = payload.getPitch();
+
         front.x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
         front.y = (float) Math.sin(Math.toRadians(0.0f));
         front.z = (float) (Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
@@ -87,19 +102,25 @@ public class Client {
         front.normalize();
         Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
 
-        // System.out.println(name + ": Moving forward " + movingForward + " Back " + movingBackward + " Left " + movingLeft + " Right " + movingRight);
-
-        if (movingForward)
+        while (inputVector.z < 0) {
             position = position.add(new Vector3f(front).mul(speed));
+            inputVector.z++;
+        }
 
-        if (movingBackward)
+        while (inputVector.z > 0) {
             position = position.sub(new Vector3f(front).mul(speed));
+            inputVector.z--;
+        }
 
-        if (movingLeft)
+        while (inputVector.x < 0) {
             position = position.sub(new Vector3f(right).mul(speed));
+            inputVector.x++;
+        }
 
-        if (movingRight)
+        while (inputVector.x > 0) {
             position = position.add(new Vector3f(right).mul(speed));
+            inputVector.x--;
+        }
 
         if (flying)
             position = position.add(new Vector3f(0.0f, .5f, 0.0f));

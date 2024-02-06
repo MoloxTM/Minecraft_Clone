@@ -11,6 +11,7 @@ import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 import org.lwjgl.BufferUtils;
 
 import java.awt.image.BufferedImage;
@@ -45,17 +46,19 @@ public class Player {
     private float sensitivity;
     private final static Logger logger = LoggerUtility.getClientLogger(Player.class, LogType.TXT);
     private final List<EventListener> eventListeners;
+    private final Vector3i inputVector;
     private int ping;
 
     public Player(String name) {
         this.position = new Vector3f(0.0f, 0.0f, 0.0f);
+        this.inputVector = new Vector3i(0, 0, 0);
         this.yaw = 0.0f;
         this.bodyYaw = 0.0f;
         this.pitch = 0.0f;
         this.firstMouse = true;
         this.lastMouseX = 0.0f;
         this.lastMouseY = 0.0f;
-        this.speed = 0.2f;
+        this.speed = 0.1f;
         this.ping = 0;
         this.sensitivity = 0.1f;
         this.name = name;
@@ -106,21 +109,28 @@ public class Player {
 
         this.resetMoving();
 
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-            movingForward = true;
+        synchronized (this.getInputVector()) {
+            if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+                movingForward = true;
+                inputVector.z--;
+            }
+
+            if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+                movingLeft = true;
+                inputVector.x--;
+            }
+
+            if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+                movingBackward = true;
+                inputVector.z++;
+            }
+
+            if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+                movingRight = true;
+                inputVector.x++;
+            }
         }
 
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-            movingLeft = true;
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-            movingBackward = true;
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-            movingRight = true;
-        }
 
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
             flying = true;
@@ -329,5 +339,9 @@ public class Player {
         if (sneaking)
             position.sub(new Vector3f(0.0f, .5f, 0.0f));
 
+    }
+
+    public Vector3i getInputVector() {
+        return inputVector;
     }
 }

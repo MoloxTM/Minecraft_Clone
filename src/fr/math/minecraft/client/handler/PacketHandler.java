@@ -51,15 +51,10 @@ public class PacketHandler extends Thread {
         Game game = Game.getInstance();
         game.getPlayerMovementHandler().handle(game.getPlayer());
 
-        if (packetsQueue.isEmpty()) {
-            return;
+        while (!packetsQueue.isEmpty()) {
+            ClientPacket packet = packetsQueue.poll();
+            packet.send();
         }
-
-
-        ClientPacket packet = packetsQueue.poll();
-        packet.send();
-
-
     }
 
     public static PacketHandler getInstance() {

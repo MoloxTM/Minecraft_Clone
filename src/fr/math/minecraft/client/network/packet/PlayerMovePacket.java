@@ -11,6 +11,8 @@ import fr.math.minecraft.client.network.payload.StatePayload;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
+import org.joml.Vector3f;
+import org.joml.Vector3i;
 
 import java.io.IOException;
 
@@ -28,17 +30,19 @@ public class PlayerMovePacket extends ClientPacket {
     private final StatePayload statePayload;
     private final int tick;
     private String response;
+    private final Vector3i inputVector;
 
-    public PlayerMovePacket(StatePayload statePayload, InputPayload inputPayload) {
+    public PlayerMovePacket(StatePayload statePayload, InputPayload inputPayload, Vector3i inputVector) {
         this.statePayload = statePayload;
         this.tick = inputPayload.getTick();
         this.mapper = new ObjectMapper();
-        this.movingLeft = inputPayload.isMovingLeft();
-        this.movingRight = inputPayload.isMovingRight();
-        this.movingForward = inputPayload.isMovingForward();
-        this.movingBackward = inputPayload.isMovingBackward();
+        this.movingLeft = false;
+        this.movingRight = false;
+        this.movingForward = false;
+        this.movingBackward = false;
         this.flying = inputPayload.isFlying();
         this.sneaking = inputPayload.isSneaking();
+        this.inputVector = inputVector;
         this.movingHead = false;
         this.response = "";
     }
@@ -57,6 +61,9 @@ public class PlayerMovePacket extends ClientPacket {
         messageNode.put("right", movingRight);
         messageNode.put("forward", movingForward);
         messageNode.put("backward", movingBackward);
+        messageNode.put("inputX", inputVector.x);
+        messageNode.put("inputY", inputVector.y);
+        messageNode.put("inputZ", inputVector.z);
         messageNode.put("flying", flying);
         messageNode.put("sneaking", sneaking);
         messageNode.put("pitch", player.getPitch());

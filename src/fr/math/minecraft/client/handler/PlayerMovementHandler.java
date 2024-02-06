@@ -1,6 +1,7 @@
 package fr.math.minecraft.client.handler;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.network.payload.InputPayload;
 import fr.math.minecraft.client.network.payload.StatePayload;
@@ -36,7 +37,15 @@ public class PlayerMovementHandler {
         statePayload.predictMovement(player);
         statePayload.send();
 
+        System.out.println(statePayload.getInputPayload().getInputVector());
+
         stateBuffer[bufferIndex] = statePayload;
+
+        synchronized (player.getInputVector()) {
+            player.getInputVector().x = 0;
+            player.getInputVector().y = 0;
+            player.getInputVector().z = 0;
+        }
 
         currentTick++;
     }
@@ -50,17 +59,19 @@ public class PlayerMovementHandler {
 
         float positionError = serverPosition.distance(payload.getPosition());
 
-        if (positionError > 0.2f) {
-            System.out.println("[Reconciliation] ServerTick : " + serverTick + " ClientTick : " + currentTick + " Error : " + positionError + " ServerPosition " + serverPosition + " PayloadPosition " + payload.getPosition());
+        if (positionError > 0.1f) {
+            // System.out.println("[Reconciliation] ServerTick : " + serverTick + " ClientTick : " + currentTick + " Error : " + positionError + " ServerPosition " + serverPosition + " PayloadPosition " + payload.getPosition());
             stateBuffer[serverTick % BUFFER_SIZE] = lastServerState;
 
             int tickToProcess = serverTick + 1;
 
-            while (tickToProcess < currentTick) {
+            player.getPosition().x = serverPosition.x;
+            player.getPosition().y = serverPosition.y;
+            player.getPosition().z = serverPosition.z;
 
-                player.getPosition().x = serverPosition.x;
-                player.getPosition().y = serverPosition.y;
-                player.getPosition().z = serverPosition.z;
+            Game.getInstance().getCamera().update(player);
+
+            while (tickToProcess < currentTick) {
 
                 StatePayload statePayload = new StatePayload(inputBuffer[tickToProcess % BUFFER_SIZE]);
                 statePayload.predictMovement(player);

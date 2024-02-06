@@ -2,6 +2,7 @@ package fr.math.minecraft.server.payload;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.math.minecraft.client.entity.Player;
+import org.joml.Vector3i;
 
 public class InputPayload {
 
@@ -9,10 +10,19 @@ public class InputPayload {
     private final boolean movingLeft, movingRight, movingForward, movingBackward;
     private final boolean sneaking, flying;
     private final String clientUuid;
+    private final Vector3i inputVector;
+    private final float yaw;
+    private final float pitch;
 
     public InputPayload(JsonNode payloadData) {
         this.tick = payloadData.get("tick").asInt();
         this.clientUuid = payloadData.get("uuid").asText();
+        this.inputVector = new Vector3i();
+        inputVector.x = payloadData.get("inputX").asInt();
+        inputVector.y = payloadData.get("inputY").asInt();
+        inputVector.z = payloadData.get("inputZ").asInt();
+        this.yaw = payloadData.get("yaw").floatValue();
+        this.pitch = payloadData.get("pitch").floatValue();
         this.movingLeft = payloadData.get("left").asBoolean();
         this.movingRight = payloadData.get("right").asBoolean();
         this.movingForward = payloadData.get("forward").asBoolean();
@@ -51,5 +61,17 @@ public class InputPayload {
 
     public String getClientUuid() {
         return clientUuid;
+    }
+
+    public Vector3i getInputVector() {
+        return inputVector;
+    }
+
+    public float getYaw() {
+        return yaw;
+    }
+
+    public float getPitch() {
+        return pitch;
     }
 }
