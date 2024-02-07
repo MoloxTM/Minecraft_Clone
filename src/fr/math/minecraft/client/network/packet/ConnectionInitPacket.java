@@ -10,6 +10,7 @@ import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.gui.menus.ConnectionMenu;
 import fr.math.minecraft.client.gui.menus.Menu;
 import fr.math.minecraft.client.handler.PacketHandler;
+import fr.math.minecraft.client.handler.TickHandler;
 import fr.math.minecraft.client.manager.MenuManager;
 import fr.math.minecraft.client.manager.WorldManager;
 import fr.math.minecraft.client.handler.PacketReceiver;
@@ -61,6 +62,9 @@ public class ConnectionInitPacket extends ClientPacket implements Runnable {
 
             PacketHandler packetHandler = PacketHandler.getInstance();
             packetHandler.start();
+
+            TickHandler tickHandler = new TickHandler();
+            tickHandler.start();
 
             ChunkMeshLoader meshThread = new ChunkMeshLoader(game);
             meshThread.start();

@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets;
 
 public class MinecraftClient {
 
-    private static final int MAX_RESPONSE_LENGTH = 16384;
+    private static final int MAX_RESPONSE_LENGTH = 65536;
     private DatagramSocket socket;
     private InetAddress address;
     private final int serverPort;

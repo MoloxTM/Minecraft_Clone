@@ -31,17 +31,26 @@ public class TickHandler extends Thread {
     @Override
     public void run() {
         long tickTimer = 0;
+        long lastTickTime = 0;
         long lastTime = System.currentTimeMillis();
+        int tickRate = 0;
         while (true) {
             long currentTime = System.currentTimeMillis();
             long deltaTime = currentTime - lastTime;
 
             tickTimer += deltaTime;
 
+            if (currentTime - lastTickTime >= 1000) {
+                System.out.println("TPS : " + tickRate);
+                tickRate = 0;
+                lastTickTime = currentTime;
+            }
+
             lastTime = currentTime;
 
             while (tickTimer >= TICK_RATE_MS) {
                 tick();
+                tickRate++;
                 tickTimer -= TICK_RATE_MS;
             }
         }
@@ -108,18 +117,6 @@ public class TickHandler extends Thread {
         }
 
         this.sendPlayers();
-        // this.sendChunks();
-    }
-
-    private void sendChunks() {
-        MinecraftServer server = MinecraftServer.getInstance();
-        ClientManager clientManager = new ClientManager();
-        synchronized (server.getClients()) {
-            for (Client client : server.getClients().values()) {
-                if (!client.isActive()) continue;
-                clientManager.sendNearChunks(client);
-            }
-        }
     }
 
 }

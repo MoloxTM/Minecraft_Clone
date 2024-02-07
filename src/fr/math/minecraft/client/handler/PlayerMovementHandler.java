@@ -58,7 +58,7 @@ public class PlayerMovementHandler {
         float positionError = serverPosition.distance(payload.getPosition());
 
         if (positionError > 0.001f) {
-            System.out.println("[Reconciliation] ServerTick : " + serverTick + " ClientTick : " + currentTick + " Error : " + positionError + " ServerPosition " + serverPosition + " PayloadPosition " + payload.getPosition());
+            // System.out.println("[Reconciliation] ServerTick : " + serverTick + " ClientTick : " + currentTick + " Error : " + positionError + " ServerPosition " + serverPosition + " PayloadPosition " + payload.getPosition());
             stateBuffer[serverTick % BUFFER_SIZE] = lastServerState;
 
             int tickToProcess = serverTick + 1;

@@ -36,17 +36,14 @@ public class World {
     }
 
     public void addPendingChunk(Chunk chunk) {
-        pendingChunks.put(new Coordinates(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z), chunk);
+        synchronized (this.getPendingChunks()) {
+            pendingChunks.put(new Coordinates(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z), chunk);
+        }
     }
 
     public Chunk getChunk(int x, int y, int z) {
         Coordinates coordinates = new Coordinates(x, y, z);
-        if (chunks.containsKey(coordinates)) {
-            return chunks.get(coordinates);
-        } else if (pendingChunks.containsKey(coordinates)) {
-            return pendingChunks.get(coordinates);
-        }
-        return null;
+        return chunks.get(coordinates);
     }
 
     public Set<Coordinates> getLoadingChunks() {

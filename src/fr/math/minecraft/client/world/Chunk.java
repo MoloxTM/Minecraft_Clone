@@ -7,6 +7,9 @@ import fr.math.minecraft.client.meshs.ChunkMesh;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Chunk {
 
     private final Vector3i position;
@@ -21,10 +24,12 @@ public class Chunk {
     private ChunkMesh mesh;
     private boolean shouldDelete;
     private boolean loaded;
+    private Map<Coordinates, Boolean> emptyMap;
 
     public Chunk(int x, int y, int z) {
         this.position = new Vector3i(x, y, z);
         this.blocks = new byte[VOLUME];
+        this.emptyMap = new HashMap<>();
         for (int blockX = 0; blockX < Chunk.SIZE; blockX++) {
             for (int blockY = 0; blockY < Chunk.SIZE; blockY++) {
                 for (int blockZ = 0; blockZ < Chunk.SIZE; blockZ++) {
@@ -42,7 +47,7 @@ public class Chunk {
     public Chunk(JsonNode chunkData) {
         this.position = new Vector3i(chunkData.get("x").asInt(), chunkData.get("y").asInt(), chunkData.get("z").asInt());
         this.blocks = new byte[VOLUME];
-
+        this.emptyMap = new HashMap<>();
         JsonNode dataBlocks = chunkData.get("blocks");
 
         for (int i = 0; i < dataBlocks.size(); i++) {
@@ -131,5 +136,9 @@ public class Chunk {
 
     public void setLoaded(boolean loaded) {
         this.loaded = loaded;
+    }
+
+    public Map<Coordinates, Boolean> getEmptyMap() {
+        return emptyMap;
     }
 }

@@ -6,9 +6,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.MinecraftClient;
+import fr.math.minecraft.client.network.packet.ClientPacket;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
+import org.joml.Vector3f;
 import org.joml.Vector3i;
 
 import java.io.IOException;
@@ -26,32 +28,6 @@ public class ChunkRequestPacket extends ClientPacket {
         this.coordinates = coordinates;
         this.chunkData = null;
     }
-
-    /*
-    @Override
-    public void send() {
-        MinecraftClient client = Game.getInstance().getClient();
-        String message = this.toJSON();
-
-        if (message == null) {
-            return;
-        }
-
-        try {
-            String response = client.sendString(message);
-
-            if (response.equals("TIMEOUT_REACHED")) {
-                logger.error("Impossible d'envoyer le packet, le serveur a mis trop de temps à répondre ! (timeout)");
-                return;
-            }
-
-            this.chunkData = mapper.readTree(response);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-     */
 
     @Override
     public String toJSON() {
@@ -76,5 +52,4 @@ public class ChunkRequestPacket extends ClientPacket {
     public JsonNode getChunkData() {
         return this.chunkData;
     }
-
 }

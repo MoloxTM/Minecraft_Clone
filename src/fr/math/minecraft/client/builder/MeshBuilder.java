@@ -20,7 +20,7 @@ public class MeshBuilder {
     private HashMap<Coordinates, Boolean> emptyMap = new HashMap<>();
     private final int SQUARE_POINTS = 4;
 
-    public boolean isEmpty(int worldX, int worldY, int worldZ) {
+    public boolean isEmpty(Chunk baseChunk, int worldX, int worldY, int worldZ) {
 
         Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
 
@@ -35,7 +35,9 @@ public class MeshBuilder {
         World world = Game.getInstance().getWorld();
         Chunk chunk = world.getChunk(chunkX, chunkY, chunkZ);
 
-        if (chunk == null) return true;
+        if (chunk == null) {
+            return baseChunk.getEmptyMap().getOrDefault(coordinates, true);
+        }
 
         int blockX = worldX % Chunk.SIZE;
         int blockY = worldY % Chunk.SIZE;
@@ -98,12 +100,12 @@ public class MeshBuilder {
                     int worldY = y + chunk.getPosition().y * Chunk.SIZE;
                     int worldZ = z + chunk.getPosition().z * Chunk.SIZE;
 
-                    boolean px = isEmpty(worldX + 1, worldY, worldZ);
-                    boolean nx = isEmpty(worldX - 1, worldY, worldZ);
-                    boolean py = isEmpty(worldX, worldY + 1, worldZ);
-                    boolean ny = isEmpty(worldX, worldY - 1, worldZ);
-                    boolean pz = isEmpty(worldX, worldY, worldZ + 1);
-                    boolean nz = isEmpty(worldX, worldY, worldZ - 1);
+                    boolean px = isEmpty(chunk, worldX + 1, worldY, worldZ);
+                    boolean nx = isEmpty(chunk, worldX - 1, worldY, worldZ);
+                    boolean py = isEmpty(chunk, worldX, worldY + 1, worldZ);
+                    boolean ny = isEmpty(chunk, worldX, worldY - 1, worldZ);
+                    boolean pz = isEmpty(chunk, worldX, worldY, worldZ + 1);
+                    boolean nz = isEmpty(chunk, worldX, worldY, worldZ - 1);
 
                     Vector2f[] textureCoords;
 
@@ -141,7 +143,7 @@ public class MeshBuilder {
                         }
 
                         if (nx) {
-                            if(material.isFaces()) {
+                            if (material.isFaces()) {
                                 textureCoords = calculateTexCoords(material.getNx().x, material.getNx().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);

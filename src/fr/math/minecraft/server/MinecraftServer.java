@@ -8,10 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.world.Material;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
-import fr.math.minecraft.server.handler.ConnectionACKHandler;
-import fr.math.minecraft.server.handler.ConnectionInitHandler;
-import fr.math.minecraft.server.handler.PlayerMoveHandler;
-import fr.math.minecraft.server.handler.SkinRequestHandler;
+import fr.math.minecraft.server.handler.*;
 import fr.math.minecraft.server.world.Coordinates;
 import fr.math.minecraft.server.world.ServerChunk;
 import fr.math.minecraft.server.world.ServerWorld;
@@ -103,6 +100,10 @@ public class MinecraftServer {
                 case "SKIN_REQUEST":
                     SkinRequestHandler skinHandler = new SkinRequestHandler(packetData, address, clientPort);
                     skinHandler.run();
+                    break;
+                case "CHUNK_REQUEST":
+                    ChunkRequestHandler chunkRequestHandler = new ChunkRequestHandler(packetData, address, clientPort);
+                    packetQueue.submit(chunkRequestHandler);
                     break;
                 default:
                     String message = "UNAUTHORIZED_PACKET";

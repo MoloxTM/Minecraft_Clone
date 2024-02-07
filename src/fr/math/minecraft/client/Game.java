@@ -7,10 +7,8 @@ import fr.math.minecraft.client.gui.buttons.BlockButton;
 import fr.math.minecraft.client.gui.menus.ConnectionMenu;
 import fr.math.minecraft.client.gui.menus.MainMenu;
 import fr.math.minecraft.client.gui.menus.Menu;
-import fr.math.minecraft.client.handler.PacketHandler;
 import fr.math.minecraft.client.handler.PlayerMovementHandler;
 import fr.math.minecraft.client.manager.*;
-import fr.math.minecraft.client.network.packet.PlayersListPacket;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.world.Chunk;
 import fr.math.minecraft.client.world.Coordinates;
@@ -69,7 +67,7 @@ public class Game {
     private ThreadPoolExecutor chunkLoadingQueue;
     private ThreadPoolExecutor packetQueue;
     private Map<Coordinates, Boolean> loadingChunks;
-    private Queue<Chunk> pendingChunks;
+    private Queue<Chunk> pendingMeshs;
     private PlayerMovementHandler playerMovementHandler;
     private double lastPingTime;
 
@@ -139,7 +137,7 @@ public class Game {
         this.packetQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(7);
         this.loadingChunks = new HashMap<>();
         this.fontManager = new FontManager();
-        this.pendingChunks = new LinkedList<>();
+        this.pendingMeshs = new LinkedList<>();
         this.playerMovementHandler = new PlayerMovementHandler();
         this.lastPingTime = 0;
 
@@ -260,11 +258,6 @@ public class Game {
             return;
         }
 
-        for (Chunk chunk : world.getPendingChunks().values()) {
-            world.addChunk(chunk);
-        }
-
-        world.getPendingChunks().clear();
         // worldManager.cleanChunks(world);
 
         // camera.update(player);
@@ -420,8 +413,8 @@ public class Game {
         return worldManager;
     }
 
-    public Queue<Chunk> getPendingChunks() {
-        return pendingChunks;
+    public Queue<Chunk> getPendingMeshs() {
+        return pendingMeshs;
     }
 
     public ThreadPoolExecutor getPacketQueue() {

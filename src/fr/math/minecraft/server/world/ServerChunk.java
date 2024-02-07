@@ -10,11 +10,14 @@ import org.joml.Vector3i;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ServerChunk {
 
     private final Vector3i position;
     private final byte[] blocks;
+    private final Map<String, Boolean> emptyMap;
 
     public final static int SIZE = 16;
     public final static int AREA = SIZE * SIZE;
@@ -30,6 +33,7 @@ public class ServerChunk {
                 }
             }
         }
+        this.emptyMap = new HashMap<>();
         this.generate();
     }
 
@@ -58,9 +62,16 @@ public class ServerChunk {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode node = mapper.createObjectNode();
         ArrayNode blocksArray = mapper.createArrayNode();
+        ObjectNode emptyMapNode = mapper.createObjectNode();
 
         for (int block : blocks) {
             blocksArray.add(block);
+        }
+
+        for (Map.Entry<String, Boolean> emptyMapSet : emptyMap.entrySet()) {
+            String position = emptyMapSet.getKey();
+            boolean emptyValue = emptyMapSet.getValue();
+            emptyMapNode.put(position, emptyValue);
         }
 
         node.put("type", "CHUNK_PACKET");
@@ -68,6 +79,7 @@ public class ServerChunk {
         node.put("y", position.y);
         node.put("z", position.z);
         node.set("blocks", blocksArray);
+        node.set("emptyMap", emptyMapNode);
 
         try {
             return mapper.writeValueAsString(node);
@@ -77,5 +89,10 @@ public class ServerChunk {
         }
 
     }
+
+    public Map<String, Boolean> getEmptyMap() {
+        return emptyMap;
+    }
+
 
 }
