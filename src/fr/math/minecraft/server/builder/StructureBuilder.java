@@ -3,8 +3,6 @@ package fr.math.minecraft.server.builder;
 import fr.math.minecraft.server.RandomSeed;
 import fr.math.minecraft.server.world.Material;
 import fr.math.minecraft.server.world.Structure;
-import fr.math.minecraft.server.world.Structure;
-import fr.math.minecraft.server.world.biome.PlainBiome;
 
 public class  StructureBuilder {
 

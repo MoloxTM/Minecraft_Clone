@@ -4,18 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.MinecraftClient;
 import fr.math.minecraft.server.MinecraftServer;
 import fr.math.minecraft.server.world.biome.*;
-import fr.math.minecraft.server.world.generator.OverworldGenerator;
 import fr.math.minecraft.server.world.generator.TerrainGenerator;
 import org.joml.Vector3i;
-
-import javax.xml.crypto.Data;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 
 public class ServerChunk {
 
@@ -35,7 +27,9 @@ public class ServerChunk {
         for (int blockX = 0; blockX < ServerChunk.SIZE; blockX++) {
             for (int blockY = 0; blockY < ServerChunk.SIZE; blockY++) {
                 for (int blockZ = 0; blockZ < ServerChunk.SIZE; blockZ++) {
-                    this.setBlock(blockX, blockY, blockZ, Material.AIR.getId());
+                    if(!MinecraftServer.getInstance().getWorld().getOverworldGenerator().getStructure().getStructureMap().containsKey(new Coordinates(x, y ,z))){
+                        this.setBlock(blockX, blockY, blockZ, Material.AIR.getId());
+                    }
                 }
             }
         }
@@ -46,6 +40,7 @@ public class ServerChunk {
     public void generate() {
         TerrainGenerator overworldGenerator = MinecraftServer.getInstance().getWorld().getOverworldGenerator();
         overworldGenerator.generateChunk(this);
+        //System.out.println("Chunk made :" + this.getPosition());
         overworldGenerator.generateStructure(this);
     }
 

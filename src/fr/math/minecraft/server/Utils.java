@@ -42,17 +42,18 @@ public class Utils {
 
     public static boolean isInChunk(Coordinates coordinates, ServerChunk chunk) {
 
-        int chunkX = chunk.getPosition().x();
-        int chunkY = chunk.getPosition().y();
-        int chunkZ = chunk.getPosition().z();
-
+        //Coordonnées à l'échelle du monde
         int x = coordinates.getX();
         int y = coordinates.getY();
         int z = coordinates.getZ();
 
+        int chunkX = chunk.getPosition().x() * Chunk.SIZE;
+        int chunkY = chunk.getPosition().y() * Chunk.SIZE;
+        int chunkZ = chunk.getPosition().z() * Chunk.SIZE;
+
         boolean inX = (chunkX <= x) && (x <= (chunkX + Chunk.SIZE - 1));
         boolean inY = chunkY <= y && y <= (chunkY + (Chunk.SIZE - 1));
-        boolean inZ = chunkZ <= z && z <= (chunkZ + (Chunk.SIZE - 1));
+        boolean inZ = chunkZ >= z && z >= (chunkZ - (Chunk.SIZE - 1));
 
         return inX && inY && inZ;
     }

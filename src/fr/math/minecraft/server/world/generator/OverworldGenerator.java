@@ -1,7 +1,5 @@
 package fr.math.minecraft.server.world.generator;
 
-import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.MinecraftClient;
 import fr.math.minecraft.client.world.Chunk;
 import fr.math.minecraft.server.MinecraftServer;
 import fr.math.minecraft.server.Utils;
@@ -12,9 +10,7 @@ import fr.math.minecraft.server.world.biome.AbstractBiome;
 import fr.math.minecraft.server.world.biome.DesertBiome;
 import fr.math.minecraft.server.world.biome.ForestBiome;
 import fr.math.minecraft.server.world.biome.PlainBiome;
-import jdk.jshell.execution.Util;
 import org.joml.Vector2i;
-import org.joml.Vector3i;
 
 import java.util.HashMap;
 
@@ -112,20 +108,31 @@ public class OverworldGenerator implements TerrainGenerator {
         //System.out.println("\nCoos Chunk:" + chunk.getPosition().toString());
         for (Coordinates coordinates : structMap.keySet()) {
 
-            //System.out.println("Coos blocs:" + coordinates.toString());
-
-
             if (Utils.isInChunk(coordinates, chunk)) {
-
+                //System.out.println("Coos bloc:" + coordinates + " | " + "coos chunk:" + chunk.getPosition());
                 int worldX = coordinates.getX();
                 int worldY = coordinates.getY();
                 int worldZ = coordinates.getZ();
 
                 byte block = structMap.get(coordinates);
 
-                MinecraftServer.getInstance().getWorld().setBlock(worldX, worldY, worldZ, block);
+                int blockX = worldX % Chunk.SIZE;
+                int blockY = worldY % Chunk.SIZE;
+                int blockZ = worldZ % Chunk.SIZE;
+
+                blockX = blockX < 0 ? blockX + Chunk.SIZE : blockX;
+                blockY = blockY < 0 ? blockY + Chunk.SIZE : blockY;
+                blockZ = blockZ < 0 ? blockZ + Chunk.SIZE : blockZ;
+
+                //System.out.println("Je place un block de " + fr.math.minecraft.client.world.Material.getMaterialById(block));
+
+                chunk.setBlock(blockX, blockY, blockZ, block);
             }
         }
+    }
+
+    @Override
+    public void placeStruture(ServerChunk chunk) {
     }
 
     public Structure getStructure() {

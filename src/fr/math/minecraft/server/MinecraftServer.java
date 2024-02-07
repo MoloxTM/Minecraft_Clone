@@ -128,7 +128,7 @@ public class MinecraftServer {
 
         if (chunk == null) {
             chunk = new ServerChunk(x, y, z);
-            chunk. generate();
+            chunk.generate();
             world.getChunks().put(new Coordinates(x, y, z), chunk);
         }
 

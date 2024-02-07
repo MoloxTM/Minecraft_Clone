@@ -33,8 +33,8 @@ public class ForestBiome extends AbstractBiome{
         ServerWorld world = MinecraftServer.getInstance().getWorld();
 
         int worldX = chunk.getPosition().x * ServerChunk.SIZE + x;
-        int worldZ = chunk.getPosition().x * ServerChunk.SIZE + z;
-        int worldY = chunk.getPosition().x * ServerChunk.SIZE + y;
+        int worldY = chunk.getPosition().y * ServerChunk.SIZE + y;
+        int worldZ = chunk.getPosition().z * ServerChunk.SIZE + z;
 
         Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
         //Calul distance
@@ -46,7 +46,7 @@ public class ForestBiome extends AbstractBiome{
         RandomSeed randomSeed = RandomSeed.getInstance();
         float dropRate = randomSeed.nextFloat() * 100.0f;
         if(dropRate < 20.0f) {
-            StructureBuilder.buildSimpleTree(structure, x, y, z);
+            StructureBuilder.buildSimpleTree(structure, worldX, worldY, worldZ);
         }
     }
 
