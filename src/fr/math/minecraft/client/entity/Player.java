@@ -1,6 +1,5 @@
 package fr.math.minecraft.client.entity;
 
-import fr.math.minecraft.client.Camera;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.animations.Animation;
 import fr.math.minecraft.client.animations.PlayerWalkAnimation;
@@ -109,28 +108,25 @@ public class Player {
 
         this.resetMoving();
 
-        synchronized (this.getInputVector()) {
-            if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-                movingForward = true;
-                inputVector.z--;
-            }
-
-            if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-                movingLeft = true;
-                inputVector.x--;
-            }
-
-            if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-                movingBackward = true;
-                inputVector.z++;
-            }
-
-            if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-                movingRight = true;
-                inputVector.x++;
-            }
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+            movingForward = true;
+            inputVector.z--;
         }
 
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+            movingLeft = true;
+            inputVector.x--;
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+            movingBackward = true;
+            inputVector.z++;
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+            movingRight = true;
+            inputVector.x++;
+        }
 
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
             flying = true;
@@ -161,7 +157,7 @@ public class Player {
         lastMouseY = (float) mouseY.get(0);
     }
 
-    private void resetMoving() {
+    public void resetMoving() {
         movingLeft = false;
         movingRight = false;
         movingForward = false;

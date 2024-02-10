@@ -1,24 +1,22 @@
-package fr.math.minecraft.client.handler;
+package fr.math.minecraft.client.network;
 
 import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.client.entity.Player;
-import fr.math.minecraft.client.manager.WorldManager;
 import fr.math.minecraft.client.network.packet.ClientPacket;
-import fr.math.minecraft.client.network.packet.PlayerMovePacket;
-import fr.math.minecraft.client.network.packet.PlayersListPacket;
+import org.joml.Vector3f;
+import org.joml.Vector3i;
 
 import java.util.LinkedList;
 import java.util.Queue;
 import static org.lwjgl.glfw.GLFW.*;
 
-public class PacketHandler extends Thread {
+public class FixedPacketSender extends Thread {
 
-    private static PacketHandler instance = null;
+    private static FixedPacketSender instance = null;
     private final Queue<ClientPacket> packetsQueue;
     private int ping;
 
-    private PacketHandler() {
+    private FixedPacketSender() {
         this.setName("PacketHandler");
         this.packetsQueue = new LinkedList<>();
         this.ping = 0;
@@ -48,8 +46,6 @@ public class PacketHandler extends Thread {
     }
 
     private void tick() {
-        Game game = Game.getInstance();
-        game.getPlayerMovementHandler().handle(game.getPlayer());
 
         while (!packetsQueue.isEmpty()) {
             ClientPacket packet = packetsQueue.poll();
@@ -58,9 +54,9 @@ public class PacketHandler extends Thread {
         }
     }
 
-    public static PacketHandler getInstance() {
+    public static FixedPacketSender getInstance() {
         if (instance == null) {
-            instance = new PacketHandler();
+            instance = new FixedPacketSender();
         }
         return instance;
     }

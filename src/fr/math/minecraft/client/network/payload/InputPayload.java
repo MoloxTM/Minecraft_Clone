@@ -1,23 +1,21 @@
 package fr.math.minecraft.client.network.payload;
 
 import fr.math.minecraft.client.entity.Player;
+import org.joml.Vector3f;
 import org.joml.Vector3i;
 
 public class InputPayload {
 
     private final int tick;
-    private boolean sneaking, flying;
     private Vector3i inputVector;
     private float yaw;
     private float pitch;
 
-    public InputPayload(int tick, Player player) {
+    public InputPayload(int tick, Vector3i inputVector, float yaw, float pitch) {
         this.tick = tick;
-        this.yaw = player.getYaw();
-        this.pitch = player.getPitch();
-        this.inputVector = new Vector3i(player.getInputVector());
-        this.flying = player.isFlying();
-        this.sneaking = player.isSneaking();
+        this.yaw = yaw;
+        this.pitch = pitch;
+        this.inputVector = inputVector;
     }
 
     public InputPayload(int tick) {
@@ -26,14 +24,6 @@ public class InputPayload {
 
     public int getTick() {
         return tick;
-    }
-
-    public boolean isSneaking() {
-        return sneaking;
-    }
-
-    public boolean isFlying() {
-        return flying;
     }
 
     public float getYaw() {
@@ -47,4 +37,5 @@ public class InputPayload {
     public Vector3i getInputVector() {
         return inputVector;
     }
+
 }

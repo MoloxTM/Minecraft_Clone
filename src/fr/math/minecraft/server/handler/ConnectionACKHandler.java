@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.server.Client;
 import fr.math.minecraft.server.MinecraftServer;
+import fr.math.minecraft.server.manager.ChunkManager;
+import fr.math.minecraft.server.manager.ClientManager;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -22,11 +24,13 @@ public class ConnectionACKHandler extends PacketHandler implements Runnable {
         MinecraftServer server = MinecraftServer.getInstance();
         String uuid = packetData.get("uuid").asText();
         Client connectedClient = server.getClients().get(uuid);
+        ClientManager clientManager = new ClientManager();
         if (connectedClient == null) {
             return;
         }
 
         connectedClient.setActive(true);
+        clientManager.fillNearChunksQueue(connectedClient);
 
         synchronized (server.getClients()) {
             ObjectMapper mapper = new ObjectMapper();

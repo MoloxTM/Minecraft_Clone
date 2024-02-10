@@ -40,8 +40,8 @@ public class PlayerMovePacket extends ClientPacket {
         this.movingRight = false;
         this.movingForward = false;
         this.movingBackward = false;
-        this.flying = inputPayload.isFlying();
-        this.sneaking = inputPayload.isSneaking();
+        this.flying = false;
+        this.sneaking = false;
         this.inputVector = inputVector;
         this.movingHead = false;
         this.response = "";

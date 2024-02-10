@@ -24,7 +24,7 @@ public class ChunkManager {
 
     public void sendChunk(Client client, ServerChunk chunk) {
         ChunkSender sender = new ChunkSender(client, chunk);
-        sender.run();
+        chunkPool.submit(sender);
     }
 
 }

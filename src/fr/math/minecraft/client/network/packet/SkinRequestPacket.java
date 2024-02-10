@@ -3,18 +3,11 @@ package fr.math.minecraft.client.network.packet;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.MinecraftClient;
-import fr.math.minecraft.client.handler.PacketHandler;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.Base64;
 
 public class SkinRequestPacket extends ClientPacket {
 

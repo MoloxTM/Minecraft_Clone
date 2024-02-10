@@ -1,4 +1,4 @@
-package fr.math.minecraft.client.handler;
+package fr.math.minecraft.client.network;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -76,6 +76,7 @@ public class PacketReceiver extends Thread {
 
             JsonNode responseData = mapper.readTree(response);
             String packetType = responseData.get("type").asText();
+
 
             switch (packetType) {
                 case "PLAYER_JOIN":

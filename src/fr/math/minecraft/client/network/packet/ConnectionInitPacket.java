@@ -9,11 +9,11 @@ import fr.math.minecraft.client.MinecraftClient;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.gui.menus.ConnectionMenu;
 import fr.math.minecraft.client.gui.menus.Menu;
-import fr.math.minecraft.client.handler.PacketHandler;
+import fr.math.minecraft.client.network.FixedPacketSender;
 import fr.math.minecraft.client.handler.TickHandler;
 import fr.math.minecraft.client.manager.MenuManager;
 import fr.math.minecraft.client.manager.WorldManager;
-import fr.math.minecraft.client.handler.PacketReceiver;
+import fr.math.minecraft.client.network.PacketReceiver;
 import fr.math.minecraft.client.world.loader.ChunkMeshLoader;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
@@ -60,7 +60,7 @@ public class ConnectionInitPacket extends ClientPacket implements Runnable {
             PacketReceiver packetReceiver = PacketReceiver.getInstance();
             packetReceiver.start();
 
-            PacketHandler packetHandler = PacketHandler.getInstance();
+            FixedPacketSender packetHandler = FixedPacketSender.getInstance();
             packetHandler.start();
 
             TickHandler tickHandler = new TickHandler();

@@ -3,7 +3,7 @@ package fr.math.minecraft.client.manager;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.client.entity.Player;
-import fr.math.minecraft.client.handler.PacketHandler;
+import fr.math.minecraft.client.network.FixedPacketSender;
 import fr.math.minecraft.client.math.MathUtils;
 import fr.math.minecraft.client.network.packet.ChunkRequestPacket;
 import fr.math.minecraft.client.world.Chunk;
@@ -70,7 +70,7 @@ public class WorldManager {
                     loadingChunks.add(coordinates);
 
                     ChunkRequestPacket packet = new ChunkRequestPacket(new Vector3i(coordinates.getX(), coordinates.getY(), coordinates.getZ()));
-                    PacketHandler.getInstance().enqueue(packet);
+                    FixedPacketSender.getInstance().enqueue(packet);
                     // chunkLoadingQueue.submit(worker);
                 }
             }

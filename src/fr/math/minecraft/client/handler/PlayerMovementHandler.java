@@ -6,6 +6,7 @@ import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.network.payload.InputPayload;
 import fr.math.minecraft.client.network.payload.StatePayload;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 
 public class PlayerMovementHandler {
 
@@ -22,7 +23,7 @@ public class PlayerMovementHandler {
         this.stateBuffer = new StatePayload[BUFFER_SIZE];
     }
 
-    public void handle(Player player) {
+    public void handle(Player player, Vector3f playerPosition, Vector3i inputVector, float yaw, float pitch) {
 
         if (lastServerState != null) {
             this.reconcile(player);
@@ -30,20 +31,19 @@ public class PlayerMovementHandler {
 
         int bufferIndex = currentTick % BUFFER_SIZE;
 
-        InputPayload inputPayload = new InputPayload(currentTick, player);
+        InputPayload inputPayload = new InputPayload(currentTick, inputVector, yaw, pitch);
         inputBuffer[bufferIndex] = inputPayload;
 
+
         StatePayload statePayload = new StatePayload(inputPayload);
-        statePayload.predictMovement(player);
+        // statePayload.predictMovement(player);
+        statePayload.setPosition(playerPosition);
         statePayload.send();
 
-        stateBuffer[bufferIndex] = statePayload;
+        // System.out.println("Tick " + currentTick + " InputVector: " + inputVector + " Calculated position : " + playerPosition);
 
-        synchronized (player.getInputVector()) {
-            player.getInputVector().x = 0;
-            player.getInputVector().y = 0;
-            player.getInputVector().z = 0;
-        }
+
+        stateBuffer[bufferIndex] = statePayload;
 
         currentTick++;
     }
@@ -58,7 +58,7 @@ public class PlayerMovementHandler {
         float positionError = serverPosition.distance(payload.getPosition());
 
         if (positionError > 0.001f) {
-            // System.out.println("[Reconciliation] ServerTick : " + serverTick + " ClientTick : " + currentTick + " Error : " + positionError + " ServerPosition " + serverPosition + " PayloadPosition " + payload.getPosition());
+            System.out.println("[Reconciliation] ServerTick : " + serverTick + " ClientTick : " + currentTick + " Error : " + positionError + " ServerPosition " + serverPosition + " PayloadPosition " + payload.getPosition());
             stateBuffer[serverTick % BUFFER_SIZE] = lastServerState;
 
             int tickToProcess = serverTick + 1;
@@ -71,7 +71,8 @@ public class PlayerMovementHandler {
 
             while (tickToProcess < currentTick) {
 
-                StatePayload statePayload = new StatePayload(inputBuffer[tickToProcess % BUFFER_SIZE]);
+                InputPayload inputPayload = inputBuffer[tickToProcess % BUFFER_SIZE];
+                StatePayload statePayload = new StatePayload(inputPayload);
                 statePayload.predictMovement(player);
 
                 player.getPosition().x = statePayload.getPosition().x;

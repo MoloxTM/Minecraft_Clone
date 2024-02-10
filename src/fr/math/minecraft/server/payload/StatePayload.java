@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.server.Client;
 import fr.math.minecraft.server.MinecraftServer;
+import fr.math.minecraft.server.manager.ClientManager;
+import fr.math.minecraft.server.world.ServerChunk;
 import org.joml.Vector3f;
 
 import java.net.DatagramPacket;
@@ -33,7 +35,16 @@ public class StatePayload {
 
     public void predictMovement(Client client) {
         client.updatePosition(payload);
-        this.position = new Vector3f(client.getPosition());
+        Vector3f newPosition = new Vector3f(client.getPosition());
+
+        if (client.getLastChunkPosition().distance(position.x, position.y, position.z) >= ServerChunk.SIZE) {
+            ClientManager clientManager = new ClientManager();
+            client.getNearChunks().clear();
+            clientManager.fillNearChunksQueue(client);
+            client.setLastChunkPosition(newPosition);
+        }
+
+        this.position = newPosition;
     }
 
     public void send() {

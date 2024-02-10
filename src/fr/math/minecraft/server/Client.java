@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.world.Coordinates;
 import fr.math.minecraft.server.payload.InputPayload;
+import fr.math.minecraft.server.world.ServerChunk;
+import fr.math.minecraft.server.world.ServerChunkComparator;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
@@ -15,6 +17,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Base64;
 import java.util.HashSet;
+import java.util.PriorityQueue;
 import java.util.Set;
 
 public class Client {
@@ -35,6 +38,8 @@ public class Client {
     private boolean active;
     private final Vector3i inputVector;
     private final Set<Coordinates> receivedChunks;
+    private final PriorityQueue<ServerChunk> nearChunks;
+    private Vector3f lastChunkPosition;
 
     public Client(String uuid, String name, InetAddress address, int port) {
         this.address = address;
@@ -43,8 +48,10 @@ public class Client {
         this.name = name;
         this.front = new Vector3f(0.0f, 0.0f, 0.0f);
         this.position = new Vector3f(0.0f, 0.0f, 0.0f);
+        this.lastChunkPosition = new Vector3f(0, 0, 0);
         this.inputVector = new Vector3i(0, 0, 0);
         this.receivedChunks = new HashSet<>();
+        this.nearChunks = new PriorityQueue<>(new ServerChunkComparator(this));
         this.yaw = 0.0f;
         this.pitch = 0.0f;
         this.speed = 0.2f;
@@ -108,34 +115,36 @@ public class Client {
         Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
 
         while (inputVector.z < 0) {
-            position = position.add(new Vector3f(front).mul(speed));
+            position.add(new Vector3f(front).mul(speed));
             inputVector.z++;
         }
 
         while (inputVector.z > 0) {
-            position = position.sub(new Vector3f(front).mul(speed));
+            position.sub(new Vector3f(front).mul(speed));
             inputVector.z--;
         }
 
         while (inputVector.x < 0) {
-            position = position.sub(new Vector3f(right).mul(speed));
+            position.sub(new Vector3f(right).mul(speed));
             inputVector.x++;
         }
 
         while (inputVector.x > 0) {
-            position = position.add(new Vector3f(right).mul(speed));
+            position.add(new Vector3f(right).mul(speed));
             inputVector.x--;
         }
 
         while (inputVector.y > 0) {
-            position = position.add(new Vector3f(0.0f, .5f, 0.0f));
+            position.add(new Vector3f(0.0f, .5f, 0.0f));
             inputVector.y--;
         }
 
         while (inputVector.y < 0) {
-            position = position.sub(new Vector3f(0.0f, .5f, 0.0f));
+            position.sub(new Vector3f(0.0f, .5f, 0.0f));
             inputVector.y++;
         }
+
+        // System.out.println("Tick " + payload.getTick() + " InputVector: " + payload.getInputVector() + " Calculated position : " + position);
 
     }
 
@@ -209,5 +218,17 @@ public class Client {
 
     public Set<Coordinates> getReceivedChunks() {
         return receivedChunks;
+    }
+
+    public PriorityQueue<ServerChunk> getNearChunks() {
+        return nearChunks;
+    }
+
+    public Vector3f getLastChunkPosition() {
+        return lastChunkPosition;
+    }
+
+    public void setLastChunkPosition(Vector3f lastChunkPosition) {
+        this.lastChunkPosition = lastChunkPosition;
     }
 }

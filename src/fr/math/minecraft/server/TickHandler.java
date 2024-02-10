@@ -3,16 +3,18 @@ package fr.math.minecraft.server;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.math.minecraft.server.manager.ChunkManager;
 import fr.math.minecraft.server.manager.ClientManager;
 import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.server.payload.StatePayload;
+import fr.math.minecraft.server.world.ServerChunk;
 
 import java.io.IOException;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Queue;
-
-import static org.lwjgl.glfw.GLFW.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class TickHandler extends Thread {
 
@@ -80,54 +82,78 @@ public class TickHandler extends Thread {
         }
     }
 
-    public synchronized void enqueue(InputPayload payload) {
-        inputQueue.add(payload);
+    public void enqueue(InputPayload payload) {
+        synchronized (this.getInputQueue()) {
+            this.getInputQueue().add(payload);
+        }
     }
 
     private void tick() {
         MinecraftServer server = MinecraftServer.getInstance();
         int bufferIndex = -1;
-        while (!inputQueue.isEmpty()) {
-            InputPayload inputPayload = inputQueue.poll();
+        synchronized (this.getInputQueue()) {
+            while (!inputQueue.isEmpty()) {
+                InputPayload inputPayload = inputQueue.poll();
 
-            if (inputPayload == null) continue;
+                if (inputPayload == null) continue;
 
-            String uuid = inputPayload.getClientUuid();
-            Client client = server.getClients().get(uuid);
+                String uuid = inputPayload.getClientUuid();
+                Client client = server.getClients().get(uuid);
 
-            if (client == null) {
-                continue;
+                if (client == null) {
+                    continue;
+                }
+
+                if (!client.isActive()) {
+                    continue;
+                }
+
+                bufferIndex = inputPayload.getTick() % BUFFER_SIZE;
+                StatePayload statePayload = new StatePayload(inputPayload);
+                statePayload.predictMovement(client);
+                //statePayload.send();
+
+                stateBuffer[bufferIndex] = statePayload;
             }
 
-            if (!client.isActive()) {
-                continue;
+            if (bufferIndex != -1) {
+                StatePayload payload = stateBuffer[bufferIndex];
+                payload.send();
             }
-
-            bufferIndex = inputPayload.getTick() % BUFFER_SIZE;
-            StatePayload statePayload = new StatePayload(inputPayload);
-            statePayload.predictMovement(client);
-            //statePayload.send();
-
-            stateBuffer[bufferIndex] = statePayload;
         }
 
-        if (bufferIndex != -1) {
-            StatePayload payload = stateBuffer[bufferIndex];
-            payload.send();
+        synchronized (server.getClients()) {
+            for (Client client : server.getClients().values()) {
+
+                synchronized (client.getNearChunks()) {
+
+                    if (client.getNearChunks().isEmpty()) {
+                        continue;
+                    }
+
+                    ServerChunk chunk = client.getNearChunks().poll();
+
+                    if (chunk == null) {
+                        continue;
+                    }
+
+                    ChunkManager chunkManager = server.getChunkManager();
+                    chunkManager.sendChunk(client, chunk);
+
+                    // System.out.println("J'envoie un chunk ? " + chunk.getPosition());
+                }
+            }
         }
 
-        this.sendChunks();
+        // this.sendChunks();
         // this.sendPlayers();
     }
 
     private void sendChunks() {
-        MinecraftServer server = MinecraftServer.getInstance();
-        ClientManager clientManager = new ClientManager();
-        synchronized (server.getClients()) {
-            for (Client client : server.getClients().values()) {
-                clientManager.sendNearChunks(client);
-            }
-        }
+
     }
 
+    public Queue<InputPayload> getInputQueue() {
+        return inputQueue;
+    }
 }

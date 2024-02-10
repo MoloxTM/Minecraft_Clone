@@ -1,11 +1,8 @@
 package fr.math.minecraft.client.network.payload;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import fr.math.minecraft.client.Camera;
-import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.client.entity.Player;
-import fr.math.minecraft.client.handler.PacketHandler;
+import fr.math.minecraft.client.network.FixedPacketSender;
 import fr.math.minecraft.client.network.packet.PlayerMovePacket;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
@@ -14,14 +11,11 @@ public class StatePayload {
 
     private InputPayload payload;
     private JsonNode data;
-    private boolean sneaking, flying;
     private Vector3f position;
     private Vector3i inputVector;
 
     public StatePayload(InputPayload payload) {
         this.payload = payload;
-        this.flying = payload.isFlying();
-        this.sneaking = payload.isSneaking();
         this.position = new Vector3f();
         this.inputVector = payload.getInputVector();
         this.data = null;
@@ -77,12 +71,22 @@ public class StatePayload {
             inputVector.x--;
         }
 
+        while (inputVector.y > 0) {
+            position.add(new Vector3f(0.0f, .5f, 0.0f));
+            inputVector.y--;
+        }
+
+        while (inputVector.y < 0) {
+            position.sub(new Vector3f(0.0f, .5f, 0.0f));
+            inputVector.y++;
+        }
+
         this.position = new Vector3f(position);
     }
 
     public void send() {
         PlayerMovePacket packet = new PlayerMovePacket(this, payload, inputVector);
-        PacketHandler.getInstance().enqueue(packet);
+        FixedPacketSender.getInstance().enqueue(packet);
     }
 
     public JsonNode getData() {
@@ -99,5 +103,9 @@ public class StatePayload {
 
     public InputPayload getInputPayload() {
         return payload;
+    }
+
+    public void setPosition(Vector3f position) {
+        this.position = position;
     }
 }

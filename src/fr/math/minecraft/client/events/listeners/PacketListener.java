@@ -1,8 +1,6 @@
 package fr.math.minecraft.client.events.listeners;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.Renderer;
@@ -11,7 +9,7 @@ import fr.math.minecraft.client.events.ChunkPacketEvent;
 import fr.math.minecraft.client.events.PlayerListPacketEvent;
 import fr.math.minecraft.client.events.ServerStateEvent;
 import fr.math.minecraft.client.events.SkinPacketEvent;
-import fr.math.minecraft.client.handler.PacketHandler;
+import fr.math.minecraft.client.network.FixedPacketSender;
 import fr.math.minecraft.client.handler.PlayerMovementHandler;
 import fr.math.minecraft.client.manager.ChunkManager;
 import fr.math.minecraft.client.network.packet.ChunkACKPacket;
@@ -34,7 +32,7 @@ import java.util.Base64;
 public class PacketListener implements PacketEventListener {
 
     private final Game game;
-    private final static Logger logger = LoggerUtility.getClientLogger(PacketListener.class, LogType.TXT);;
+    private final static Logger logger = LoggerUtility.getClientLogger(PacketListener.class, LogType.TXT);
 
     public PacketListener() {
         this.game = Game.getInstance();
@@ -68,7 +66,7 @@ public class PacketListener implements PacketEventListener {
                     player = new Player(playerNode.get("name").asText());
                     player.setUuid(uuid);
                     SkinRequestPacket packet = new SkinRequestPacket(uuid);
-                    PacketHandler.getInstance().enqueue(packet);
+                    FixedPacketSender.getInstance().enqueue(packet);
                     game.getPlayers().put(uuid, player);
                 }
             }
@@ -126,7 +124,7 @@ public class PacketListener implements PacketEventListener {
     public void onChunkPacket(ChunkPacketEvent event) {
         ChunkManager chunkManager = new ChunkManager();
         JsonNode chunkData = event.getChunkData();
-        World world = Game.getInstance().getWorld();
+        World world = game.getWorld();
 
         int chunkX = chunkData.get("x").asInt();
         int chunkY = chunkData.get("y").asInt();
@@ -135,9 +133,11 @@ public class PacketListener implements PacketEventListener {
         Chunk chunk = world.getChunk(chunkX, chunkY, chunkZ);
 
         if (chunk == null) {
-            chunkManager.loadChunkData(chunkData);
+            game.getChunkLoadingQueue().submit(() -> {
+                chunkManager.loadChunkData(chunkData);
+            });
             ChunkACKPacket packet = new ChunkACKPacket(new Vector3i(chunkX, chunkY, chunkZ));
-            PacketHandler.getInstance().enqueue(packet);
+            FixedPacketSender.getInstance().enqueue(packet);
         }
 
     }

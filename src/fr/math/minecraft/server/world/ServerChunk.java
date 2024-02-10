@@ -24,6 +24,7 @@ public class ServerChunk {
     public final static int AREA = SIZE * SIZE;
 
     public final static int VOLUME = SIZE * AREA;
+    private boolean empty;
     public ServerChunk(int x, int y, int z) {
         this.position = new Vector3i(x, y, z);
         this.blocks = new byte[VOLUME];
@@ -34,6 +35,7 @@ public class ServerChunk {
                 }
             }
         }
+        this.empty = true;
         this.emptyMap = new HashMap<>();
         this.generate();
     }
@@ -97,5 +99,13 @@ public class ServerChunk {
 
     public void setEmptyMap(Map<String, Boolean> emptyMap) {
         this.emptyMap = emptyMap;
+    }
+
+    public boolean isEmpty() {
+        return empty;
+    }
+
+    public void setEmpty(boolean empty) {
+        this.empty = empty;
     }
 }

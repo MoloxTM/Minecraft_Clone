@@ -64,8 +64,8 @@ public class Game {
     private DoubleBuffer mouseXBuffer, mouseYBuffer;
     private boolean debugging;
     private int frames, fps;
+    private ThreadPoolExecutor chunkMeshLoadingQueue;
     private ThreadPoolExecutor chunkLoadingQueue;
-    private ThreadPoolExecutor packetQueue;
     private Map<Coordinates, Boolean> loadingChunks;
     private Queue<Chunk> pendingMeshs;
     private PlayerMovementHandler playerMovementHandler;
@@ -133,8 +133,8 @@ public class Game {
         this.debugging = false;
         this.frames = 0;
         this.fps = 0;
-        this.chunkLoadingQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(8);
-        this.packetQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(7);
+        this.chunkMeshLoadingQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(8);
+        this.chunkLoadingQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(7);
         this.loadingChunks = new HashMap<>();
         this.fontManager = new FontManager();
         this.pendingMeshs = new LinkedList<>();
@@ -405,8 +405,8 @@ public class Game {
         return loadingChunks;
     }
 
-    public ThreadPoolExecutor getChunkLoadingQueue() {
-        return chunkLoadingQueue;
+    public ThreadPoolExecutor getChunkMeshLoadingQueue() {
+        return chunkMeshLoadingQueue;
     }
 
     public WorldManager getWorldManager() {
@@ -417,8 +417,8 @@ public class Game {
         return pendingMeshs;
     }
 
-    public ThreadPoolExecutor getPacketQueue() {
-        return packetQueue;
+    public ThreadPoolExecutor getChunkLoadingQueue() {
+        return chunkLoadingQueue;
     }
 
     public PlayerMovementHandler getPlayerMovementHandler() {

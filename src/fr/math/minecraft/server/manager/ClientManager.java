@@ -9,7 +9,7 @@ import fr.math.minecraft.server.world.ServerWorld;
 
 public class ClientManager {
 
-    public void sendNearChunks(Client client) {
+    public void fillNearChunksQueue(Client client) {
         int startX = (int) (client.getPosition().x / ServerChunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE);
         int startZ = (int) (client.getPosition().z / ServerChunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE);
 
@@ -20,8 +20,8 @@ public class ClientManager {
         ServerWorld world = server.getWorld();
 
         for (int x = startX; x <= endX; x++) {
-            for (int y = 0; y <= 10; y++) {
-                for (int z = startZ; z <= endZ; z++) {
+            for (int z = startZ; z <= endZ; z++) {
+                for (int y = 0; y <= 10; y++) {
 
                     Coordinates coordinates = new Coordinates(x, y, z);
                     ServerChunk chunk = world.getChunks().get(coordinates);
@@ -35,8 +35,13 @@ public class ClientManager {
                         world.addChunk(chunk);
                     }
 
-                    ChunkManager chunkManager = server.getChunkManager();
-                    chunkManager.sendChunk(client, chunk);
+                    if (client.getNearChunks().contains(chunk)) {
+                        continue;
+                    }
+
+                    synchronized (client.getNearChunks()) {
+                        client.getNearChunks().add(chunk);
+                    }
                 }
             }
         }

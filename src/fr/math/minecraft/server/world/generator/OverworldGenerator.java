@@ -96,7 +96,13 @@ public class OverworldGenerator implements TerrainGenerator {
                             material = Material.WATER;
                         }
                     }
-                    if(material == Material.AIR) continue;
+
+                    if (material == Material.AIR) continue;
+
+                    if (chunk.isEmpty()) {
+                        chunk.setEmpty(true);
+                    }
+
                     chunk.setBlock(x, y, z, material.getId());
                 }
             }
