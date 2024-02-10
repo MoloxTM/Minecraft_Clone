@@ -3,6 +3,7 @@ package fr.math.minecraft.server;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.math.minecraft.client.world.Coordinates;
 import fr.math.minecraft.server.payload.InputPayload;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
@@ -13,6 +14,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Base64;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Client {
 
@@ -31,6 +34,7 @@ public class Client {
     private boolean flying, sneaking;
     private boolean active;
     private final Vector3i inputVector;
+    private final Set<Coordinates> receivedChunks;
 
     public Client(String uuid, String name, InetAddress address, int port) {
         this.address = address;
@@ -40,6 +44,7 @@ public class Client {
         this.front = new Vector3f(0.0f, 0.0f, 0.0f);
         this.position = new Vector3f(0.0f, 0.0f, 0.0f);
         this.inputVector = new Vector3i(0, 0, 0);
+        this.receivedChunks = new HashSet<>();
         this.yaw = 0.0f;
         this.pitch = 0.0f;
         this.speed = 0.2f;
@@ -200,5 +205,9 @@ public class Client {
 
     public String getUuid() {
         return uuid;
+    }
+
+    public Set<Coordinates> getReceivedChunks() {
+        return receivedChunks;
     }
 }

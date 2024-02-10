@@ -53,6 +53,7 @@ public class PacketHandler extends Thread {
 
         while (!packetsQueue.isEmpty()) {
             ClientPacket packet = packetsQueue.poll();
+            if (packet == null) continue;
             packet.send();
         }
     }

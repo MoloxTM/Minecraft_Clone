@@ -1,26 +1,15 @@
-package fr.math.minecraft.server.handler;
+package fr.math.minecraft.server.builder;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import fr.math.minecraft.client.world.Chunk;
 import fr.math.minecraft.server.MinecraftServer;
-import fr.math.minecraft.server.world.Coordinates;
 import fr.math.minecraft.server.world.Material;
 import fr.math.minecraft.server.world.ServerChunk;
 import fr.math.minecraft.server.world.ServerWorld;
 
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
 
-public class ChunkRequestHandler extends PacketHandler implements Runnable {
+public class EmptyMapBuilder {
 
-    public ChunkRequestHandler(JsonNode packetData, InetAddress address, int clientPort) {
-        super(packetData, address, clientPort);
-    }
-
-    public boolean isEmpty(ServerWorld world, int worldX, int worldY, int worldZ) {
+    public static boolean isEmpty(ServerWorld world, int worldX, int worldY, int worldZ) {
 
         int chunkX = (int) Math.floor(worldX / (double) ServerChunk.SIZE);
         int chunkY = (int) Math.floor(worldY / (double) ServerChunk.SIZE);
@@ -44,21 +33,7 @@ public class ChunkRequestHandler extends PacketHandler implements Runnable {
         return chunk.getBlock(blockX, blockY, blockZ) == Material.AIR.getId();
     }
 
-    @Override
-    public void run() {
-        MinecraftServer server = MinecraftServer.getInstance();
-        ServerWorld world = server.getWorld();
-        int chunkX = packetData.get("x").asInt();
-        int chunkY = packetData.get("y").asInt();
-        int chunkZ = packetData.get("z").asInt();
-
-        ServerChunk chunk = world.getChunk(chunkX, chunkY, chunkZ);
-
-        if (chunk == null) {
-            chunk = new ServerChunk(chunkX, chunkY, chunkZ);
-            world.addChunk(chunk);
-        }
-
+    public static Map<String, Boolean> buildEmptyMap(ServerWorld world, ServerChunk chunk) {
         Map<String, Boolean> emptyMap = chunk.getEmptyMap();
 
         for (int x = 0; x < ServerChunk.SIZE; x++) {
@@ -97,10 +72,7 @@ public class ChunkRequestHandler extends PacketHandler implements Runnable {
             }
         }
 
-        String chunkData = chunk.toJSON();
-        byte[] buffer = chunkData.getBytes(StandardCharsets.UTF_8);
-
-        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, clientPort);
-        server.sendPacket(packet);
+        return emptyMap;
     }
+
 }

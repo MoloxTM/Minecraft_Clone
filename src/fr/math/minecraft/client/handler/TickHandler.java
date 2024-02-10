@@ -30,7 +30,7 @@ public class TickHandler extends Thread {
             tickTimer += deltaTime;
 
             while (tickTimer >= GameConfiguration.TICK_RATE) {
-                worldManager.loadChunks(world);
+                // worldManager.loadChunks(world);
                 tickTimer -= GameConfiguration.TICK_RATE;
             }
 

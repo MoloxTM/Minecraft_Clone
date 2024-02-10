@@ -12,7 +12,7 @@ import fr.math.minecraft.server.world.generator.NoiseGenerator;
 
 import java.util.ArrayList;
 
-public class ForestBiome extends AbstractBiome{
+public class ForestBiome extends AbstractBiome {
 
     public ForestBiome() {
         this.noise = new NoiseGenerator(9, 30, 800.0f, .7f, 25);
@@ -29,7 +29,7 @@ public class ForestBiome extends AbstractBiome{
     }
 
     @Override
-    public void buildTree(ServerChunk chunk, int x, int y, int z, ArrayList<Coordinates> trees) {
+    public void buildTree(ServerChunk chunk, int x, int y, int z) {
 
         ServerWorld world = MinecraftServer.getInstance().getWorld();
 
@@ -38,17 +38,23 @@ public class ForestBiome extends AbstractBiome{
         int worldY = chunk.getPosition().x * ServerChunk.SIZE + y;
 
         Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
-        //Calul distance
-        for (Coordinates coordinates1 : trees) {
-            double dist = Utils.distance(coordinates, coordinates1);
-            if(dist <= 2)return;
+
+        synchronized (world.getTrees()) {
+            // Calul distance
+            for (Coordinates coordinates1 : world.getTrees()) {
+                double dist = Utils.distance(coordinates, coordinates1);
+                if (dist <= 2) return;
+            }
         }
+
 
         RandomSeed randomSeed = RandomSeed.getInstance();
         float dropRate = randomSeed.nextFloat() * 100.0f;
         if(dropRate < 20.0f) {
             StructureBuilder.buildSimpleTree(chunk, x, y, z);
-            world.getTrees().add(coordinates);
+            synchronized (world.getTrees()) {
+                world.getTrees().add(coordinates);
+            }
         }
     }
 

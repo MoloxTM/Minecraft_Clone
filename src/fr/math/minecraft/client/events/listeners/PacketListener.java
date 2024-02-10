@@ -14,6 +14,7 @@ import fr.math.minecraft.client.events.SkinPacketEvent;
 import fr.math.minecraft.client.handler.PacketHandler;
 import fr.math.minecraft.client.handler.PlayerMovementHandler;
 import fr.math.minecraft.client.manager.ChunkManager;
+import fr.math.minecraft.client.network.packet.ChunkACKPacket;
 import fr.math.minecraft.client.network.packet.SkinRequestPacket;
 import fr.math.minecraft.client.network.payload.StatePayload;
 import fr.math.minecraft.client.texture.Texture;
@@ -22,6 +23,7 @@ import fr.math.minecraft.client.world.World;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
+import org.joml.Vector3i;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -134,6 +136,8 @@ public class PacketListener implements PacketEventListener {
 
         if (chunk == null) {
             chunkManager.loadChunkData(chunkData);
+            ChunkACKPacket packet = new ChunkACKPacket(new Vector3i(chunkX, chunkY, chunkZ));
+            PacketHandler.getInstance().enqueue(packet);
         }
 
     }

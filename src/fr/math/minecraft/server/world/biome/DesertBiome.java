@@ -29,7 +29,7 @@ public class DesertBiome extends AbstractBiome{
     }
 
     @Override
-    public void buildTree(ServerChunk chunk, int x, int y, int z, ArrayList<Coordinates> trees) {
+    public void buildTree(ServerChunk chunk, int x, int y, int z) {
 
         ServerWorld world = MinecraftServer.getInstance().getWorld();
 
@@ -38,17 +38,22 @@ public class DesertBiome extends AbstractBiome{
         int worldY = chunk.getPosition().x * ServerChunk.SIZE + y;
 
         Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
-        //Calul distance
-        for (Coordinates coordinates1 : trees) {
-            double dist = Utils.distance(coordinates, coordinates1);
-            if(dist <= 20)return;
+
+        synchronized (world.getTrees()) {
+            // Calul distance
+            for (Coordinates coordinates1 : world.getTrees()) {
+                double dist = Utils.distance(coordinates, coordinates1);
+                if(dist <= 20)return;
+            }
         }
 
         RandomSeed randomSeed = RandomSeed.getInstance();
         float dropRate = randomSeed.nextFloat() * 100.0f;
         if(dropRate < 0.1f) {
             StructureBuilder.buildSimpleCactus(chunk, x, y, z);
-            world.getTrees().add(coordinates);
+            synchronized (world.getTrees()) {
+                world.getTrees().add(coordinates);
+            }
         }
     }
 

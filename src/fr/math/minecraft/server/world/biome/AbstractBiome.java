@@ -12,7 +12,7 @@ public abstract class AbstractBiome {
     protected String biomeName;
     public abstract Material getUpperBlock();
     public abstract Material getSecondBlock();
-    public abstract void buildTree(ServerChunk chunk, int x, int y, int z, ArrayList<Coordinates> trees);
+    public abstract void buildTree(ServerChunk chunk, int x, int y, int z);
     public abstract void buildWeeds(ServerChunk chunk, int x, int y, int z);
     public float getHeight(int x, int z) {
         return noise.getHeight(x, z);

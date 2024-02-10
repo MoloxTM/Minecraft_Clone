@@ -9,6 +9,7 @@ import fr.math.minecraft.client.world.Material;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.server.handler.*;
+import fr.math.minecraft.server.manager.ChunkManager;
 import fr.math.minecraft.server.world.Coordinates;
 import fr.math.minecraft.server.world.ServerChunk;
 import fr.math.minecraft.server.world.ServerWorld;
@@ -44,6 +45,7 @@ public class MinecraftServer {
     private final static int MAX_REQUEST_SIZE = 16384;
     private final ThreadPoolExecutor packetQueue;
     private final TickHandler tickHandler;
+    private final ChunkManager chunkManager;
 
     private MinecraftServer(int port) {
         this.running = false;
@@ -55,6 +57,7 @@ public class MinecraftServer {
         this.world = new ServerWorld();
         this.packetQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(8);
         this.tickHandler = new TickHandler();
+        this.chunkManager = new ChunkManager();
     }
 
     public void start() throws IOException {
@@ -101,9 +104,9 @@ public class MinecraftServer {
                     SkinRequestHandler skinHandler = new SkinRequestHandler(packetData, address, clientPort);
                     skinHandler.run();
                     break;
-                case "CHUNK_REQUEST":
-                    ChunkRequestHandler chunkRequestHandler = new ChunkRequestHandler(packetData, address, clientPort);
-                    packetQueue.submit(chunkRequestHandler);
+                case "CHUNK_REQUEST_ACK":
+                    ChunkACKHandler chunkACKHandler = new ChunkACKHandler(packetData);
+                    packetQueue.submit(chunkACKHandler);
                     break;
                 default:
                     String message = "UNAUTHORIZED_PACKET";
@@ -162,5 +165,9 @@ public class MinecraftServer {
 
     public TickHandler getTickHandler() {
         return tickHandler;
+    }
+
+    public ChunkManager getChunkManager() {
+        return chunkManager;
     }
 }

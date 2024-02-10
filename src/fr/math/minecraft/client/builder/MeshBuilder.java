@@ -24,10 +24,6 @@ public class MeshBuilder {
 
         Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
 
-        if (emptyMap.containsKey(coordinates)) {
-            return emptyMap.get(coordinates);
-        }
-
         int chunkX = (int) Math.floor(worldX / (double) Chunk.SIZE);
         int chunkY = (int) Math.floor(worldY / (double) Chunk.SIZE);
         int chunkZ = (int) Math.floor(worldZ / (double) Chunk.SIZE);
@@ -47,7 +43,6 @@ public class MeshBuilder {
         blockY = blockY < 0 ? blockY + Chunk.SIZE : blockY;
         blockZ = blockZ < 0 ? blockZ + Chunk.SIZE : blockZ;
 
-        emptyMap.put(coordinates, world.getTransparents().contains(chunk.getBlock(blockX, blockY, blockZ)));
         return world.getTransparents().contains(chunk.getBlock(blockX, blockY, blockZ));
     }
 

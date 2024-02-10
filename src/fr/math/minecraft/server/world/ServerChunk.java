@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.math.minecraft.server.builder.EmptyMapBuilder;
 import fr.math.minecraft.server.world.generator.OverworldGenerator;
 import org.joml.Vector3i;
 
@@ -17,7 +18,7 @@ public class ServerChunk {
 
     private final Vector3i position;
     private final byte[] blocks;
-    private final Map<String, Boolean> emptyMap;
+    private Map<String, Boolean> emptyMap;
 
     public final static int SIZE = 16;
     public final static int AREA = SIZE * SIZE;
@@ -94,5 +95,7 @@ public class ServerChunk {
         return emptyMap;
     }
 
-
+    public void setEmptyMap(Map<String, Boolean> emptyMap) {
+        this.emptyMap = emptyMap;
+    }
 }

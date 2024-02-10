@@ -116,7 +116,18 @@ public class TickHandler extends Thread {
             payload.send();
         }
 
-        this.sendPlayers();
+        this.sendChunks();
+        // this.sendPlayers();
+    }
+
+    private void sendChunks() {
+        MinecraftServer server = MinecraftServer.getInstance();
+        ClientManager clientManager = new ClientManager();
+        synchronized (server.getClients()) {
+            for (Client client : server.getClients().values()) {
+                clientManager.sendNearChunks(client);
+            }
+        }
     }
 
 }
