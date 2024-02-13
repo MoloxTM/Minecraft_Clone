@@ -34,12 +34,12 @@ public class ForestBiome extends AbstractBiome{
 
         int worldX = chunk.getPosition().x * ServerChunk.SIZE + x;
         int worldY = chunk.getPosition().y * ServerChunk.SIZE + y;
-        int worldZ = chunk.getPosition().z * ServerChunk.SIZE + z;
+        int worldZ = chunk.getPosition().z * ServerChunk.SIZE - z;
 
         Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
         //Calul distance
-        for (Coordinates coordinates1 : structure.getStructureMap().keySet()) {
-            double dist = Utils.distance(coordinates, coordinates1);
+        for (Coordinates coordinatesAlreadyPlace : structure.getStructures()) {
+            double dist = Utils.distance(coordinates, coordinatesAlreadyPlace);
             if(dist <= 2)return;
         }
 
@@ -47,6 +47,7 @@ public class ForestBiome extends AbstractBiome{
         float dropRate = randomSeed.nextFloat() * 100.0f;
         if(dropRate < 20.0f) {
             StructureBuilder.buildSimpleTree(structure, worldX, worldY, worldZ);
+            structure.getStructures().add(coordinates);
         }
     }
 

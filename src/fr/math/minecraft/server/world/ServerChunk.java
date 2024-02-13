@@ -40,7 +40,6 @@ public class ServerChunk {
     public void generate() {
         TerrainGenerator overworldGenerator = MinecraftServer.getInstance().getWorld().getOverworldGenerator();
         overworldGenerator.generateChunk(this);
-        //System.out.println("Chunk made :" + this.getPosition());
         overworldGenerator.generateStructure(this);
     }
 

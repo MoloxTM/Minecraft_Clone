@@ -77,17 +77,17 @@ public class OverworldGenerator implements TerrainGenerator {
                     } else if (worldY == worldHeight) {
                         material = currentBiome.getUpperBlock();
 
-                        if(currentBiome instanceof ForestBiome  && ((x + 2) <= 15) && ((z - 2) >= 0) && ((z + 2) <= 15) && ((y + 8) < ServerChunk.SIZE)){
+                        if(currentBiome instanceof ForestBiome){
                             currentBiome.buildTree(chunk, x, y, z, structure);
                         } else if(currentBiome instanceof PlainBiome) {
-                            if((y + 1) < ServerChunk.SIZE) currentBiome.buildWeeds(chunk, x, y, z, structure);
+                            if((y + 1) < ServerChunk.SIZE) //currentBiome.buildWeeds(chunk, x, y, z, structure);
                             if(((x - 2) >= 0) && ((x + 2) <= 15) && ((z - 2) >= 0) && ((z + 2) <= 15) && ((y + 8) < ServerChunk.SIZE)){
-                                currentBiome.buildTree(chunk, x, y, z, structure);
+                                //currentBiome.buildTree(chunk, x, y, z, structure);
                             }
                         }else if(currentBiome instanceof DesertBiome && ((x - 2) >= 0) && ((x + 2) <= 15) && ((z - 2) >= 0) && ((z + 2) <= 15) && ((y + 4) < ServerChunk.SIZE)){
                             if((y + 1) < ServerChunk.SIZE){
-                                currentBiome.buildWeeds(chunk, x, y, z, structure);
-                                currentBiome.buildTree(chunk, x, y, z, structure);
+                                //currentBiome.buildWeeds(chunk, x, y, z, structure);
+                                //currentBiome.buildTree(chunk, x, y, z, structure);
                             }
                         }
                     } else {
@@ -104,31 +104,6 @@ public class OverworldGenerator implements TerrainGenerator {
 
     @Override
     public void generateStructure(ServerChunk chunk) {
-        HashMap<Coordinates, Byte> structMap = this.getStructure().getStructureMap();
-        //System.out.println("\nCoos Chunk:" + chunk.getPosition().toString());
-        for (Coordinates coordinates : structMap.keySet()) {
-
-            if (Utils.isInChunk(coordinates, chunk)) {
-                //System.out.println("Coos bloc:" + coordinates + " | " + "coos chunk:" + chunk.getPosition());
-                int worldX = coordinates.getX();
-                int worldY = coordinates.getY();
-                int worldZ = coordinates.getZ();
-
-                byte block = structMap.get(coordinates);
-
-                int blockX = worldX % Chunk.SIZE;
-                int blockY = worldY % Chunk.SIZE;
-                int blockZ = worldZ % Chunk.SIZE;
-
-                blockX = blockX < 0 ? blockX + Chunk.SIZE : blockX;
-                blockY = blockY < 0 ? blockY + Chunk.SIZE : blockY;
-                blockZ = blockZ < 0 ? blockZ + Chunk.SIZE : blockZ;
-
-                //System.out.println("Je place un block de " + fr.math.minecraft.client.world.Material.getMaterialById(block));
-
-                chunk.setBlock(blockX, blockY, blockZ, block);
-            }
-        }
     }
 
     @Override
