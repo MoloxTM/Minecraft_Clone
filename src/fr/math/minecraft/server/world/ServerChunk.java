@@ -20,6 +20,7 @@ public class ServerChunk {
     public final static int VOLUME = SIZE * AREA;
 
     private int biomeID;
+    private boolean generated;
 
     public ServerChunk(int x, int y, int z) {
         this.position = new Vector3i(x, y, z);
@@ -33,14 +34,16 @@ public class ServerChunk {
                 }
             }
         }
-        this.generate();
+        this.generated = false;
         this.biomeID = -1;
     }
 
     public void generate() {
-        TerrainGenerator overworldGenerator = MinecraftServer.getInstance().getWorld().getOverworldGenerator();
+        ServerWorld serverWorld = MinecraftServer.getInstance().getWorld();
+        TerrainGenerator overworldGenerator = serverWorld.getOverworldGenerator();
         overworldGenerator.generateChunk(this);
-        overworldGenerator.generateStructure(this);
+        serverWorld.updateStructure();
+        this.generated = true;
     }
 
     public byte[] getBlocks() {
@@ -89,5 +92,13 @@ public class ServerChunk {
 
     public void setBiome(AbstractBiome biome) {
         this.biomeID = biome.getBiomeID();
+    }
+
+    public boolean isGenerated() {
+        return generated;
+    }
+
+    public void setGenerated(boolean generated) {
+        this.generated = generated;
     }
 }

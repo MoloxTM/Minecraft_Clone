@@ -27,13 +27,9 @@ public class DesertBiome extends AbstractBiome{
     }
 
     @Override
-    public void buildTree(ServerChunk chunk, int x, int y, int z, Structure structure) {
+    public void buildTree(int worldX, int worldY, int worldZ, Structure structure) {
 
         ServerWorld world = MinecraftServer.getInstance().getWorld();
-
-        int worldX = chunk.getPosition().x * ServerChunk.SIZE + x;
-        int worldZ = chunk.getPosition().x * ServerChunk.SIZE + z;
-        int worldY = chunk.getPosition().x * ServerChunk.SIZE + y;
 
         Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
         //Calul distance
@@ -45,7 +41,7 @@ public class DesertBiome extends AbstractBiome{
         RandomSeed randomSeed = RandomSeed.getInstance();
         float dropRate = randomSeed.nextFloat() * 100.0f;
         if(dropRate < 0.3f) {
-            StructureBuilder.buildSimpleCactus(structure, x, y, z);
+            StructureBuilder.buildSimpleCactus(structure, worldX, worldY, worldZ);
         }
     }
 

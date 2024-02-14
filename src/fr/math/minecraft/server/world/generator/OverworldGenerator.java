@@ -30,10 +30,10 @@ public class OverworldGenerator implements TerrainGenerator {
         return height;
     }
 
-    public void fillHeightMap(ServerChunk chunk, int xMin, int xMax, int zMin, int zMax) {
+    public void fillHeightMap(int chunkX, int chunkZ, int xMin, int xMax, int zMin, int zMax) {
 
-        int worldX = chunk.getPosition().x * ServerChunk.SIZE;
-        int worldZ = chunk.getPosition().z * ServerChunk.SIZE;
+        int worldX = chunkX * ServerChunk.SIZE;
+        int worldZ = chunkZ * ServerChunk.SIZE;
 
 
         float bottomLeft = this.calculBiomeHeight(worldX + xMin, worldZ + zMin);
@@ -50,12 +50,27 @@ public class OverworldGenerator implements TerrainGenerator {
         }
     }
 
+    public int getHeight(int worldX, int worldZ) {
+
+        int xMin = 0, zMin = 0;
+        int xMax = ServerChunk.SIZE - 1, zMax = ServerChunk.SIZE - 1;
+
+        float bottomLeft = this.calculBiomeHeight(worldX + xMin, worldZ + zMin);
+        float bottomRight =  this.calculBiomeHeight(worldX + xMax, worldZ + zMin);
+        float topLeft =  this.calculBiomeHeight(worldX + xMin, worldZ + zMax);
+        float topRight =  this.calculBiomeHeight(worldX + xMax, worldZ + zMax);
+
+        int worldHeight = (int) (InterpolateMath.smoothInterpolation(bottomLeft, bottomRight, topLeft, topRight, xMin, xMax, zMin, zMax, worldX % ServerChunk.SIZE, worldZ % ServerChunk.SIZE));
+
+        return worldHeight;
+    }
+
     @Override
     public void generateChunk(ServerChunk chunk) {
 
         MinecraftServer minecraftServer = MinecraftServer.getInstance();
 
-        this.fillHeightMap(chunk, 0, ServerChunk.SIZE - 1, 0, ServerChunk.SIZE - 1);
+        this.fillHeightMap(chunk.getPosition().x, chunk.getPosition().z, 0, ServerChunk.SIZE - 1, 0, ServerChunk.SIZE - 1);
         for (int x = 0; x < ServerChunk.SIZE; x++) {
             for (int z = 0; z < ServerChunk.SIZE; z++) {
 
@@ -66,6 +81,11 @@ public class OverworldGenerator implements TerrainGenerator {
                 int worldHeight = heightMap.get(new Vector2i(x, z));
 
                 for (int y = 0; y < ServerChunk.SIZE; y++) {
+
+                    if (chunk.getBlock(x, y, z) == Material.OAK_LEAVES.getId() || chunk.getBlock(x, y, z) == Material.OAK_LOG.getId()) {
+                        continue;
+                    }
+
                     int worldY = y + chunk.getPosition().y * ServerChunk.SIZE;
                     Material material = Material.AIR;
                     if (worldY < worldHeight) {
@@ -78,7 +98,7 @@ public class OverworldGenerator implements TerrainGenerator {
                         material = currentBiome.getUpperBlock();
 
                         if(currentBiome instanceof ForestBiome){
-                            currentBiome.buildTree(chunk, x, y, z, structure);
+                            //currentBiome.buildTree(chunk, x, y, z, structure);
                         } else if(currentBiome instanceof PlainBiome) {
                             if((y + 1) < ServerChunk.SIZE) //currentBiome.buildWeeds(chunk, x, y, z, structure);
                             if(((x - 2) >= 0) && ((x + 2) <= 15) && ((z - 2) >= 0) && ((z + 2) <= 15) && ((y + 8) < ServerChunk.SIZE)){
@@ -96,6 +116,14 @@ public class OverworldGenerator implements TerrainGenerator {
                         }
                     }
                     if(material == Material.AIR) continue;
+
+                    int worldX = x + chunk.getPosition().x * ServerChunk.SIZE;
+                    int worldZ = z + chunk.getPosition().z * ServerChunk.SIZE;
+
+                    Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
+
+                    if(structure.getStructureMap().containsKey(coordinates)) continue;
+
                     chunk.setBlock(x, y, z, material.getId());
                 }
             }
@@ -104,6 +132,21 @@ public class OverworldGenerator implements TerrainGenerator {
 
     @Override
     public void generateStructure(ServerChunk chunk) {
+        for (int x = 0; x < ServerChunk.SIZE; x++) {
+            for (int y = 0; y < ServerChunk.SIZE; y++) {
+                for (int z = 0; z < ServerChunk.SIZE; z++) {
+                    int worldX = x + chunk.getPosition().x * ServerChunk.SIZE;
+                    int worldY = y + chunk.getPosition().y * ServerChunk.SIZE;
+                    int worldZ = z + chunk.getPosition().z * ServerChunk.SIZE;
+
+                    Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
+                    if(structure.getStructureMap().containsKey(coordinates)) {
+
+                    }
+                }
+            }
+        }
+
     }
 
     @Override

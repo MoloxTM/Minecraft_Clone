@@ -129,7 +129,11 @@ public class MinecraftServer {
         if (chunk == null) {
             chunk = new ServerChunk(x, y, z);
             chunk.generate();
-            world.getChunks().put(new Coordinates(x, y, z), chunk);
+            world.addChunk(chunk);
+        }
+
+        if (!chunk.isGenerated()) {
+            chunk.generate();
         }
 
         String chunkData = chunk.toJSON();

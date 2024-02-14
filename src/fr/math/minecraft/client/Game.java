@@ -140,7 +140,7 @@ public class Game {
         }
 
         for (Sound sound : soundManager.getAllSounds()) {
-            sound.load();
+            //sound.load();
         }
 
         Menu mainMenu = new MainMenu(this);
@@ -209,7 +209,7 @@ public class Game {
         double lastDeltaTime = glfwGetTime();
         double lastFramesTime = glfwGetTime();
 
-        soundManager.getRandomMusic().play();
+        //soundManager.getRandomMusic().play();
 
         menuManager.open(MainMenu.class);
 

@@ -14,7 +14,7 @@ public abstract class AbstractBiome {
     protected int biomeID;
     public abstract Material getUpperBlock();
     public abstract Material getSecondBlock();
-    public abstract void buildTree(ServerChunk chunk, int x, int y, int z, Structure structure);
+    public abstract void buildTree(int worldX, int worldY, int worldZ, Structure structure);
     public abstract void buildWeeds(ServerChunk chunk, int x, int y, int z, Structure structure);
     public float getHeight(int x, int z) {
         return noise.getHeight(x, z);
