@@ -7,9 +7,6 @@ import fr.math.minecraft.server.builder.StructureBuilder;
 import fr.math.minecraft.server.world.*;
 import fr.math.minecraft.server.world.generator.NoiseGenerator;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class ForestBiome extends AbstractBiome{
 
     public ForestBiome() {
@@ -28,9 +25,7 @@ public class ForestBiome extends AbstractBiome{
     }
 
     @Override
-    public void buildTree(int worldX, int worldY, int worldZ, Structure structure) {
-
-        ServerWorld world = MinecraftServer.getInstance().getWorld();
+    public void buildTree(int worldX, int worldY, int worldZ, Structure structure, ServerWorld world) {
 
         Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
         //Calul distance

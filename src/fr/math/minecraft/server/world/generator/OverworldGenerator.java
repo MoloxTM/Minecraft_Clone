@@ -17,10 +17,8 @@ import java.util.HashMap;
 public class OverworldGenerator implements TerrainGenerator {
     private final HashMap<Vector2i, Integer> heightMap;
 
-    private Structure structure;
     public OverworldGenerator() {
         this.heightMap = new HashMap<>();
-        this.structure = new Structure();
     }
 
     public float calculBiomeHeight(int worldX, int worldZ) {
@@ -52,15 +50,18 @@ public class OverworldGenerator implements TerrainGenerator {
 
     public int getHeight(int worldX, int worldZ) {
 
+        int chunkX = ((int) Math.floor(worldX / (double) Chunk.SIZE)) * ServerChunk.SIZE;
+        int chunkZ = ((int) Math.floor(worldZ / (double) Chunk.SIZE)) * ServerChunk.SIZE;
+
         int xMin = 0, zMin = 0;
         int xMax = ServerChunk.SIZE - 1, zMax = ServerChunk.SIZE - 1;
 
-        float bottomLeft = this.calculBiomeHeight(worldX + xMin, worldZ + zMin);
-        float bottomRight =  this.calculBiomeHeight(worldX + xMax, worldZ + zMin);
-        float topLeft =  this.calculBiomeHeight(worldX + xMin, worldZ + zMax);
-        float topRight =  this.calculBiomeHeight(worldX + xMax, worldZ + zMax);
+        float bottomLeft = this.calculBiomeHeight(chunkX + xMin, chunkZ + zMin);
+        float bottomRight =  this.calculBiomeHeight(chunkX + xMax, chunkZ + zMin);
+        float topLeft =  this.calculBiomeHeight(chunkX + xMin, chunkZ + zMax);
+        float topRight =  this.calculBiomeHeight(chunkX + xMax, chunkZ + zMax);
 
-        int worldHeight = (int) (InterpolateMath.smoothInterpolation(bottomLeft, bottomRight, topLeft, topRight, xMin, xMax, zMin, zMax, worldX % ServerChunk.SIZE, worldZ % ServerChunk.SIZE));
+        int worldHeight = (int) (InterpolateMath.smoothInterpolation(bottomLeft, bottomRight, topLeft, topRight, xMin, xMax, zMin, zMax, worldX %( ServerChunk.SIZE), worldZ % ( ServerChunk.SIZE)));
 
         return worldHeight;
     }
@@ -81,12 +82,26 @@ public class OverworldGenerator implements TerrainGenerator {
                 int worldHeight = heightMap.get(new Vector2i(x, z));
 
                 for (int y = 0; y < ServerChunk.SIZE; y++) {
-
                     if (chunk.getBlock(x, y, z) == Material.OAK_LEAVES.getId() || chunk.getBlock(x, y, z) == Material.OAK_LOG.getId()) {
                         continue;
                     }
 
+                    int worldX = x + chunk.getPosition().x * ServerChunk.SIZE;
                     int worldY = y + chunk.getPosition().y * ServerChunk.SIZE;
+                    int worldZ = z + chunk.getPosition().z * ServerChunk.SIZE;
+
+                    int regionX = (int) Math.floor(worldX / (double) (ServerChunk.SIZE * Region.SIZE));
+                    int regionY = (int) Math.floor(worldY / (double) (ServerChunk.SIZE * Region.SIZE));
+                    int regionZ = (int) Math.floor(worldZ / (double) (ServerChunk.SIZE * Region.SIZE));
+
+                    Region chunkRegion = minecraftServer.getWorld().getRegion(regionX, regionY, regionZ);
+
+                    Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
+                    if(chunkRegion != null && chunkRegion.getStructure().getStructureMap().containsKey(coordinates)) {
+                        chunk.setBlock(x, y, z, chunkRegion.getStructure().getStructureMap().get(coordinates));
+                        continue;
+                    }
+
                     Material material = Material.AIR;
                     if (worldY < worldHeight) {
                         if (worldY < worldHeight - 3) {
@@ -97,6 +112,7 @@ public class OverworldGenerator implements TerrainGenerator {
                     } else if (worldY == worldHeight) {
                         material = currentBiome.getUpperBlock();
 
+                        /*
                         if(currentBiome instanceof ForestBiome){
                             //currentBiome.buildTree(chunk, x, y, z, structure);
                         } else if(currentBiome instanceof PlainBiome) {
@@ -110,19 +126,13 @@ public class OverworldGenerator implements TerrainGenerator {
                                 //currentBiome.buildTree(chunk, x, y, z, structure);
                             }
                         }
+                        */
                     } else {
                         if (worldY <= 40) {
                             material = Material.WATER;
                         }
                     }
                     if(material == Material.AIR) continue;
-
-                    int worldX = x + chunk.getPosition().x * ServerChunk.SIZE;
-                    int worldZ = z + chunk.getPosition().z * ServerChunk.SIZE;
-
-                    Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
-
-                    if(structure.getStructureMap().containsKey(coordinates)) continue;
 
                     chunk.setBlock(x, y, z, material.getId());
                 }
@@ -140,9 +150,6 @@ public class OverworldGenerator implements TerrainGenerator {
                     int worldZ = z + chunk.getPosition().z * ServerChunk.SIZE;
 
                     Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
-                    if(structure.getStructureMap().containsKey(coordinates)) {
-
-                    }
                 }
             }
         }
@@ -151,9 +158,5 @@ public class OverworldGenerator implements TerrainGenerator {
 
     @Override
     public void placeStruture(ServerChunk chunk) {
-    }
-
-    public Structure getStructure() {
-        return structure;
     }
 }

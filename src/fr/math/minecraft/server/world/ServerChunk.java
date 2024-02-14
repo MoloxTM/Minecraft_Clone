@@ -28,9 +28,7 @@ public class ServerChunk {
         for (int blockX = 0; blockX < ServerChunk.SIZE; blockX++) {
             for (int blockY = 0; blockY < ServerChunk.SIZE; blockY++) {
                 for (int blockZ = 0; blockZ < ServerChunk.SIZE; blockZ++) {
-                    if(!MinecraftServer.getInstance().getWorld().getOverworldGenerator().getStructure().getStructureMap().containsKey(new Coordinates(x, y ,z))){
-                        this.setBlock(blockX, blockY, blockZ, Material.AIR.getId());
-                    }
+                    this.setBlock(blockX, blockY, blockZ, Material.AIR.getId());
                 }
             }
         }
@@ -42,7 +40,7 @@ public class ServerChunk {
         ServerWorld serverWorld = MinecraftServer.getInstance().getWorld();
         TerrainGenerator overworldGenerator = serverWorld.getOverworldGenerator();
         overworldGenerator.generateChunk(this);
-        serverWorld.updateStructure();
+        //serverWorld.updateStructure();
         this.generated = true;
     }
 

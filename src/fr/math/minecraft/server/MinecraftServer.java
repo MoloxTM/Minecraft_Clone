@@ -11,6 +11,7 @@ import fr.math.minecraft.client.world.World;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.server.world.Coordinates;
+import fr.math.minecraft.server.world.Region;
 import fr.math.minecraft.server.world.ServerChunk;
 import fr.math.minecraft.server.world.ServerWorld;
 import org.apache.log4j.Logger;
@@ -50,6 +51,9 @@ public class MinecraftServer {
         this.sockets = new HashMap<>();
         this.lastActivities = new HashMap<>();
         this.world = new ServerWorld();
+        Region region = new Region(0, 0, 0);
+        region.generateStructure(world);
+        this.world.addRegion(region);
     }
 
     public void start() throws IOException {

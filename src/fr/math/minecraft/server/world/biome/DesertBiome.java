@@ -7,8 +7,6 @@ import fr.math.minecraft.server.builder.StructureBuilder;
 import fr.math.minecraft.server.world.*;
 import fr.math.minecraft.server.world.generator.NoiseGenerator;
 
-import java.util.HashMap;
-
 public class DesertBiome extends AbstractBiome{
 
     public DesertBiome() {
@@ -27,9 +25,8 @@ public class DesertBiome extends AbstractBiome{
     }
 
     @Override
-    public void buildTree(int worldX, int worldY, int worldZ, Structure structure) {
+    public void buildTree(int worldX, int worldY, int worldZ, Structure structure, ServerWorld world) {
 
-        ServerWorld world = MinecraftServer.getInstance().getWorld();
 
         Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
         //Calul distance

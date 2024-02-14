@@ -5,6 +5,7 @@ import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.client.world.Chunk;
 import fr.math.minecraft.server.world.generator.OverworldGenerator;
 import fr.math.minecraft.server.world.generator.TerrainGenerator;
+import org.joml.Vector3i;
 
 import java.util.*;
 
@@ -41,7 +42,6 @@ public class ServerWorld {
     public HashMap<Coordinates, ServerChunk> getChunks() {
         return chunks;
     }
-
 
     public void addChunk(ServerChunk chunk) {
         Coordinates coordinates = new Coordinates(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z);
@@ -93,6 +93,7 @@ public class ServerWorld {
         serverChunk.setBlock(blockX, blockY, blockZ, block);
     }
 
+    /*
     public void updateStructure() {
         Set<Coordinates> coordsToRemove = new HashSet<>();
         for(Map.Entry<Coordinates, Byte> structureSet : overworldGenerator.getStructure().getStructureMap().entrySet()) {
@@ -128,7 +129,25 @@ public class ServerWorld {
             overworldGenerator.getStructure().getStructureMap().remove(coordinates);
         }
     }
+    */
 
+    public void addRegion(int regionX, int regionY, int regionZ) {
+        Region region = new Region(new Vector3i(regionX, regionY, regionZ));
+        this.regions.put(new Coordinates(regionX, regionY, regionZ), region);
+    }
+
+    public void addRegion(Region region) {
+        this.regions.put(new Coordinates(region.getPosition().x, region.getPosition().y, region.getPosition().z), region);
+    }
+
+    public Region getRegion(int x, int y, int z) {
+        Coordinates coordinates = new Coordinates(x, y, z);
+        return regions.get(coordinates);
+    }
+
+    public Region getRegion(Coordinates coordinates) {
+        return regions.get(coordinates);
+    }
     public Map<Coordinates, Region> getRegions() {
         return regions;
     }

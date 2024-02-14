@@ -1,12 +1,7 @@
 package fr.math.minecraft.server.world.biome;
 
-import fr.math.minecraft.server.world.Coordinates;
-import fr.math.minecraft.server.world.Material;
-import fr.math.minecraft.server.world.ServerChunk;
-import fr.math.minecraft.server.world.Structure;
+import fr.math.minecraft.server.world.*;
 import fr.math.minecraft.server.world.generator.NoiseGenerator;
-
-import java.util.HashMap;
 
 public class MountainBiome extends AbstractBiome{
 
@@ -26,7 +21,7 @@ public class MountainBiome extends AbstractBiome{
     }
 
     @Override
-    public void buildTree(int worldX, int worldY, int worldZ, Structure structure) {
+    public void buildTree(int worldX, int worldY, int worldZ, Structure structure, ServerWorld world) {
 
     }
 

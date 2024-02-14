@@ -8,6 +8,4 @@ public interface TerrainGenerator {
     void generateChunk(ServerChunk chunk);
     void generateStructure(ServerChunk chunk);
     void placeStruture(ServerChunk chunk);
-    Structure getStructure();
-
 }

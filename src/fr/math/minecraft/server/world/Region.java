@@ -16,36 +16,40 @@ public class Region {
 
     private final Vector3i position;
     private final Map<Coordinates, Byte> structureMap;
-
     public final static int SIZE = 16;
+    private Structure structure;
 
     public Region(Vector3i position) {
         this.position = position;
+        this.structure = new Structure();
         this.structureMap = new HashMap<>();
     }
 
-    public void generateStructure() {
-        MinecraftServer server = MinecraftServer.getInstance();
-        ServerWorld world = server.getWorld();
+    public Region(int x, int y, int z) {
+        this.position = new Vector3i(x, y, z);
+        this.structure = new Structure();
+        this.structureMap = new HashMap<>();
+    }
+
+    public void generateStructure(ServerWorld world) {
         OverworldGenerator generator = (OverworldGenerator) world.getOverworldGenerator();
         for (int x = 0; x < SIZE * ServerChunk.SIZE; x++) {
-            for (int y = 0; y < SIZE * ServerChunk.SIZE; y++) {
-                for (int z = 0; z < SIZE * ServerChunk.SIZE; z++) {
+            for (int z = 0; z < SIZE * ServerChunk.SIZE; z++) {
 
-                    int worldX = position.x * SIZE * ServerChunk.SIZE + x;
-                    int worldY = position.y * SIZE * ServerChunk.SIZE + y;
-                    int worldZ = position.z * SIZE * ServerChunk.SIZE + z;
+                int worldX = position.x * SIZE * ServerChunk.SIZE + x;
+                int worldZ = position.z * SIZE * ServerChunk.SIZE + z;
 
-                    BiomeManager biomeManager = new BiomeManager();
-                    AbstractBiome currentBiome = biomeManager.getBiome(worldX, worldZ);
+                BiomeManager biomeManager = new BiomeManager();
+                AbstractBiome currentBiome = biomeManager.getBiome(worldX, worldZ);
 
-                    int worldHeight = generator.getHeight(worldX, worldZ);
+                int worldHeight = generator.getHeight(worldX, worldZ);
 
-                    if (currentBiome instanceof ForestBiome) {
-                        if (8 < x && x < 256 - 8 && 8 < z && z < 256 - 8) {
-                            currentBiome.buildTree(worldX, worldHeight, worldZ, generator.getStructure());
-                        }
+                if (currentBiome instanceof ForestBiome) {
+                    if ((SIZE/2) < x && x < (ServerChunk.SIZE * SIZE) - (SIZE/2) && (SIZE/2) < z && z < (ServerChunk.SIZE * SIZE) - (SIZE/2)) {
+                        currentBiome.buildTree(worldX, worldHeight, worldZ, structure, world);
                     }
+                } else {
+                    continue;
                 }
             }
         }
@@ -57,5 +61,9 @@ public class Region {
 
     public Vector3i getPosition() {
         return position;
+    }
+
+    public Structure getStructure() {
+        return structure;
     }
 }
