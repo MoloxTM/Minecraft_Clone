@@ -26,7 +26,7 @@ public class MountainBiome extends AbstractBiome{
     }
 
     @Override
-    public void buildWeeds(ServerChunk chunk, int x, int y, int z, Structure structure) {
+    public void buildWeeds(int worldX, int worldY, int worldZ, Structure structure, ServerWorld world) {
 
     }
 }

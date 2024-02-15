@@ -111,22 +111,6 @@ public class OverworldGenerator implements TerrainGenerator {
                         }
                     } else if (worldY == worldHeight) {
                         material = currentBiome.getUpperBlock();
-
-                        /*
-                        if(currentBiome instanceof ForestBiome){
-                            //currentBiome.buildTree(chunk, x, y, z, structure);
-                        } else if(currentBiome instanceof PlainBiome) {
-                            if((y + 1) < ServerChunk.SIZE) //currentBiome.buildWeeds(chunk, x, y, z, structure);
-                            if(((x - 2) >= 0) && ((x + 2) <= 15) && ((z - 2) >= 0) && ((z + 2) <= 15) && ((y + 8) < ServerChunk.SIZE)){
-                                //currentBiome.buildTree(chunk, x, y, z, structure);
-                            }
-                        }else if(currentBiome instanceof DesertBiome && ((x - 2) >= 0) && ((x + 2) <= 15) && ((z - 2) >= 0) && ((z + 2) <= 15) && ((y + 4) < ServerChunk.SIZE)){
-                            if((y + 1) < ServerChunk.SIZE){
-                                //currentBiome.buildWeeds(chunk, x, y, z, structure);
-                                //currentBiome.buildTree(chunk, x, y, z, structure);
-                            }
-                        }
-                        */
                     } else {
                         if (worldY <= 40) {
                             material = Material.WATER;
@@ -138,25 +122,5 @@ public class OverworldGenerator implements TerrainGenerator {
                 }
             }
         }
-    }
-
-    @Override
-    public void generateStructure(ServerChunk chunk) {
-        for (int x = 0; x < ServerChunk.SIZE; x++) {
-            for (int y = 0; y < ServerChunk.SIZE; y++) {
-                for (int z = 0; z < ServerChunk.SIZE; z++) {
-                    int worldX = x + chunk.getPosition().x * ServerChunk.SIZE;
-                    int worldY = y + chunk.getPosition().y * ServerChunk.SIZE;
-                    int worldZ = z + chunk.getPosition().z * ServerChunk.SIZE;
-
-                    Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
-                }
-            }
-        }
-
-    }
-
-    @Override
-    public void placeStruture(ServerChunk chunk) {
     }
 }

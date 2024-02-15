@@ -27,7 +27,6 @@ public class DesertBiome extends AbstractBiome{
     @Override
     public void buildTree(int worldX, int worldY, int worldZ, Structure structure, ServerWorld world) {
 
-
         Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
         //Calul distance
         for (Coordinates coordinates1 : structure.getStructureMap().keySet()) {
@@ -39,23 +38,16 @@ public class DesertBiome extends AbstractBiome{
         float dropRate = randomSeed.nextFloat() * 100.0f;
         if(dropRate < 0.3f) {
             StructureBuilder.buildSimpleCactus(structure, worldX, worldY, worldZ);
+            structure.getStructures().add(coordinates);
         }
     }
 
     @Override
-    public void buildWeeds(ServerChunk chunk, int x, int y, int z, Structure structure) {
-        ServerWorld world = MinecraftServer.getInstance().getWorld();
-
-        int worldX = chunk.getPosition().x * ServerChunk.SIZE + x;
-        int worldZ = chunk.getPosition().x * ServerChunk.SIZE + z;
-        int worldY = chunk.getPosition().x * ServerChunk.SIZE + y;
-
-        Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
-
+    public void buildWeeds(int worldX, int worldY, int worldZ, Structure structure, ServerWorld world) {
         RandomSeed randomSeed = RandomSeed.getInstance();
         float dropRate = randomSeed.nextFloat() * 100.0f;
-        if(dropRate < 0.4f) {
-            StructureBuilder.buildDeadBush(structure, x, y, z);
+        if(dropRate < 0.2f) {
+            StructureBuilder.buildDeadBush(structure, worldX, worldY, worldZ);
         }
     }
 

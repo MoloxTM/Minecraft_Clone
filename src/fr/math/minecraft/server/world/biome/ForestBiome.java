@@ -1,7 +1,6 @@
 package fr.math.minecraft.server.world.biome;
 
 import fr.math.minecraft.server.Utils;
-import fr.math.minecraft.server.MinecraftServer;
 import fr.math.minecraft.server.RandomSeed;
 import fr.math.minecraft.server.builder.StructureBuilder;
 import fr.math.minecraft.server.world.*;
@@ -43,7 +42,11 @@ public class ForestBiome extends AbstractBiome{
     }
 
     @Override
-    public void buildWeeds(ServerChunk chunk, int x, int y, int z, Structure structure) {
-
+    public void buildWeeds(int worldX, int worldY, int worldZ, Structure structure, ServerWorld world) {
+        RandomSeed randomSeed = RandomSeed.getInstance();
+        float dropRate = randomSeed.nextFloat() * 100.0f;
+        if(dropRate > 99.0f) {
+            StructureBuilder.buildWeed(structure, worldX, worldY, worldZ);
+        }
     }
 }

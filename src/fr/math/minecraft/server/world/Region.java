@@ -3,7 +3,9 @@ package fr.math.minecraft.server.world;
 import fr.math.minecraft.server.MinecraftServer;
 import fr.math.minecraft.server.manager.BiomeManager;
 import fr.math.minecraft.server.world.biome.AbstractBiome;
+import fr.math.minecraft.server.world.biome.DesertBiome;
 import fr.math.minecraft.server.world.biome.ForestBiome;
+import fr.math.minecraft.server.world.biome.PlainBiome;
 import fr.math.minecraft.server.world.generator.OverworldGenerator;
 import fr.math.minecraft.server.world.generator.TerrainGenerator;
 import org.joml.Vector3f;
@@ -43,14 +45,18 @@ public class Region {
                 AbstractBiome currentBiome = biomeManager.getBiome(worldX, worldZ);
 
                 int worldHeight = generator.getHeight(worldX, worldZ);
-
-                if (currentBiome instanceof ForestBiome) {
-                    if ((SIZE/2) < x && x < (ServerChunk.SIZE * SIZE) - (SIZE/2) && (SIZE/2) < z && z < (ServerChunk.SIZE * SIZE) - (SIZE/2)) {
+                if ((SIZE/2) < x && x < (ServerChunk.SIZE * SIZE) - (SIZE/2) && (SIZE/2) < z && z < (ServerChunk.SIZE * SIZE) - (SIZE/2)) {
+                    if (currentBiome instanceof ForestBiome) {
                         currentBiome.buildTree(worldX, worldHeight, worldZ, structure, world);
+                    } else if(currentBiome instanceof PlainBiome) {
+                        currentBiome.buildTree(worldX, worldHeight, worldZ, structure, world);
+                        currentBiome.buildWeeds(worldX, worldHeight, worldZ, structure, world);
+                    } else if(currentBiome instanceof DesertBiome) {
+                        currentBiome.buildTree(worldX, worldHeight, worldZ, structure, world);
+                        currentBiome.buildWeeds(worldX, worldHeight, worldZ, structure, world);
                     }
-                } else {
-                    continue;
                 }
+
             }
         }
     }
