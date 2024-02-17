@@ -17,26 +17,23 @@ public class StatePayload {
 
     private final InputPayload payload;
     private JsonNode data;
-    private final boolean movingLeft, movingRight, movingForward, movingBackward;
-    private final boolean sneaking, flying;
     private Vector3f position;
+    private float yaw;
+    private float pitch;
 
     public StatePayload(InputPayload payload) {
         this.payload = payload;
-        this.movingLeft = payload.isMovingLeft();
-        this.movingRight = payload.isMovingRight();
-        this.movingForward = payload.isMovingForward();
-        this.movingBackward = payload.isMovingBackward();
-        this.flying = payload.isFlying();
-        this.sneaking = payload.isSneaking();
         this.position = new Vector3f();
         this.data = null;
+        this.yaw = 0.0f;
+        this.pitch = 0.0f;
     }
 
     public void predictMovement(Client client) {
         client.updatePosition(payload);
         Vector3f newPosition = new Vector3f(client.getPosition());
 
+        /*
         if (client.getLastChunkPosition().distance(position.x, position.y, position.z) >= ServerChunk.SIZE) {
             ClientManager clientManager = new ClientManager();
             client.getNearChunks().clear();
@@ -44,6 +41,9 @@ public class StatePayload {
             client.setLastChunkPosition(newPosition);
         }
 
+         */
+        this.yaw = client.getYaw();
+        this.pitch = client.getPitch();
         this.position = newPosition;
     }
 
@@ -63,9 +63,8 @@ public class StatePayload {
         payloadNode.put("x", position.x);
         payloadNode.put("y", position.y);
         payloadNode.put("z", position.z);
-        payloadNode.put("inputX", payload.getInputVector().x);
-        payloadNode.put("inputY", payload.getInputVector().y);
-        payloadNode.put("inputZ", payload.getInputVector().z);
+        payloadNode.put("yaw", yaw);
+        payloadNode.put("pitch", pitch);
 
         try {
             String payloadData = mapper.writeValueAsString(payloadNode);

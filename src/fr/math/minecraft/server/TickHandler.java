@@ -43,7 +43,7 @@ public class TickHandler extends Thread {
             tickTimer += deltaTime;
 
             if (currentTime - lastTickTime >= 1000) {
-                System.out.println("TPS : " + tickRate);
+                // System.out.println("TPS : " + tickRate);
                 tickRate = 0;
                 lastTickTime = currentTime;
             }
@@ -111,6 +111,7 @@ public class TickHandler extends Thread {
                 bufferIndex = inputPayload.getTick() % BUFFER_SIZE;
                 StatePayload statePayload = new StatePayload(inputPayload);
                 statePayload.predictMovement(client);
+
                 //statePayload.send();
 
                 stateBuffer[bufferIndex] = statePayload;
@@ -146,7 +147,7 @@ public class TickHandler extends Thread {
         }
 
         // this.sendChunks();
-        // this.sendPlayers();
+        this.sendPlayers();
     }
 
     private void sendChunks() {

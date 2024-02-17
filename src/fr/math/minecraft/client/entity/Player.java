@@ -1,11 +1,13 @@
 package fr.math.minecraft.client.entity;
 
 import fr.math.minecraft.client.Game;
+import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.client.animations.Animation;
 import fr.math.minecraft.client.animations.PlayerWalkAnimation;
 import fr.math.minecraft.client.events.listeners.EventListener;
 import fr.math.minecraft.client.events.PlayerMoveEvent;
 import fr.math.minecraft.client.meshs.NametagMesh;
+import fr.math.minecraft.shared.network.PlayerInputData;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
@@ -27,6 +29,7 @@ public class Player {
     public final static float HEIGHT = 1.75f;
     public final static float DEPTH = WIDTH;
     private Vector3f position;
+    private Vector3f lastTickPosition;
     private float yaw;
     private float bodyYaw;
     private float pitch;
@@ -35,6 +38,7 @@ public class Player {
     private boolean movingLeft, movingRight, movingForward, movingBackward;
     private boolean flying, sneaking;
     private boolean debugKeyPressed;
+    private float lastTickYaw, lastTickPitch;
 
     private float lastMouseX, lastMouseY;
     private String name;
@@ -45,19 +49,24 @@ public class Player {
     private float sensitivity;
     private final static Logger logger = LoggerUtility.getClientLogger(Player.class, LogType.TXT);
     private final List<EventListener> eventListeners;
-    private final Vector3i inputVector;
+    private Vector3i lastTickInput;
     private int ping;
+    private final List<PlayerInputData> inputs;
 
     public Player(String name) {
         this.position = new Vector3f(0.0f, 0.0f, 0.0f);
-        this.inputVector = new Vector3i(0, 0, 0);
+        this.lastTickPosition = new Vector3f(0, 0, 0);
+        this.lastTickInput = new Vector3i(0, 0, 0);
+        this.inputs = new ArrayList<>();
         this.yaw = 0.0f;
         this.bodyYaw = 0.0f;
+        this.lastTickYaw = 0.0f;
+        this.lastTickPitch = 0.0f;
         this.pitch = 0.0f;
         this.firstMouse = true;
         this.lastMouseX = 0.0f;
         this.lastMouseY = 0.0f;
-        this.speed = 0.2f;
+        this.speed = 0.1f;
         this.ping = 0;
         this.sensitivity = 0.1f;
         this.name = name;
@@ -110,32 +119,26 @@ public class Player {
 
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
             movingForward = true;
-            inputVector.z--;
         }
 
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
             movingLeft = true;
-            inputVector.x--;
         }
 
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
             movingBackward = true;
-            inputVector.z++;
         }
 
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
             movingRight = true;
-            inputVector.x++;
         }
 
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
             flying = true;
-            inputVector.y++;
         }
 
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
             sneaking = true;
-            inputVector.y--;
         }
 
         if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_PRESS) {
@@ -309,7 +312,7 @@ public class Player {
     public void updatePosition() {
 
         Vector3f front = new Vector3f();
-        Game game = Game.getInstance();
+        float speed = this.speed * 10.0f * (1.0f / GameConfiguration.TICK_PER_SECONDS);
 
         front.x = (float) (Math.cos(Math.toRadians(yaw) * Math.cos(Math.toRadians(pitch))));
         front.y = (float) Math.sin(Math.toRadians(0.0f));
@@ -317,29 +320,76 @@ public class Player {
 
         front.normalize();
 
+        Vector3i inputVector = new Vector3i(0, 0, 0);
         Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
 
-        if (movingForward)
+        if (movingForward) {
             position.add(new Vector3f(front).mul(speed));
+            inputVector.z--;
+        }
 
-        if (movingBackward)
+        if (movingBackward) {
             position.sub(new Vector3f(front).mul(speed));
+            inputVector.z++;
+        }
 
-        if (movingLeft)
+        if (movingLeft) {
             position.sub(new Vector3f(right).mul(speed));
+            inputVector.x--;
+        }
 
-        if (movingRight)
+        if (movingRight) {
             position.add(new Vector3f(right).mul(speed));
+            inputVector.x++;
+        }
 
-        if (flying)
+        if (flying) {
             position.add(new Vector3f(0.0f, .5f, 0.0f));
+            inputVector.y++;
+        }
 
-        if (sneaking)
+        if (sneaking) {
             position.sub(new Vector3f(0.0f, .5f, 0.0f));
+            inputVector.y--;
+        }
 
+        PlayerInputData inputData = new PlayerInputData(inputVector, yaw, pitch);
+        inputs.add(inputData);
     }
 
-    public Vector3i getInputVector() {
-        return inputVector;
+    public Vector3f getLastTickPosition() {
+        return lastTickPosition;
+    }
+
+    public void setLastTickPosition(Vector3f lastTickPosition) {
+        this.lastTickPosition = lastTickPosition;
+    }
+
+    public Vector3i getLastTickInput() {
+        return lastTickInput;
+    }
+
+    public float getLastTickPitch() {
+        return lastTickPitch;
+    }
+
+    public float getLastTickYaw() {
+        return lastTickYaw;
+    }
+
+    public void setLastTickInput(Vector3i lastTickInput) {
+        this.lastTickInput = lastTickInput;
+    }
+
+    public void setLastTickYaw(float lastTickYaw) {
+        this.lastTickYaw = lastTickYaw;
+    }
+
+    public void setLastTickPitch(float lastTickPitch) {
+        this.lastTickPitch = lastTickPitch;
+    }
+
+    public List<PlayerInputData> getInputs() {
+        return inputs;
     }
 }

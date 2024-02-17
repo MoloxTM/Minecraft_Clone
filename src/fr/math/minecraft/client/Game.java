@@ -15,7 +15,10 @@ import fr.math.minecraft.client.world.Coordinates;
 import fr.math.minecraft.client.world.World;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
+import fr.math.minecraft.shared.network.PlayerInputData;
 import org.apache.log4j.Logger;
+import org.joml.Vector3f;
+import org.joml.Vector3i;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.ALC;
@@ -63,13 +66,14 @@ public class Game {
     private MenuManager menuManager;
     private DoubleBuffer mouseXBuffer, mouseYBuffer;
     private boolean debugging;
-    private int frames, fps;
+    private int frames, fps, updates;
     private ThreadPoolExecutor chunkMeshLoadingQueue;
     private ThreadPoolExecutor chunkLoadingQueue;
     private Map<Coordinates, Boolean> loadingChunks;
     private Queue<Chunk> pendingMeshs;
     private PlayerMovementHandler playerMovementHandler;
     private double lastPingTime;
+    private int tick;
 
     private Game() {
         this.initWindow();
@@ -133,6 +137,7 @@ public class Game {
         this.debugging = false;
         this.frames = 0;
         this.fps = 0;
+        this.tick = 1;
         this.chunkMeshLoadingQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(8);
         this.chunkLoadingQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(7);
         this.loadingChunks = new HashMap<>();
@@ -235,6 +240,14 @@ public class Game {
     private void update() {
 
         if (state == GameState.PLAYING) {
+            tick++;
+            if (tick % 10 == 0) {
+                List<PlayerInputData> inputData = new ArrayList<>(player.getInputs());
+
+                playerMovementHandler.handle(player, new Vector3f(player.getPosition()), inputData);
+
+                player.getInputs().clear();
+            }
             player.handleInputs(window);
             player.updatePosition();
             camera.update(player);

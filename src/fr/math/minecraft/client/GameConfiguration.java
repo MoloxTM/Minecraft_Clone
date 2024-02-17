@@ -6,8 +6,8 @@ public class GameConfiguration {
     public final static float TICK_PER_SECONDS = 20.0f;
     public final static float TICK_RATE = 1.0f / TICK_PER_SECONDS;
     public final static float UPDATE_TICK = 1.0f / UPS;
-    public final static float WINDOW_WIDTH = 1280.0f;
-    public final static float WINDOW_HEIGHT = 720.0f;
+    public final static float WINDOW_WIDTH = 640.0f;
+    public final static float WINDOW_HEIGHT = 480.0f;
     public final static float WINDOW_CENTER_X = WINDOW_WIDTH / 2.0f;
     public final static float WINDOW_CENTER_Y = WINDOW_HEIGHT / 2.0f;
     public final static String FONT_FILE_PATH = "res/fonts/Monocraft.ttf";

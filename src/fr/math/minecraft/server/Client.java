@@ -3,10 +3,12 @@ package fr.math.minecraft.server;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.client.world.Coordinates;
 import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.server.world.ServerChunk;
 import fr.math.minecraft.server.world.ServerChunkComparator;
+import fr.math.minecraft.shared.network.PlayerInputData;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
@@ -54,7 +56,7 @@ public class Client {
         this.nearChunks = new PriorityQueue<>(new ServerChunkComparator(this));
         this.yaw = 0.0f;
         this.pitch = 0.0f;
-        this.speed = 0.2f;
+        this.speed = 0.1f;
         this.skin = null;
         this.movingLeft = false;
         this.movingRight = false;
@@ -103,49 +105,55 @@ public class Client {
     }
 
     public void updatePosition(InputPayload payload) {
-        Vector3i inputVector = new Vector3i(payload.getInputVector());
-        float yaw = payload.getYaw();
-        float pitch = payload.getPitch();
 
-        front.x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
-        front.y = (float) Math.sin(Math.toRadians(0.0f));
-        front.z = (float) (Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
+        for (PlayerInputData inputData : payload.getInputsData()) {
+            Vector3i inputVector = new Vector3i(inputData.getInputVector());
+            float yaw = inputData.getYaw();
+            float pitch = inputData.getPitch();
 
-        front.normalize();
-        Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
+            this.yaw = yaw;
+            this.pitch = pitch;
 
-        while (inputVector.z < 0) {
-            position.add(new Vector3f(front).mul(speed));
-            inputVector.z++;
+            float speed = this.speed * 10.0f * (1.0f / GameConfiguration.TICK_PER_SECONDS);
+
+            front.x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
+            front.y = (float) Math.sin(Math.toRadians(0.0f));
+            front.z = (float) (Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
+
+            front.normalize();
+            Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
+
+            while (inputVector.z < 0) {
+                position.add(new Vector3f(front).mul(speed));
+                inputVector.z++;
+            }
+
+            while (inputVector.z > 0) {
+                position.sub(new Vector3f(front).mul(speed));
+                inputVector.z--;
+            }
+
+            while (inputVector.x < 0) {
+                position.sub(new Vector3f(right).mul(speed));
+                inputVector.x++;
+            }
+
+            while (inputVector.x > 0) {
+                position.add(new Vector3f(right).mul(speed));
+                inputVector.x--;
+            }
+
+            while (inputVector.y > 0) {
+                position.add(new Vector3f(0.0f, .5f, 0.0f));
+                inputVector.y--;
+            }
+
+            while (inputVector.y < 0) {
+                position.sub(new Vector3f(0.0f, .5f, 0.0f));
+                inputVector.y++;
+            }
         }
-
-        while (inputVector.z > 0) {
-            position.sub(new Vector3f(front).mul(speed));
-            inputVector.z--;
-        }
-
-        while (inputVector.x < 0) {
-            position.sub(new Vector3f(right).mul(speed));
-            inputVector.x++;
-        }
-
-        while (inputVector.x > 0) {
-            position.add(new Vector3f(right).mul(speed));
-            inputVector.x--;
-        }
-
-        while (inputVector.y > 0) {
-            position.add(new Vector3f(0.0f, .5f, 0.0f));
-            inputVector.y--;
-        }
-
-        while (inputVector.y < 0) {
-            position.sub(new Vector3f(0.0f, .5f, 0.0f));
-            inputVector.y++;
-        }
-
         // System.out.println("Tick " + payload.getTick() + " InputVector: " + payload.getInputVector() + " Calculated position : " + position);
-
     }
 
     public Vector3f getPosition() {
@@ -230,5 +238,17 @@ public class Client {
 
     public void setLastChunkPosition(Vector3f lastChunkPosition) {
         this.lastChunkPosition = lastChunkPosition;
+    }
+
+    public Vector3i getInputVector() {
+        return inputVector;
+    }
+
+    public float getYaw() {
+        return yaw;
+    }
+
+    public float getPitch() {
+        return pitch;
     }
 }

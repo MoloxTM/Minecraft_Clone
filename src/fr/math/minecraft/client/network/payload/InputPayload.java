@@ -1,41 +1,30 @@
 package fr.math.minecraft.client.network.payload;
 
-import fr.math.minecraft.client.entity.Player;
-import org.joml.Vector3f;
-import org.joml.Vector3i;
+import fr.math.minecraft.shared.network.PlayerInputData;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class InputPayload {
 
     private final int tick;
-    private Vector3i inputVector;
-    private float yaw;
-    private float pitch;
+    private final List<PlayerInputData> inputData;
 
-    public InputPayload(int tick, Vector3i inputVector, float yaw, float pitch) {
+    public InputPayload(int tick, List<PlayerInputData> inputData) {
         this.tick = tick;
-        this.yaw = yaw;
-        this.pitch = pitch;
-        this.inputVector = inputVector;
+        this.inputData = inputData;
     }
 
     public InputPayload(int tick) {
         this.tick = tick;
+        this.inputData = new ArrayList<>();
     }
 
     public int getTick() {
         return tick;
     }
 
-    public float getYaw() {
-        return yaw;
+    public List<PlayerInputData> getInputData() {
+        return inputData;
     }
-
-    public float getPitch() {
-        return pitch;
-    }
-
-    public Vector3i getInputVector() {
-        return inputVector;
-    }
-
 }
