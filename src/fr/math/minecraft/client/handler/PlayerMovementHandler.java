@@ -1,5 +1,6 @@
 package fr.math.minecraft.client.handler;
 
+import fr.math.minecraft.client.Camera;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.shared.network.PlayerInputData;
@@ -56,8 +57,9 @@ public class PlayerMovementHandler {
         float positionError = serverPosition.distance(payload.getPosition());
 
         if (positionError > 0.001f) {
+            Camera camera = Game.getInstance().getCamera();
             System.out.println("[Reconciliation] ServerTick : " + serverTick + " ClientTick : " + currentTick + " Error : " + positionError + " ServerPosition " + serverPosition + " PayloadPosition " + payload.getPosition());
-            // System.out.println("[Reconciliation] Server Yaw : " + lastServerState.getYaw() + " Server Pitch : " + lastServerState.getPitch() + " Payload Yaw : " + payload.getInputPayload().getInputData().get(payload.getInputPayload().getInputData().size() - 1).getYaw() + " Payload Pitch : " + payload.getInputPayload().getInputData().get(payload.getInputPayload().getInputData().size() - 1).getPitch());
+            System.out.println("[Reconciliation] Server Yaw : " + lastServerState.getYaw() + " Server Pitch : " + lastServerState.getPitch() + " Payload Yaw : " + payload.getInputPayload().getInputData().get(payload.getInputPayload().getInputData().size() - 1).getYaw() + " Payload Pitch : " + payload.getInputPayload().getInputData().get(payload.getInputPayload().getInputData().size() - 1).getPitch());
             stateBuffer[serverTick % BUFFER_SIZE] = lastServerState;
 
             int tickToProcess = serverTick + 1;
@@ -68,7 +70,7 @@ public class PlayerMovementHandler {
             player.setYaw(lastServerState.getYaw());
             player.setPitch(lastServerState.getPitch());
 
-            Game.getInstance().getCamera().update(player);
+            camera.update(player);
 
             while (tickToProcess < currentTick) {
 
@@ -76,11 +78,7 @@ public class PlayerMovementHandler {
                 StatePayload statePayload = new StatePayload(inputPayload);
                 statePayload.predictMovement(player, player.getPosition());
 
-                player.getPosition().x = statePayload.getPosition().x;
-                player.getPosition().y = statePayload.getPosition().y;
-                player.getPosition().z = statePayload.getPosition().z;
-
-                Game.getInstance().getCamera().update(player);
+                camera.update(player);
 
                 int bufferIndex = tickToProcess % BUFFER_SIZE;
                 stateBuffer[bufferIndex] = statePayload;

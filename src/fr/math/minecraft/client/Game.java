@@ -239,20 +239,6 @@ public class Game {
 
     private void update() {
 
-        if (state == GameState.PLAYING) {
-            tick++;
-            if (tick % 10 == 0) {
-                List<PlayerInputData> inputData = new ArrayList<>(player.getInputs());
-
-                playerMovementHandler.handle(player, new Vector3f(player.getPosition()), inputData);
-
-                player.getInputs().clear();
-            }
-            player.handleInputs(window);
-            player.updatePosition();
-            camera.update(player);
-        }
-
         for (Menu menu : menus.values()) {
             if (!menu.isOpen()) continue;
 
@@ -270,6 +256,18 @@ public class Game {
         if (state == GameState.MAIN_MENU) {
             return;
         }
+
+        tick++;
+        if (tick % 10 == 0) {
+            List<PlayerInputData> inputData = new ArrayList<>(player.getInputs());
+
+            playerMovementHandler.handle(player, new Vector3f(player.getPosition()), inputData);
+
+            player.getInputs().clear();
+        }
+        player.handleInputs(window);
+        player.updatePosition();
+        camera.update(player);
 
         // worldManager.cleanChunks(world);
 

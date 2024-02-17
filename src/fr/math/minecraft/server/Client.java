@@ -107,7 +107,6 @@ public class Client {
     public void updatePosition(InputPayload payload) {
 
         for (PlayerInputData inputData : payload.getInputsData()) {
-            Vector3i inputVector = new Vector3i(inputData.getInputVector());
             float yaw = inputData.getYaw();
             float pitch = inputData.getPitch();
 
@@ -115,42 +114,40 @@ public class Client {
             this.pitch = pitch;
 
             float speed = this.speed * 10.0f * (1.0f / GameConfiguration.TICK_PER_SECONDS);
-
             front.x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
             front.y = (float) Math.sin(Math.toRadians(0.0f));
             front.z = (float) (Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
 
             front.normalize();
             Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
+            System.out.println("Client " + position);
 
-            while (inputVector.z < 0) {
+            if (inputData.isMovingForward()) {
                 position.add(new Vector3f(front).mul(speed));
-                inputVector.z++;
             }
+            System.out.println("Client " + position);
 
-            while (inputVector.z > 0) {
+            if (inputData.isMovingBackward()) {
                 position.sub(new Vector3f(front).mul(speed));
-                inputVector.z--;
             }
+            System.out.println("Client " + position);
 
-            while (inputVector.x < 0) {
+            if (inputData.isMovingLeft()) {
                 position.sub(new Vector3f(right).mul(speed));
-                inputVector.x++;
             }
+            System.out.println("Client " + position);
 
-            while (inputVector.x > 0) {
+            if (inputData.isMovingRight()) {
                 position.add(new Vector3f(right).mul(speed));
-                inputVector.x--;
             }
+            System.out.println("Client " + position);
 
-            while (inputVector.y > 0) {
+            if (inputData.isFlying()) {
                 position.add(new Vector3f(0.0f, .5f, 0.0f));
-                inputVector.y--;
             }
 
-            while (inputVector.y < 0) {
+            if (inputData.isSneaking()) {
                 position.sub(new Vector3f(0.0f, .5f, 0.0f));
-                inputVector.y++;
             }
         }
         // System.out.println("Tick " + payload.getTick() + " InputVector: " + payload.getInputVector() + " Calculated position : " + position);

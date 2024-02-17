@@ -8,11 +8,18 @@ import java.util.Queue;
 
 public class PlayerInputData {
 
-    private final Vector3i inputVector;
     private final float yaw;
     private final float pitch;
-    public PlayerInputData(Vector3i inputVector, float yaw, float pitch) {
-        this.inputVector = inputVector;
+    private final boolean movingLeft, movingRight, movingForward, movingBackward;
+    private final boolean flying, sneaking;
+
+    public PlayerInputData(boolean movingLeft, boolean movingRight, boolean movingForward, boolean movingBackward, boolean flying, boolean sneaking, float yaw, float pitch) {
+        this.movingLeft = movingLeft;
+        this.movingRight = movingRight;
+        this.movingForward = movingForward;
+        this.movingBackward = movingBackward;
+        this.flying = flying;
+        this.sneaking = sneaking;
         this.yaw = yaw;
         this.pitch = pitch;
     }
@@ -21,9 +28,12 @@ public class PlayerInputData {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode node = mapper.createObjectNode();
 
-        node.put("inputX", inputVector.x);
-        node.put("inputY", inputVector.y);
-        node.put("inputZ", inputVector.z);
+        node.put("movingLeft", movingLeft);
+        node.put("movingRight", movingRight);
+        node.put("movingForward", movingForward);
+        node.put("movingBackward", movingBackward);
+        node.put("flying", flying);
+        node.put("sneaking", sneaking);
         node.put("yaw", yaw);
         node.put("pitch", pitch);
 
@@ -38,7 +48,27 @@ public class PlayerInputData {
         return yaw;
     }
 
-    public Vector3i getInputVector() {
-        return inputVector;
+    public boolean isMovingLeft() {
+        return movingLeft;
+    }
+
+    public boolean isMovingRight() {
+        return movingRight;
+    }
+
+    public boolean isMovingForward() {
+        return movingForward;
+    }
+
+    public boolean isMovingBackward() {
+        return movingBackward;
+    }
+
+    public boolean isSneaking() {
+        return sneaking;
+    }
+
+    public boolean isFlying() {
+        return flying;
     }
 }

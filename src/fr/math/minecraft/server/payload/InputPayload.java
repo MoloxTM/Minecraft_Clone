@@ -24,13 +24,15 @@ public class InputPayload {
 
         for (int i = 0; i < inputsArray.size(); i++) {
             JsonNode inputNode = inputsArray.get(i);
-            int inputX = inputNode.get("inputX").asInt();
-            int inputY = inputNode.get("inputY").asInt();
-            int inputZ = inputNode.get("inputZ").asInt();
+            boolean movingForward = inputNode.get("movingForward").asBoolean();
+            boolean movingBackward = inputNode.get("movingBackward").asBoolean();
+            boolean movingLeft = inputNode.get("movingLeft").asBoolean();
+            boolean movingRight = inputNode.get("movingRight").asBoolean();
+            boolean sneaking = inputNode.get("sneaking").asBoolean();
+            boolean flying = inputNode.get("flying").asBoolean();
             float yaw = inputNode.get("yaw").floatValue();
             float pitch = inputNode.get("pitch").floatValue();
-            Vector3i inputVector = new Vector3i(inputX, inputY, inputZ);
-            PlayerInputData inputData = new PlayerInputData(inputVector, yaw, pitch);
+            PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, yaw, pitch);
 
             inputsData.add(inputData);
         }

@@ -313,47 +313,45 @@ public class Player {
 
         Vector3f front = new Vector3f();
         float speed = this.speed * 10.0f * (1.0f / GameConfiguration.TICK_PER_SECONDS);
-
-        front.x = (float) (Math.cos(Math.toRadians(yaw) * Math.cos(Math.toRadians(pitch))));
+        front.x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
         front.y = (float) Math.sin(Math.toRadians(0.0f));
-        front.z = (float) (Math.sin(Math.toRadians(yaw) * Math.cos(Math.toRadians(pitch))));
+        front.z = (float) (Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
 
         front.normalize();
 
-        Vector3i inputVector = new Vector3i(0, 0, 0);
         Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
+
+        System.out.println("Player " + position);
 
         if (movingForward) {
             position.add(new Vector3f(front).mul(speed));
-            inputVector.z--;
         }
+        System.out.println("Player " + position);
 
         if (movingBackward) {
             position.sub(new Vector3f(front).mul(speed));
-            inputVector.z++;
         }
+        System.out.println("Player " + position);
 
         if (movingLeft) {
             position.sub(new Vector3f(right).mul(speed));
-            inputVector.x--;
         }
+        System.out.println("Player " + position);
 
         if (movingRight) {
             position.add(new Vector3f(right).mul(speed));
-            inputVector.x++;
         }
+        System.out.println("Player " + position);
 
         if (flying) {
             position.add(new Vector3f(0.0f, .5f, 0.0f));
-            inputVector.y++;
         }
 
         if (sneaking) {
             position.sub(new Vector3f(0.0f, .5f, 0.0f));
-            inputVector.y--;
         }
 
-        PlayerInputData inputData = new PlayerInputData(inputVector, yaw, pitch);
+        PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, yaw, pitch);
         inputs.add(inputData);
     }
 

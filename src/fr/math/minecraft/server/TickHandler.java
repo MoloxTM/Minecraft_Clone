@@ -141,7 +141,6 @@ public class TickHandler extends Thread {
                     ChunkManager chunkManager = server.getChunkManager();
                     chunkManager.sendChunk(client, chunk);
 
-                    System.out.println("J'envoie un chunk ? " + chunk.getPosition());
                 }
             }
         }

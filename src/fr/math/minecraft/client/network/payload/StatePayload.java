@@ -1,6 +1,7 @@
 package fr.math.minecraft.client.network.payload;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import fr.math.minecraft.client.Camera;
 import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.network.FixedPacketSender;
@@ -40,7 +41,6 @@ public class StatePayload {
         Vector3f position = new Vector3f(playerPosition);
 
         for (PlayerInputData inputData : payload.getInputData()) {
-            Vector3i inputVector = new Vector3i(inputData.getInputVector());
             float yaw = inputData.getYaw();
             float pitch = inputData.getPitch();
 
@@ -55,35 +55,31 @@ public class StatePayload {
 
             Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
 
-            while (inputVector.z < 0) {
+            if (inputData.isMovingForward()) {
                 position.add(new Vector3f(front).mul(speed));
-                inputVector.z++;
             }
 
-            while (inputVector.z > 0) {
+            if (inputData.isMovingBackward()) {
                 position.sub(new Vector3f(front).mul(speed));
-                inputVector.z--;
             }
 
-            while (inputVector.x < 0) {
+            if (inputData.isMovingLeft()) {
                 position.sub(new Vector3f(right).mul(speed));
-                inputVector.x++;
             }
 
-            while (inputVector.x > 0) {
+            if (inputData.isMovingRight()) {
                 position.add(new Vector3f(right).mul(speed));
-                inputVector.x--;
             }
 
-            while (inputVector.y > 0) {
+            if (inputData.isFlying()) {
                 position.add(new Vector3f(0.0f, .5f, 0.0f));
-                inputVector.y--;
             }
 
-            while (inputVector.y < 0) {
+            if (inputData.isSneaking()) {
                 position.sub(new Vector3f(0.0f, .5f, 0.0f));
-                inputVector.y++;
             }
+
+            player.setPosition(new Vector3f(position));
         }
 
         this.position = new Vector3f(position);
