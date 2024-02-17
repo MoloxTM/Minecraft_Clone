@@ -17,9 +17,9 @@ public enum Material {
     OAK_LEAVES("Oak leaves",7,4,12),
     WEED("Weed", 8, 7, 13),
     ROSE("Rose", 9, 12, 15),
-    DEAD_BUSH("Dead bush", 10, 7, 12);
-
-
+    DEAD_BUSH("Dead bush", 10, 7, 12),
+    BIRCH_LOG("Birch log",11, new Vector2i(5, 8), new Vector2i(5, 8), new Vector2i(5, 8), new Vector2i(5, 8), new Vector2i(10, 7), new Vector2i(10, 7)),
+    BIRCH_LEAVES("Oak leaves",12,5,7);
 
     private final int x;
     private final int y;
