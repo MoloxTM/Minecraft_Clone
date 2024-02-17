@@ -5,6 +5,7 @@ import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.meshs.ChunkMesh;
 import org.joml.Vector3f;
+import fr.math.minecraft.server.world.biome.AbstractBiome;
 import org.joml.Vector3i;
 
 import java.util.HashMap;
@@ -25,6 +26,7 @@ public class Chunk {
     private boolean shouldDelete;
     private boolean loaded;
     private Map<Coordinates, Boolean> emptyMap;
+    private int biome;
 
     public Chunk(int x, int y, int z) {
         this.position = new Vector3i(x, y, z);
@@ -42,6 +44,8 @@ public class Chunk {
         this.mesh = null;
         this.shouldDelete = false;
         this.loaded = false;
+        this.chunkMesh = null;
+        this.biome = -1;
     }
 
     public Chunk(JsonNode chunkData) {
@@ -140,5 +144,13 @@ public class Chunk {
 
     public Map<Coordinates, Boolean> getEmptyMap() {
         return emptyMap;
+    }
+    
+    public int getBiome() {
+        return biome;
+    }
+
+    public void setBiome(int biome) {
+        this.biome = biome;
     }
 }

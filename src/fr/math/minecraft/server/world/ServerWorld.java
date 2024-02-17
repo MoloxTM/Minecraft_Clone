@@ -3,25 +3,28 @@ package fr.math.minecraft.server.world;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.client.world.Chunk;
+import fr.math.minecraft.server.world.generator.OverworldGenerator;
+import fr.math.minecraft.server.world.generator.TerrainGenerator;
+import org.joml.Vector3i;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
 public class ServerWorld {
 
     private final HashMap<Coordinates, ServerChunk> chunks;
+    private final Map<Coordinates, Region> regions;
     public final static int WIDTH = 10;
     public final static int HEIGHT = 10;
     public final static int DEPTH = 10;
-    private final HashMap<Coordinates, ServerChunk> structures;
-    private final ArrayList<Coordinates> trees;
     private final int seed;
+    private TerrainGenerator overworldGenerator;
 
     public ServerWorld() {
         this.chunks = new HashMap<>();
-        this.structures = new HashMap<>();
-        this.trees = new ArrayList<>();
+        this.regions = new HashMap<>();
         this.seed = 0;
+        this.overworldGenerator = new OverworldGenerator();
+
     }
 
     public void buildChunks() {
@@ -38,9 +41,6 @@ public class ServerWorld {
 
     public HashMap<Coordinates, ServerChunk> getChunks() {
         return chunks;
-    }
-
-    public void save() {
     }
 
     public void addChunk(ServerChunk chunk) {
@@ -79,15 +79,84 @@ public class ServerWorld {
         return chunk.getBlock(blockX, blockY, blockZ);
     }
 
-    public HashMap<Coordinates, ServerChunk> getStructures() {
-        return structures;
+    public void setBlock(int worldX, int worldY, int worldZ, byte block) {
+        ServerChunk serverChunk = getChunkAt(worldX, worldY, worldZ);
+        if(serverChunk == null) return;
+        int blockX = worldX % Chunk.SIZE;
+        int blockY = worldY % Chunk.SIZE;
+        int blockZ = worldZ % Chunk.SIZE;
+
+        blockX = blockX < 0 ? blockX + Chunk.SIZE : blockX;
+        blockY = blockY < 0 ? blockY + Chunk.SIZE : blockY;
+        blockZ = blockZ < 0 ? blockZ + Chunk.SIZE : blockZ;
+
+        serverChunk.setBlock(blockX, blockY, blockZ, block);
     }
 
-    public ArrayList<Coordinates> getTrees() {
-        return trees;
+    /*
+    public void updateStructure() {
+        Set<Coordinates> coordsToRemove = new HashSet<>();
+        for(Map.Entry<Coordinates, Byte> structureSet : overworldGenerator.getStructure().getStructureMap().entrySet()) {
+
+            int worldX = structureSet.getKey().getX();
+            int worldY = structureSet.getKey().getY();
+            int worldZ = structureSet.getKey().getZ();
+
+            int chunkX = (int) Math.floor(worldX / (double) Chunk.SIZE);
+            int chunkY = (int) Math.floor(worldY / (double) Chunk.SIZE);
+            int chunkZ = (int) Math.floor(worldZ / (double) Chunk.SIZE);
+
+            ServerChunk chunk = this.getChunkAt(worldX, worldY, worldZ);
+
+            if (chunk == null) {
+                chunk = new ServerChunk(chunkX, chunkY, chunkZ);
+                this.addChunk(chunk);
+            }
+
+            int blockX = worldX % Chunk.SIZE;
+            int blockY = worldY % Chunk.SIZE;
+            int blockZ = worldZ % Chunk.SIZE;
+
+            blockX = blockX < 0 ? blockX + Chunk.SIZE : blockX;
+            blockY = blockY < 0 ? blockY + Chunk.SIZE : blockY;
+            blockZ = blockZ < 0 ? blockZ + Chunk.SIZE : blockZ;
+            chunk.setBlock(blockX, blockY, blockZ, structureSet.getValue());
+
+            coordsToRemove.add(structureSet.getKey());
+        }
+
+        for (Coordinates coordinates : coordsToRemove) {
+            overworldGenerator.getStructure().getStructureMap().remove(coordinates);
+        }
+    }
+    */
+
+    public void addRegion(int regionX, int regionY, int regionZ) {
+        Region region = new Region(new Vector3i(regionX, regionY, regionZ));
+        this.regions.put(new Coordinates(regionX, regionY, regionZ), region);
+    }
+
+    public void addRegion(Region region) {
+        this.regions.put(new Coordinates(region.getPosition().x, region.getPosition().y, region.getPosition().z), region);
+    }
+
+    public Region getRegion(int x, int y, int z) {
+        Coordinates coordinates = new Coordinates(x, y, z);
+        return regions.get(coordinates);
+    }
+
+    public Region getRegion(Coordinates coordinates) {
+        return regions.get(coordinates);
+    }
+    public Map<Coordinates, Region> getRegions() {
+        return regions;
     }
 
     public int getSeed() {
         return seed;
+    }
+
+    public TerrainGenerator getOverworldGenerator() {
+        return overworldGenerator;
     }
 }

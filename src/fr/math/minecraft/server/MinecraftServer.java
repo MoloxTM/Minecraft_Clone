@@ -11,6 +11,7 @@ import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.server.handler.*;
 import fr.math.minecraft.server.manager.ChunkManager;
 import fr.math.minecraft.server.world.Coordinates;
+import fr.math.minecraft.server.world.Region;
 import fr.math.minecraft.server.world.ServerChunk;
 import fr.math.minecraft.server.world.ServerWorld;
 import org.apache.log4j.Logger;
@@ -58,6 +59,9 @@ public class MinecraftServer {
         this.packetQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(8);
         this.tickHandler = new TickHandler();
         this.chunkManager = new ChunkManager();
+        Region region = new Region(0, 0, 0);
+        region.generateStructure(world);
+        this.world.addRegion(region);
     }
 
     public void start() throws IOException {

@@ -4,19 +4,15 @@ import fr.math.minecraft.server.MinecraftServer;
 import fr.math.minecraft.server.RandomSeed;
 import fr.math.minecraft.server.Utils;
 import fr.math.minecraft.server.builder.StructureBuilder;
-import fr.math.minecraft.server.world.Coordinates;
-import fr.math.minecraft.server.world.Material;
-import fr.math.minecraft.server.world.ServerChunk;
-import fr.math.minecraft.server.world.ServerWorld;
+import fr.math.minecraft.server.world.*;
 import fr.math.minecraft.server.world.generator.NoiseGenerator;
-
-import java.util.ArrayList;
 
 public class DesertBiome extends AbstractBiome{
 
     public DesertBiome() {
         this.noise = new NoiseGenerator(9, 30, 500.0f, .5f, 25);
         this.biomeName = "Deserts";
+        this.biomeID = 0;
     }
 
     public Material getUpperBlock() {
@@ -29,37 +25,30 @@ public class DesertBiome extends AbstractBiome{
     }
 
     @Override
-    public void buildTree(ServerChunk chunk, int x, int y, int z) {
-
-        ServerWorld world = MinecraftServer.getInstance().getWorld();
-
-        int worldX = chunk.getPosition().x * ServerChunk.SIZE + x;
-        int worldZ = chunk.getPosition().x * ServerChunk.SIZE + z;
-        int worldY = chunk.getPosition().x * ServerChunk.SIZE + y;
+    public void buildTree(int worldX, int worldY, int worldZ, Structure structure, ServerWorld world) {
 
         Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
-
-        synchronized (world.getTrees()) {
-            // Calul distance
-            for (Coordinates coordinates1 : world.getTrees()) {
-                double dist = Utils.distance(coordinates, coordinates1);
-                if(dist <= 20)return;
-            }
+        //Calul distance
+        for (Coordinates coordinates1 : structure.getStructureMap().keySet()) {
+            double dist = Utils.distance(coordinates, coordinates1);
+            if(dist <= 20)return;
         }
 
         RandomSeed randomSeed = RandomSeed.getInstance();
         float dropRate = randomSeed.nextFloat() * 100.0f;
-        if(dropRate < 0.1f) {
-            StructureBuilder.buildSimpleCactus(chunk, x, y, z);
-            synchronized (world.getTrees()) {
-                world.getTrees().add(coordinates);
-            }
+        if(dropRate < 0.3f) {
+            StructureBuilder.buildSimpleCactus(structure, worldX, worldY, worldZ);
+            structure.getStructures().add(coordinates);
         }
     }
 
     @Override
-    public void buildWeeds(ServerChunk chunk, int x, int y, int z) {
-
+    public void buildWeeds(int worldX, int worldY, int worldZ, Structure structure, ServerWorld world) {
+        RandomSeed randomSeed = RandomSeed.getInstance();
+        float dropRate = randomSeed.nextFloat() * 100.0f;
+        if(dropRate < 0.2f) {
+            StructureBuilder.buildDeadBush(structure, worldX, worldY, worldZ);
+        }
     }
 
 }

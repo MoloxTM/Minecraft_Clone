@@ -14,6 +14,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import fr.math.minecraft.server.MinecraftServer;
+import fr.math.minecraft.server.world.biome.*;
+import fr.math.minecraft.server.world.generator.TerrainGenerator;
+import org.joml.Vector3i;
+
 public class ServerChunk {
 
     private final Vector3i position;
@@ -25,6 +30,10 @@ public class ServerChunk {
 
     public final static int VOLUME = SIZE * AREA;
     private boolean empty;
+
+    private int biomeID;
+    private boolean generated;
+
     public ServerChunk(int x, int y, int z) {
         this.position = new Vector3i(x, y, z);
         this.blocks = new byte[VOLUME];
@@ -38,12 +47,16 @@ public class ServerChunk {
         this.empty = true;
         this.emptyMap = new HashMap<>();
         this.generate();
+        this.generated = false;
+        this.biomeID = -1;
     }
 
     public void generate() {
-        OverworldGenerator overworldGenerator = new OverworldGenerator();
+        ServerWorld serverWorld = MinecraftServer.getInstance().getWorld();
+        TerrainGenerator overworldGenerator = serverWorld.getOverworldGenerator();
         overworldGenerator.generateChunk(this);
-        //overworldGenerator.generateStructure(this);
+        //serverWorld.updateStructure();
+        this.generated = true;
     }
 
     public byte[] getBlocks() {
@@ -81,8 +94,10 @@ public class ServerChunk {
         node.put("x", position.x);
         node.put("y", position.y);
         node.put("z", position.z);
+        node.put("biome", biomeID);
         node.set("blocks", blocksArray);
         node.set("emptyMap", emptyMapNode);
+
 
         try {
             return mapper.writeValueAsString(node);
@@ -107,5 +122,21 @@ public class ServerChunk {
 
     public void setEmpty(boolean empty) {
         this.empty = empty;
+    }
+    
+    public int getBiome() {
+        return biomeID;
+    }
+
+    public void setBiome(AbstractBiome biome) {
+        this.biomeID = biome.getBiomeID();
+    }
+
+    public boolean isGenerated() {
+        return generated;
+    }
+
+    public void setGenerated(boolean generated) {
+        this.generated = generated;
     }
 }

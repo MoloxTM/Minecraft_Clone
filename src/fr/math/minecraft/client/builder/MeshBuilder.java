@@ -1,6 +1,7 @@
 package fr.math.minecraft.client.builder;
 
 import fr.math.minecraft.client.Game;
+import fr.math.minecraft.client.meshs.model.CactusModel;
 import fr.math.minecraft.client.meshs.model.NatureModel;
 import fr.math.minecraft.client.vertex.Vertex;
 import fr.math.minecraft.client.meshs.model.BlockModel;
@@ -104,7 +105,7 @@ public class MeshBuilder {
 
                     Vector2f[] textureCoords;
 
-                    if(material == Material.WEED || material == Material.ROSE) {
+                    if(material == Material.WEED || material == Material.ROSE || material == Material.DEAD_BUSH) {
                         textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
 
                         for (int k = 0; k < SQUARE_POINTS; k++)  {

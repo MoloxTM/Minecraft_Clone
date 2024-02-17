@@ -68,6 +68,8 @@ public class Camera {
         view.identity();
         model.identity();
 
+        float biome =(float)chunk.getBiome();
+
         right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
         up = new Vector3f(right).cross(front).normalize();
 
@@ -77,9 +79,16 @@ public class Camera {
         view.lookAt(newPosition, new Vector3f(newPosition).add(front), up);
         model.translate(chunk.getPosition().x * Chunk.SIZE, chunk.getPosition().y * Chunk.SIZE, chunk.getPosition().z * Chunk.SIZE);
 
+
         shader.sendMatrix("projection", projection, projectionBuffer);
         shader.sendMatrix("view", view, viewBuffer);
         shader.sendMatrix("model", model, modelBuffer);
+        shader.sendFloat("biome", biome);
+        /*
+        shader.sendFloat("r", Player.r);
+        shader.sendFloat("g", Player.g);
+        shader.sendFloat("b", Player.b);
+         */
     }
 
     public void matrix(Shader shader, Player player) {
