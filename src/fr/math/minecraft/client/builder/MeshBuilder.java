@@ -121,7 +121,102 @@ public class MeshBuilder {
                         }
 
                         currentIndice = this.updateIndice(indices, currentIndice);
+                    } else if (material == Material.CACTUS) {
+                        if (px) {
+                            if(material.isFaces()) {
+                                textureCoords = calculateTexCoords(material.getPx().x, material.getPx().y, 16.0f);
+                            } else {
+                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
 
+                            }
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(CactusModel.PX_POS[k]), textureCoords[k],material.getId(),0));
+                            }
+
+                            currentIndice = this.updateIndice(indices, currentIndice);
+
+                        }
+
+                        if (nx) {
+                            if(material.isFaces()) {
+                                textureCoords = calculateTexCoords(material.getNx().x, material.getNx().y, 16.0f);
+                            } else {
+                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
+
+                            }
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(CactusModel.NX_POS[k]), textureCoords[k],material.getId(),1));
+                            }
+
+                            currentIndice = this.updateIndice(indices, currentIndice);
+
+                        }
+
+                        if (py) {
+                            if(material.isFaces()) {
+                                textureCoords = calculateTexCoords(material.getPy().x, material.getPy().y, 16.0f);
+                            } else {
+                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
+
+                            }
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(CactusModel.PY_POS[k]), textureCoords[k],material.getId(),2));
+                            }
+
+                            currentIndice = this.updateIndice(indices, currentIndice);
+
+                        }
+
+                        if (ny) {
+                            if(material.isFaces()) {
+                                textureCoords = calculateTexCoords(material.getNy().x, material.getNy().y, 16.0f);
+                            } else {
+                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
+
+                            }
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(CactusModel.NY_POS[k]), textureCoords[k],material.getId(),3));
+                            }
+
+                            currentIndice = this.updateIndice(indices, currentIndice);
+
+                        }
+
+                        if (pz) {
+                            if(material.isFaces()) {
+                                textureCoords = calculateTexCoords(material.getPz().x, material.getPz().y, 16.0f);
+                            } else {
+                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
+
+                            }
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(CactusModel.PZ_POS[k]), textureCoords[k],material.getId(),4));
+                            }
+
+                            currentIndice = this.updateIndice(indices, currentIndice);
+
+                        }
+
+                        if (nz) {
+                            if(material.isFaces()) {
+                                textureCoords = calculateTexCoords(material.getNz().x, material.getNz().y, 16.0f);
+                            } else {
+                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
+
+                            }
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(CactusModel.NZ_POS[k]), textureCoords[k],material.getId(),5));
+                            }
+
+                            currentIndice = this.updateIndice(indices, currentIndice);
+
+                        }
                     } else {
                         if (px) {
                             if(material.isFaces()) {

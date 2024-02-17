@@ -32,6 +32,7 @@ public class ClientManager {
 
                     if (chunk == null) {
                         chunk = new ServerChunk(x, y, z);
+                        chunk.generate();
                         world.addChunk(chunk);
                     }
 

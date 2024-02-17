@@ -41,10 +41,9 @@ public class Chunk {
         }
         this.center = this.calculateCenter();
         this.empty = true;
-        this.mesh = null;
         this.shouldDelete = false;
         this.loaded = false;
-        this.chunkMesh = null;
+        this.mesh = null;
         this.biome = -1;
     }
 

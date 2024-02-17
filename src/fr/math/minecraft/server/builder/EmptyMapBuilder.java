@@ -19,6 +19,7 @@ public class EmptyMapBuilder {
 
         if (chunk == null) {
             chunk = new ServerChunk(chunkX, chunkY, chunkZ);
+            chunk.generate();
             world.addChunk(chunk);
         }
 

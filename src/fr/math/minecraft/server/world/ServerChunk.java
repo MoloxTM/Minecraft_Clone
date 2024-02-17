@@ -46,7 +46,6 @@ public class ServerChunk {
         }
         this.empty = true;
         this.emptyMap = new HashMap<>();
-        this.generate();
         this.generated = false;
         this.biomeID = -1;
     }
@@ -87,6 +86,7 @@ public class ServerChunk {
         for (Map.Entry<String, Boolean> emptyMapSet : emptyMap.entrySet()) {
             String position = emptyMapSet.getKey();
             boolean emptyValue = emptyMapSet.getValue();
+
             emptyMapNode.put(position, emptyValue);
         }
 

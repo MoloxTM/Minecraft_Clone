@@ -83,9 +83,6 @@ public class Player {
         this.skin = null;
         this.eventListeners = new ArrayList<>();
         this.initAnimations();
-        this.r = 0;
-        this.g = 0;
-        this.b = 0;
     }
 
     private void initAnimations() {

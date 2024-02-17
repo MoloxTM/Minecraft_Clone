@@ -32,6 +32,7 @@ public class ChunkSender implements Runnable {
             chunk.setEmptyMap(EmptyMapBuilder.buildEmptyMap(world, chunk));
         }
 
+
         String chunkData = chunk.toJSON();
         byte[] buffer = chunkData.getBytes(StandardCharsets.UTF_8);
 
