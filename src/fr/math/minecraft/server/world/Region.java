@@ -48,6 +48,7 @@ public class Region {
                 if ((SIZE/2) < x && x < (ServerChunk.SIZE * SIZE) - (SIZE/2) && (SIZE/2) < z && z < (ServerChunk.SIZE * SIZE) - (SIZE/2)) {
                     if (currentBiome instanceof ForestBiome) {
                         currentBiome.buildTree(worldX, worldHeight, worldZ, structure, world);
+                        currentBiome.buildWeeds(worldX, worldHeight, worldZ, structure, world);
                     } else if(currentBiome instanceof PlainBiome) {
                         currentBiome.buildTree(worldX, worldHeight, worldZ, structure, world);
                         currentBiome.buildWeeds(worldX, worldHeight, worldZ, structure, world);

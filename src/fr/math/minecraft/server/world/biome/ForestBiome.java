@@ -30,13 +30,17 @@ public class ForestBiome extends AbstractBiome{
         //Calul distance
         for (Coordinates coordinatesAlreadyPlace : structure.getStructures()) {
             double dist = Utils.distance(coordinates, coordinatesAlreadyPlace);
-            if(dist <= 3)return;
+            if(dist <= 4)return;
         }
 
         RandomSeed randomSeed = RandomSeed.getInstance();
         float dropRate = randomSeed.nextFloat() * 100.0f;
-        if(dropRate < 10.0f) {
-            StructureBuilder.buildSimpleTree(structure, worldX, worldY, worldZ);
+        if(dropRate <= 9.0f) {
+            if(dropRate <= 2.25f) {
+                StructureBuilder.buildBallonTree(structure, worldX, worldY, worldZ, Material.OAK_LOG, Material.OAK_LEAVES, dropRate);
+            } else {
+                StructureBuilder.buildSimpleTree(structure, worldX, worldY, worldZ, Material.OAK_LOG, Material.OAK_LEAVES, dropRate);
+            }
             structure.getStructures().add(coordinates);
         }
     }

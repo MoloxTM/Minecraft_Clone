@@ -37,7 +37,7 @@ public class PlainBiome extends AbstractBiome{
         RandomSeed randomSeed = RandomSeed.getInstance();
         float dropRate = randomSeed.nextFloat() * 100.0f;
         if(dropRate < 0.2f) {
-            StructureBuilder.buildSimpleTree(structure, worldX, worldY, worldZ);
+            StructureBuilder.buildSimpleTree(structure, worldX, worldY, worldZ, Material.OAK_LOG, Material.OAK_LEAVES, dropRate);
         }
     }
 

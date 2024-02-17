@@ -6,58 +6,107 @@ import fr.math.minecraft.server.world.Structure;
 
 public class  StructureBuilder {
 
-    public static void buildSimpleTree(Structure structure, int x, int y, int z) {
+    public static void buildSimpleTree(Structure structure, int x, int y, int z, Material wood, Material leaf, float droprate) {
+        int treeSize = 6;
+        if(droprate <= 2.7f) {
+            treeSize = 5;
+        } else if (droprate >= 6.75) {
+            treeSize = 4;
+        }
 
         /*-------------------Etage 7--------------------------------*/
-        structure.setBlock(x+1, y+7, z, Material.OAK_LEAVES.getId());
-        structure.setBlock(x-1, y+7, z, Material.OAK_LEAVES.getId());
-        structure.setBlock(x, y+7, z+1, Material.OAK_LEAVES.getId());
-        structure.setBlock(x, y+7, z-1, Material.OAK_LEAVES.getId());
-        structure.setBlock(x, y+7, z, Material.OAK_LEAVES.getId());
+        structure.setBlock(x+1, y+treeSize+1, z, leaf.getId());
+        structure.setBlock(x-1, y+treeSize+1, z, leaf.getId());
+        structure.setBlock(x, y+treeSize+1, z+1, leaf.getId());
+        structure.setBlock(x, y+treeSize+1, z-1, leaf.getId());
+        structure.setBlock(x, y+treeSize+1, z, leaf.getId());
 
         /*-------------------Etage 6--------------------------------*/
-        structure.setBlock(x+1, y+6, z, Material.OAK_LEAVES.getId());
-        structure.setBlock(x-1, y+6, z, Material.OAK_LEAVES.getId());
-        structure.setBlock(x, y+6, z+1, Material.OAK_LEAVES.getId());
-        structure.setBlock(x, y+6, z-1, Material.OAK_LEAVES.getId());
-        structure.setBlock(x-1, y+6, z-1, Material.OAK_LEAVES.getId());
+        structure.setBlock(x+1, y+treeSize, z, leaf.getId());
+        structure.setBlock(x-1, y+treeSize, z, leaf.getId());
+        structure.setBlock(x, y+treeSize, z+1, leaf.getId());
+        structure.setBlock(x, y+treeSize, z-1, leaf.getId());
+        structure.setBlock(x-1, y+treeSize, z-1, leaf.getId());
 
         /*-------------------Etage 5--------------------------------*/
-        structure.setBlock(x+1, y+5, z-1, Material.OAK_LEAVES.getId());
-        structure.setBlock(x+1, y+5, z-2, Material.OAK_LEAVES.getId());
-        structure.setBlock(x+1, y+5, z, Material.OAK_LEAVES.getId());
-        structure.setBlock(x+1, y+5, z+1, Material.OAK_LEAVES.getId());
-        structure.setBlock(x+1, y+5, z+2, Material.OAK_LEAVES.getId());
+        structure.setBlock(x+1, y+treeSize-1, z-1, leaf.getId());
+        structure.setBlock(x+1, y+treeSize-1, z-2, leaf.getId());
+        structure.setBlock(x+1, y+treeSize-1, z, leaf.getId());
+        structure.setBlock(x+1, y+treeSize-1, z+1, leaf.getId());
+        structure.setBlock(x+1, y+treeSize-1, z+2, leaf.getId());
 
-        structure.setBlock(x+2, y+5, z-1, Material.OAK_LEAVES.getId());
-        structure.setBlock(x+2, y+5, z, Material.OAK_LEAVES.getId());
-        structure.setBlock(x+2, y+5, z+1, Material.OAK_LEAVES.getId());
+        structure.setBlock(x+2, y+treeSize-1, z-1, leaf.getId());
+        structure.setBlock(x+2, y+treeSize-1, z, leaf.getId());
+        structure.setBlock(x+2, y+treeSize-2, z+1, leaf.getId());
 
-        structure.setBlock(x, y+5, z+2, Material.OAK_LEAVES.getId());
-        structure.setBlock(x, y+5, z+1, Material.OAK_LEAVES.getId());
-        structure.setBlock(x, y+5, z-1, Material.OAK_LEAVES.getId());
-        structure.setBlock(x, y+5, z-2, Material.OAK_LEAVES.getId());
+        structure.setBlock(x, y+treeSize-1, z+2, leaf.getId());
+        structure.setBlock(x, y+treeSize-1, z+1, leaf.getId());
+        structure.setBlock(x, y+treeSize-1, z-1, leaf.getId());
+        structure.setBlock(x, y+treeSize-1, z-2, leaf.getId());
 
-        structure.setBlock(x-1, y+5, z+2, Material.OAK_LEAVES.getId());
-        structure.setBlock(x-1, y+5, z+1, Material.OAK_LEAVES.getId());
-        structure.setBlock(x-1, y+5, z, Material.OAK_LEAVES.getId());
-        structure.setBlock(x-1, y+5, z-1, Material.OAK_LEAVES.getId());
-        structure.setBlock(x-1, y+5, z-2, Material.OAK_LEAVES.getId());
+        structure.setBlock(x-1, y+treeSize-1, z+2, leaf.getId());
+        structure.setBlock(x-1, y+treeSize-1, z+1, leaf.getId());
+        structure.setBlock(x-1, y+treeSize-1, z, leaf.getId());
+        structure.setBlock(x-1, y+treeSize-1, z-1, leaf.getId());
+        structure.setBlock(x-1, y+treeSize-1, z-2, leaf.getId());
 
-        structure.setBlock(x-2, y+5, z+1, Material.OAK_LEAVES.getId());
-        structure.setBlock(x-2, y+5, z, Material.OAK_LEAVES.getId());
-        structure.setBlock(x-2, y+5, z-1, Material.OAK_LEAVES.getId());
-        structure.setBlock(x-2, y+5, z-2, Material.OAK_LEAVES.getId());
+        structure.setBlock(x-2, y+treeSize-1, z+1, leaf.getId());
+        structure.setBlock(x-2, y+treeSize-1, z, leaf.getId());
+        structure.setBlock(x-2, y+treeSize-1, z-1, leaf.getId());
+        structure.setBlock(x-2, y+treeSize-1, z-2, leaf.getId());
 
         /*-------------------Etage 4--------------------------------*/
         for (int i = -2; i <= 2 ; i++) {
             for (int j = -2 ; j <= 2 ; j++) {
-                structure.setBlock(x+i, y+4, z+j, Material.OAK_LEAVES.getId());
+                structure.setBlock(x+i, y+treeSize-2, z+j, leaf.getId());
             }
         }
 
         /*-------------------Tronc--------------------------------*/
-        int treeSize = 6;
+        for (int i = 1; i <= treeSize; i++) {
+            structure.setBlock(x, y+i, z, wood.getId());
+        }
+    }
+
+    public static void buildBallonTree(Structure structure, int x, int y, int z, Material wood, Material leaf, float droprate) {
+
+        /*-------------------Etage 7--------------------------------*/
+        structure.setBlock(x+1, y+6, z, Material.OAK_LEAVES.getId());
+        structure.setBlock(x-1, y+6, z, Material.OAK_LEAVES.getId());
+        structure.setBlock(x, y+6, z+1, Material.OAK_LEAVES.getId());
+        structure.setBlock(x, y+6, z-1, Material.OAK_LEAVES.getId());
+        structure.setBlock(x, y+6, z, Material.OAK_LEAVES.getId());
+
+        for (int i = 3; i < 6; i ++) {
+            structure.setBlock(x-1, y+i, z+2, Material.OAK_LEAVES.getId());
+            structure.setBlock(x, y+i, z+2, Material.OAK_LEAVES.getId());
+            structure.setBlock(x+1, y+i, z+2, Material.OAK_LEAVES.getId());
+
+            structure.setBlock(x-2, y+i, z+1, Material.OAK_LEAVES.getId());
+            structure.setBlock(x-1, y+i, z+1, Material.OAK_LEAVES.getId());
+            structure.setBlock(x, y+i, z+1, Material.OAK_LEAVES.getId());
+            structure.setBlock(x+1, y+i, z+1, Material.OAK_LEAVES.getId());
+            structure.setBlock(x+2, y+i, z+1, Material.OAK_LEAVES.getId());
+
+            structure.setBlock(x-2, y+i, z, Material.OAK_LEAVES.getId());
+            structure.setBlock(x-1, y+i, z, Material.OAK_LEAVES.getId());
+            structure.setBlock(x+1, y+i, z, Material.OAK_LEAVES.getId());
+            structure.setBlock(x+2, y+i, z, Material.OAK_LEAVES.getId());
+
+            structure.setBlock(x-2, y+i, z-1, Material.OAK_LEAVES.getId());
+            structure.setBlock(x-1, y+i, z-1, Material.OAK_LEAVES.getId());
+            structure.setBlock(x, y+i, z-1, Material.OAK_LEAVES.getId());
+            structure.setBlock(x+1, y+i, z-1, Material.OAK_LEAVES.getId());
+            structure.setBlock(x+2, y+i, z-1, Material.OAK_LEAVES.getId());
+
+            structure.setBlock(x-1, y+i, z-2, Material.OAK_LEAVES.getId());
+            structure.setBlock(x, y+i, z-2, Material.OAK_LEAVES.getId());
+            structure.setBlock(x+1, y+i, z-2, Material.OAK_LEAVES.getId());
+        }
+
+
+        /*-------------------Tronc--------------------------------*/
+        int treeSize = 5;
         for (int i = 1; i <= treeSize; i++) {
             structure.setBlock(x, y+i, z, Material.OAK_LOG.getId());
         }
