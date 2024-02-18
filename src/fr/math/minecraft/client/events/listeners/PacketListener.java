@@ -135,7 +135,6 @@ public class PacketListener implements PacketEventListener {
         if (chunk == null) {
             game.getChunkLoadingQueue().submit(() -> {
                 chunkManager.loadChunkData(chunkData);
-                System.out.println("Je traite un chunk !");
             });
         }
 

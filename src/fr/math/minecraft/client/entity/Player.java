@@ -1,12 +1,15 @@
 package fr.math.minecraft.client.entity;
 
 import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.client.animations.Animation;
 import fr.math.minecraft.client.animations.PlayerWalkAnimation;
 import fr.math.minecraft.client.events.listeners.EventListener;
 import fr.math.minecraft.client.events.PlayerMoveEvent;
 import fr.math.minecraft.client.meshs.NametagMesh;
+import fr.math.minecraft.client.world.Material;
+import fr.math.minecraft.client.world.World;
+import fr.math.minecraft.shared.network.GameMode;
+import fr.math.minecraft.shared.network.Hitbox;
 import fr.math.minecraft.shared.network.PlayerInputData;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
@@ -50,15 +53,23 @@ public class Player {
     private final static Logger logger = LoggerUtility.getClientLogger(Player.class, LogType.TXT);
     private final List<EventListener> eventListeners;
     private Vector3i lastTickInput;
+    private final Vector3f velocity;
+    private final Vector3f gravity;
+    private float Vmax;
     private int ping;
     private final List<PlayerInputData> inputs;
+    private final Hitbox hitbox;
+    private GameMode gameMode;
 
     public Player(String name) {
-        this.position = new Vector3f(0.0f, 0.0f, 0.0f);
+        this.position = new Vector3f(0.0f, 200.0f, 0.0f);
+        this.gravity = new Vector3f(0, -0.001f, 0);
         this.lastTickPosition = new Vector3f(0, 0, 0);
         this.lastTickInput = new Vector3i(0, 0, 0);
+        this.velocity = new Vector3f();
         this.inputs = new ArrayList<>();
         this.yaw = 0.0f;
+        this.Vmax = 1.0f;
         this.bodyYaw = 0.0f;
         this.lastTickYaw = 0.0f;
         this.lastTickPitch = 0.0f;
@@ -78,10 +89,12 @@ public class Player {
         this.debugKeyPressed = false;
         this.sneaking = false;
         this.flying = false;
+        this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 0.9f, 0.25f));
         this.animations = new ArrayList<>();
         this.nametagMesh = new NametagMesh(name);
         this.skin = null;
         this.eventListeners = new ArrayList<>();
+        this.gameMode = GameMode.CREATIVE;
         this.initAnimations();
     }
 
@@ -309,10 +322,45 @@ public class Player {
         this.ping = ping;
     }
 
+    public void handleCollisions() {
+        Game game = Game.getInstance();
+        World world = game.getWorld();
+        for (float worldX = position.x - hitbox.getWidth() / 2; worldX < position.x + hitbox.getWidth() / 2; worldX++) {
+            for (float worldY = position.y - hitbox.getHeight() / 2; worldY < position.y + hitbox.getHeight() / 2; worldY++) {
+                for (float worldZ = position.z - hitbox.getDepth() / 2; worldZ < position.z + hitbox.getDepth() / 2; worldZ++) {
+
+                    byte block = world.getBlockAt((int) worldX, (int) worldY, (int) worldZ);
+                    Material material = Material.getMaterialById(block);
+
+                    if (material != null && !material.isSolid()) {
+                        continue;
+                    }
+
+                    if (velocity.x > 0) {
+                        position.x = worldX - hitbox.getWidth();
+                    } else {
+                        position.x = worldX + hitbox.getWidth();
+                    }
+
+                    if (velocity.y > 0) {
+                        position.y = worldY - hitbox.getHeight();
+                    } else {
+                        position.y = worldY + hitbox.getHeight();
+                    }
+
+                    if (velocity.z > 0) {
+                        position.z = worldZ - hitbox.getDepth();
+                    } else {
+                        position.z = worldZ + hitbox.getDepth();
+                    }
+                }
+            }
+        }
+    }
+
     public void updatePosition() {
 
         Vector3f front = new Vector3f();
-        float speed = this.speed * 10.0f * (1.0f / GameConfiguration.TICK_PER_SECONDS);
         front.x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
         front.y = (float) Math.sin(Math.toRadians(0.0f));
         front.z = (float) (Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
@@ -320,21 +368,24 @@ public class Player {
         front.normalize();
 
         Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
+        Vector3f acceleration = new Vector3f(0,0,0);
+
+        velocity.add(gravity);
 
         if (movingForward) {
-            position.add(new Vector3f(front).mul(speed));
+            acceleration.add(front);
         }
 
         if (movingBackward) {
-            position.sub(new Vector3f(front).mul(speed));
+            acceleration.sub(front);
         }
 
         if (movingLeft) {
-            position.sub(new Vector3f(right).mul(speed));
+            acceleration.sub(right);
         }
 
         if (movingRight) {
-            position.add(new Vector3f(right).mul(speed));
+            acceleration.add(right);
         }
 
         if (flying) {
@@ -344,6 +395,19 @@ public class Player {
         if (sneaking) {
             position.sub(new Vector3f(0.0f, .5f, 0.0f));
         }
+
+        velocity.add(acceleration.mul(speed));
+
+        if (velocity.length()>Vmax) {
+            velocity.normalize().mul(Vmax);
+        }
+
+        this.handleCollisions();
+
+        velocity.x *= .95f;
+        velocity.z *= .95f;
+
+        position.add(velocity);
 
         PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, yaw, pitch);
         inputs.add(inputData);

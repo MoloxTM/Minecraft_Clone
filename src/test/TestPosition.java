@@ -29,8 +29,8 @@ public class TestPosition {
     @Test
     public void testPosition() {
         
-        float yaw = 30.0f;
-        float pitch = 30.0f;
+        float yaw = 0.0f;
+        float pitch = 0.0f;
         
         player.setYaw(yaw);
         player.setPitch(pitch);

@@ -5,31 +5,33 @@ import org.joml.Vector2i;
 
 public enum Material {
 
-    AIR("Air", -1, -1, -1),
+    AIR("Air", -1, -1, -1, false),
     STONE("Stone", 0, 1, 15),
     DIRT("Dirt", 1, 2, 15),
     GRASS("Grass", 3, new Vector2i(3, 15), new Vector2i(3, 15), new Vector2i(3, 15), new Vector2i(3, 15), new Vector2i(8, 13), new Vector2i(2, 15)),
     DEBUG("Debug", -2, 0, 1),
-    WATER("Water", 2, 15, 2),
+    WATER("Water", 2, 15, 2, false),
     SAND("Sand",4,2,14),
     CACTUS("Cactus",5,new Vector2i(6, 11), new Vector2i(6, 11), new Vector2i(6, 11), new Vector2i(6, 11), new Vector2i(5, 11), new Vector2i(7, 11)),
     OAK_LOG("Log",6,new Vector2i(4, 14), new Vector2i(4, 14), new Vector2i(4, 14), new Vector2i(4, 14), new Vector2i(5, 14), new Vector2i(5, 14)),
     OAK_LEAVES("Oak leaves",7,4,12),
-    WEED("Weed", 8, 7, 13),
-    ROSE("Rose", 9, 12, 15),
-    DEAD_BUSH("Dead bush", 10, 7, 12);
-
-
+    WEED("Weed", 8, 7, 13, false),
+    ROSE("Rose", 9, 12, 15, false),
+    DEAD_BUSH("Dead bush", 10, 7, 12, false);
 
     private final int x;
     private final int y;
     private final byte id;
     private final String name;
-    private final boolean faces;
+    private final boolean faces, solid;
 
     private final Vector2i px, nx, pz, nz, py, ny;
 
     Material(String name, int id, int x, int y) {
+        this(name, id, x, y, true);
+    }
+
+    Material(String name, int id, int x, int y, boolean solid) {
         this.name = name;
         this.id = (byte)id;
         this.x = x;
@@ -41,8 +43,13 @@ public enum Material {
         this.py = null;
         this.ny = null;
         this.faces = false;
+        this.solid = solid;
     }
+
     Material(String name, int id, Vector2i px, Vector2i nx, Vector2i pz, Vector2i nz, Vector2i py, Vector2i ny) {
+        this(name, id, px, nx, pz, nz, py, ny, true);
+    }
+    Material(String name, int id, Vector2i px, Vector2i nx, Vector2i pz, Vector2i nz, Vector2i py, Vector2i ny, boolean solid) {
         this.name = name;
         this.id = (byte)id;
         this.x = -1;
@@ -54,6 +61,7 @@ public enum Material {
         this.nz = nz;
         this.py = py;
         this.ny = ny;
+        this.solid = solid;
     }
 
     public String getName() {
@@ -107,5 +115,9 @@ public enum Material {
             }
         }
         return null;
+    }
+
+    public boolean isSolid() {
+        return solid;
     }
 }

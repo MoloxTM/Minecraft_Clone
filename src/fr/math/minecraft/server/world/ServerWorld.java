@@ -1,8 +1,7 @@
 package fr.math.minecraft.server.world;
 
-import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.client.world.Chunk;
+import fr.math.minecraft.client.world.Material;
 import fr.math.minecraft.server.world.generator.OverworldGenerator;
 import fr.math.minecraft.server.world.generator.TerrainGenerator;
 import org.joml.Vector3i;
@@ -18,13 +17,22 @@ public class ServerWorld {
     public final static int DEPTH = 10;
     private final int seed;
     private TerrainGenerator overworldGenerator;
+    private final Set<Byte> solidBlocks;
 
     public ServerWorld() {
         this.chunks = new HashMap<>();
         this.regions = new HashMap<>();
+        this.solidBlocks = new HashSet<>();
         this.seed = 0;
         this.overworldGenerator = new OverworldGenerator();
 
+        for (Material material : Material.values()) {
+            if (material.isSolid()) {
+                System.out.println("j'ajoute " + material);
+                solidBlocks.add(material.getId());
+            }
+        }
+        System.out.println(solidBlocks);
     }
 
     public void buildChunks() {
@@ -154,6 +162,10 @@ public class ServerWorld {
 
     public int getSeed() {
         return seed;
+    }
+
+    public Set<Byte> getSolidBlocks() {
+        return solidBlocks;
     }
 
     public TerrainGenerator getOverworldGenerator() {

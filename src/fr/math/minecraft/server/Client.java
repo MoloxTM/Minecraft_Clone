@@ -3,11 +3,16 @@ package fr.math.minecraft.server;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.client.world.Coordinates;
+import fr.math.minecraft.client.world.Material;
+import fr.math.minecraft.client.world.World;
 import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.server.world.ServerChunk;
 import fr.math.minecraft.server.world.ServerChunkComparator;
+import fr.math.minecraft.server.world.ServerWorld;
+import fr.math.minecraft.shared.network.Hitbox;
 import fr.math.minecraft.shared.network.PlayerInputData;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
@@ -39,8 +44,14 @@ public class Client {
     private boolean flying, sneaking;
     private boolean active;
     private final Vector3i inputVector;
+    private final Vector3f velocity;
+    private final Vector3f gravity;
+
+    private final Vector3f acceleration;
+    private float Vmax;
     private final Set<Coordinates> receivedChunks;
     private final PriorityQueue<ServerChunk> nearChunks;
+    private final Hitbox hitbox;
     private Vector3f lastChunkPosition;
 
     public Client(String uuid, String name, InetAddress address, int port) {
@@ -48,15 +59,20 @@ public class Client {
         this.port = port;
         this.uuid = uuid;
         this.name = name;
+        this.velocity = new Vector3f();
+        this.gravity = new Vector3f(0, -0.001f, 0);
+        this.acceleration = new Vector3f();
         this.front = new Vector3f(0.0f, 0.0f, 0.0f);
-        this.position = new Vector3f(0.0f, 0.0f, 0.0f);
+        this.position = new Vector3f(0.0f, 200.0f, 0.0f);
         this.lastChunkPosition = new Vector3f(0, 0, 0);
         this.inputVector = new Vector3i(0, 0, 0);
         this.receivedChunks = new HashSet<>();
         this.nearChunks = new PriorityQueue<>(new ServerChunkComparator(this));
+        this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 0.9f, 0.25f));
         this.yaw = 0.0f;
         this.pitch = 0.0f;
         this.speed = 0.1f;
+        this.Vmax = 1.0f;
         this.skin = null;
         this.movingLeft = false;
         this.movingRight = false;
@@ -104,6 +120,42 @@ public class Client {
         this.sneaking = sneaking;
     }
 
+    public void handleCollisions() {
+        MinecraftServer server = MinecraftServer.getInstance();
+        ServerWorld world = server.getWorld();
+        for (float worldX = position.x - hitbox.getWidth() / 2; worldX < position.x + hitbox.getWidth() / 2; worldX++) {
+            for (float worldY = position.y - hitbox.getHeight() / 2; worldY < position.y + hitbox.getHeight() / 2; worldY++) {
+                for (float worldZ = position.z - hitbox.getDepth() / 2; worldZ < position.z + hitbox.getDepth() / 2; worldZ++) {
+
+                    byte block = world.getBlockAt((int) worldX, (int) worldY, (int) worldZ);
+                    Material material = Material.getMaterialById(block);
+
+                    if (material != null && !material.isSolid()) {
+                        continue;
+                    }
+
+                    if (velocity.x > 0) {
+                        position.x = worldX - hitbox.getWidth();
+                    } else {
+                        position.x = worldX + hitbox.getWidth();
+                    }
+
+                    if (velocity.y > 0) {
+                        position.y = worldY - hitbox.getHeight();
+                    } else {
+                        position.y = worldY + hitbox.getHeight();
+                    }
+
+                    if (velocity.z > 0) {
+                        position.z = worldZ - hitbox.getDepth();
+                    } else {
+                        position.z = worldZ + hitbox.getDepth();
+                    }
+                }
+            }
+        }
+    }
+
     public void updatePosition(InputPayload payload) {
 
         for (PlayerInputData inputData : payload.getInputsData()) {
@@ -113,7 +165,7 @@ public class Client {
             this.yaw = yaw;
             this.pitch = pitch;
 
-            float speed = this.speed * 10.0f * (1.0f / GameConfiguration.TICK_PER_SECONDS);
+            Vector3f acceleration = new Vector3f(0,0,0);
 
             front.x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
             front.y = (float) Math.sin(Math.toRadians(0.0f));
@@ -122,20 +174,22 @@ public class Client {
             front.normalize();
             Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
 
+            velocity.add(gravity);
+
             if (inputData.isMovingForward()) {
-                position.add(new Vector3f(front).mul(speed));
+                acceleration = acceleration.add(front);
             }
 
             if (inputData.isMovingBackward()) {
-                position.sub(new Vector3f(front).mul(speed));
+                acceleration = acceleration.sub(front);
             }
 
             if (inputData.isMovingLeft()) {
-                position.sub(new Vector3f(right).mul(speed));
+                acceleration = acceleration.sub(right);
             }
 
             if (inputData.isMovingRight()) {
-                position.add(new Vector3f(right).mul(speed));
+                acceleration = acceleration.add(right);
             }
 
             if (inputData.isFlying()) {
@@ -145,6 +199,19 @@ public class Client {
             if (inputData.isSneaking()) {
                 position.sub(new Vector3f(0.0f, .5f, 0.0f));
             }
+
+            velocity.add(acceleration.mul(speed));
+
+            if (velocity.length()>Vmax) {
+                velocity.normalize().mul(Vmax);
+            }
+
+            this.handleCollisions();
+
+            velocity.x *= .95f;
+            velocity.z *= .95f;
+
+            position = position.add(velocity);
         }
         // System.out.println("Tick " + payload.getTick() + " InputVector: " + payload.getInputVector() + " Calculated position : " + position);
     }
