@@ -135,10 +135,12 @@ public class PacketListener implements PacketEventListener {
         if (chunk == null) {
             game.getChunkLoadingQueue().submit(() -> {
                 chunkManager.loadChunkData(chunkData);
+                System.out.println("Je traite un chunk !");
             });
-            ChunkACKPacket packet = new ChunkACKPacket(new Vector3i(chunkX, chunkY, chunkZ));
-            FixedPacketSender.getInstance().enqueue(packet);
         }
+
+        ChunkACKPacket packet = new ChunkACKPacket(new Vector3i(chunkX, chunkY, chunkZ));
+        FixedPacketSender.getInstance().enqueue(packet);
 
     }
 

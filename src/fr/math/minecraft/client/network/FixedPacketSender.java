@@ -3,6 +3,7 @@ package fr.math.minecraft.client.network;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.network.packet.ClientPacket;
+import fr.math.minecraft.client.network.packet.PingPacket;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
@@ -26,13 +27,17 @@ public class FixedPacketSender extends Thread {
     public void run() {
         Game game = Game.getInstance();
         Player player = game.getPlayer();
-        double lastPingTime = glfwGetTime();
+        double lastPingTime = System.currentTimeMillis();
         long lastTickTime = System.currentTimeMillis();
         double tickTimer = 0;
         while (!glfwWindowShouldClose(game.getWindow())) {
 
             long currentTime = System.currentTimeMillis();
             long deltaTime = currentTime - lastTickTime;
+
+            if (currentTime - lastPingTime >= 1000) {
+                this.enqueue(new PingPacket());
+            }
 
             tickTimer += deltaTime;
 

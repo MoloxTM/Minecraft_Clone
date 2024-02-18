@@ -68,15 +68,9 @@ public class PacketReceiver extends Thread {
             String response = client.receive();
 
             if (response == null) return;
-            double currentTime = System.currentTimeMillis();
-
-            ping = (int) (currentTime - lastPingTime);
-
-            lastPingTime = currentTime;
 
             JsonNode responseData = mapper.readTree(response);
             String packetType = responseData.get("type").asText();
-
 
             switch (packetType) {
                 case "PLAYER_JOIN":
@@ -97,6 +91,13 @@ public class PacketReceiver extends Thread {
                     String base64Skin = responseData.get("skin").asText();
                     String playerUuid = responseData.get("uuid").asText();
                     this.notifyEvent(new SkinPacketEvent(base64Skin, playerUuid));
+                    break;
+                case "PING_REPLY":
+                    long receivedTime = responseData.get("receivedTime").longValue();
+                    long sentTime = responseData.get("sentTime").longValue();
+                    long currentTime = System.currentTimeMillis();
+
+                    this.ping = (int) (currentTime - sentTime);
                     break;
                 default:
                     logger.warn("Le packet " + packetType + " est inconnu et a été ignoré.");

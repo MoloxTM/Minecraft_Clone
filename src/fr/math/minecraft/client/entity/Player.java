@@ -321,27 +321,21 @@ public class Player {
 
         Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
 
-        System.out.println("Player " + position);
-
         if (movingForward) {
             position.add(new Vector3f(front).mul(speed));
         }
-        System.out.println("Player " + position);
 
         if (movingBackward) {
             position.sub(new Vector3f(front).mul(speed));
         }
-        System.out.println("Player " + position);
 
         if (movingLeft) {
             position.sub(new Vector3f(right).mul(speed));
         }
-        System.out.println("Player " + position);
 
         if (movingRight) {
             position.add(new Vector3f(right).mul(speed));
         }
-        System.out.println("Player " + position);
 
         if (flying) {
             position.add(new Vector3f(0.0f, .5f, 0.0f));

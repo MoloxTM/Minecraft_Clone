@@ -114,33 +114,29 @@ public class Client {
             this.pitch = pitch;
 
             float speed = this.speed * 10.0f * (1.0f / GameConfiguration.TICK_PER_SECONDS);
+
             front.x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
             front.y = (float) Math.sin(Math.toRadians(0.0f));
             front.z = (float) (Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
 
             front.normalize();
             Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
-            System.out.println("Client " + position);
 
             if (inputData.isMovingForward()) {
                 position.add(new Vector3f(front).mul(speed));
             }
-            System.out.println("Client " + position);
 
             if (inputData.isMovingBackward()) {
                 position.sub(new Vector3f(front).mul(speed));
             }
-            System.out.println("Client " + position);
 
             if (inputData.isMovingLeft()) {
                 position.sub(new Vector3f(right).mul(speed));
             }
-            System.out.println("Client " + position);
 
             if (inputData.isMovingRight()) {
                 position.add(new Vector3f(right).mul(speed));
             }
-            System.out.println("Client " + position);
 
             if (inputData.isFlying()) {
                 position.add(new Vector3f(0.0f, .5f, 0.0f));

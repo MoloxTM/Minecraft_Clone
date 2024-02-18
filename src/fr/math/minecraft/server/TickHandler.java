@@ -7,6 +7,7 @@ import fr.math.minecraft.server.manager.ChunkManager;
 import fr.math.minecraft.server.manager.ClientManager;
 import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.server.payload.StatePayload;
+import fr.math.minecraft.server.world.Coordinates;
 import fr.math.minecraft.server.world.ServerChunk;
 
 import java.io.IOException;
@@ -36,6 +37,8 @@ public class TickHandler extends Thread {
         long lastTickTime = 0;
         long lastTime = System.currentTimeMillis();
         int tickRate = 0;
+        MinecraftServer server = MinecraftServer.getInstance();
+
         while (true) {
             long currentTime = System.currentTimeMillis();
             long deltaTime = currentTime - lastTime;
@@ -43,7 +46,7 @@ public class TickHandler extends Thread {
             tickTimer += deltaTime;
 
             if (currentTime - lastTickTime >= 1000) {
-                // System.out.println("TPS : " + tickRate);
+                System.out.println("TPS : " + tickRate);
                 tickRate = 0;
                 lastTickTime = currentTime;
             }
@@ -123,34 +126,26 @@ public class TickHandler extends Thread {
             }
         }
 
+        this.sendChunks();
+        this.sendPlayers();
+    }
+
+    private void sendChunks() {
+        MinecraftServer server = MinecraftServer.getInstance();
+        ChunkManager chunkManager = server.getChunkManager();
         synchronized (server.getClients()) {
             for (Client client : server.getClients().values()) {
-
                 synchronized (client.getNearChunks()) {
-
-                    if (client.getNearChunks().isEmpty()) {
-                        continue;
-                    }
-
-                    ServerChunk chunk = client.getNearChunks().poll();
+                    ServerChunk chunk = client.getNearChunks().peek();
 
                     if (chunk == null) {
                         continue;
                     }
 
-                    ChunkManager chunkManager = server.getChunkManager();
                     chunkManager.sendChunk(client, chunk);
-
                 }
             }
         }
-
-        // this.sendChunks();
-        this.sendPlayers();
-    }
-
-    private void sendChunks() {
-
     }
 
     public Queue<InputPayload> getInputQueue() {

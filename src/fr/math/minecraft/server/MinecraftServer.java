@@ -112,6 +112,10 @@ public class MinecraftServer {
                     ChunkACKHandler chunkACKHandler = new ChunkACKHandler(packetData);
                     packetQueue.submit(chunkACKHandler);
                     break;
+                case "PING_PACKET":
+                    PingHandler pingHandler = new PingHandler(packetData, address, clientPort);
+                    pingHandler.run();
+                    break;
                 default:
                     String message = "UNAUTHORIZED_PACKET";
                     buffer = message.getBytes(StandardCharsets.UTF_8);

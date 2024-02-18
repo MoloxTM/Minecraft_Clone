@@ -22,14 +22,14 @@ public class ServerChunkComparator implements Comparator<ServerChunk> {
 
         if (distance1 < distance2) {
             if (o1.isEmpty()) {
-                return -1;
-            }
-            return 1;
-        } else if (distance2 < distance1) {
-            if (o2.isEmpty()) {
                 return 1;
             }
             return -1;
+        } else if (distance2 < distance1) {
+            if (o2.isEmpty()) {
+                return -1;
+            }
+            return 1;
         }
 
         return 0;

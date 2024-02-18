@@ -27,4 +27,7 @@ public class ChunkManager {
         chunkPool.submit(sender);
     }
 
+    public ThreadPoolExecutor getChunkPool() {
+        return chunkPool;
+    }
 }

@@ -31,6 +31,9 @@ public class ChunkACKHandler extends PacketHandler implements Runnable {
 
         synchronized (client.getReceivedChunks()) {
             client.getReceivedChunks().add(coordinates);
+            synchronized (client.getNearChunks()) {
+                client.getNearChunks().poll();
+            }
         }
     }
 }
