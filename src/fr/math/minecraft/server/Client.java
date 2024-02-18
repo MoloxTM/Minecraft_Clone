@@ -120,12 +120,12 @@ public class Client {
         this.sneaking = sneaking;
     }
 
-    public void handleCollisions() {
+    public void handleCollisions(Vector3f velocity) {
         MinecraftServer server = MinecraftServer.getInstance();
         ServerWorld world = server.getWorld();
-        for (float worldX = position.x - hitbox.getWidth() / 2; worldX < position.x + hitbox.getWidth() / 2; worldX++) {
-            for (float worldY = position.y - hitbox.getHeight() / 2; worldY < position.y + hitbox.getHeight() / 2; worldY++) {
-                for (float worldZ = position.z - hitbox.getDepth() / 2; worldZ < position.z + hitbox.getDepth() / 2; worldZ++) {
+        for (float worldX = position.x - hitbox.getWidth(); worldX < position.x + hitbox.getWidth() ; worldX++) {
+            for (float worldY = position.y - hitbox.getHeight(); worldY < position.y + hitbox.getHeight() ; worldY++) {
+                for (float worldZ = position.z - hitbox.getDepth() ; worldZ < position.z + hitbox.getDepth() ; worldZ++) {
 
                     byte block = world.getBlockAt((int) worldX, (int) worldY, (int) worldZ);
                     Material material = Material.getMaterialById(block);
@@ -136,19 +136,21 @@ public class Client {
 
                     if (velocity.x > 0) {
                         position.x = worldX - hitbox.getWidth();
-                    } else {
+                    } else if(velocity.x<0) {
                         position.x = worldX + hitbox.getWidth();
                     }
 
                     if (velocity.y > 0) {
                         position.y = worldY - hitbox.getHeight();
-                    } else {
-                        position.y = worldY + hitbox.getHeight();
+                        this.velocity.y = 0;
+                    } else if(velocity.y<0) {
+                        position.y = worldY + hitbox.getHeight() +1;
+                        this.velocity.y=0;
                     }
 
                     if (velocity.z > 0) {
                         position.z = worldZ - hitbox.getDepth();
-                    } else {
+                    } else if(velocity.z<0) {
                         position.z = worldZ + hitbox.getDepth();
                     }
                 }
@@ -174,7 +176,7 @@ public class Client {
             front.normalize();
             Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
 
-            velocity.add(gravity);
+            //velocity.add(gravity);
 
             if (inputData.isMovingForward()) {
                 acceleration = acceleration.add(front);
@@ -197,7 +199,7 @@ public class Client {
             }
 
             if (inputData.isSneaking()) {
-                position.sub(new Vector3f(0.0f, .5f, 0.0f));
+                position.sub(new Vector3f(0.0f, .1f, 0.0f));
             }
 
             velocity.add(acceleration.mul(speed));
@@ -206,12 +208,19 @@ public class Client {
                 velocity.normalize().mul(Vmax);
             }
 
-            this.handleCollisions();
 
             velocity.x *= .95f;
             velocity.z *= .95f;
 
-            position = position.add(velocity);
+            position.x += velocity.x;
+            handleCollisions(new Vector3f(position.x,0,0));
+
+            position.y += velocity.y;
+            handleCollisions(new Vector3f(0,position.y,0));
+
+            position.z += velocity.z;
+            handleCollisions(new Vector3f(0,0,position.z));
+
         }
         // System.out.println("Tick " + payload.getTick() + " InputVector: " + payload.getInputVector() + " Calculated position : " + position);
     }
