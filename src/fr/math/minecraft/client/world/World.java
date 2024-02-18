@@ -65,8 +65,7 @@ public class World {
         //Déterminer le chunck
         Chunk chunk = getChunkAt(worldX, worldY, worldZ);
         if(chunk == null) {
-            chunk = new Chunk(worldX / Chunk.SIZE, worldY / Chunk.SIZE, worldZ / Chunk.SIZE);
-            this.addChunk(chunk);
+            return Material.AIR.getId();
         }
         //Chopper les coos du block
         int blockX = worldX % Chunk.SIZE;

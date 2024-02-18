@@ -60,7 +60,7 @@ public class Client {
         this.uuid = uuid;
         this.name = name;
         this.velocity = new Vector3f();
-        this.gravity = new Vector3f(0, -0.1f, 0);
+        this.gravity = new Vector3f(0, -0.025f, 0);
         this.acceleration = new Vector3f();
         this.front = new Vector3f(0.0f, 0.0f, 0.0f);
         this.position = new Vector3f(0.0f, 1000.0f, 0.0f);
@@ -68,10 +68,10 @@ public class Client {
         this.inputVector = new Vector3i(0, 0, 0);
         this.receivedChunks = new HashSet<>();
         this.nearChunks = new PriorityQueue<>(new ServerChunkComparator(this));
-        this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 0.9f, 0.25f));
+        this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 1.0f, 0.25f));
         this.yaw = 0.0f;
         this.pitch = 0.0f;
-        this.speed = 0.1f;
+        this.speed = 0.01f;
         this.Vmax = 1.0f;
         this.skin = null;
         this.movingLeft = false;
@@ -123,9 +123,9 @@ public class Client {
     public void handleCollisions(Vector3f velocity) {
         MinecraftServer server = MinecraftServer.getInstance();
         ServerWorld world = server.getWorld();
-        for (float worldX = position.x - hitbox.getWidth(); worldX < position.x + hitbox.getWidth() ; worldX++) {
-            for (float worldY = position.y - hitbox.getHeight(); worldY < position.y + hitbox.getHeight() ; worldY++) {
-                for (float worldZ = position.z - hitbox.getDepth() ; worldZ < position.z + hitbox.getDepth() ; worldZ++) {
+        for (int worldX = (int) (position.x - hitbox.getWidth()) ; worldX < position.x + hitbox.getWidth() ; worldX++) {
+            for (int worldY = (int) (position.y - hitbox.getHeight()) ; worldY < position.y + hitbox.getHeight() ; worldY++) {
+                for (int worldZ = (int) (position.z - hitbox.getDepth()) ; worldZ < position.z + hitbox.getDepth() ; worldZ++) {
 
                     byte block = world.getBlockAt((int) worldX, (int) worldY, (int) worldZ);
                     Material material = Material.getMaterialById(block);
@@ -148,7 +148,7 @@ public class Client {
                         position.y = worldY - hitbox.getHeight();
                         this.velocity.y = 0;
                     } else if(velocity.y<0) {
-                        position.y = worldY + hitbox.getHeight() +1;
+                        position.y = worldY + hitbox.getHeight() + 1;
                         this.velocity.y=0;
                     }
 
@@ -212,10 +212,6 @@ public class Client {
                 velocity.normalize().mul(Vmax);
             }
 
-            velocity.x *= .95f;
-            velocity.y *= .95f;
-            velocity.z *= .95f;
-
             position.x += velocity.x;
             handleCollisions(new Vector3f(velocity.x,0,0));
 
@@ -224,6 +220,8 @@ public class Client {
 
             position.y += velocity.y;
             handleCollisions(new Vector3f(0,velocity.y,0));
+
+            velocity.mul(0.95f);
 
         }
         // System.out.println("Tick " + payload.getTick() + " InputVector: " + payload.getInputVector() + " Calculated position : " + position);

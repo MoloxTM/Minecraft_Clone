@@ -63,7 +63,7 @@ public class Player {
 
     public Player(String name) {
         this.position = new Vector3f(0.0f, 1000.0f, 0.0f);
-        this.gravity = new Vector3f(0, -0.1f, 0);
+        this.gravity = new Vector3f(0, -0.025f, 0);
         this.lastTickPosition = new Vector3f(0, 0, 0);
         this.lastTickInput = new Vector3i(0, 0, 0);
         this.velocity = new Vector3f();
@@ -77,7 +77,7 @@ public class Player {
         this.firstMouse = true;
         this.lastMouseX = 0.0f;
         this.lastMouseY = 0.0f;
-        this.speed = 0.1f;
+        this.speed = 0.01f;
         this.ping = 0;
         this.sensitivity = 0.1f;
         this.name = name;
@@ -89,7 +89,7 @@ public class Player {
         this.debugKeyPressed = false;
         this.sneaking = false;
         this.flying = false;
-        this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 0.9f, 0.25f));
+        this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 1.0f, 0.25f));
         this.animations = new ArrayList<>();
         this.nametagMesh = new NametagMesh(name);
         this.skin = null;
@@ -294,22 +294,6 @@ public class Player {
         eventListeners.remove(event);
     }
 
-    public boolean isMovingLeft() {
-        return movingLeft;
-    }
-
-    public boolean isMovingRight() {
-        return movingRight;
-    }
-
-    public boolean isMovingForward() {
-        return movingForward;
-    }
-
-    public boolean isMovingBackward() {
-        return movingBackward;
-    }
-
     public boolean isFlying() {
         return flying;
     }
@@ -329,15 +313,15 @@ public class Player {
     public void handleCollisions(Vector3f velocity) {
         Game game = Game.getInstance();
         World world = game.getWorld();
-        for (float worldX = position.x - hitbox.getWidth() ; worldX < position.x + hitbox.getWidth() ; worldX++) {
-            for (float worldY = position.y - hitbox.getHeight() ; worldY < position.y + hitbox.getHeight() ; worldY++) {
-                for (float worldZ = position.z - hitbox.getDepth() ; worldZ < position.z + hitbox.getDepth() ; worldZ++) {
+        for (int worldX = (int) (position.x - hitbox.getWidth()) ; worldX < position.x + hitbox.getWidth() ; worldX++) {
+            for (int worldY = (int) (position.y - hitbox.getHeight()) ; worldY < position.y + hitbox.getHeight() ; worldY++) {
+                for (int worldZ = (int) (position.z - hitbox.getDepth()) ; worldZ < position.z + hitbox.getDepth() ; worldZ++) {
 
-                    byte block = world.getBlockAt((int) worldX, (int) worldY, (int) worldZ);
+                    byte block = world.getBlockAt(worldX, worldY, worldZ);
                     Material material = Material.getMaterialById(block);
 
                     if (material == null) {
-                        continue;
+                        material = Material.STONE;
                     }
 
                     if (!material.isSolid()) {
@@ -347,23 +331,21 @@ public class Player {
                     if (velocity.x > 0) {
                         position.x = worldX - hitbox.getWidth();
                     } else if(velocity.x<0) {
-                        position.x = worldX + hitbox.getWidth();
+                        position.x = worldX + hitbox.getWidth() + 1;
                     }
 
                     if (velocity.y > 0) {
                         position.y = worldY - hitbox.getHeight();
                         this.velocity.y=0;
                     } else if(velocity.y<0) {
-                        position.y = worldY + hitbox.getHeight() +1;
+                        position.y = worldY + hitbox.getHeight() + 1;
                         this.velocity.y=0;
-                        System.out.println("Collision avec le block " + material.getName());
-
                     }
 
                     if (velocity.z > 0) {
                         position.z = worldZ - hitbox.getDepth();
                     } else if(velocity.z<0) {
-                        position.z = worldZ + hitbox.getDepth();
+                        position.z = worldZ + hitbox.getDepth() + 1;
                     }
                 }
             }
@@ -414,10 +396,6 @@ public class Player {
             velocity.normalize().mul(Vmax);
         }
 
-        velocity.x *= .95f;
-        velocity.y *= .95f;
-        velocity.z *= .95f;
-
         position.x += velocity.x;
         handleCollisions(new Vector3f(velocity.x,0,0));
 
@@ -426,6 +404,8 @@ public class Player {
 
         position.y += velocity.y;
         handleCollisions(new Vector3f(0,velocity.y,0));
+
+        velocity.mul(0.95f);
 
         PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, yaw, pitch);
         inputs.add(inputData);
