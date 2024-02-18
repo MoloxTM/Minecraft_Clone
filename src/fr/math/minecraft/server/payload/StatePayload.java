@@ -18,12 +18,14 @@ public class StatePayload {
     private final InputPayload payload;
     private JsonNode data;
     private Vector3f position;
+    private Vector3f velocity;
     private float yaw;
     private float pitch;
 
     public StatePayload(InputPayload payload) {
         this.payload = payload;
         this.position = new Vector3f();
+        this.velocity = new Vector3f();
         this.data = null;
         this.yaw = 0.0f;
         this.pitch = 0.0f;
@@ -32,6 +34,7 @@ public class StatePayload {
     public void predictMovement(Client client) {
         client.updatePosition(payload);
         Vector3f newPosition = new Vector3f(client.getPosition());
+        Vector3f newVelocity = new Vector3f(client.getVelocity());
 
         /*
         if (client.getLastChunkPosition().distance(position.x, position.y, position.z) >= ServerChunk.SIZE) {
@@ -45,6 +48,7 @@ public class StatePayload {
         this.yaw = client.getYaw();
         this.pitch = client.getPitch();
         this.position = newPosition;
+        this.velocity = newVelocity;
     }
 
     public void send() {
@@ -63,6 +67,9 @@ public class StatePayload {
         payloadNode.put("x", position.x);
         payloadNode.put("y", position.y);
         payloadNode.put("z", position.z);
+        payloadNode.put("vx", velocity.x);
+        payloadNode.put("vy", velocity.y);
+        payloadNode.put("vz", velocity.z);
         payloadNode.put("yaw", yaw);
         payloadNode.put("pitch", pitch);
 

@@ -15,71 +15,100 @@ public class StatePayload {
     private InputPayload payload;
     private JsonNode data;
     private Vector3f position;
+    private Vector3f velocity;
     private Vector3i inputVector;
     private float yaw, pitch;
 
     public StatePayload(InputPayload payload) {
         this.payload = payload;
         this.position = new Vector3f();
+        this.velocity = new Vector3f();
         this.data = null;
     }
 
     public StatePayload(JsonNode stateData) {
         this.position = new Vector3f();
+        this.velocity = new Vector3f();
         this.inputVector = new Vector3i();
         this.payload = new InputPayload(stateData.get("tick").asInt());
         position.x = stateData.get("x").floatValue();
         position.y = stateData.get("y").floatValue();
         position.z = stateData.get("z").floatValue();
+        velocity.x = stateData.get("vx").floatValue();
+        velocity.y = stateData.get("vy").floatValue();
+        velocity.z = stateData.get("vz").floatValue();
         yaw = stateData.get("yaw").floatValue();
         pitch = stateData.get("pitch").floatValue();
     }
 
-    public void predictMovement(Player player, Vector3f playerPosition) {
+    public void predictMovement(Player player, Vector3f playerPosition, Vector3f playerVelocity) {
         Vector3f front = new Vector3f();
         float speed = player.getSpeed() * 10.0f * (1.0f / GameConfiguration.TICK_PER_SECONDS);
         Vector3f position = new Vector3f(playerPosition);
+        Vector3f velocity = new Vector3f(playerVelocity);
 
         for (PlayerInputData inputData : payload.getInputData()) {
             float yaw = inputData.getYaw();
             float pitch = inputData.getPitch();
 
-            player.setYaw(yaw);
-            player.setPitch(pitch);
+            this.yaw = yaw;
+            this.pitch = pitch;
+
+            Vector3f acceleration = new Vector3f(0,0,0);
 
             front.x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
             front.y = (float) Math.sin(Math.toRadians(0.0f));
             front.z = (float) (Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
 
             front.normalize();
-
             Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
 
+            velocity.add(player.getGravity());
+
             if (inputData.isMovingForward()) {
-                position.add(new Vector3f(front).mul(speed));
+                acceleration.add(front);
             }
 
             if (inputData.isMovingBackward()) {
-                position.sub(new Vector3f(front).mul(speed));
+                acceleration.sub(front);
             }
 
             if (inputData.isMovingLeft()) {
-                position.sub(new Vector3f(right).mul(speed));
+                acceleration.sub(right);
             }
 
             if (inputData.isMovingRight()) {
-                position.add(new Vector3f(right).mul(speed));
+                acceleration.add(right);
             }
 
             if (inputData.isFlying()) {
-                position.add(new Vector3f(0.0f, .5f, 0.0f));
+                acceleration.add(new Vector3f(0.0f, .5f, 0.0f));
             }
 
             if (inputData.isSneaking()) {
-                position.sub(new Vector3f(0.0f, .5f, 0.0f));
+                acceleration.sub(new Vector3f(0.0f, .1f, 0.0f));
             }
 
-            player.setPosition(new Vector3f(position));
+            velocity.add(acceleration.mul(speed));
+
+            if (velocity.length()>player.getMaxSpeed()) {
+                velocity.normalize().mul(player.getMaxSpeed());
+            }
+
+
+            velocity.x *= .95f;
+            velocity.y *= .95f;
+            velocity.z *= .95f;
+
+            player.getPosition().x += velocity.x;
+            player.handleCollisions(new Vector3f(velocity.x,0,0));
+
+            player.getPosition().y += velocity.y;
+            player.handleCollisions(new Vector3f(0,velocity.y,0));
+
+            player.getPosition().z += velocity.z;
+            player.handleCollisions(new Vector3f(0,0,velocity.z));
+
         }
 
         this.position = new Vector3f(position);

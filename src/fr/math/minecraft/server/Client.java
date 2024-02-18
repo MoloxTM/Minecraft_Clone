@@ -60,10 +60,10 @@ public class Client {
         this.uuid = uuid;
         this.name = name;
         this.velocity = new Vector3f();
-        this.gravity = new Vector3f(0, -0.001f, 0);
+        this.gravity = new Vector3f(0, -0.1f, 0);
         this.acceleration = new Vector3f();
         this.front = new Vector3f(0.0f, 0.0f, 0.0f);
-        this.position = new Vector3f(0.0f, 200.0f, 0.0f);
+        this.position = new Vector3f(0.0f, 1000.0f, 0.0f);
         this.lastChunkPosition = new Vector3f(0, 0, 0);
         this.inputVector = new Vector3i(0, 0, 0);
         this.receivedChunks = new HashSet<>();
@@ -130,7 +130,11 @@ public class Client {
                     byte block = world.getBlockAt((int) worldX, (int) worldY, (int) worldZ);
                     Material material = Material.getMaterialById(block);
 
-                    if (material != null && !material.isSolid()) {
+                    if (material == null) {
+                        continue;
+                    }
+
+                    if (!material.isSolid()) {
                         continue;
                     }
 
@@ -176,30 +180,30 @@ public class Client {
             front.normalize();
             Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
 
-            //velocity.add(gravity);
+            velocity.add(gravity);
 
             if (inputData.isMovingForward()) {
                 acceleration = acceleration.add(front);
             }
 
             if (inputData.isMovingBackward()) {
-                acceleration = acceleration.sub(front);
+                acceleration.sub(front);
             }
 
             if (inputData.isMovingLeft()) {
-                acceleration = acceleration.sub(right);
+                acceleration.sub(right);
             }
 
             if (inputData.isMovingRight()) {
-                acceleration = acceleration.add(right);
+                acceleration.add(right);
             }
 
             if (inputData.isFlying()) {
-                position.add(new Vector3f(0.0f, .5f, 0.0f));
+                acceleration.add(new Vector3f(0.0f, .5f, 0.0f));
             }
 
             if (inputData.isSneaking()) {
-                position.sub(new Vector3f(0.0f, .1f, 0.0f));
+                acceleration.sub(new Vector3f(0.0f, .1f, 0.0f));
             }
 
             velocity.add(acceleration.mul(speed));
@@ -208,18 +212,18 @@ public class Client {
                 velocity.normalize().mul(Vmax);
             }
 
-
             velocity.x *= .95f;
+            velocity.y *= .95f;
             velocity.z *= .95f;
 
             position.x += velocity.x;
-            handleCollisions(new Vector3f(position.x,0,0));
-
-            position.y += velocity.y;
-            handleCollisions(new Vector3f(0,position.y,0));
+            handleCollisions(new Vector3f(velocity.x,0,0));
 
             position.z += velocity.z;
-            handleCollisions(new Vector3f(0,0,position.z));
+            handleCollisions(new Vector3f(0,0,velocity.z));
+
+            position.y += velocity.y;
+            handleCollisions(new Vector3f(0,velocity.y,0));
 
         }
         // System.out.println("Tick " + payload.getTick() + " InputVector: " + payload.getInputVector() + " Calculated position : " + position);
@@ -259,6 +263,10 @@ public class Client {
         node.put("bodyYaw", this.bodyYaw);
 
         return node;
+    }
+
+    public Vector3f getVelocity() {
+        return velocity;
     }
 
     public BufferedImage getSkin() {

@@ -62,8 +62,8 @@ public class Player {
     private GameMode gameMode;
 
     public Player(String name) {
-        this.position = new Vector3f(0.0f, 200.0f, 0.0f);
-        this.gravity = new Vector3f(0, -0.001f, 0);
+        this.position = new Vector3f(0.0f, 1000.0f, 0.0f);
+        this.gravity = new Vector3f(0, -0.1f, 0);
         this.lastTickPosition = new Vector3f(0, 0, 0);
         this.lastTickInput = new Vector3i(0, 0, 0);
         this.velocity = new Vector3f();
@@ -200,6 +200,10 @@ public class Player {
         return position;
     }
 
+    public Vector3f getVelocity() {
+        return velocity;
+    }
+
     public float getPitch() {
         return pitch;
     }
@@ -332,7 +336,11 @@ public class Player {
                     byte block = world.getBlockAt((int) worldX, (int) worldY, (int) worldZ);
                     Material material = Material.getMaterialById(block);
 
-                    if (material != null && !material.isSolid()) {
+                    if (material == null) {
+                        continue;
+                    }
+
+                    if (!material.isSolid()) {
                         continue;
                     }
 
@@ -348,6 +356,8 @@ public class Player {
                     } else if(velocity.y<0) {
                         position.y = worldY + hitbox.getHeight() +1;
                         this.velocity.y=0;
+                        System.out.println("Collision avec le block " + material.getName());
+
                     }
 
                     if (velocity.z > 0) {
@@ -372,7 +382,7 @@ public class Player {
         Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
         Vector3f acceleration = new Vector3f(0,0,0);
 
-        //velocity.add(gravity);
+        velocity.add(gravity);
 
         if (movingForward) {
             acceleration.add(front);
@@ -391,11 +401,11 @@ public class Player {
         }
 
         if (flying) {
-            position.add(new Vector3f(0.0f, .5f, 0.0f));
+            acceleration.add(new Vector3f(0.0f, .5f, 0.0f));
         }
 
         if (sneaking) {
-            position.sub(new Vector3f(0.0f, .1f, 0.0f));
+            acceleration.sub(new Vector3f(0.0f, .1f, 0.0f));
         }
 
         velocity.add(acceleration.mul(speed));
@@ -404,19 +414,18 @@ public class Player {
             velocity.normalize().mul(Vmax);
         }
 
-        this.handleCollisions(new Vector3f(position.x, 0, 0));
-
         velocity.x *= .95f;
+        velocity.y *= .95f;
         velocity.z *= .95f;
 
         position.x += velocity.x;
-        handleCollisions(new Vector3f(position.x,0,0));
-
-        position.y += velocity.y;
-        handleCollisions(new Vector3f(0,position.y,0));
+        handleCollisions(new Vector3f(velocity.x,0,0));
 
         position.z += velocity.z;
-        handleCollisions(new Vector3f(0,0,position.z));
+        handleCollisions(new Vector3f(0,0,velocity.z));
+
+        position.y += velocity.y;
+        handleCollisions(new Vector3f(0,velocity.y,0));
 
         PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, yaw, pitch);
         inputs.add(inputData);
@@ -456,5 +465,13 @@ public class Player {
 
     public List<PlayerInputData> getInputs() {
         return inputs;
+    }
+
+    public float getMaxSpeed() {
+        return Vmax;
+    }
+
+    public Vector3f getGravity() {
+        return gravity;
     }
 }

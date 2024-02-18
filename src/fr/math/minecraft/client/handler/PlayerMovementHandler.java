@@ -28,7 +28,7 @@ public class PlayerMovementHandler {
     public void handle(Player player, Vector3f playerPosition, List<PlayerInputData> inputData) {
 
         if (lastServerState != null) {
-            this.reconcile(player);
+            // this.reconcile(player);
         }
 
         int bufferIndex = currentTick % BUFFER_SIZE;
@@ -51,6 +51,7 @@ public class PlayerMovementHandler {
 
         int serverTick = lastServerState.getInputPayload().getTick();
         Vector3f serverPosition = lastServerState.getPosition();
+        Vector3f serverVelocity = lastServerState.getPosition();
 
         StatePayload payload = stateBuffer[serverTick % BUFFER_SIZE];
 
@@ -67,6 +68,11 @@ public class PlayerMovementHandler {
             player.getPosition().x = serverPosition.x;
             player.getPosition().y = serverPosition.y;
             player.getPosition().z = serverPosition.z;
+
+            player.getVelocity().x = serverVelocity.x;
+            player.getVelocity().y = serverVelocity.y;
+            player.getVelocity().z = serverVelocity.z;
+
             player.setYaw(lastServerState.getYaw());
             player.setPitch(lastServerState.getPitch());
 
@@ -76,7 +82,7 @@ public class PlayerMovementHandler {
 
                 InputPayload inputPayload = inputBuffer[tickToProcess % BUFFER_SIZE];
                 StatePayload statePayload = new StatePayload(inputPayload);
-                statePayload.predictMovement(player, player.getPosition());
+                statePayload.predictMovement(player, player.getPosition(), player.getVelocity());
 
                 camera.update(player);
 
