@@ -35,10 +35,6 @@ public class FixedPacketSender extends Thread {
             long currentTime = System.currentTimeMillis();
             long deltaTime = currentTime - lastTickTime;
 
-            if (currentTime - lastPingTime >= 1000) {
-                this.enqueue(new PingPacket());
-            }
-
             tickTimer += deltaTime;
 
             lastTickTime = currentTime;

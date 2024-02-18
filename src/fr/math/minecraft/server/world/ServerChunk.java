@@ -4,20 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import fr.math.minecraft.server.builder.EmptyMapBuilder;
-import fr.math.minecraft.server.world.generator.OverworldGenerator;
 import org.joml.Vector3i;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import fr.math.minecraft.server.MinecraftServer;
 import fr.math.minecraft.server.world.biome.*;
 import fr.math.minecraft.server.world.generator.TerrainGenerator;
-import org.joml.Vector3i;
 
 public class ServerChunk {
 
@@ -27,7 +21,6 @@ public class ServerChunk {
 
     public final static int SIZE = 16;
     public final static int AREA = SIZE * SIZE;
-
     public final static int VOLUME = SIZE * AREA;
     private boolean empty;
 
