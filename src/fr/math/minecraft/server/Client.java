@@ -22,10 +22,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.Base64;
-import java.util.HashSet;
-import java.util.PriorityQueue;
-import java.util.Set;
+import java.util.*;
 
 public class Client {
 
@@ -53,6 +50,8 @@ public class Client {
     private final PriorityQueue<ServerChunk> nearChunks;
     private final Hitbox hitbox;
     private Vector3f lastChunkPosition;
+    private final Queue<InputPayload> inputQueue;
+
 
     public Client(String uuid, String name, InetAddress address, int port) {
         this.address = address;
@@ -60,6 +59,7 @@ public class Client {
         this.uuid = uuid;
         this.name = name;
         this.velocity = new Vector3f();
+        this.inputQueue = new LinkedList<>();
         this.gravity = new Vector3f(0, -0.025f, 0);
         this.acceleration = new Vector3f();
         this.front = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -325,5 +325,9 @@ public class Client {
 
     public float getPitch() {
         return pitch;
+    }
+
+    public Queue<InputPayload> getInputQueue() {
+        return inputQueue;
     }
 }

@@ -28,7 +28,7 @@ public class PlayerMovementHandler {
     public void handle(Player player, Vector3f playerPosition, List<PlayerInputData> inputData) {
 
         if (lastServerState != null) {
-            // this.reconcile(player);
+            this.reconcile(player);
         }
 
         int bufferIndex = currentTick % BUFFER_SIZE;

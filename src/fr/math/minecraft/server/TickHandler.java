@@ -22,12 +22,10 @@ public class TickHandler extends Thread {
     public final static long TICK_PER_SECONDS = 20;
     public final static long TICK_RATE_MS = 1000 / TICK_PER_SECONDS;
     private final static int BUFFER_SIZE = 1024;
-    private final Queue<InputPayload> inputQueue;
     private final StatePayload[] stateBuffer;
 
     public TickHandler() {
         this.setName("TickHandler");
-        this.inputQueue = new LinkedList<>();
         this.stateBuffer = new StatePayload[BUFFER_SIZE];
     }
 
@@ -86,43 +84,45 @@ public class TickHandler extends Thread {
     }
 
     public void enqueue(InputPayload payload) {
-        synchronized (this.getInputQueue()) {
-            this.getInputQueue().add(payload);
+        MinecraftServer server = MinecraftServer.getInstance();
+        Client client = server.getClients().get(payload.getClientUuid());
+        if (client == null) {
+            return;
+        }
+        synchronized (client.getInputQueue()) {
+            client.getInputQueue().add(payload);
         }
     }
 
     private void tick() {
         MinecraftServer server = MinecraftServer.getInstance();
         int bufferIndex = -1;
-        synchronized (this.getInputQueue()) {
-            while (!inputQueue.isEmpty()) {
-                InputPayload inputPayload = inputQueue.poll();
+        synchronized (server.getClients()) {
+            for (Client client : server.getClients().values()) {
+                synchronized (client.getInputQueue()) {
+                    while (!client.getInputQueue().isEmpty()) {
+                        InputPayload inputPayload = client.getInputQueue().poll();
 
-                if (inputPayload == null) continue;
+                        if (inputPayload == null) continue;
 
-                String uuid = inputPayload.getClientUuid();
-                Client client = server.getClients().get(uuid);
+                        if (!client.isActive()) {
+                            continue;
+                        }
 
-                if (client == null) {
-                    continue;
+                        bufferIndex = inputPayload.getTick() % BUFFER_SIZE;
+                        StatePayload statePayload = new StatePayload(inputPayload);
+                        statePayload.predictMovement(client);
+
+                        //statePayload.send();
+
+                        stateBuffer[bufferIndex] = statePayload;
+                    }
+
+                    if (bufferIndex != -1) {
+                        StatePayload payload = stateBuffer[bufferIndex];
+                        payload.send();
+                    }
                 }
-
-                if (!client.isActive()) {
-                    continue;
-                }
-
-                bufferIndex = inputPayload.getTick() % BUFFER_SIZE;
-                StatePayload statePayload = new StatePayload(inputPayload);
-                statePayload.predictMovement(client);
-
-                //statePayload.send();
-
-                stateBuffer[bufferIndex] = statePayload;
-            }
-
-            if (bufferIndex != -1) {
-                StatePayload payload = stateBuffer[bufferIndex];
-                payload.send();
             }
         }
 
@@ -148,7 +148,4 @@ public class TickHandler extends Thread {
         }
     }
 
-    public Queue<InputPayload> getInputQueue() {
-        return inputQueue;
-    }
 }
