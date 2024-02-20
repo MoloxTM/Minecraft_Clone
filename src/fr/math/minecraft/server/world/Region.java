@@ -18,7 +18,7 @@ public class Region {
 
     private final Vector3i position;
     private final Map<Coordinates, Byte> structureMap;
-    public final static int SIZE = 16;
+    public final static int SIZE = 8;
     private Structure structure;
 
     public Region(Vector3i position) {

@@ -22,7 +22,7 @@ public class MeshBuilder {
     private static int counter = 0;
     private HashMap<Coordinates, Boolean> emptyMap = new HashMap<>();
 
-    public boolean isEmpty(int worldX, int worldY, int worldZ) {
+    public boolean isEmptyV2(int worldX, int worldY, int worldZ, Material material) {
 
         Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
 
@@ -45,9 +45,54 @@ public class MeshBuilder {
         blockY = blockY < 0 ? blockY + Chunk.SIZE : blockY;
         blockZ = blockZ < 0 ? blockZ + Chunk.SIZE : blockZ;
 
+        if(material == Material.WATER) {
+            if(chunk.getBlock(blockX, blockY, blockZ) == Material.WATER.getId()) {
+                return false;
+            }
+            if(world.getTransparents().contains(chunk.getBlock(blockX, blockY, blockZ))) {
+                return true;
+            }
+        }
+
         emptyMap.put(coordinates, world.getTransparents().contains(chunk.getBlock(blockX, blockY, blockZ)));
         return world.getTransparents().contains(chunk.getBlock(blockX, blockY, blockZ));
     }
+
+    public boolean isEmpty(int worldX, int worldY, int worldZ, byte mode) {
+
+        Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
+
+        if (emptyMap.containsKey(coordinates)) {
+            return emptyMap.get(coordinates);
+        }
+
+        int chunkX = (int) Math.floor(worldX / (double) Chunk.SIZE);
+        int chunkY = (int) Math.floor(worldY / (double) Chunk.SIZE);
+        int chunkZ = (int) Math.floor(worldZ / (double) Chunk.SIZE);
+
+        World world = Game.getInstance().getWorld();
+        Chunk chunk = world.getChunk(chunkX, chunkY, chunkZ);
+
+        int blockX = worldX % Chunk.SIZE;
+        int blockY = worldY % Chunk.SIZE;
+        int blockZ = worldZ % Chunk.SIZE;
+
+        blockX = blockX < 0 ? blockX + Chunk.SIZE : blockX;
+        blockY = blockY < 0 ? blockY + Chunk.SIZE : blockY;
+        blockZ = blockZ < 0 ? blockZ + Chunk.SIZE : blockZ;
+
+
+        if(chunk.getBlock(blockX, blockY, blockZ) == 2) {
+            if(mode == 2){
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        return chunk.getBlock(blockX, blockY, blockZ) == Material.AIR.getId();
+    }
+
 
     public static Vector2f[] calculateTexCoords(int x, int y, float format) {
         Vector2f texCoordsBottomLeft = new Vector2f(x/format, y/format);
@@ -81,17 +126,16 @@ public class MeshBuilder {
 
                     if (material == null) material = Material.DEBUG;
 
-
                     int worldX = x + chunk.getPosition().x * Chunk.SIZE;
                     int worldY = y + chunk.getPosition().y * Chunk.SIZE;
                     int worldZ = z + chunk.getPosition().z * Chunk.SIZE;
 
-                    boolean px = isEmpty(worldX + 1, worldY, worldZ);
-                    boolean nx = isEmpty(worldX - 1, worldY, worldZ);
-                    boolean py = isEmpty(worldX, worldY + 1, worldZ);
-                    boolean ny = isEmpty(worldX, worldY - 1, worldZ);
-                    boolean pz = isEmpty(worldX, worldY, worldZ + 1);
-                    boolean nz = isEmpty(worldX, worldY, worldZ - 1);
+                    boolean px = isEmpty(worldX + 1, worldY, worldZ, material.getId());
+                    boolean nx = isEmpty(worldX - 1, worldY, worldZ, material.getId());
+                    boolean py = isEmpty(worldX, worldY + 1, worldZ, material.getId());
+                    boolean ny = isEmpty(worldX, worldY - 1, worldZ, material.getId());
+                    boolean pz = isEmpty(worldX, worldY, worldZ + 1, material.getId());
+                    boolean nz = isEmpty(worldX, worldY, worldZ - 1, material.getId());
 
                     Vector2f[] textureCoords;
 
