@@ -193,6 +193,20 @@ public class Renderer {
         terrainTexture.unbind();
     }
 
+    public void renderWater(Camera camera, Chunk chunk) {
+        Player player = Game.getInstance().getPlayer();
+        chunkShader.enable();
+        chunkShader.sendInt("uTexture", terrainTexture.getSlot());
+
+        glActiveTexture(GL_TEXTURE0 + terrainTexture.getSlot());
+        terrainTexture.bind();
+
+        camera.matrix(chunkShader, chunk);
+
+        chunk.getWaterMesh().draw();
+        terrainTexture.unbind();
+    }
+
     public void renderText(Camera camera, String text, float x, float y, int rgb, float scale) {
         this.renderText(camera, text, x, y, -10, rgb, scale, 0.0f, new Vector3i(0 , 0, 0));
     }

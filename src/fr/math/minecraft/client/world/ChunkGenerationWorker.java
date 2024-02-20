@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.manager.ChunkManager;
 import fr.math.minecraft.client.meshs.ChunkMesh;
+import fr.math.minecraft.client.meshs.WaterMesh;
 import fr.math.minecraft.client.packet.ChunkRequestPacket;
 import org.joml.Vector3i;
 
@@ -59,8 +60,10 @@ public class ChunkGenerationWorker implements Runnable {
 
         if (!chunk.isEmpty()) {
             ChunkMesh chunkMesh = new ChunkMesh(chunk);
+            WaterMesh waterMesh = new WaterMesh(chunk);
             synchronized (game.getWorld().getChunks()) {
                 chunk.setChunkMesh(chunkMesh);
+                chunk.setWaterMesh(waterMesh);
             }
         }
     }
