@@ -1,6 +1,6 @@
 package fr.math.minecraft.server.manager;
 
-import fr.math.minecraft.client.GameConfiguration;
+import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.client.world.Coordinates;
 import fr.math.minecraft.server.Client;
 import fr.math.minecraft.server.MinecraftServer;

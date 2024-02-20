@@ -1,11 +1,10 @@
 package fr.math.minecraft.client.world;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import fr.math.minecraft.client.GameConfiguration;
+import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.meshs.ChunkMesh;
 import org.joml.Vector3f;
-import fr.math.minecraft.server.world.biome.AbstractBiome;
 import org.joml.Vector3i;
 
 import java.util.HashMap;

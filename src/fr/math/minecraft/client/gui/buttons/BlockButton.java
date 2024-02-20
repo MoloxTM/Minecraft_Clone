@@ -1,6 +1,6 @@
 package fr.math.minecraft.client.gui.buttons;
 
-import fr.math.minecraft.client.GameConfiguration;
+import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.client.meshs.ButtonMesh;
 import fr.math.minecraft.client.visitor.ButtonActionVisitor;
 import fr.math.minecraft.client.visitor.ButtonVisitor;

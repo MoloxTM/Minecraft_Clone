@@ -2,13 +2,12 @@ package fr.math.minecraft.client.gui.menus;
 
 import fr.math.minecraft.client.Camera;
 import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.GameConfiguration;
+import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.gui.buttons.BlockButton;
 import fr.math.minecraft.client.gui.GuiText;
 import fr.math.minecraft.client.gui.buttons.PlayButton;
 import fr.math.minecraft.client.manager.FontManager;
-import fr.math.minecraft.client.meshs.ButtonMesh;
 import fr.math.minecraft.client.meshs.FontMesh;
 
 public class MainMenu extends Menu {

@@ -1,13 +1,9 @@
 package fr.math.minecraft.client.world.worker;
 
 import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.GameConfiguration;
-import fr.math.minecraft.client.math.MathUtils;
 import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.world.Chunk;
-import fr.math.minecraft.client.world.Coordinates;
 import fr.math.minecraft.client.world.World;
-import org.joml.Vector3f;
 
 public class ChunkMeshWorker implements Runnable {
 

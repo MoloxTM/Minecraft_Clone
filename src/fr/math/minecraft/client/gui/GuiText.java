@@ -1,6 +1,6 @@
 package fr.math.minecraft.client.gui;
 
-import fr.math.minecraft.client.GameConfiguration;
+import fr.math.minecraft.shared.GameConfiguration;
 
 public class GuiText {
 

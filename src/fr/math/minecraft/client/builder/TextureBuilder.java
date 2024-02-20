@@ -1,6 +1,6 @@
 package fr.math.minecraft.client.builder;
 
-import fr.math.minecraft.client.GameConfiguration;
+import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.client.texture.Texture;
 
 import javax.imageio.ImageIO;

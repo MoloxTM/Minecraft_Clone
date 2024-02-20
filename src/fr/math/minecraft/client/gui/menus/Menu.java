@@ -1,7 +1,7 @@
 package fr.math.minecraft.client.gui.menus;
 
 import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.GameConfiguration;
+import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.client.gui.buttons.BlockButton;
 import fr.math.minecraft.client.gui.GuiText;
 import fr.math.minecraft.client.manager.FontManager;

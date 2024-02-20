@@ -1,8 +1,6 @@
 package fr.math.minecraft.client.network.payload;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import fr.math.minecraft.client.Camera;
-import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.network.FixedPacketSender;
 import fr.math.minecraft.client.network.packet.PlayerMovePacket;
@@ -43,7 +41,6 @@ public class StatePayload {
 
     public void predictMovement(Player player, Vector3f playerPosition, Vector3f playerVelocity) {
         Vector3f front = new Vector3f();
-        float speed = player.getSpeed() * 10.0f * (1.0f / GameConfiguration.TICK_PER_SECONDS);
         Vector3f position = new Vector3f(playerPosition);
         Vector3f velocity = new Vector3f(playerVelocity);
 
@@ -89,26 +86,23 @@ public class StatePayload {
                 acceleration.sub(new Vector3f(0.0f, .1f, 0.0f));
             }
 
-            velocity.add(acceleration.mul(speed));
+            velocity.add(acceleration.mul(player.getSpeed()));
 
-            if (velocity.length()>player.getMaxSpeed()) {
+            if (velocity.length() > player.getMaxSpeed()) {
                 velocity.normalize().mul(player.getMaxSpeed());
             }
 
 
-            velocity.x *= .95f;
-            velocity.y *= .95f;
-            velocity.z *= .95f;
-
             player.getPosition().x += velocity.x;
             player.handleCollisions(new Vector3f(velocity.x,0,0));
-
-            player.getPosition().y += velocity.y;
-            player.handleCollisions(new Vector3f(0,velocity.y,0));
 
             player.getPosition().z += velocity.z;
             player.handleCollisions(new Vector3f(0,0,velocity.z));
 
+            player.getPosition().y += velocity.y;
+            player.handleCollisions(new Vector3f(0,velocity.y,0));
+
+            velocity.mul(0.95f);
         }
 
         this.position = new Vector3f(position);

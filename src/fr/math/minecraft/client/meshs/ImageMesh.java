@@ -1,6 +1,5 @@
 package fr.math.minecraft.client.meshs;
 
-import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.client.buffers.EBO;
 import fr.math.minecraft.client.buffers.VAO;
 import fr.math.minecraft.client.buffers.VBO;

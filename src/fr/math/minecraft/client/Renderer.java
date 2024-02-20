@@ -14,6 +14,7 @@ import fr.math.minecraft.client.texture.CubemapTexture;
 import fr.math.minecraft.client.texture.Texture;
 import fr.math.minecraft.client.world.Chunk;
 import fr.math.minecraft.server.manager.BiomeManager;
+import fr.math.minecraft.shared.GameConfiguration;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 

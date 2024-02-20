@@ -1,7 +1,7 @@
 package fr.math.minecraft.client.manager;
 
 import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.GameConfiguration;
+import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.network.FixedPacketSender;
 import fr.math.minecraft.client.math.MathUtils;

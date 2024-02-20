@@ -3,15 +3,14 @@ package fr.math.minecraft.server;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.GameConfiguration;
 import fr.math.minecraft.client.world.Coordinates;
 import fr.math.minecraft.client.world.Material;
-import fr.math.minecraft.client.world.World;
 import fr.math.minecraft.server.payload.InputPayload;
+import fr.math.minecraft.server.payload.StatePayload;
 import fr.math.minecraft.server.world.ServerChunk;
 import fr.math.minecraft.server.world.ServerChunkComparator;
 import fr.math.minecraft.server.world.ServerWorld;
+import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.network.Hitbox;
 import fr.math.minecraft.shared.network.PlayerInputData;
 import org.joml.Vector3f;
@@ -51,7 +50,7 @@ public class Client {
     private final Hitbox hitbox;
     private Vector3f lastChunkPosition;
     private final Queue<InputPayload> inputQueue;
-
+    private final StatePayload[] stateBuffer;
 
     public Client(String uuid, String name, InetAddress address, int port) {
         this.address = address;
@@ -69,6 +68,7 @@ public class Client {
         this.receivedChunks = new HashSet<>();
         this.nearChunks = new PriorityQueue<>(new ServerChunkComparator(this));
         this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 1.0f, 0.25f));
+        this.stateBuffer = new StatePayload[GameConfiguration.BUFFER_SIZE];
         this.yaw = 0.0f;
         this.pitch = 0.0f;
         this.speed = 0.01f;
@@ -183,7 +183,7 @@ public class Client {
             velocity.add(gravity);
 
             if (inputData.isMovingForward()) {
-                acceleration = acceleration.add(front);
+                acceleration.add(front);
             }
 
             if (inputData.isMovingBackward()) {
@@ -329,5 +329,9 @@ public class Client {
 
     public Queue<InputPayload> getInputQueue() {
         return inputQueue;
+    }
+
+    public StatePayload[] getStateBuffer() {
+        return stateBuffer;
     }
 }

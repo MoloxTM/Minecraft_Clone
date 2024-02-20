@@ -1,15 +1,9 @@
 package fr.math.minecraft.client.handler;
 
 import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.GameConfiguration;
-import fr.math.minecraft.client.entity.Player;
+import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.client.manager.WorldManager;
-import fr.math.minecraft.shared.network.PlayerInputData;
 import fr.math.minecraft.client.world.World;
-import org.joml.Vector3f;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 

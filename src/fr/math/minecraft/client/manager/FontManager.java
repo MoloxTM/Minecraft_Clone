@@ -1,14 +1,11 @@
 package fr.math.minecraft.client.manager;
 
-import fr.math.minecraft.client.GameConfiguration;
-import fr.math.minecraft.client.buffers.VBO;
+import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.client.fonts.CharInfo;
 import fr.math.minecraft.client.meshs.FontMesh;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
-
-import static org.lwjgl.opengl.GL33.*;
 
 public class FontManager {
 

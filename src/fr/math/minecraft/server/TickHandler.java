@@ -9,6 +9,7 @@ import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.server.payload.StatePayload;
 import fr.math.minecraft.server.world.Coordinates;
 import fr.math.minecraft.server.world.ServerChunk;
+import fr.math.minecraft.shared.GameConfiguration;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -21,12 +22,9 @@ public class TickHandler extends Thread {
 
     public final static long TICK_PER_SECONDS = 20;
     public final static long TICK_RATE_MS = 1000 / TICK_PER_SECONDS;
-    private final static int BUFFER_SIZE = 1024;
-    private final StatePayload[] stateBuffer;
 
     public TickHandler() {
         this.setName("TickHandler");
-        this.stateBuffer = new StatePayload[BUFFER_SIZE];
     }
 
     @Override
@@ -96,10 +94,10 @@ public class TickHandler extends Thread {
 
     private void tick() {
         MinecraftServer server = MinecraftServer.getInstance();
-        int bufferIndex = -1;
         synchronized (server.getClients()) {
             for (Client client : server.getClients().values()) {
                 synchronized (client.getInputQueue()) {
+                    int bufferIndex = -1;
                     while (!client.getInputQueue().isEmpty()) {
                         InputPayload inputPayload = client.getInputQueue().poll();
 
@@ -109,17 +107,17 @@ public class TickHandler extends Thread {
                             continue;
                         }
 
-                        bufferIndex = inputPayload.getTick() % BUFFER_SIZE;
+                        bufferIndex = inputPayload.getTick() % GameConfiguration.BUFFER_SIZE;
                         StatePayload statePayload = new StatePayload(inputPayload);
                         statePayload.predictMovement(client);
 
                         //statePayload.send();
 
-                        stateBuffer[bufferIndex] = statePayload;
+                        client.getStateBuffer()[bufferIndex] = statePayload;
                     }
 
                     if (bufferIndex != -1) {
-                        StatePayload payload = stateBuffer[bufferIndex];
+                        StatePayload payload = client.getStateBuffer()[bufferIndex];
                         payload.send();
                     }
                 }
@@ -147,5 +145,4 @@ public class TickHandler extends Thread {
             }
         }
     }
-
 }
