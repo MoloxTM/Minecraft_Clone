@@ -37,6 +37,7 @@ public class PlayersListPacket extends ClientPacket {
         }
     }
 
+    /*
     @Override
     public void send() {
         Game game = Game.getInstance();
@@ -98,6 +99,7 @@ public class PlayersListPacket extends ClientPacket {
             logger.error(e.getMessage());
         }
     }
+     */
 
     @Override
     public String toJSON() {
