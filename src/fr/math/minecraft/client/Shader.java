@@ -1,6 +1,8 @@
 package fr.math.minecraft.client;
 
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector3i;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -81,6 +83,10 @@ public class Shader {
     public void sendMatrix(String name, Matrix4f mat, FloatBuffer buffer) {
         mat.get(buffer);
         glUniformMatrix4fv(glGetUniformLocation(id, name), false, buffer);
+    }
+
+    public void sendVector3f(String name, Vector3f vector3f) {
+        glUniform3f(glGetUniformLocation(id, name), vector3f.x, vector3f.y, vector3f.z);
     }
 
 }

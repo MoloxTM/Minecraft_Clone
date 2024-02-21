@@ -51,6 +51,28 @@ public class Camera {
         front.normalize();
     }
 
+    public void matrixWater(Shader shader, Camera camera, Chunk chunk) {
+        this.calculateFront(front);
+
+        Matrix4f projection = new Matrix4f();
+        Matrix4f view = new Matrix4f();
+        Matrix4f model = new Matrix4f();
+
+        right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
+        Vector3f up = new Vector3f(right).cross(front).normalize();
+
+        Vector3f newPosition = new Vector3f(position).add(0, 1 + 0.25f, 0);
+
+        projection.perspective((float) Math.toRadians(fov), width / height, nearPlane ,farPlane);
+        view.lookAt(newPosition, new Vector3f(newPosition).add(front), up);
+        model.translate(chunk.getPosition().x * Chunk.SIZE, chunk.getPosition().y * Chunk.SIZE, chunk.getPosition().z * Chunk.SIZE);
+
+        shader.sendMatrix("projection", projection, projectionBuffer);
+        shader.sendMatrix("view", view, viewBuffer);
+        shader.sendMatrix("model", model, modelBuffer);
+        shader.sendVector3f("cameraPos", camera.getPosition());
+    }
+
     public void matrix(Shader shader, Chunk chunk) {
         this.calculateFront(front);
 
@@ -74,11 +96,6 @@ public class Camera {
         shader.sendMatrix("view", view, viewBuffer);
         shader.sendMatrix("model", model, modelBuffer);
         shader.sendFloat("biome", biome);
-        /*
-        shader.sendFloat("r", Player.r);
-        shader.sendFloat("g", Player.g);
-        shader.sendFloat("b", Player.b);
-         */
     }
 
     public void matrix(Shader shader, Player player) {

@@ -9,19 +9,24 @@ out vec2 textureCoord;
 out float blockID;
 out float blockFace;
 out float brightnessFace;
+out vec3 toCameraVector;
+out vec4 clipSpace;
 
 uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model;
-
 uniform vec3 cameraPosition;
 
 float brigthness[6] = float[6](0.85f, 0.6f, 1.0f, 0.6f, 0.85f, 0.6f); /*[px, nx, py, ny, pz, nz]*/
 
 void main() {
-    gl_Position = projection * view * model * vec4(aPosition, 1.0);
+
+    vec4 worldPosition = model * vec4(aPosition, 1.0);
+    gl_Position = projection * view * worldPosition;
+    clipSpace = gl_Position;
     textureCoord = aTexture;
     blockID=aBlockID;
     blockFace=aBlockFace;
     brightnessFace = brigthness[int(blockFace)];
+    toCameraVector = cameraPosition - worldPosition.xyz;
 }

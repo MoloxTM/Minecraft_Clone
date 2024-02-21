@@ -320,7 +320,6 @@ public class Game {
                     chunk.getWaterMesh().init();
                 }
 
-
                 renderer.renderWater(camera, chunk);
             }
         }
