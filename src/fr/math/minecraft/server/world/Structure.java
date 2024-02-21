@@ -1,5 +1,6 @@
 package fr.math.minecraft.server.world;
 
+import fr.math.minecraft.shared.world.Coordinates;
 import org.joml.Vector3i;
 import java.util.ArrayList;
 import java.util.HashMap;

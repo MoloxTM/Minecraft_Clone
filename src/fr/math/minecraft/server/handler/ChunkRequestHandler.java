@@ -1,15 +1,8 @@
 package fr.math.minecraft.server.handler;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import fr.math.minecraft.server.MinecraftServer;
-import fr.math.minecraft.server.builder.EmptyMapBuilder;
-import fr.math.minecraft.server.world.Coordinates;
-import fr.math.minecraft.server.world.ServerChunk;
-import fr.math.minecraft.server.world.ServerWorld;
 
-import java.net.DatagramPacket;
 import java.net.InetAddress;
-import java.nio.charset.StandardCharsets;
 
 public class ChunkRequestHandler extends PacketHandler implements Runnable {
 
@@ -19,29 +12,57 @@ public class ChunkRequestHandler extends PacketHandler implements Runnable {
 
     @Override
     public void run() {
-        int x = packetData.get("x").asInt();
-        int y = packetData.get("y").asInt();
-        int z = packetData.get("z").asInt();
+        /*
+        String uuid = packetData.get("uuid").asText();
+        // ArrayNode knownChunks = (ArrayNode) packetData.get("knownChunks");
+
         MinecraftServer server = MinecraftServer.getInstance();
-        ServerWorld world = server.getWorld();
+        World world = server.getWorld();
 
-        ServerChunk chunk = world.getChunk(x, y, z);
+        Client client = server.getClients().get(uuid);
 
-        if (chunk == null) {
-            chunk = new ServerChunk(x, y, z);
-            chunk.generate();
-            world.addChunk(chunk);
+        if (client == null) {
+            return;
         }
 
-        if (chunk.getEmptyMap().isEmpty()) {
-            chunk.setEmptyMap(EmptyMapBuilder.buildEmptyMap(world, chunk));
+        ObjectMapper mapper = new ObjectMapper();
+        List<ServerChunk> chunks = new ArrayList<>();
+
+        int startX = (int) (client.getPosition().x / ServerChunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE);
+        int startZ = (int) (client.getPosition().z / ServerChunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE);
+
+        int endX = (int) (client.getPosition().x / ServerChunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE);
+        int endZ = (int) (client.getPosition().z / ServerChunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE);
+
+        for (int x = startX; x < endX; x++) {
+           for (int y = -3; y < 10; y++) {
+               for (int z = startZ; z < endZ; z++) {
+                   Chunk chunk = world.getChunk(x, y, z);
+
+                   if (chunk == null) {
+                       chunk = new Chunk(x, y, z);
+                       chunk.generate(world.getTerrainGenerator());
+                       world.addChunk(chunk);
+                   }
+
+                   chunks.add(chunk);
+               }
+           }
         }
 
-        String chunkData = chunk.toJSON();
-        byte[] buffer = chunkData.getBytes(StandardCharsets.UTF_8);
 
-        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, clientPort);
+        for (ServerChunk chunk : chunks) {
+            try {
+                String chunkJSONData = mapper.writeValueAsString(chunk.toJSONObject());
+                byte[] buffer = chunkJSONData.getBytes(StandardCharsets.UTF_8);
 
-        server.sendPacket(packet);
+                DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, clientPort);
+
+                server.sendPacket(packet);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+         */
     }
 }

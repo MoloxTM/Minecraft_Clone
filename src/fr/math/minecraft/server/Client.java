@@ -3,17 +3,13 @@ package fr.math.minecraft.server;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import fr.math.minecraft.client.world.Coordinates;
-import fr.math.minecraft.client.world.Material;
+import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.server.payload.StatePayload;
-import fr.math.minecraft.server.worker.ChunkSender;
-import fr.math.minecraft.server.world.ServerChunk;
-import fr.math.minecraft.server.world.ServerChunkComparator;
-import fr.math.minecraft.server.world.ServerWorld;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.network.Hitbox;
 import fr.math.minecraft.shared.network.PlayerInputData;
+import fr.math.minecraft.shared.world.World;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
@@ -43,16 +39,12 @@ public class Client {
     private final Vector3i inputVector;
     private final Vector3f velocity;
     private final Vector3f gravity;
-
     private final Vector3f acceleration;
     private float Vmax;
-    private final Set<Coordinates> receivedChunks;
-    private final PriorityQueue<ServerChunk> nearChunks;
     private final Hitbox hitbox;
     private Vector3f lastChunkPosition;
     private final Queue<InputPayload> inputQueue;
     private final StatePayload[] stateBuffer;
-    private final Map<Vector3i, ChunkSender> sendedChunks;
 
     public Client(String uuid, String name, InetAddress address, int port) {
         this.address = address;
@@ -67,9 +59,6 @@ public class Client {
         this.position = new Vector3f(0.0f, 100.0f, 0.0f);
         this.lastChunkPosition = new Vector3f(0, 0, 0);
         this.inputVector = new Vector3i(0, 0, 0);
-        this.receivedChunks = new HashSet<>();
-        this.sendedChunks = new HashMap<>();
-        this.nearChunks = new PriorityQueue<>(new ServerChunkComparator(this));
         this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 1.0f, 0.25f));
         this.stateBuffer = new StatePayload[GameConfiguration.BUFFER_SIZE];
         this.yaw = 0.0f;
@@ -125,7 +114,7 @@ public class Client {
 
     public void handleCollisions(Vector3f velocity) {
         MinecraftServer server = MinecraftServer.getInstance();
-        ServerWorld world = server.getWorld();
+        World world = server.getWorld();
         for (int worldX = (int) (position.x - hitbox.getWidth()) ; worldX < position.x + hitbox.getWidth() ; worldX++) {
             for (int worldY = (int) (position.y - hitbox.getHeight()) ; worldY < position.y + hitbox.getHeight() ; worldY++) {
                 for (int worldZ = (int) (position.z - hitbox.getDepth()) ; worldZ < position.z + hitbox.getDepth() ; worldZ++) {
@@ -202,7 +191,7 @@ public class Client {
             }
 
             if (inputData.isSneaking()) {
-                acceleration.sub(new Vector3f(0.0f, .1f, 0.0f));
+                acceleration.sub(new Vector3f(0.0f, .5f, 0.0f));
             }
 
             velocity.add(acceleration.mul(speed));
@@ -297,26 +286,6 @@ public class Client {
         return uuid;
     }
 
-    public Set<Coordinates> getReceivedChunks() {
-        return receivedChunks;
-    }
-
-    public PriorityQueue<ServerChunk> getNearChunks() {
-        return nearChunks;
-    }
-
-    public Vector3f getLastChunkPosition() {
-        return lastChunkPosition;
-    }
-
-    public void setLastChunkPosition(Vector3f lastChunkPosition) {
-        this.lastChunkPosition = lastChunkPosition;
-    }
-
-    public Vector3i getInputVector() {
-        return inputVector;
-    }
-
     public float getYaw() {
         return yaw;
     }
@@ -333,7 +302,4 @@ public class Client {
         return stateBuffer;
     }
 
-    public Map<Vector3i, ChunkSender> getSendedChunks() {
-        return sendedChunks;
-    }
 }

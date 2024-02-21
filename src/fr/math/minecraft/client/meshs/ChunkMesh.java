@@ -4,7 +4,7 @@ import fr.math.minecraft.client.buffers.EBO;
 import fr.math.minecraft.client.buffers.VAO;
 import fr.math.minecraft.client.buffers.VBO;
 import fr.math.minecraft.client.builder.MeshBuilder;
-import fr.math.minecraft.client.world.Chunk;
+import fr.math.minecraft.shared.world.Chunk;
 
 import java.util.ArrayList;
 
@@ -12,13 +12,13 @@ import static org.lwjgl.opengl.GL33.*;
 
 public class ChunkMesh extends Mesh {
 
-    private boolean chunkMeshInitiated;
+    private boolean initiated;
 
     public ChunkMesh(Chunk chunk) {
         ArrayList<Integer> elements = new ArrayList<>();
         vertices = new MeshBuilder().buildChunkMesh(chunk, elements);
         this.indices = elements.stream().mapToInt(Integer::valueOf).toArray();
-        this.chunkMeshInitiated = false;
+        this.initiated = false;
         //this.init();
     }
 
@@ -39,7 +39,7 @@ public class ChunkMesh extends Mesh {
         vbo.unbind();
         ebo.unbind();
 
-        chunkMeshInitiated = true;
+        initiated = true;
     }
 
     @Override
@@ -55,10 +55,10 @@ public class ChunkMesh extends Mesh {
     }
 
     public boolean isInitiated() {
-        return chunkMeshInitiated;
+        return initiated;
     }
 
-    public void setChunkMeshInitiated(boolean chunkMeshInitiated) {
-        this.chunkMeshInitiated = chunkMeshInitiated;
+    public void setInitiated(boolean initiated) {
+        this.initiated = initiated;
     }
 }

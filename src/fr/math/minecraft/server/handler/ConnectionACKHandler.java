@@ -23,13 +23,12 @@ public class ConnectionACKHandler extends PacketHandler implements Runnable {
         MinecraftServer server = MinecraftServer.getInstance();
         String uuid = packetData.get("uuid").asText();
         Client connectedClient = server.getClients().get(uuid);
-        ClientManager clientManager = new ClientManager();
+
         if (connectedClient == null) {
             return;
         }
 
         connectedClient.setActive(true);
-        clientManager.fillNearChunksQueue(connectedClient);
 
         synchronized (server.getClients()) {
             ObjectMapper mapper = new ObjectMapper();

@@ -2,8 +2,8 @@ package fr.math.minecraft.client.world.worker;
 
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.meshs.ChunkMesh;
-import fr.math.minecraft.client.world.Chunk;
-import fr.math.minecraft.client.world.World;
+import fr.math.minecraft.shared.world.Chunk;
+import fr.math.minecraft.shared.world.World;
 
 public class ChunkMeshWorker implements Runnable {
 

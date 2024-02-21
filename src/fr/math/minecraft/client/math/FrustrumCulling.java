@@ -2,7 +2,7 @@ package fr.math.minecraft.client.math;
 
 import fr.math.minecraft.client.Camera;
 import fr.math.minecraft.shared.GameConfiguration;
-import fr.math.minecraft.client.world.Chunk;
+import fr.math.minecraft.shared.world.Chunk;
 import org.joml.Vector3f;
 
 public class FrustrumCulling {

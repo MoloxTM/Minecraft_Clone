@@ -1,6 +1,5 @@
-package fr.math.minecraft.client.world;
+package fr.math.minecraft.shared.world;
 
-import org.joml.Vector2f;
 import org.joml.Vector2i;
 
 public enum Material {

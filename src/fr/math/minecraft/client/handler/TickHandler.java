@@ -2,9 +2,11 @@ package fr.math.minecraft.client.handler;
 
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.network.packet.PingPacket;
+import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.client.manager.WorldManager;
-import fr.math.minecraft.client.world.World;
+import fr.math.minecraft.shared.world.World;
+import org.joml.Vector3f;
 
 import static org.lwjgl.glfw.GLFW.*;
 

@@ -5,10 +5,10 @@ import fr.math.minecraft.client.meshs.model.CactusModel;
 import fr.math.minecraft.client.meshs.model.NatureModel;
 import fr.math.minecraft.client.vertex.Vertex;
 import fr.math.minecraft.client.meshs.model.BlockModel;
-import fr.math.minecraft.client.world.Chunk;
-import fr.math.minecraft.client.world.Coordinates;
-import fr.math.minecraft.client.world.Material;
-import fr.math.minecraft.client.world.World;
+import fr.math.minecraft.shared.world.Chunk;
+import fr.math.minecraft.shared.world.Coordinates;
+import fr.math.minecraft.shared.world.Material;
+import fr.math.minecraft.shared.world.World;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -21,7 +21,7 @@ public class MeshBuilder {
     private HashMap<Coordinates, Boolean> emptyMap = new HashMap<>();
     private final int SQUARE_POINTS = 4;
 
-    public boolean isEmpty(Chunk baseChunk, int worldX, int worldY, int worldZ) {
+    public boolean isEmpty(int worldX, int worldY, int worldZ) {
 
         Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
 
@@ -29,11 +29,14 @@ public class MeshBuilder {
         int chunkY = (int) Math.floor(worldY / (double) Chunk.SIZE);
         int chunkZ = (int) Math.floor(worldZ / (double) Chunk.SIZE);
 
-        World world = Game.getInstance().getWorld();
+        Game game = Game.getInstance();
+        World world = game.getWorld();
         Chunk chunk = world.getChunk(chunkX, chunkY, chunkZ);
 
         if (chunk == null) {
-            return baseChunk.getEmptyMap().getOrDefault(coordinates, true);
+            // chunk = new Chunk(chunkX, chunkY, chunkZ);
+            // chunk.generate(world, world.getTerrainGenerator());
+            return true;
         }
 
         int blockX = worldX % Chunk.SIZE;
@@ -91,17 +94,16 @@ public class MeshBuilder {
 
                     if (material == null) material = Material.DEBUG;
 
-
                     int worldX = x + chunk.getPosition().x * Chunk.SIZE;
                     int worldY = y + chunk.getPosition().y * Chunk.SIZE;
                     int worldZ = z + chunk.getPosition().z * Chunk.SIZE;
 
-                    boolean px = isEmpty(chunk, worldX + 1, worldY, worldZ);
-                    boolean nx = isEmpty(chunk, worldX - 1, worldY, worldZ);
-                    boolean py = isEmpty(chunk, worldX, worldY + 1, worldZ);
-                    boolean ny = isEmpty(chunk, worldX, worldY - 1, worldZ);
-                    boolean pz = isEmpty(chunk, worldX, worldY, worldZ + 1);
-                    boolean nz = isEmpty(chunk, worldX, worldY, worldZ - 1);
+                    boolean px = isEmpty(worldX + 1, worldY, worldZ);
+                    boolean nx = isEmpty(worldX - 1, worldY, worldZ);
+                    boolean py = isEmpty(worldX, worldY + 1, worldZ);
+                    boolean ny = isEmpty(worldX, worldY - 1, worldZ);
+                    boolean pz = isEmpty(worldX, worldY, worldZ + 1);
+                    boolean nz = isEmpty(worldX, worldY, worldZ - 1);
 
                     Vector2f[] textureCoords;
 

@@ -4,7 +4,7 @@ import fr.math.minecraft.server.world.biome.AbstractBiome;
 import fr.math.minecraft.server.world.biome.DesertBiome;
 import fr.math.minecraft.server.world.biome.ForestBiome;
 import fr.math.minecraft.server.world.biome.PlainBiome;
-import fr.math.minecraft.server.world.generator.NoiseGenerator;
+import fr.math.minecraft.shared.world.generator.NoiseGenerator;
 
 public class BiomeManager {
     private final NoiseGenerator noise;

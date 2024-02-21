@@ -6,9 +6,9 @@ import fr.math.minecraft.client.animations.PlayerWalkAnimation;
 import fr.math.minecraft.client.events.listeners.EventListener;
 import fr.math.minecraft.client.events.PlayerMoveEvent;
 import fr.math.minecraft.client.meshs.NametagMesh;
-import fr.math.minecraft.client.world.Coordinates;
-import fr.math.minecraft.client.world.Material;
-import fr.math.minecraft.client.world.World;
+import fr.math.minecraft.shared.world.Coordinates;
+import fr.math.minecraft.shared.world.Material;
+import fr.math.minecraft.shared.world.World;
 import fr.math.minecraft.shared.network.GameMode;
 import fr.math.minecraft.shared.network.Hitbox;
 import fr.math.minecraft.shared.network.PlayerInputData;
@@ -16,7 +16,6 @@ import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
 import org.joml.Vector3f;
-import org.joml.Vector3i;
 import org.lwjgl.BufferUtils;
 
 import java.awt.image.BufferedImage;
@@ -386,7 +385,7 @@ public class Player {
         }
 
         if (sneaking) {
-            acceleration.sub(new Vector3f(0.0f, .1f, 0.0f));
+            acceleration.sub(new Vector3f(0.0f, .5f, 0.0f));
         }
 
         velocity.add(acceleration.mul(speed));
@@ -408,7 +407,6 @@ public class Player {
 
         PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, yaw, pitch);
         inputs.add(inputData);
-
     }
 
     public List<PlayerInputData> getInputs() {

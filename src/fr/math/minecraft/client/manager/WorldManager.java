@@ -1,25 +1,29 @@
 package fr.math.minecraft.client.manager;
 
 import fr.math.minecraft.client.Game;
+import fr.math.minecraft.client.math.MathUtils;
+import fr.math.minecraft.client.world.worker.ChunkGenerationWorker;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.client.entity.Player;
-import fr.math.minecraft.client.network.FixedPacketSender;
-import fr.math.minecraft.client.math.MathUtils;
 import fr.math.minecraft.client.network.packet.ChunkRequestPacket;
-import fr.math.minecraft.client.world.Chunk;
-import fr.math.minecraft.client.world.Coordinates;
-import fr.math.minecraft.client.world.World;
+import fr.math.minecraft.shared.world.Chunk;
+import fr.math.minecraft.shared.world.Coordinates;
+import fr.math.minecraft.shared.world.World;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class WorldManager {
 
-    private final Queue<Vector3i> chunkLoadingQueue;
+    private final ThreadPoolExecutor chunkGenerationPool;
+    private final Set<Coordinates> loadedChunks;
 
     public WorldManager() {
-        this.chunkLoadingQueue = new LinkedList<>();
+        this.loadedChunks = new HashSet<>();
+        this.chunkGenerationPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(8);
     }
 
     public void cleanChunks(World world) {
@@ -43,23 +47,23 @@ public class WorldManager {
         Game game = Game.getInstance();
         Player player = game.getPlayer();
 
-        int startX = (int) (player.getPosition().x / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE);
-        int startZ = (int) (player.getPosition().z / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE);
+        int startX = (int) (Math.floor(player.getPosition().x / (double) Chunk.SIZE) - GameConfiguration.CHUNK_RENDER_DISTANCE);
+        int startZ = (int) (Math.floor(player.getPosition().z / (double) Chunk.SIZE) - GameConfiguration.CHUNK_RENDER_DISTANCE);
 
-        int endX = (int) (player.getPosition().x / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE);
-        int endZ = (int) (player.getPosition().z / Chunk.SIZE + GameConfiguration.CHUNK_RENDER_DISTANCE);
+        int endX = (int) (Math.floor(player.getPosition().x / (double) Chunk.SIZE) + GameConfiguration.CHUNK_RENDER_DISTANCE);
+        int endZ = (int) (Math.floor(player.getPosition().z / (double) Chunk.SIZE) + GameConfiguration.CHUNK_RENDER_DISTANCE);
 
         for (int x = startX; x <= endX; x++) {
             for (int y = -3; y <= 10; y++) {
                 for (int z = startZ; z <= endZ; z++) {
 
                     Coordinates coordinates = new Coordinates(x, y, z);
-                    Vector3i chunkPosition = new Vector3i(x, y, z);
                     Chunk chunk = world.getChunks().get(coordinates);
 
                     int worldX = x * Chunk.SIZE;
                     int worldY = y * Chunk.SIZE;
                     int worldZ = z * Chunk.SIZE;
+
 
                     if (MathUtils.distance(player, new Vector3f(worldX, worldY, worldZ)) >= GameConfiguration.CHUNK_RENDER_DISTANCE * Chunk.SIZE) {
                         continue;
@@ -69,19 +73,15 @@ public class WorldManager {
                         continue;
                     }
 
-                    if (player.getReceivedChunks().contains(coordinates)) {
+                    if (loadedChunks.contains(coordinates)) {
                         continue;
                     }
 
-                    ChunkRequestPacket packet = new ChunkRequestPacket(chunkPosition);
-                    FixedPacketSender.getInstance().enqueue(packet);
-
+                    ChunkGenerationWorker worker = new ChunkGenerationWorker(world, x, y, z);
+                    worker.run();
+                    loadedChunks.add(coordinates);
                 }
             }
         }
-    }
-
-    public Queue<Vector3i> getChunkLoadingQueue() {
-        return chunkLoadingQueue;
     }
 }

@@ -3,9 +3,9 @@ package fr.math.minecraft.client.manager;
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.meshs.ChunkMesh;
-import fr.math.minecraft.client.world.Chunk;
-import fr.math.minecraft.client.world.Coordinates;
-import fr.math.minecraft.client.world.World;
+import fr.math.minecraft.shared.world.Chunk;
+import fr.math.minecraft.shared.world.Coordinates;
+import fr.math.minecraft.shared.world.World;
 
 import java.util.Iterator;
 
@@ -22,7 +22,7 @@ public class ChunkManager {
     }
 
     public void loadChunkData(JsonNode chunkData) {
-
+        /*
         JsonNode blocks = chunkData.get("blocks");
         JsonNode emptyMap = chunkData.get("emptyMap");
         Game game = Game.getInstance();
@@ -92,6 +92,7 @@ public class ChunkManager {
                 }
             }
         }
+         */
     }
 
 }

@@ -1,14 +1,12 @@
-package fr.math.minecraft.client.world;
+package fr.math.minecraft.shared.world;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import fr.math.minecraft.server.world.biome.AbstractBiome;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.meshs.ChunkMesh;
+import fr.math.minecraft.shared.world.generator.TerrainGenerator;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class Chunk {
 
@@ -24,13 +22,12 @@ public class Chunk {
     private ChunkMesh mesh;
     private boolean shouldDelete;
     private boolean loaded;
-    private Map<Coordinates, Boolean> emptyMap;
-    private int biome;
+    private boolean generated;
+    private AbstractBiome biome;
 
     public Chunk(int x, int y, int z) {
         this.position = new Vector3i(x, y, z);
         this.blocks = new byte[VOLUME];
-        this.emptyMap = new HashMap<>();
         for (int blockX = 0; blockX < Chunk.SIZE; blockX++) {
             for (int blockY = 0; blockY < Chunk.SIZE; blockY++) {
                 for (int blockZ = 0; blockZ < Chunk.SIZE; blockZ++) {
@@ -42,21 +39,14 @@ public class Chunk {
         this.empty = true;
         this.shouldDelete = false;
         this.loaded = false;
+        this.generated = false;
         this.mesh = null;
-        this.biome = -1;
+        this.biome = null;
     }
 
-    public Chunk(JsonNode chunkData) {
-        this.position = new Vector3i(chunkData.get("x").asInt(), chunkData.get("y").asInt(), chunkData.get("z").asInt());
-        this.blocks = new byte[VOLUME];
-        this.emptyMap = new HashMap<>();
-        JsonNode dataBlocks = chunkData.get("blocks");
-
-        for (int i = 0; i < dataBlocks.size(); i++) {
-            JsonNode blockNode = dataBlocks.get(i);
-            byte block =(byte) blockNode.asInt();
-            blocks[i] = block;
-        }
+    public void generate(World world, TerrainGenerator terrainGenerator) {
+        terrainGenerator.generateChunk(world, this);
+        this.generated = true;
     }
 
     public byte[] getBlocks() {
@@ -140,15 +130,11 @@ public class Chunk {
         this.loaded = loaded;
     }
 
-    public Map<Coordinates, Boolean> getEmptyMap() {
-        return emptyMap;
-    }
-    
-    public int getBiome() {
+    public AbstractBiome getBiome() {
         return biome;
     }
 
-    public void setBiome(int biome) {
+    public void setBiome(AbstractBiome biome) {
         this.biome = biome;
     }
 }

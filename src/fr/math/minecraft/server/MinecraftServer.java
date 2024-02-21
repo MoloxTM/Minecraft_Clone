@@ -1,33 +1,19 @@
 package fr.math.minecraft.server;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import fr.math.minecraft.client.world.Material;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.server.handler.*;
 import fr.math.minecraft.server.manager.ChunkManager;
-import fr.math.minecraft.server.world.Coordinates;
-import fr.math.minecraft.server.world.Region;
-import fr.math.minecraft.server.world.ServerChunk;
-import fr.math.minecraft.server.world.ServerWorld;
+import fr.math.minecraft.shared.world.Region;
+import fr.math.minecraft.shared.world.World;
 import org.apache.log4j.Logger;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -42,7 +28,7 @@ public class MinecraftServer {
     private final Map<String, Client> clients;
     private final Map<String, String> sockets;
     private final Map<String, Long> lastActivities;
-    private final ServerWorld world;
+    private final World world;
     private final static int MAX_REQUEST_SIZE = 16384;
     private final ThreadPoolExecutor packetQueue;
     private final TickHandler tickHandler;
@@ -55,7 +41,7 @@ public class MinecraftServer {
         this.clients = new HashMap<>();
         this.sockets = new HashMap<>();
         this.lastActivities = new HashMap<>();
-        this.world = new ServerWorld();
+        this.world = new World();
         this.packetQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(4);
         this.tickHandler = new TickHandler();
         this.chunkManager = new ChunkManager();
@@ -109,10 +95,6 @@ public class MinecraftServer {
                     SkinRequestHandler skinHandler = new SkinRequestHandler(packetData, address, clientPort);
                     skinHandler.run();
                     break;
-                case "CHUNK_REQUEST_ACK":
-                    ChunkACKHandler chunkACKHandler = new ChunkACKHandler(packetData);
-                    packetQueue.submit(chunkACKHandler);
-                    break;
                 case "PING_PACKET":
                     PingHandler pingHandler = new PingHandler(packetData, address, clientPort);
                     pingHandler.run();
@@ -150,7 +132,7 @@ public class MinecraftServer {
         return instance;
     }
 
-    public ServerWorld getWorld() {
+    public World getWorld() {
         return world;
     }
 

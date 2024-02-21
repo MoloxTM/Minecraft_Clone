@@ -4,23 +4,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import fr.math.minecraft.server.manager.ChunkManager;
-import fr.math.minecraft.server.manager.ClientManager;
 import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.server.payload.StatePayload;
-import fr.math.minecraft.server.worker.ChunkSender;
-import fr.math.minecraft.server.world.Coordinates;
-import fr.math.minecraft.server.world.ServerChunk;
 import fr.math.minecraft.shared.GameConfiguration;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class TickHandler extends Thread {
 

@@ -1,4 +1,8 @@
-package fr.math.minecraft.client.world;
+package fr.math.minecraft.shared.world;
+
+import fr.math.minecraft.shared.world.generator.OverworldGenerator;
+import fr.math.minecraft.shared.world.generator.TerrainGenerator;
+import org.joml.Vector3i;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,12 +15,19 @@ public class World {
     private final ArrayList<Byte> transparents;
     private final Set<Byte> solidBlocks;
 
+    private final Map<Coordinates, Region> regions;
+
+    private TerrainGenerator terrainGenerator;
+
     public World() {
         this.chunks = new HashMap<>();
+        this.regions = new HashMap<>();
         this.pendingChunks = new ConcurrentHashMap<>();
         this.loadingChunks = new HashSet<>();
         this.solidBlocks = new HashSet<>();
         this.transparents = initTransparents();
+        this.terrainGenerator = new OverworldGenerator();
+
 
         for (Material material : Material.values()) {
             if (material.isSolid()) {
@@ -36,7 +47,7 @@ public class World {
         }
     }
 
-    public void addChunk(Chunk chunk) {
+    public synchronized void addChunk(Chunk chunk) {
         chunks.put(new Coordinates(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z), chunk);
     }
 
@@ -62,9 +73,11 @@ public class World {
     public byte getBlockAt(int worldX, int worldY, int worldZ) {
         //Déterminer le chunck
         Chunk chunk = getChunkAt(worldX, worldY, worldZ);
+
         if (chunk == null) {
             return Material.AIR.getId();
         }
+
         //Chopper les coos du block
         int blockX = worldX % Chunk.SIZE;
         int blockY = worldY % Chunk.SIZE;
@@ -102,5 +115,31 @@ public class World {
 
     public Set<Byte> getSolidBlocks() {
         return solidBlocks;
+    }
+
+    public TerrainGenerator getTerrainGenerator() {
+        return terrainGenerator;
+    }
+
+    public void addRegion(int regionX, int regionY, int regionZ) {
+        Region region = new Region(new Vector3i(regionX, regionY, regionZ));
+        this.regions.put(new Coordinates(regionX, regionY, regionZ), region);
+    }
+
+    public void addRegion(Region region) {
+        this.regions.put(new Coordinates(region.getPosition().x, region.getPosition().y, region.getPosition().z), region);
+    }
+
+    public Region getRegion(int x, int y, int z) {
+        Coordinates coordinates = new Coordinates(x, y, z);
+        return regions.get(coordinates);
+    }
+
+    public Region getRegion(Coordinates coordinates) {
+        return regions.get(coordinates);
+    }
+
+    public Map<Coordinates, Region> getRegions() {
+        return regions;
     }
 }

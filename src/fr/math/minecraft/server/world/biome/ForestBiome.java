@@ -4,7 +4,9 @@ import fr.math.minecraft.server.Utils;
 import fr.math.minecraft.server.RandomSeed;
 import fr.math.minecraft.server.builder.StructureBuilder;
 import fr.math.minecraft.server.world.*;
-import fr.math.minecraft.server.world.generator.NoiseGenerator;
+import fr.math.minecraft.shared.world.Coordinates;
+import fr.math.minecraft.shared.world.World;
+import fr.math.minecraft.shared.world.generator.NoiseGenerator;
 
 public class ForestBiome extends AbstractBiome{
 
@@ -24,13 +26,13 @@ public class ForestBiome extends AbstractBiome{
     }
 
     @Override
-    public void buildTree(int worldX, int worldY, int worldZ, Structure structure, ServerWorld world) {
+    public void buildTree(int worldX, int worldY, int worldZ, Structure structure, World world) {
 
         Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
         //Calul distance
         for (Coordinates coordinatesAlreadyPlace : structure.getStructures()) {
             double dist = Utils.distance(coordinates, coordinatesAlreadyPlace);
-            if(dist <= 3)return;
+            if (dist <= 3) return;
         }
 
 
@@ -43,7 +45,7 @@ public class ForestBiome extends AbstractBiome{
     }
 
     @Override
-    public void buildWeeds(int worldX, int worldY, int worldZ, Structure structure, ServerWorld world) {
+    public void buildWeeds(int worldX, int worldY, int worldZ, Structure structure, World world) {
         RandomSeed randomSeed = RandomSeed.getInstance();
         float dropRate = randomSeed.nextFloat() * 100.0f;
         if(dropRate > 99.0f) {

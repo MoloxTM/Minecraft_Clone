@@ -1,9 +1,8 @@
 package fr.math.minecraft.server;
 
 import fr.math.minecraft.client.entity.Player;
-import fr.math.minecraft.client.world.Chunk;
-import fr.math.minecraft.server.world.Coordinates;
-import fr.math.minecraft.server.world.ServerChunk;
+import fr.math.minecraft.shared.world.Chunk;
+import fr.math.minecraft.shared.world.Coordinates;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
@@ -40,21 +39,4 @@ public class Utils {
         return Math.sqrt(x + y + z);
     }
 
-    public static boolean isInChunk(Coordinates coordinates, ServerChunk chunk) {
-
-        //Coordonnées à l'échelle du monde
-        int x = coordinates.getX();
-        int y = coordinates.getY();
-        int z = coordinates.getZ();
-
-        int chunkX = chunk.getPosition().x() * Chunk.SIZE;
-        int chunkY = chunk.getPosition().y() * Chunk.SIZE;
-        int chunkZ = chunk.getPosition().z() * Chunk.SIZE;
-
-        boolean inX = (chunkX <= x) && (x <= (chunkX + Chunk.SIZE - 1));
-        boolean inY = chunkY <= y && y <= (chunkY + (Chunk.SIZE - 1));
-        boolean inZ = chunkZ >= z && z >= (chunkZ - (Chunk.SIZE - 1));
-
-        return inX && inY && inZ;
-    }
 }

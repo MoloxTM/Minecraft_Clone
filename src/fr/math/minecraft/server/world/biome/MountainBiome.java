@@ -1,7 +1,8 @@
 package fr.math.minecraft.server.world.biome;
 
 import fr.math.minecraft.server.world.*;
-import fr.math.minecraft.server.world.generator.NoiseGenerator;
+import fr.math.minecraft.shared.world.World;
+import fr.math.minecraft.shared.world.generator.NoiseGenerator;
 
 public class MountainBiome extends AbstractBiome{
 
@@ -21,12 +22,12 @@ public class MountainBiome extends AbstractBiome{
     }
 
     @Override
-    public void buildTree(int worldX, int worldY, int worldZ, Structure structure, ServerWorld world) {
+    public void buildTree(int worldX, int worldY, int worldZ, Structure structure, World world) {
 
     }
 
     @Override
-    public void buildWeeds(int worldX, int worldY, int worldZ, Structure structure, ServerWorld world) {
+    public void buildWeeds(int worldX, int worldY, int worldZ, Structure structure, World world) {
 
     }
 }

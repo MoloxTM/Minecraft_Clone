@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public abstract class ClientPacket {
 
-    public  void send() {
+    public synchronized void send() {
         Game game = Game.getInstance();
         MinecraftClient client = game.getClient();
         String message = this.toJSON();

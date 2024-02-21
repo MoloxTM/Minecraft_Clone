@@ -1,21 +1,20 @@
 package fr.math.minecraft.server.world;
 
 import fr.math.minecraft.server.Client;
-import org.joml.Vector3fc;
-import org.joml.Vector3ic;
+import fr.math.minecraft.shared.world.Chunk;
 
 import java.util.Comparator;
 
-public class ServerChunkComparator implements Comparator<ServerChunk> {
+public class ChunkComparator implements Comparator<Chunk> {
 
     private final Client client;
 
-    public ServerChunkComparator(Client client) {
+    public ChunkComparator(Client client) {
         this.client = client;
     }
 
     @Override
-    public int compare(ServerChunk o1, ServerChunk o2) {
+    public int compare(Chunk o1, Chunk o2) {
 
         float distance1 = client.getPosition().distance(o1.getPosition().x, o1.getPosition().y, o1.getPosition().z);
         float distance2 = client.getPosition().distance(o2.getPosition().x, o2.getPosition().y, o2.getPosition().z);

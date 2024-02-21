@@ -1,7 +1,7 @@
 package fr.math.minecraft.client.world.loader;
 
 import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.world.Chunk;
+import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.client.world.worker.ChunkMeshWorker;
 
 import static org.lwjgl.glfw.GLFW.*;

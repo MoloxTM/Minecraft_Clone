@@ -5,7 +5,7 @@ import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.manager.FontManager;
 import fr.math.minecraft.client.math.FrustrumCulling;
 import fr.math.minecraft.client.meshs.FontMesh;
-import fr.math.minecraft.client.world.Chunk;
+import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.GameConfiguration;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -69,7 +69,7 @@ public class Camera {
         view.identity();
         model.identity();
 
-        float biome =(float)chunk.getBiome();
+        float biome = (float) chunk.getBiome().getBiomeID();
 
         right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
         up = new Vector3f(right).cross(front).normalize();

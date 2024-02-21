@@ -12,7 +12,7 @@ import fr.math.minecraft.client.manager.FontManager;
 import fr.math.minecraft.client.meshs.*;
 import fr.math.minecraft.client.texture.CubemapTexture;
 import fr.math.minecraft.client.texture.Texture;
-import fr.math.minecraft.client.world.Chunk;
+import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.server.manager.BiomeManager;
 import fr.math.minecraft.shared.GameConfiguration;
 import org.joml.Vector3f;

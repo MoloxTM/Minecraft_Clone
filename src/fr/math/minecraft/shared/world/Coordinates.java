@@ -1,4 +1,4 @@
-package fr.math.minecraft.client.world;
+package fr.math.minecraft.shared.world;
 
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.math.MathUtils;
@@ -65,5 +65,14 @@ public class Coordinates {
 
     public void setZ(int z) {
         this.z = z;
+    }
+
+    @Override
+    public String toString() {
+        return "Coordinates{" +
+                "x=" + x +
+                ", y=" + y +
+                ", z=" + z +
+                '}';
     }
 }

@@ -85,11 +85,6 @@ public class PacketReceiver extends Thread {
                     // System.out.println(packetType);
                     this.notifyEvent(new PlayerJoinEvent(responseData));
                     break;
-                case "CHUNK_PACKET":
-                    game.getPacketPool().submit(() -> {
-                        this.notifyEvent(new ChunkPacketEvent(responseData));
-                    });
-                    break;
                 case "PLAYERS_LIST":
                     this.notifyEvent(new PlayerListPacketEvent((ArrayNode) responseData.get("players")));
                     break;
