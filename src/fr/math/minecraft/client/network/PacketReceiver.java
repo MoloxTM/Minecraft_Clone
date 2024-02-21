@@ -42,7 +42,7 @@ public class PacketReceiver extends Thread {
         this.lastPingTime = System.currentTimeMillis();
 
         this.addEventListener(new PacketListener());
-        this.addEventListener(new PlayerListener());
+        this.addEventListener(new PlayerListener(game));
     }
 
     @Override

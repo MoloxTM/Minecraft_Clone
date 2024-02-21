@@ -146,7 +146,7 @@ public class Game {
         this.playerMovementHandler = new PlayerMovementHandler();
         this.lastPingTime = 0;
 
-        player.addEventListener(new PlayerListener());
+        player.addEventListener(new PlayerListener(this));
 
         this.loadSplashText();
 

@@ -19,10 +19,12 @@ import java.util.Base64;
 public class PlayerListener implements EventListener {
 
     private final WorldManager worldManager;
+    private final Game game;
     private static final Logger logger = LoggerUtility.getClientLogger(PlayerListener.class, LogType.TXT);
 
-    public PlayerListener() {
-        this.worldManager = new WorldManager();
+    public PlayerListener(Game game) {
+        this.game = game;
+        this.worldManager = game.getWorldManager();
     }
 
     @Override

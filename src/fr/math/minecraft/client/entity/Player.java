@@ -21,10 +21,7 @@ import org.lwjgl.BufferUtils;
 
 import java.awt.image.BufferedImage;
 import java.nio.DoubleBuffer;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -437,4 +434,5 @@ public class Player {
     public void setLastPosition(Vector3f lastPosition) {
         this.lastPosition = lastPosition;
     }
+
 }

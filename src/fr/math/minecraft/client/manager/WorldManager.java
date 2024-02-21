@@ -16,6 +16,12 @@ import java.util.*;
 
 public class WorldManager {
 
+    private final Queue<Vector3i> chunkLoadingQueue;
+
+    public WorldManager() {
+        this.chunkLoadingQueue = new LinkedList<>();
+    }
+
     public void cleanChunks(World world) {
         synchronized (world.getChunks()) {
             Game game = Game.getInstance();
@@ -36,7 +42,6 @@ public class WorldManager {
     public void loadChunks(World world) {
         Game game = Game.getInstance();
         Player player = game.getPlayer();
-        Set<Coordinates> loadingChunks = world.getLoadingChunks();
 
         int startX = (int) (player.getPosition().x / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE);
         int startZ = (int) (player.getPosition().z / Chunk.SIZE - GameConfiguration.CHUNK_RENDER_DISTANCE);
@@ -49,6 +54,7 @@ public class WorldManager {
                 for (int z = startZ; z <= endZ; z++) {
 
                     Coordinates coordinates = new Coordinates(x, y, z);
+                    Vector3i chunkPosition = new Vector3i(x, y, z);
                     Chunk chunk = world.getChunks().get(coordinates);
 
                     int worldX = x * Chunk.SIZE;
@@ -67,13 +73,15 @@ public class WorldManager {
                         continue;
                     }
 
-                    ChunkRequestPacket packet = new ChunkRequestPacket(new Vector3i(coordinates.getX(), coordinates.getY(), coordinates.getZ()));
+                    ChunkRequestPacket packet = new ChunkRequestPacket(chunkPosition);
                     FixedPacketSender.getInstance().enqueue(packet);
 
-                    // chunkLoadingQueue.submit(worker);
                 }
             }
         }
     }
 
+    public Queue<Vector3i> getChunkLoadingQueue() {
+        return chunkLoadingQueue;
+    }
 }
