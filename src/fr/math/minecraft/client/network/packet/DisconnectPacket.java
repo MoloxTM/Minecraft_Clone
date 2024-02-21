@@ -4,19 +4,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.entity.Player;
 
-public class PingPacket extends ClientPacket {
+public class DisconnectPacket extends ClientPacket {
 
     @Override
     public String toJSON() {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode node = mapper.createObjectNode();
-        Player player = Game.getInstance().getPlayer();
 
-        node.put("type", "PING_PACKET");
-        node.put("uuid", player.getUuid());
-        node.put("time", System.currentTimeMillis());
+        node.put("type", "PLAYER_DISCONNECT");
+        node.put("uuid", Game.getInstance().getPlayer().getUuid());
 
         try {
             return mapper.writeValueAsString(node);
@@ -31,4 +28,5 @@ public class PingPacket extends ClientPacket {
     public String getResponse() {
         return null;
     }
+
 }

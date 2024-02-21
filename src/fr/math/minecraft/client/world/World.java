@@ -20,11 +20,9 @@ public class World {
 
         for (Material material : Material.values()) {
             if (material.isSolid()) {
-                System.out.println("j'ajoute " + material);
                 solidBlocks.add(material.getId());
             }
         }
-        System.out.println(solidBlocks);
     }
 
     public HashMap<Coordinates, Chunk> getChunks() {
@@ -64,7 +62,7 @@ public class World {
     public byte getBlockAt(int worldX, int worldY, int worldZ) {
         //Déterminer le chunck
         Chunk chunk = getChunkAt(worldX, worldY, worldZ);
-        if(chunk == null) {
+        if (chunk == null) {
             return Material.AIR.getId();
         }
         //Chopper les coos du block

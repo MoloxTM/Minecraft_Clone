@@ -1,9 +1,6 @@
 package fr.math.minecraft.client.events.listeners;
 
-import fr.math.minecraft.client.events.ChunkPacketEvent;
-import fr.math.minecraft.client.events.PlayerListPacketEvent;
-import fr.math.minecraft.client.events.ServerStateEvent;
-import fr.math.minecraft.client.events.SkinPacketEvent;
+import fr.math.minecraft.client.events.*;
 
 public interface PacketEventListener {
 
@@ -11,5 +8,7 @@ public interface PacketEventListener {
     void onPlayerListPacket(PlayerListPacketEvent event);
     void onSkinPacket(SkinPacketEvent event);
     void onChunkPacket(ChunkPacketEvent event);
+
+    void onPlayerState(PlayerStateEvent event);
 
 }

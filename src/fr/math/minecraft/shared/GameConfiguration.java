@@ -18,5 +18,7 @@ public class GameConfiguration {
     public final static float DEFAULT_SCALE = 0.28f;
     public final static float MENU_TITLE_SCALE = 0.3f;
     public final static int BUFFER_SIZE = 1024;
+    public final static float CHUNK_TICK = 60.0f;
+    public final static float CHUNK_TICK_RATE = 1000.0f / CHUNK_TICK;
 
 }

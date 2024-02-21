@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.MinecraftClient;
+import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.events.*;
 import fr.math.minecraft.client.events.listeners.EventListener;
 import fr.math.minecraft.client.events.listeners.PacketEventListener;
@@ -13,6 +14,7 @@ import fr.math.minecraft.client.events.listeners.PlayerListener;
 import fr.math.minecraft.client.network.payload.StatePayload;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
+import fr.math.minecraft.shared.GameConfiguration;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -45,18 +47,24 @@ public class PacketReceiver extends Thread {
 
     @Override
     public void run() {
-        double lastTime = glfwGetTime();
+        long lastTime = System.currentTimeMillis();
+        long lastUpdateTime = System.currentTimeMillis();
+        long timer = 0;
         while (!glfwWindowShouldClose(game.getWindow())) {
 
-            double currentTime = glfwGetTime();
+            long currentTime = System.currentTimeMillis();
+            long deltaTime = currentTime - lastTime;
 
-            if (currentTime - lastTime >= 1.0) {
+            lastTime = currentTime;
+
+            timer += deltaTime;
+
+            if (currentTime - lastUpdateTime >= 1000) {
                 game.getPlayer().setPing(ping);
-                lastTime = currentTime;
+                lastUpdateTime = currentTime;
             }
 
             this.handlePacket();
-
         }
     }
 
@@ -78,19 +86,33 @@ public class PacketReceiver extends Thread {
                     this.notifyEvent(new PlayerJoinEvent(responseData));
                     break;
                 case "CHUNK_PACKET":
-                    this.notifyEvent(new ChunkPacketEvent(responseData));
+                    game.getPacketPool().submit(() -> {
+                        this.notifyEvent(new ChunkPacketEvent(responseData));
+                    });
                     break;
-                case "PLAYERS_LIST_PACKET":
+                case "PLAYERS_LIST":
                     this.notifyEvent(new PlayerListPacketEvent((ArrayNode) responseData.get("players")));
                     break;
                 case "STATE_PAYLOAD":
-                    StatePayload statePayload = new StatePayload(responseData);
-                    this.notifyEvent(new ServerStateEvent(statePayload));
+                    game.getPacketPool().submit(() -> {
+                        StatePayload statePayload = new StatePayload(responseData);
+                        this.notifyEvent(new ServerStateEvent(statePayload));
+                    });
                     break;
                 case "SKIN_PACKET":
                     String base64Skin = responseData.get("skin").asText();
                     String playerUuid = responseData.get("uuid").asText();
                     this.notifyEvent(new SkinPacketEvent(base64Skin, playerUuid));
+                    break;
+                case "PLAYER_STATE":
+                    game.getPacketPool().submit(() -> {
+                        Player player = game.getPlayers().get(responseData.get("uuid").asText());
+                        if (player == null) {
+                            return;
+                        }
+                        StatePayload payload = new StatePayload(responseData);
+                        this.notifyEvent(new PlayerStateEvent(player, payload));
+                    });
                     break;
                 case "PING_REPLY":
                     long receivedTime = responseData.get("receivedTime").longValue();
@@ -104,6 +126,12 @@ public class PacketReceiver extends Thread {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void notifyEvent(PlayerStateEvent event) {
+        for (PacketEventListener listener : packetListeners) {
+            listener.onPlayerState(event);
         }
     }
 

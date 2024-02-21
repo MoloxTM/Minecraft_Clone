@@ -45,7 +45,6 @@ public class ConnectionInitPacket extends ClientPacket implements Runnable {
         Game game = Game.getInstance();
         Camera camera = game.getCamera();
         MenuManager menuManager = game.getMenuManager();
-        WorldManager worldManager = game.getWorldManager();
 
         try {
             this.send();
@@ -70,6 +69,7 @@ public class ConnectionInitPacket extends ClientPacket implements Runnable {
             meshThread.start();
 
         } catch (RuntimeException e) {
+            e.printStackTrace();
             Menu menu = menuManager.getOpenedMenu();
 
             if (menu instanceof ConnectionMenu) {
@@ -100,6 +100,9 @@ public class ConnectionInitPacket extends ClientPacket implements Runnable {
 
             player.setUuid(id.substring(0, 36));
             logger.info("Connection initié, ID offert : " + player.getUuid());
+
+            PlayersListPacket packet = new PlayersListPacket();
+            packet.send();
 
             ObjectNode node = mapper.createObjectNode();
             node.put("type", "CONNECTION_INIT_ACK");

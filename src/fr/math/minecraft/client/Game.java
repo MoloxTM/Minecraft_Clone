@@ -68,7 +68,7 @@ public class Game {
     private boolean debugging;
     private int frames, fps, updates;
     private ThreadPoolExecutor chunkMeshLoadingQueue;
-    private ThreadPoolExecutor chunkLoadingQueue;
+    private ThreadPoolExecutor packetPool;
     private Map<Coordinates, Boolean> loadingChunks;
     private Queue<Chunk> pendingMeshs;
     private PlayerMovementHandler playerMovementHandler;
@@ -139,7 +139,7 @@ public class Game {
         this.fps = 0;
         this.tick = 1;
         this.chunkMeshLoadingQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(8);
-        this.chunkLoadingQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(7);
+        this.packetPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(7);
         this.loadingChunks = new HashMap<>();
         this.fontManager = new FontManager();
         this.pendingMeshs = new LinkedList<>();
@@ -155,7 +155,7 @@ public class Game {
         }
 
         for (Sound sound : soundManager.getAllSounds()) {
-            //sound.load();
+            // sound.load();
         }
 
         Menu mainMenu = new MainMenu(this);
@@ -261,7 +261,9 @@ public class Game {
         if (tick % 10 == 0) {
             List<PlayerInputData> inputData = new ArrayList<>(player.getInputs());
 
-            playerMovementHandler.handle(player, new Vector3f(player.getPosition()), inputData);
+            if (!player.getLastPosition().equals(player.getPosition())) {
+                playerMovementHandler.handle(player, new Vector3f(player.getPosition()), inputData);
+            }
 
             player.getInputs().clear();
         }
@@ -428,8 +430,8 @@ public class Game {
         return pendingMeshs;
     }
 
-    public ThreadPoolExecutor getChunkLoadingQueue() {
-        return chunkLoadingQueue;
+    public ThreadPoolExecutor getPacketPool() {
+        return packetPool;
     }
 
     public PlayerMovementHandler getPlayerMovementHandler() {

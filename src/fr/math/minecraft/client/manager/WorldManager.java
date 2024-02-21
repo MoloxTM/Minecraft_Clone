@@ -63,14 +63,13 @@ public class WorldManager {
                         continue;
                     }
 
-                    if (loadingChunks.contains(coordinates)) {
+                    if (player.getReceivedChunks().contains(coordinates)) {
                         continue;
                     }
 
-                    loadingChunks.add(coordinates);
-
                     ChunkRequestPacket packet = new ChunkRequestPacket(new Vector3i(coordinates.getX(), coordinates.getY(), coordinates.getZ()));
                     FixedPacketSender.getInstance().enqueue(packet);
+
                     // chunkLoadingQueue.submit(worker);
                 }
             }

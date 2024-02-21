@@ -6,6 +6,7 @@ import fr.math.minecraft.client.animations.PlayerWalkAnimation;
 import fr.math.minecraft.client.events.listeners.EventListener;
 import fr.math.minecraft.client.events.PlayerMoveEvent;
 import fr.math.minecraft.client.meshs.NametagMesh;
+import fr.math.minecraft.client.world.Coordinates;
 import fr.math.minecraft.client.world.Material;
 import fr.math.minecraft.client.world.World;
 import fr.math.minecraft.shared.network.GameMode;
@@ -21,7 +22,9 @@ import org.lwjgl.BufferUtils;
 import java.awt.image.BufferedImage;
 import java.nio.DoubleBuffer;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -32,7 +35,6 @@ public class Player {
     public final static float HEIGHT = 1.75f;
     public final static float DEPTH = WIDTH;
     private Vector3f position;
-    private Vector3f lastTickPosition;
     private float yaw;
     private float bodyYaw;
     private float pitch;
@@ -40,9 +42,8 @@ public class Player {
     private boolean firstMouse;
     private boolean movingLeft, movingRight, movingForward, movingBackward;
     private boolean flying, sneaking;
+    private boolean movingMouse;
     private boolean debugKeyPressed;
-    private float lastTickYaw, lastTickPitch;
-
     private float lastMouseX, lastMouseY;
     private String name;
     private String uuid;
@@ -52,27 +53,26 @@ public class Player {
     private float sensitivity;
     private final static Logger logger = LoggerUtility.getClientLogger(Player.class, LogType.TXT);
     private final List<EventListener> eventListeners;
-    private Vector3i lastTickInput;
     private final Vector3f velocity;
     private final Vector3f gravity;
     private float Vmax;
     private int ping;
     private final List<PlayerInputData> inputs;
+    private final Set<Coordinates> receivedChunks;
     private final Hitbox hitbox;
     private GameMode gameMode;
+    private Vector3f lastPosition;
 
     public Player(String name) {
-        this.position = new Vector3f(0.0f, 1000.0f, 0.0f);
+        this.position = new Vector3f(0.0f, 100.0f, 0.0f);
+        this.lastPosition = new Vector3f(0, 0, 0);
         this.gravity = new Vector3f(0, -0.025f, 0);
-        this.lastTickPosition = new Vector3f(0, 0, 0);
-        this.lastTickInput = new Vector3i(0, 0, 0);
         this.velocity = new Vector3f();
+        this.receivedChunks = new HashSet<>();
         this.inputs = new ArrayList<>();
         this.yaw = 0.0f;
         this.Vmax = 1.0f;
         this.bodyYaw = 0.0f;
-        this.lastTickYaw = 0.0f;
-        this.lastTickPitch = 0.0f;
         this.pitch = 0.0f;
         this.firstMouse = true;
         this.lastMouseX = 0.0f;
@@ -87,6 +87,7 @@ public class Player {
         this.movingForward = false;
         this.movingBackward = false;
         this.debugKeyPressed = false;
+        this.movingMouse = true;
         this.sneaking = false;
         this.flying = false;
         this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 1.0f, 0.25f));
@@ -129,6 +130,10 @@ public class Player {
         }
 
         this.resetMoving();
+
+        if (mouseOffsetX != 0 || mouseOffsetY != 0) {
+            movingMouse = true;
+        }
 
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
             movingForward = true;
@@ -180,6 +185,7 @@ public class Player {
         movingBackward = false;
         flying = false;
         sneaking = false;
+        movingMouse = false;
     }
 
     public void update() {
@@ -320,31 +326,27 @@ public class Player {
                     byte block = world.getBlockAt(worldX, worldY, worldZ);
                     Material material = Material.getMaterialById(block);
 
-                    if (material == null) {
-                        material = Material.STONE;
-                    }
-
                     if (!material.isSolid()) {
                         continue;
                     }
 
                     if (velocity.x > 0) {
                         position.x = worldX - hitbox.getWidth();
-                    } else if(velocity.x<0) {
+                    } else if (velocity.x < 0) {
                         position.x = worldX + hitbox.getWidth() + 1;
                     }
 
                     if (velocity.y > 0) {
                         position.y = worldY - hitbox.getHeight();
-                        this.velocity.y=0;
-                    } else if(velocity.y<0) {
+                        this.velocity.y = 0;
+                    } else if (velocity.y < 0) {
                         position.y = worldY + hitbox.getHeight() + 1;
-                        this.velocity.y=0;
+                        this.velocity.y = 0;
                     }
 
                     if (velocity.z > 0) {
                         position.z = worldZ - hitbox.getDepth();
-                    } else if(velocity.z<0) {
+                    } else if (velocity.z < 0) {
                         position.z = worldZ + hitbox.getDepth() + 1;
                     }
                 }
@@ -364,7 +366,7 @@ public class Player {
         Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
         Vector3f acceleration = new Vector3f(0,0,0);
 
-        velocity.add(gravity);
+        //velocity.add(gravity);
 
         if (movingForward) {
             acceleration.add(front);
@@ -397,50 +399,19 @@ public class Player {
         }
 
         position.x += velocity.x;
-        handleCollisions(new Vector3f(velocity.x,0,0));
+        handleCollisions(new Vector3f(velocity.x, 0, 0));
 
         position.z += velocity.z;
-        handleCollisions(new Vector3f(0,0,velocity.z));
+        handleCollisions(new Vector3f(0, 0, velocity.z));
 
         position.y += velocity.y;
-        handleCollisions(new Vector3f(0,velocity.y,0));
+        handleCollisions(new Vector3f(0, velocity.y, 0));
 
         velocity.mul(0.95f);
 
         PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, yaw, pitch);
         inputs.add(inputData);
-    }
 
-    public Vector3f getLastTickPosition() {
-        return lastTickPosition;
-    }
-
-    public void setLastTickPosition(Vector3f lastTickPosition) {
-        this.lastTickPosition = lastTickPosition;
-    }
-
-    public Vector3i getLastTickInput() {
-        return lastTickInput;
-    }
-
-    public float getLastTickPitch() {
-        return lastTickPitch;
-    }
-
-    public float getLastTickYaw() {
-        return lastTickYaw;
-    }
-
-    public void setLastTickInput(Vector3i lastTickInput) {
-        this.lastTickInput = lastTickInput;
-    }
-
-    public void setLastTickYaw(float lastTickYaw) {
-        this.lastTickYaw = lastTickYaw;
-    }
-
-    public void setLastTickPitch(float lastTickPitch) {
-        this.lastTickPitch = lastTickPitch;
     }
 
     public List<PlayerInputData> getInputs() {
@@ -453,5 +424,17 @@ public class Player {
 
     public Vector3f getGravity() {
         return gravity;
+    }
+
+    public Set<Coordinates> getReceivedChunks() {
+        return receivedChunks;
+    }
+
+    public Vector3f getLastPosition() {
+        return lastPosition;
+    }
+
+    public void setLastPosition(Vector3f lastPosition) {
+        this.lastPosition = lastPosition;
     }
 }

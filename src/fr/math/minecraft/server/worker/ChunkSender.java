@@ -15,13 +15,13 @@ public class ChunkSender implements Runnable {
 
     private final Client client;
     private final ServerChunk chunk;
+    private long sentTime;
 
     public ChunkSender(Client client, ServerChunk chunk) {
         this.client = client;
         this.chunk = chunk;
+        this.sentTime = -1;
     }
-
-
 
     @Override
     public void run() {
@@ -37,5 +37,15 @@ public class ChunkSender implements Runnable {
 
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, client.getAddress(), client.getPort());
         server.sendPacket(packet);
+
+        this.sentTime = System.currentTimeMillis();
+    }
+
+    public ServerChunk getChunk() {
+        return chunk;
+    }
+
+    public long getSentTime() {
+        return sentTime;
     }
 }

@@ -31,7 +31,6 @@ public class PlayerMoveHandler extends PacketHandler implements Runnable {
         String uuid = packetData.get("uuid").asText();
 
         tickHandler.enqueue(payload);
-        server.getLastActivities().put(uuid, System.currentTimeMillis());
 
     }
 }

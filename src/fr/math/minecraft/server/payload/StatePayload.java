@@ -59,6 +59,21 @@ public class StatePayload {
             return;
         }
 
+        ObjectNode payloadNode = this.toJSON();
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            String payloadData = mapper.writeValueAsString(payloadNode);
+            byte[] buffer = payloadData.getBytes(StandardCharsets.UTF_8);
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, client.getAddress(), client.getPort());
+            server.sendPacket(packet);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public ObjectNode toJSON() {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode payloadNode = mapper.createObjectNode();
 
@@ -73,15 +88,7 @@ public class StatePayload {
         payloadNode.put("yaw", yaw);
         payloadNode.put("pitch", pitch);
 
-        try {
-            String payloadData = mapper.writeValueAsString(payloadNode);
-            byte[] buffer = payloadData.getBytes(StandardCharsets.UTF_8);
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, client.getAddress(), client.getPort());
-            server.sendPacket(packet);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
+        return payloadNode;
     }
 
     public JsonNode getData() {

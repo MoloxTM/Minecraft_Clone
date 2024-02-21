@@ -42,7 +42,7 @@ public class StatePayload {
     public void predictMovement(Player player, Vector3f playerPosition, Vector3f playerVelocity) {
         Vector3f front = new Vector3f();
         Vector3f position = new Vector3f(playerPosition);
-        Vector3f velocity = new Vector3f(playerVelocity);
+        Vector3f velocity = player.getVelocity();
 
         for (PlayerInputData inputData : payload.getInputData()) {
             float yaw = inputData.getYaw();
@@ -60,7 +60,7 @@ public class StatePayload {
             front.normalize();
             Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
 
-            velocity.add(player.getGravity());
+            //velocity.add(player.getGravity());
 
             if (inputData.isMovingForward()) {
                 acceleration.add(front);
@@ -94,13 +94,13 @@ public class StatePayload {
 
 
             player.getPosition().x += velocity.x;
-            player.handleCollisions(new Vector3f(velocity.x,0,0));
+            player.handleCollisions(new Vector3f(velocity.x, 0, 0));
 
             player.getPosition().z += velocity.z;
-            player.handleCollisions(new Vector3f(0,0,velocity.z));
+            player.handleCollisions(new Vector3f(0, 0, velocity.z));
 
             player.getPosition().y += velocity.y;
-            player.handleCollisions(new Vector3f(0,velocity.y,0));
+            player.handleCollisions(new Vector3f(0, velocity.y, 0));
 
             velocity.mul(0.95f);
         }
@@ -139,5 +139,9 @@ public class StatePayload {
 
     public float getPitch() {
         return pitch;
+    }
+
+    public Vector3f getVelocity() {
+        return velocity;
     }
 }

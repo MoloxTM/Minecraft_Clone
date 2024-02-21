@@ -28,11 +28,9 @@ public class ServerWorld {
 
         for (Material material : Material.values()) {
             if (material.isSolid()) {
-                System.out.println("j'ajoute " + material);
                 solidBlocks.add(material.getId());
             }
         }
-        System.out.println(solidBlocks);
     }
 
     public void buildChunks() {
@@ -62,17 +60,21 @@ public class ServerWorld {
     }
 
     public ServerChunk getChunkAt(int worldX, int worldY, int  worldZ) {
-        int chunkX = (int) Math.floor(worldX / (double) Chunk.SIZE);
-        int chunkY = (int) Math.floor(worldY / (double) Chunk.SIZE);
-        int chunkZ = (int) Math.floor(worldZ / (double) Chunk.SIZE);
+        int chunkX = (int) Math.floor(worldX / (double) ServerChunk.SIZE);
+        int chunkY = (int) Math.floor(worldY / (double) ServerChunk.SIZE);
+        int chunkZ = (int) Math.floor(worldZ / (double) ServerChunk.SIZE);
 
         return this.getChunk(chunkX, chunkY, chunkZ);
     }
     public byte getBlockAt(int worldX, int worldY, int  worldZ) {
         //Déterminer le chunck
         ServerChunk chunk = getChunkAt(worldX, worldY, worldZ);
-        if(chunk == null) {
-            chunk = new ServerChunk(worldX / ServerChunk.SIZE, worldY / ServerChunk.SIZE, worldZ / ServerChunk.SIZE);
+        if (chunk == null) {
+            int chunkX = (int) Math.floor(worldX / (double) ServerChunk.SIZE);
+            int chunkY = (int) Math.floor(worldY / (double) ServerChunk.SIZE);
+            int chunkZ = (int) Math.floor(worldZ / (double) ServerChunk.SIZE);
+
+            chunk = new ServerChunk(chunkX, chunkY, chunkZ);
             this.addChunk(chunk);
         }
         //Chopper les coos du block
@@ -80,9 +82,9 @@ public class ServerWorld {
         int blockY = worldY % Chunk.SIZE;
         int blockZ = worldZ % Chunk.SIZE;
 
-        blockX = blockX < 0 ? blockX + Chunk.SIZE : blockX;
-        blockY = blockY < 0 ? blockY + Chunk.SIZE : blockY;
-        blockZ = blockZ < 0 ? blockZ + Chunk.SIZE : blockZ;
+        blockX = blockX < 0 ? blockX + ServerChunk.SIZE : blockX;
+        blockY = blockY < 0 ? blockY + ServerChunk.SIZE : blockY;
+        blockZ = blockZ < 0 ? blockZ + ServerChunk.SIZE : blockZ;
 
         return chunk.getBlock(blockX, blockY, blockZ);
     }

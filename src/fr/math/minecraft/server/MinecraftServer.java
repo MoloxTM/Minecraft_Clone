@@ -116,6 +116,14 @@ public class MinecraftServer {
                     PingHandler pingHandler = new PingHandler(packetData, address, clientPort);
                     pingHandler.run();
                     break;
+                case "CHUNK_REQUEST":
+                    ChunkRequestHandler chunkRequestHandler = new ChunkRequestHandler(packetData, address, clientPort);
+                    packetQueue.submit(chunkRequestHandler);
+                    break;
+                case "PLAYERS_LIST_REQUEST":
+                    PlayersListHandler playersListHandler = new PlayersListHandler(packetData, address, clientPort);
+                    playersListHandler.run();
+                    break;
                 default:
                     String message = "UNAUTHORIZED_PACKET";
                     buffer = message.getBytes(StandardCharsets.UTF_8);

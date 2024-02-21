@@ -76,7 +76,6 @@ public class ChunkManager {
             Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
 
             chunk.getEmptyMap().put(coordinates, emptyValue);
-
         }
 
         if (chunk.getBlocksSize() > 0) {

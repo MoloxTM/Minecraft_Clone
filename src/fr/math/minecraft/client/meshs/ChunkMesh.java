@@ -14,8 +14,6 @@ public class ChunkMesh extends Mesh {
 
     private boolean chunkMeshInitiated;
 
-
-
     public ChunkMesh(Chunk chunk) {
         ArrayList<Integer> elements = new ArrayList<>();
         vertices = new MeshBuilder().buildChunkMesh(chunk, elements);

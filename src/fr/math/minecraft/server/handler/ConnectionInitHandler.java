@@ -66,7 +66,7 @@ public class ConnectionInitHandler extends PacketHandler implements Runnable {
         if (!lastActivities.containsKey(uuid)) {
             lastActivities.put(uuid, System.currentTimeMillis());
             TimeoutHandler handler = new TimeoutHandler(server, uuid);
-            handler.start();
+            //handler.start();
         }
 
         server.sendPacket(packet);

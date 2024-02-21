@@ -7,6 +7,7 @@ import fr.math.minecraft.client.world.Coordinates;
 import fr.math.minecraft.client.world.Material;
 import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.server.payload.StatePayload;
+import fr.math.minecraft.server.worker.ChunkSender;
 import fr.math.minecraft.server.world.ServerChunk;
 import fr.math.minecraft.server.world.ServerChunkComparator;
 import fr.math.minecraft.server.world.ServerWorld;
@@ -51,6 +52,7 @@ public class Client {
     private Vector3f lastChunkPosition;
     private final Queue<InputPayload> inputQueue;
     private final StatePayload[] stateBuffer;
+    private final Map<Vector3i, ChunkSender> sendedChunks;
 
     public Client(String uuid, String name, InetAddress address, int port) {
         this.address = address;
@@ -62,10 +64,11 @@ public class Client {
         this.gravity = new Vector3f(0, -0.025f, 0);
         this.acceleration = new Vector3f();
         this.front = new Vector3f(0.0f, 0.0f, 0.0f);
-        this.position = new Vector3f(0.0f, 1000.0f, 0.0f);
+        this.position = new Vector3f(0.0f, 100.0f, 0.0f);
         this.lastChunkPosition = new Vector3f(0, 0, 0);
         this.inputVector = new Vector3i(0, 0, 0);
         this.receivedChunks = new HashSet<>();
+        this.sendedChunks = new HashMap<>();
         this.nearChunks = new PriorityQueue<>(new ServerChunkComparator(this));
         this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 1.0f, 0.25f));
         this.stateBuffer = new StatePayload[GameConfiguration.BUFFER_SIZE];
@@ -127,12 +130,8 @@ public class Client {
             for (int worldY = (int) (position.y - hitbox.getHeight()) ; worldY < position.y + hitbox.getHeight() ; worldY++) {
                 for (int worldZ = (int) (position.z - hitbox.getDepth()) ; worldZ < position.z + hitbox.getDepth() ; worldZ++) {
 
-                    byte block = world.getBlockAt((int) worldX, (int) worldY, (int) worldZ);
+                    byte block = world.getBlockAt(worldX, worldY, worldZ);
                     Material material = Material.getMaterialById(block);
-
-                    if (material == null) {
-                        continue;
-                    }
 
                     if (!material.isSolid()) {
                         continue;
@@ -154,7 +153,7 @@ public class Client {
 
                     if (velocity.z > 0) {
                         position.z = worldZ - hitbox.getDepth();
-                    } else if(velocity.z<0) {
+                    } else if(velocity.z < 0) {
                         position.z = worldZ + hitbox.getDepth();
                     }
                 }
@@ -180,7 +179,7 @@ public class Client {
             front.normalize();
             Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
 
-            velocity.add(gravity);
+            //velocity.add(gravity);
 
             if (inputData.isMovingForward()) {
                 acceleration.add(front);
@@ -213,16 +212,15 @@ public class Client {
             }
 
             position.x += velocity.x;
-            handleCollisions(new Vector3f(velocity.x,0,0));
+            handleCollisions(new Vector3f(velocity.x, 0, 0));
 
             position.z += velocity.z;
-            handleCollisions(new Vector3f(0,0,velocity.z));
+            handleCollisions(new Vector3f(0, 0, velocity.z));
 
             position.y += velocity.y;
-            handleCollisions(new Vector3f(0,velocity.y,0));
+            handleCollisions(new Vector3f(0, velocity.y, 0));
 
             velocity.mul(0.95f);
-
         }
         // System.out.println("Tick " + payload.getTick() + " InputVector: " + payload.getInputVector() + " Calculated position : " + position);
     }
@@ -333,5 +331,9 @@ public class Client {
 
     public StatePayload[] getStateBuffer() {
         return stateBuffer;
+    }
+
+    public Map<Vector3i, ChunkSender> getSendedChunks() {
+        return sendedChunks;
     }
 }

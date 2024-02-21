@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.MinecraftClient;
 import fr.math.minecraft.client.entity.Player;
+import fr.math.minecraft.client.network.FixedPacketSender;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
@@ -33,6 +34,68 @@ public class PlayersListPacket extends ClientPacket {
             return ImageIO.read(new ByteArrayInputStream(bytes));
         } catch (IOException e) {
             return null;
+        }
+    }
+
+    @Override
+    public void send() {
+        Game game = Game.getInstance();
+        MinecraftClient client = game.getClient();
+        String message = this.toJSON();
+        try {
+            String players = client.sendString(message);
+
+            System.out.println(players);
+
+            JsonNode playersData = mapper.readTree(players);
+            ArrayNode playersNode = (ArrayNode) playersData.get("players");
+            game.getPlayers().clear();
+            for (int i = 0; i < playersNode.size(); i++) {
+                JsonNode playerNode = playersNode.get(i);
+
+                String uuid = playerNode.get("uuid").asText();
+                Player player;
+
+                if (uuid.equalsIgnoreCase(game.getPlayer().getUuid())) continue;
+
+                if (game.getPlayers().containsKey(uuid)) {
+                    player = game.getPlayers().get(uuid);
+                } else {
+                    player = new Player(playerNode.get("name").asText());
+                    player.setUuid(uuid);
+                    SkinRequestPacket packet = new SkinRequestPacket(uuid);
+                    FixedPacketSender.getInstance().enqueue(packet);
+                    game.getPlayers().put(uuid, player);
+                }
+
+                float playerX = playerNode.get("x").floatValue();
+                float playerY = playerNode.get("y").floatValue();
+                float playerZ = playerNode.get("z").floatValue();
+                float pitch = playerNode.get("pitch").floatValue();
+                float yaw = playerNode.get("yaw").floatValue();
+                float bodyYaw = playerNode.get("bodyYaw").floatValue();
+
+                boolean movingLeft = playerNode.get("movingLeft").asBoolean();
+                boolean movingRight = playerNode.get("movingRight").asBoolean();
+                boolean movingForward = playerNode.get("movingForward").asBoolean();
+                boolean movingBackward = playerNode.get("movingBackward").asBoolean();
+
+                player.getPosition().x = playerX;
+                player.getPosition().y = playerY;
+                player.getPosition().z = playerZ;
+
+                player.setYaw(yaw);
+                player.setBodyYaw(bodyYaw);
+                player.setPitch(pitch);
+
+                player.setMovingLeft(movingLeft);
+                player.setMovingRight(movingRight);
+                player.setMovingForward(movingForward);
+                player.setMovingBackward(movingBackward);
+
+            }
+        } catch (IOException e) {
+            logger.error(e.getMessage());
         }
     }
 

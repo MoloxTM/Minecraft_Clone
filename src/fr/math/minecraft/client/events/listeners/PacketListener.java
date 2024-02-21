@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.Renderer;
 import fr.math.minecraft.client.entity.Player;
-import fr.math.minecraft.client.events.ChunkPacketEvent;
-import fr.math.minecraft.client.events.PlayerListPacketEvent;
-import fr.math.minecraft.client.events.ServerStateEvent;
-import fr.math.minecraft.client.events.SkinPacketEvent;
+import fr.math.minecraft.client.events.*;
 import fr.math.minecraft.client.network.FixedPacketSender;
 import fr.math.minecraft.client.handler.PlayerMovementHandler;
 import fr.math.minecraft.client.manager.ChunkManager;
@@ -17,6 +14,7 @@ import fr.math.minecraft.client.network.packet.SkinRequestPacket;
 import fr.math.minecraft.client.network.payload.StatePayload;
 import fr.math.minecraft.client.texture.Texture;
 import fr.math.minecraft.client.world.Chunk;
+import fr.math.minecraft.client.world.Coordinates;
 import fr.math.minecraft.client.world.World;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
@@ -96,6 +94,8 @@ public class PacketListener implements PacketEventListener {
             player.setMovingForward(movingForward);
             player.setMovingBackward(movingBackward);
 
+            System.out.println("Je traite le joueur " + player.getName());
+
         }
     }
 
@@ -125,6 +125,7 @@ public class PacketListener implements PacketEventListener {
         ChunkManager chunkManager = new ChunkManager();
         JsonNode chunkData = event.getChunkData();
         World world = game.getWorld();
+        Player player = game.getPlayer();
 
         int chunkX = chunkData.get("x").asInt();
         int chunkY = chunkData.get("y").asInt();
@@ -133,13 +134,33 @@ public class PacketListener implements PacketEventListener {
         Chunk chunk = world.getChunk(chunkX, chunkY, chunkZ);
 
         if (chunk == null) {
-            game.getChunkLoadingQueue().submit(() -> {
+            player.getReceivedChunks().add(new Coordinates(chunkX, chunkY, chunkZ));
+            game.getPacketPool().submit(() -> {
                 chunkManager.loadChunkData(chunkData);
             });
         }
 
         ChunkACKPacket packet = new ChunkACKPacket(new Vector3i(chunkX, chunkY, chunkZ));
         FixedPacketSender.getInstance().enqueue(packet);
+
+    }
+
+    @Override
+    public void onPlayerState(PlayerStateEvent event) {
+
+        StatePayload payload = event.getStatePayload();
+        Player player = event.getPlayer();
+
+        player.getPosition().x = payload.getPosition().x;
+        player.getPosition().y = payload.getPosition().y;
+        player.getPosition().z = payload.getPosition().z;
+
+        player.getVelocity().x = payload.getVelocity().x;
+        player.getVelocity().y = payload.getVelocity().y;
+        player.getVelocity().z = payload.getVelocity().z;
+
+        player.setYaw(payload.getYaw());
+        player.setPitch(payload.getPitch());
 
     }
 

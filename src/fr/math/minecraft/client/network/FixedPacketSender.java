@@ -4,6 +4,7 @@ import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.network.packet.ClientPacket;
 import fr.math.minecraft.client.network.packet.PingPacket;
+import fr.math.minecraft.shared.GameConfiguration;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
@@ -35,13 +36,17 @@ public class FixedPacketSender extends Thread {
             long currentTime = System.currentTimeMillis();
             long deltaTime = currentTime - lastTickTime;
 
+            if (currentTime - lastPingTime >= 1000) {
+                lastPingTime = currentTime;
+            }
+
             tickTimer += deltaTime;
 
             lastTickTime = currentTime;
+            tick();
 
-            while (tickTimer >= 50) {
-                tick();
-                tickTimer -= 50;
+            while (tickTimer >= 1000 / GameConfiguration.TICK_PER_SECONDS) {
+                tickTimer -= 1000 / GameConfiguration.TICK_PER_SECONDS;
             }
         }
     }
@@ -50,7 +55,7 @@ public class FixedPacketSender extends Thread {
 
         while (!packetsQueue.isEmpty()) {
             ClientPacket packet = packetsQueue.poll();
-            if (packet == null) continue;
+            if (packet == null) return;
             packet.send();
         }
     }
@@ -63,7 +68,8 @@ public class FixedPacketSender extends Thread {
     }
 
     public synchronized void enqueue(ClientPacket packet) {
-        packetsQueue.add(packet);
+        //packetsQueue.add(packet);
+        packet.send();
     }
 
     public Queue<ClientPacket> getPacketsQueue() {

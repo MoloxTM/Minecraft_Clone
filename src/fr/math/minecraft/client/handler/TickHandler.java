@@ -1,6 +1,7 @@
 package fr.math.minecraft.client.handler;
 
 import fr.math.minecraft.client.Game;
+import fr.math.minecraft.client.network.packet.PingPacket;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.client.manager.WorldManager;
 import fr.math.minecraft.client.world.World;
@@ -20,6 +21,7 @@ public class TickHandler extends Thread {
         WorldManager worldManager = game.getWorldManager();
         World world = game.getWorld();
         double lastTime = glfwGetTime();
+        double lastPingTime = glfwGetTime();
         double tickTimer = 0;
 
         while (!glfwWindowShouldClose(game.getWindow())) {
@@ -27,11 +29,17 @@ public class TickHandler extends Thread {
             double currentTime = glfwGetTime();
             double deltaTime = currentTime - lastTime;
 
+            if (currentTime - lastPingTime >= 1.0) {
+                new PingPacket().send();
+                lastPingTime = currentTime;
+            }
+
             tickTimer += deltaTime;
 
             lastTime = currentTime;
 
             while (tickTimer >= GameConfiguration.TICK_RATE) {
+                worldManager.loadChunks(world);
                 tickTimer -= GameConfiguration.TICK_RATE;
             }
         }

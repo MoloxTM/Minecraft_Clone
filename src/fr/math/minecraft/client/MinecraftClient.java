@@ -35,12 +35,10 @@ public class MinecraftClient {
         }
     }
 
-    public synchronized void sendMessage(String message) throws IOException {
+    public  void sendMessage(String message) throws IOException {
         byte[] buffer = message.getBytes(StandardCharsets.UTF_8);
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, this.address, this.serverPort);
-        synchronized (this.getSocket()) {
             this.getSocket().send(packet);
-        }
     }
 
     public synchronized String receive() {

@@ -41,6 +41,8 @@ public class PlayerMovementHandler {
         statePayload.setPosition(playerPosition);
         statePayload.send(player);
 
+        player.setLastPosition(new Vector3f(playerPosition));
+
         // System.out.println("Tick " + currentTick + " InputVector: " + inputVector + " Calculated position : " + playerPosition);
         stateBuffer[bufferIndex] = statePayload;
 

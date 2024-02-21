@@ -23,8 +23,10 @@ public class ChunkManager {
 
 
     public void sendChunk(Client client, ServerChunk chunk) {
+        System.out.println("J'envoie le chunk " + chunk.getPosition());
         ChunkSender sender = new ChunkSender(client, chunk);
         chunkPool.submit(sender);
+        client.getSendedChunks().put(chunk.getPosition(), sender);
     }
 
     public ThreadPoolExecutor getChunkPool() {
