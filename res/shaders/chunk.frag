@@ -21,7 +21,7 @@ void main() {
     vec3 tex = texture(uTexture, textureCoord).rgb;
     float opacity = 1;
 
-    if (equals(blockID, 7.0f) ) {
+    if (equals(blockID, 7.0f) || equals(blockID, 12.0f)) {
         if (biome == 0) {
             tex.rgb *= vec3(0.64, 0.61, 0.36);
         } else if (biome == 1) {

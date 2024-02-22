@@ -333,6 +333,17 @@ public class Game {
                 }
                 renderer.render(camera, player);
             }
+            for (Chunk chunk : world.getChunks().values()) {
+
+                if (chunk.isEmpty()) continue;
+                if (chunk.getWaterMesh() == null) continue;
+
+                if (!chunk.getWaterMesh().isChunkMeshInitiated()) {
+                    chunk.getWaterMesh().init();
+                }
+
+                renderer.renderWater(camera, chunk);
+            }
         }
 
 

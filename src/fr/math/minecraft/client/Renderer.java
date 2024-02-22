@@ -39,6 +39,7 @@ public class Renderer {
     private final Shader nametagTextShader;
     private final Shader nametagShader;
     private final Shader skyboxShader;
+    private final Shader waterShader;
     private final Texture terrainTexture;
     private final Texture defaultSkinTexture;
     private final Texture minecraftTitleTexture;
@@ -92,6 +93,7 @@ public class Renderer {
         this.nametagTextShader = new Shader("res/shaders/nametag_text.vert", "res/shaders/nametag_text.frag");
         this.skyboxShader = new Shader("res/shaders/skybox.vert", "res/shaders/skybox.frag");
         this.imageShader = new Shader("res/shaders/image.vert", "res/shaders/image.frag");
+        this.waterShader = new Shader("res/shaders/water.vert", "res/shaders/water.frag");
 
         this.terrainTexture = new Texture("res/textures/terrain.png", 1);
         this.defaultSkinTexture = new Texture("res/textures/skin.png", 2);
@@ -190,6 +192,25 @@ public class Renderer {
         camera.matrix(chunkShader, chunk);
 
         chunk.getMesh().draw();
+        terrainTexture.unbind();
+    }
+
+    public void renderWater(Camera camera, Chunk chunk) {
+
+        //chunkShader.enable();
+        waterShader.enable();
+
+        //chunkShader.sendInt("uTexture", terrainTexture.getSlot());
+        waterShader.sendInt("uTexture", terrainTexture.getSlot());
+
+
+        glActiveTexture(GL_TEXTURE0 + terrainTexture.getSlot());
+        terrainTexture.bind();
+
+        //camera.matrix(chunkShader, chunk);
+        camera.matrixWater(waterShader, camera, chunk);
+
+        chunk.getWaterMesh().draw();
         terrainTexture.unbind();
     }
 

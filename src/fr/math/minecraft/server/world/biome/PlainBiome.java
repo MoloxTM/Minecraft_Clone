@@ -10,6 +10,9 @@ import fr.math.minecraft.shared.world.generator.NoiseGenerator;
 
 public class PlainBiome extends AbstractBiome{
 
+    public final static float TREE_DROP_RATE = 0.2f;
+    public final static float WEED_DROP_RATE = 97.0f;
+
     public PlainBiome() {
         this.noise = new NoiseGenerator(9, 30, 1000.0f, .6f, 25);
         this.biomeName = "Plains";
@@ -39,8 +42,8 @@ public class PlainBiome extends AbstractBiome{
 
         RandomSeed randomSeed = RandomSeed.getInstance();
         float dropRate = randomSeed.nextFloat() * 100.0f;
-        if(dropRate < 0.2f) {
-            StructureBuilder.buildSimpleTree(structure, worldX, worldY, worldZ);
+        if(dropRate <= PlainBiome.TREE_DROP_RATE) {
+            StructureBuilder.buildSimpleTree(structure, worldX, worldY, worldZ, Material.OAK_LOG, Material.OAK_LEAVES, dropRate, PlainBiome.TREE_DROP_RATE);
         }
     }
 
@@ -48,7 +51,7 @@ public class PlainBiome extends AbstractBiome{
     public void buildWeeds(int worldX, int worldY, int worldZ, Structure structure, World world) {
         RandomSeed randomSeed = RandomSeed.getInstance();
         float dropRate = randomSeed.nextFloat() * 100.0f;
-        if(dropRate > 97.0f) {
+        if(dropRate > PlainBiome.WEED_DROP_RATE) {
             StructureBuilder.buildWeed(structure, worldX, worldY, worldZ);
         }
     }

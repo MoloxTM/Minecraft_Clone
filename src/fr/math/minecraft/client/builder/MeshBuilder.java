@@ -24,10 +24,10 @@ public class MeshBuilder {
     private final int SQUARE_POINTS = 4;
 
     public boolean isEmpty(int worldX, int worldY, int worldZ) {
-        return this.isEmpty(worldX, worldY, worldZ, true);
+        return this.isEmpty(worldX, worldY, worldZ, 1);
     }
 
-    public boolean isEmpty(int worldX, int worldY, int worldZ, boolean occlusionMode) {
+    public boolean isEmpty(int worldX, int worldY, int worldZ, byte mode) {
 
         int chunkX = (int) Math.floor(worldX / (double) Chunk.SIZE);
         int chunkY = (int) Math.floor(worldY / (double) Chunk.SIZE);
@@ -60,11 +60,19 @@ public class MeshBuilder {
 
         byte block = chunk.getBlock(blockX, blockY, blockZ);
 
-        if (occlusionMode) {
+        if (mode == 1) {
             return block == Material.AIR.getId();
         }
 
-        return world.getTransparents().contains(block);
+        if (chunk.getBlock(blockX, blockY, blockZ) == 2) {
+            if (mode == 2) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        return world.getTransparents().contains(chunk.getBlock(blockX, blockY, blockZ));
     }
 
     public static Vector2f[] calculateTexCoords(int x, int y, float format) {
@@ -96,9 +104,117 @@ public class MeshBuilder {
         return currentIndice;
     }
 
-    public Vertex[] buildChunkMesh(Chunk chunk, ArrayList<Integer> indices) {
-        int currentIndice = 0;
+    public Vertex[] buildWaterChunkMesh(Chunk chunk) {
+        ArrayList<Vertex> vertices = new ArrayList<>();
+        for (int x = 0; x < Chunk.SIZE; x++) {
+            for (int y = 0; y < Chunk.SIZE; y++) {
+                for (int z = 0; z < Chunk.SIZE; z++) {
 
+                    byte block = chunk.getBlock(x, y, z);
+                    if (block == Material.WATER.getId()) {
+                        Material material = Material.getMaterialById(block);
+
+                        if (material == null) material = Material.DEBUG;
+
+                        int worldX = x + chunk.getPosition().x * Chunk.SIZE;
+                        int worldY = y + chunk.getPosition().y * Chunk.SIZE;
+                        int worldZ = z + chunk.getPosition().z * Chunk.SIZE;
+
+                        boolean px = isEmpty(worldX + 1, worldY, worldZ, material.getId());
+                        boolean nx = isEmpty(worldX - 1, worldY, worldZ, material.getId());
+                        boolean py = isEmpty(worldX, worldY + 1, worldZ, material.getId());
+                        boolean ny = isEmpty(worldX, worldY - 1, worldZ, material.getId());
+                        boolean pz = isEmpty(worldX, worldY, worldZ + 1, material.getId());
+                        boolean nz = isEmpty(worldX, worldY, worldZ - 1, material.getId());
+
+                        Vector2f[] textureCoords;
+                        if (px) {
+                            if(material.isFaces()) {
+                                textureCoords = calculateTexCoords(material.getPx().x, material.getPx().y, 16.0f);
+                            } else {
+                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
+
+                            }
+                            for (int k = 0; k < 6; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(BlockModel.PX_POS[k]), textureCoords[k],material.getId(),0));
+                            }
+                        }
+
+                        if (nx) {
+                            if(material.isFaces()) {
+                                textureCoords = calculateTexCoords(material.getNx().x, material.getNx().y, 16.0f);
+                            } else {
+                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
+
+                            }
+                            for (int k = 0; k < 6; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(BlockModel.NX_POS[k]), textureCoords[k],material.getId(),1));
+                            }
+                        }
+
+                        if (py) {
+                            if(material.isFaces()) {
+                                textureCoords = calculateTexCoords(material.getPy().x, material.getPy().y, 16.0f);
+                            } else {
+                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
+
+                            }
+                            for (int k = 0; k < 6; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(BlockModel.PY_POS[k]), textureCoords[k],material.getId(),2));
+                            }
+                        }
+
+                        if (ny) {
+                            if(material.isFaces()) {
+                                textureCoords = calculateTexCoords(material.getNy().x, material.getNy().y, 16.0f);
+                            } else {
+                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
+
+                            }
+                            for (int k = 0; k < 6; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(BlockModel.NY_POS[k]), textureCoords[k],material.getId(),3));
+                            }
+                        }
+
+                        if (pz) {
+                            if(material.isFaces()) {
+                                textureCoords = calculateTexCoords(material.getPz().x, material.getPz().y, 16.0f);
+                            } else {
+                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
+
+                            }
+                            for (int k = 0; k < 6; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(BlockModel.PZ_POS[k]), textureCoords[k],material.getId(),4));
+                            }
+                        }
+
+                        if (nz) {
+                            if(material.isFaces()) {
+                                textureCoords = calculateTexCoords(material.getNz().x, material.getNz().y, 16.0f);
+                            } else {
+                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
+
+                            }
+                            for (int k = 0; k < 6; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(BlockModel.NZ_POS[k]), textureCoords[k],material.getId(),5));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        counter = 0;
+
+        return vertices.toArray(new Vertex[0]);
+    }
+
+    public Vertex[] buildChunkMesh(Chunk chunk) {
         ArrayList<Vertex> vertices = new ArrayList<>();
         for (int x = 0; x < Chunk.SIZE; x++) {
             for (int y = 0; y < Chunk.SIZE; y++) {
@@ -106,7 +222,7 @@ public class MeshBuilder {
 
                     byte block = chunk.getBlock(x, y, z);
                     if (block == Material.AIR.getId()) continue;
-
+                    if (block == Material.WATER.getId()) continue;
                     Material material = Material.getMaterialById(block);
 
                     if (material == null) material = Material.DEBUG;
@@ -115,12 +231,12 @@ public class MeshBuilder {
                     int worldY = y + chunk.getPosition().y * Chunk.SIZE;
                     int worldZ = z + chunk.getPosition().z * Chunk.SIZE;
 
-                    boolean px = isEmpty(worldX + 1, worldY, worldZ);
-                    boolean nx = isEmpty(worldX - 1, worldY, worldZ);
-                    boolean py = isEmpty(worldX, worldY + 1, worldZ);
-                    boolean ny = isEmpty(worldX, worldY - 1, worldZ);
-                    boolean pz = isEmpty(worldX, worldY, worldZ + 1);
-                    boolean nz = isEmpty(worldX, worldY, worldZ - 1);
+                    boolean px = isEmpty(worldX + 1, worldY, worldZ, material.getId());
+                    boolean nx = isEmpty(worldX - 1, worldY, worldZ, material.getId());
+                    boolean py = isEmpty(worldX, worldY + 1, worldZ, material.getId());
+                    boolean ny = isEmpty(worldX, worldY - 1, worldZ, material.getId());
+                    boolean pz = isEmpty(worldX, worldY, worldZ + 1, material.getId());
+                    boolean nz = isEmpty(worldX, worldY, worldZ - 1, material.getId());
 
                     Vector2f[] textureCoords;
 
