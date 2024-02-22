@@ -112,7 +112,7 @@ public class OverworldGenerator implements TerrainGenerator {
                     } else if (worldY == worldHeight) {
                         material = currentBiome.getUpperBlock();
                     } else {
-                        if (worldY <= 50) {
+                        if (worldY <= 43) {
                             material = Material.WATER;
                         }
                     }

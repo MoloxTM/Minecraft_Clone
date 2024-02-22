@@ -1,6 +1,7 @@
 package fr.math.minecraft.shared.world;
 
 import fr.math.minecraft.client.meshs.ChunkMesh;
+import fr.math.minecraft.client.meshs.WaterMesh;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.server.RandomSeed;
@@ -35,6 +36,9 @@ public class World {
         this.solidBlocks = new HashSet<>();
         this.transparents = initTransparents();
         this.terrainGenerator = new OverworldGenerator();
+        Region region = new Region(0, 0, 0);
+        region.generateStructure(this);
+        this.addRegion(region);
         this.buildSpawn();
         this.spawnPosition = this.calculateSpawnPosition();
 
@@ -55,7 +59,7 @@ public class World {
                 int worldY = chunkY * Chunk.SIZE + y;
                 byte block = this.getBlockAt(spawnX, worldY, spawnZ);
                 if (block == Material.AIR.getId()) {
-                    return new Vector3f(spawnX, worldY + 1, spawnZ);
+                    return new Vector3f(spawnX, worldY + 5, spawnZ);
                 }
             }
         }
@@ -81,11 +85,16 @@ public class World {
             for (int y = 0; y < 10; y++) {
                 for (int z = -2; z < 2; z++) {
                     Chunk chunk = this.getChunk(x, y, z);
+
                     if (chunk.isEmpty()) {
                         continue;
                     }
+
                     ChunkMesh chunkMesh = new ChunkMesh(chunk);
+                    WaterMesh waterMesh = new WaterMesh(chunk);
+
                     chunk.setMesh(chunkMesh);
+                    chunk.setWaterMesh(waterMesh);
                     chunk.setLoaded(true);
                 }
             }
@@ -179,6 +188,7 @@ public class World {
         ArrayList<Byte> transparent = new ArrayList<>();
         transparent.add(Material.AIR.getId());
         transparent.add(Material.OAK_LEAVES.getId());
+        transparent.add(Material.BIRCH_LEAVES.getId());
         transparent.add(Material.WEED.getId());
         transparent.add(Material.ROSE.getId());
         transparent.add(Material.CACTUS.getId());

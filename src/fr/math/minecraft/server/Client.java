@@ -176,7 +176,7 @@ public class Client {
             front.normalize();
             Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
 
-            velocity.add(gravity);
+            //velocity.add(gravity);
 
             if (inputData.isMovingForward()) {
                 acceleration.add(front);

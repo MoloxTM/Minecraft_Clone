@@ -8,9 +8,7 @@ public class NatureModel {
             new Vector3f(0.5f, -0.5f, -0.5f),
             new Vector3f(0.5f, 0.5f, -0.5f),
             new Vector3f(-0.5f, 0.5f, 0.5f),
-            new Vector3f(-0.5f, 0.5f, 0.5f),
             new Vector3f(-0.5f, -0.5f, 0.5f),
-            new Vector3f(0.5f, -0.5f, -0.5f)
 
     };
 
@@ -18,8 +16,6 @@ public class NatureModel {
             new Vector3f(0.5f, -0.5f, 0.5f),
             new Vector3f(0.5f, 0.5f, 0.5f),
             new Vector3f(-0.5f, 0.5f, -0.5f),
-            new Vector3f(-0.5f, 0.5f, -0.5f),
             new Vector3f(-0.5f, -0.5f, -0.5f),
-            new Vector3f(0.5f, -0.5f, 0.5f)
     };
 }

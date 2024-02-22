@@ -45,9 +45,6 @@ public class MinecraftServer {
         this.packetQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(4);
         this.tickHandler = new TickHandler();
         this.chunkManager = new ChunkManager();
-        Region region = new Region(0, 0, 0);
-        region.generateStructure(world);
-        this.world.addRegion(region);
     }
 
     public void start() throws IOException {

@@ -18,7 +18,6 @@ uniform vec3 cameraPosition;
 
 
 void main() {
-
     vec4 worldPosition = model * vec4(aPosition, 1.0);
     gl_Position = projection * view * worldPosition;
     clipSpace = gl_Position;

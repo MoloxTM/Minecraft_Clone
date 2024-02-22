@@ -197,17 +197,14 @@ public class Renderer {
 
     public void renderWater(Camera camera, Chunk chunk) {
 
-        //chunkShader.enable();
         waterShader.enable();
 
-        //chunkShader.sendInt("uTexture", terrainTexture.getSlot());
         waterShader.sendInt("uTexture", terrainTexture.getSlot());
 
 
         glActiveTexture(GL_TEXTURE0 + terrainTexture.getSlot());
         terrainTexture.bind();
 
-        //camera.matrix(chunkShader, chunk);
         camera.matrixWater(waterShader, camera, chunk);
 
         chunk.getWaterMesh().draw();

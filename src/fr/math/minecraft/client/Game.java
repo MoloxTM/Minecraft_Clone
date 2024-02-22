@@ -128,9 +128,6 @@ public class Game {
         this.updateTimer = 0.0f;
         this.camera = new Camera(GameConfiguration.WINDOW_WIDTH, GameConfiguration.WINDOW_HEIGHT);
         this.world = new World();
-        Region region = new Region(0, 0, 0);
-        region.generateStructure(world);
-        this.world.addRegion(region);
         this.state = GameState.MAIN_MENU;
         this.soundManager = new SoundManager();
         this.menuManager = new MenuManager(this);
@@ -320,9 +317,27 @@ public class Game {
                     continue;
                 }
 
-                synchronized (this.getCamera()) {
-                    renderer.render(camera, chunk);
+                renderer.render(camera, chunk);
+            }
+            for (Chunk chunk : world.getChunks().values()) {
+
+                if (chunk.isEmpty()) continue;
+                if (chunk.getWaterMesh() == null) continue;
+                if (chunk.isOutOfView(player)) continue;
+
+                if (!chunk.isLoaded()) {
+                    continue;
                 }
+
+                if (!chunk.getWaterMesh().isInitiated()) {
+                    chunk.getWaterMesh().init();
+                }
+
+                if (!camera.getFrustrum().isVisible(chunk)) {
+                    continue;
+                }
+
+                renderer.renderWater(camera, chunk);
             }
         }
 
@@ -332,17 +347,6 @@ public class Game {
                     player.getNametagMesh().init();
                 }
                 renderer.render(camera, player);
-            }
-            for (Chunk chunk : world.getChunks().values()) {
-
-                if (chunk.isEmpty()) continue;
-                if (chunk.getWaterMesh() == null) continue;
-
-                if (!chunk.getWaterMesh().isChunkMeshInitiated()) {
-                    chunk.getWaterMesh().init();
-                }
-
-                renderer.renderWater(camera, chunk);
             }
         }
 

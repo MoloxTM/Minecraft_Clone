@@ -19,15 +19,16 @@ import java.util.Map;
 
 public class MeshBuilder {
 
-    private static int counter = 0;
-    private HashMap<Coordinates, Boolean> emptyMap = new HashMap<>();
     private final int SQUARE_POINTS = 4;
+    private final static int CHUNK_MODE = 1;
+    private final static int WATER_MODE = 2;
+    private final static int OCCLUSION_MODE = 3;
 
     public boolean isEmpty(int worldX, int worldY, int worldZ) {
-        return this.isEmpty(worldX, worldY, worldZ, 1);
+        return this.isEmpty(worldX, worldY, worldZ, OCCLUSION_MODE);
     }
 
-    public boolean isEmpty(int worldX, int worldY, int worldZ, byte mode) {
+    public boolean isEmpty(int worldX, int worldY, int worldZ, int mode) {
 
         int chunkX = (int) Math.floor(worldX / (double) Chunk.SIZE);
         int chunkY = (int) Math.floor(worldY / (double) Chunk.SIZE);
@@ -60,19 +61,18 @@ public class MeshBuilder {
 
         byte block = chunk.getBlock(blockX, blockY, blockZ);
 
-        if (mode == 1) {
+        if (block == Material.WATER.getId()) {
+            return mode != WATER_MODE;
+        }
+
+        if (mode == OCCLUSION_MODE) {
+            if (block == Material.WEED.getId() || block == Material.ROSE.getId() || block == Material.DEAD_BUSH.getId()) {
+                return true;
+            }
             return block == Material.AIR.getId();
         }
 
-        if (chunk.getBlock(blockX, blockY, blockZ) == 2) {
-            if (mode == 2) {
-                return false;
-            } else {
-                return true;
-            }
-        }
-
-        return world.getTransparents().contains(chunk.getBlock(blockX, blockY, blockZ));
+        return world.getTransparents().contains(block);
     }
 
     public static Vector2f[] calculateTexCoords(int x, int y, float format) {
@@ -104,8 +104,9 @@ public class MeshBuilder {
         return currentIndice;
     }
 
-    public Vertex[] buildWaterChunkMesh(Chunk chunk) {
+    public Vertex[] buildWaterChunkMesh(Chunk chunk, ArrayList<Integer> indices) {
         ArrayList<Vertex> vertices = new ArrayList<>();
+        int currentIndice = 0;
         for (int x = 0; x < Chunk.SIZE; x++) {
             for (int y = 0; y < Chunk.SIZE; y++) {
                 for (int z = 0; z < Chunk.SIZE; z++) {
@@ -120,64 +121,76 @@ public class MeshBuilder {
                         int worldY = y + chunk.getPosition().y * Chunk.SIZE;
                         int worldZ = z + chunk.getPosition().z * Chunk.SIZE;
 
-                        boolean px = isEmpty(worldX + 1, worldY, worldZ, material.getId());
-                        boolean nx = isEmpty(worldX - 1, worldY, worldZ, material.getId());
-                        boolean py = isEmpty(worldX, worldY + 1, worldZ, material.getId());
-                        boolean ny = isEmpty(worldX, worldY - 1, worldZ, material.getId());
-                        boolean pz = isEmpty(worldX, worldY, worldZ + 1, material.getId());
-                        boolean nz = isEmpty(worldX, worldY, worldZ - 1, material.getId());
+                        boolean px = isEmpty(worldX + 1, worldY, worldZ, WATER_MODE);
+                        boolean nx = isEmpty(worldX - 1, worldY, worldZ, WATER_MODE);
+                        boolean py = isEmpty(worldX, worldY + 1, worldZ, WATER_MODE);
+                        boolean ny = isEmpty(worldX, worldY - 1, worldZ, WATER_MODE);
+                        boolean pz = isEmpty(worldX, worldY, worldZ + 1, WATER_MODE);
+                        boolean nz = isEmpty(worldX, worldY, worldZ - 1, WATER_MODE);
 
                         Vector2f[] textureCoords;
                         if (px) {
-                            if(material.isFaces()) {
+                            if (material.isFaces()) {
                                 textureCoords = calculateTexCoords(material.getPx().x, material.getPx().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
+                            }
 
-                            }
-                            for (int k = 0; k < 6; k++)  {
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
                                 Vector3f blockVector = new Vector3f(x, y, z);
-                                vertices.add(new Vertex(blockVector.add(BlockModel.PX_POS[k]), textureCoords[k],material.getId(),0));
+                                vertices.add(new Vertex(blockVector.add(BlockModel.PX_POS[k]), textureCoords[k], material.getId(), 0));
                             }
+
+                            currentIndice = this.updateIndice(indices, currentIndice);
                         }
 
                         if (nx) {
-                            if(material.isFaces()) {
+                            if (material.isFaces()) {
                                 textureCoords = calculateTexCoords(material.getNx().x, material.getNx().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
 
                             }
-                            for (int k = 0; k < 6; k++)  {
+
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
                                 Vector3f blockVector = new Vector3f(x, y, z);
-                                vertices.add(new Vertex(blockVector.add(BlockModel.NX_POS[k]), textureCoords[k],material.getId(),1));
+                                vertices.add(new Vertex(blockVector.add(BlockModel.NX_POS[k]), textureCoords[k],material.getId(), 1));
                             }
+
+                            currentIndice = this.updateIndice(indices, currentIndice);
+
                         }
 
                         if (py) {
-                            if(material.isFaces()) {
+                            if (material.isFaces()) {
                                 textureCoords = calculateTexCoords(material.getPy().x, material.getPy().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
 
                             }
-                            for (int k = 0; k < 6; k++)  {
+
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
                                 Vector3f blockVector = new Vector3f(x, y, z);
-                                vertices.add(new Vertex(blockVector.add(BlockModel.PY_POS[k]), textureCoords[k],material.getId(),2));
+                                vertices.add(new Vertex(blockVector.add(BlockModel.PY_POS[k]), textureCoords[k], material.getId(), 2));
                             }
+
+                            currentIndice = this.updateIndice(indices, currentIndice);
                         }
 
                         if (ny) {
-                            if(material.isFaces()) {
+                            if (material.isFaces()) {
                                 textureCoords = calculateTexCoords(material.getNy().x, material.getNy().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
 
                             }
-                            for (int k = 0; k < 6; k++)  {
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
                                 Vector3f blockVector = new Vector3f(x, y, z);
                                 vertices.add(new Vertex(blockVector.add(BlockModel.NY_POS[k]), textureCoords[k],material.getId(),3));
                             }
+
+                            currentIndice = this.updateIndice(indices, currentIndice);
+
                         }
 
                         if (pz) {
@@ -187,34 +200,40 @@ public class MeshBuilder {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
 
                             }
-                            for (int k = 0; k < 6; k++)  {
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
                                 Vector3f blockVector = new Vector3f(x, y, z);
                                 vertices.add(new Vertex(blockVector.add(BlockModel.PZ_POS[k]), textureCoords[k],material.getId(),4));
                             }
+
+                            currentIndice = this.updateIndice(indices, currentIndice);
                         }
 
                         if (nz) {
-                            if(material.isFaces()) {
+                            if (material.isFaces()) {
                                 textureCoords = calculateTexCoords(material.getNz().x, material.getNz().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
 
                             }
-                            for (int k = 0; k < 6; k++)  {
+
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
                                 Vector3f blockVector = new Vector3f(x, y, z);
                                 vertices.add(new Vertex(blockVector.add(BlockModel.NZ_POS[k]), textureCoords[k],material.getId(),5));
                             }
+
+                            currentIndice = this.updateIndice(indices, currentIndice);
+
                         }
                     }
                 }
             }
         }
-        counter = 0;
 
         return vertices.toArray(new Vertex[0]);
     }
 
-    public Vertex[] buildChunkMesh(Chunk chunk) {
+    public Vertex[] buildChunkMesh(Chunk chunk, ArrayList<Integer> indices) {
+        int currentIndice = 0;
         ArrayList<Vertex> vertices = new ArrayList<>();
         for (int x = 0; x < Chunk.SIZE; x++) {
             for (int y = 0; y < Chunk.SIZE; y++) {
@@ -231,12 +250,12 @@ public class MeshBuilder {
                     int worldY = y + chunk.getPosition().y * Chunk.SIZE;
                     int worldZ = z + chunk.getPosition().z * Chunk.SIZE;
 
-                    boolean px = isEmpty(worldX + 1, worldY, worldZ, material.getId());
-                    boolean nx = isEmpty(worldX - 1, worldY, worldZ, material.getId());
-                    boolean py = isEmpty(worldX, worldY + 1, worldZ, material.getId());
-                    boolean ny = isEmpty(worldX, worldY - 1, worldZ, material.getId());
-                    boolean pz = isEmpty(worldX, worldY, worldZ + 1, material.getId());
-                    boolean nz = isEmpty(worldX, worldY, worldZ - 1, material.getId());
+                    boolean px = isEmpty(worldX + 1, worldY, worldZ, CHUNK_MODE);
+                    boolean nx = isEmpty(worldX - 1, worldY, worldZ, CHUNK_MODE);
+                    boolean py = isEmpty(worldX, worldY + 1, worldZ, CHUNK_MODE);
+                    boolean ny = isEmpty(worldX, worldY - 1, worldZ, CHUNK_MODE);
+                    boolean pz = isEmpty(worldX, worldY, worldZ + 1, CHUNK_MODE);
+                    boolean nz = isEmpty(worldX, worldY, worldZ - 1, CHUNK_MODE);
 
                     Vector2f[] textureCoords;
 
@@ -245,14 +264,14 @@ public class MeshBuilder {
 
                         for (int k = 0; k < SQUARE_POINTS; k++)  {
                             Vector3f blockVector = new Vector3f(x, y, z);
-                            vertices.add(new Vertex(blockVector.add(NatureModel.FIRST_FACE[k]), textureCoords[k], material.getId(), 0, 3));
+                            vertices.add(new Vertex(blockVector.add(NatureModel.FIRST_FACE[k]), textureCoords[k], material.getId(), 2, 3));
                         }
 
                         currentIndice = this.updateIndice(indices, currentIndice);
 
                         for (int k = 0; k < SQUARE_POINTS; k++)  {
                             Vector3f blockVector = new Vector3f(x, y, z);
-                            vertices.add(new Vertex(blockVector.add(NatureModel.SECOND_FACE[k]), textureCoords[k], material.getId(), 0, 3));
+                            vertices.add(new Vertex(blockVector.add(NatureModel.SECOND_FACE[k]), textureCoords[k], material.getId(), 2, 3));
                         }
 
                         currentIndice = this.updateIndice(indices, currentIndice);
@@ -483,7 +502,6 @@ public class MeshBuilder {
                 }
             }
         }
-        counter = 0;
 
         return vertices.toArray(new Vertex[0]);
     }

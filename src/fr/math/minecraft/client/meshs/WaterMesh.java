@@ -1,19 +1,24 @@
 package fr.math.minecraft.client.meshs;
 
+import fr.math.minecraft.client.buffers.EBO;
 import fr.math.minecraft.client.buffers.VAO;
 import fr.math.minecraft.client.buffers.VBO;
 import fr.math.minecraft.client.builder.MeshBuilder;
-import fr.math.minecraft.client.world.Chunk;
+import fr.math.minecraft.shared.world.Chunk;
+
+import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL33.*;
 
 public class WaterMesh extends Mesh {
 
-    private boolean chunkMeshInitiated;
+    private boolean initiated;
 
     public WaterMesh(Chunk chunk) {
-        vertices = new MeshBuilder().buildWaterChunkMesh(chunk);
-        this.chunkMeshInitiated = false;
+        ArrayList<Integer> elements = new ArrayList<>();
+        vertices = new MeshBuilder().buildWaterChunkMesh(chunk, elements);
+        this.indices = elements.stream().mapToInt(Integer::valueOf).toArray();
+        this.initiated = false;
     }
 
     @Override
@@ -22,30 +27,33 @@ public class WaterMesh extends Mesh {
         vao.bind();
 
         vbo = new VBO(vertices);
+        ebo = new EBO(indices);
 
-        vao.linkAttrib(vbo, 0, 3, GL_FLOAT, 7 * Float.BYTES, 0);
-        vao.linkAttrib(vbo, 1, 2, GL_FLOAT, 7 * Float.BYTES, 3 * Float.BYTES);
-        vao.linkAttrib(vbo, 2, 1, GL_FLOAT, 7 * Float.BYTES, 5 * Float.BYTES);
-        vao.linkAttrib(vbo, 3, 1, GL_FLOAT, 7 * Float.BYTES, 6 * Float.BYTES);
+        vao.linkAttrib(vbo, 0, 3, GL_FLOAT, 8 * Float.BYTES, 0);
+        vao.linkAttrib(vbo, 1, 2, GL_FLOAT, 8 * Float.BYTES, 3 * Float.BYTES);
+        vao.linkAttrib(vbo, 2, 1, GL_FLOAT, 8 * Float.BYTES, 5 * Float.BYTES);
+        vao.linkAttrib(vbo, 3, 1, GL_FLOAT, 8 * Float.BYTES, 6 * Float.BYTES);
+        vao.linkAttrib(vbo, 4, 1, GL_FLOAT, 8 * Float.BYTES, 7 * Float.BYTES);
 
         vao.unbind();
         vbo.unbind();
+        ebo.unbind();
 
-        chunkMeshInitiated = true;
+        initiated = true;
     }
 
     @Override
     public void draw() {
         vao.bind();
-        glDrawArrays(GL_TRIANGLES, 0, vertices.length);
+        glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
         vao.unbind();
     }
 
-    public boolean isChunkMeshInitiated() {
-        return chunkMeshInitiated;
+    public boolean isInitiated() {
+        return initiated;
     }
 
-    public void setChunkMeshInitiated(boolean chunkMeshInitiated) {
-        this.chunkMeshInitiated = chunkMeshInitiated;
+    public void setInitiated(boolean initiated) {
+        this.initiated = initiated;
     }
 }

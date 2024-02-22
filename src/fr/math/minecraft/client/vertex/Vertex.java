@@ -14,6 +14,10 @@ public class Vertex {
     private final float blockFace;
     private final int occlusion;
 
+    public Vertex(Vector3f position, Vector2f textureCoords, float blockID, float blockFace) {
+        this(position, textureCoords, blockID, blockFace, 3);
+    }
+
     public Vertex(Vector3f position, Vector2f textureCoords, float blockID, float blockFace, int occlusion) {
         this.position = position;
         this.textureCoords = textureCoords;

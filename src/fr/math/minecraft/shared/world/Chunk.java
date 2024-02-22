@@ -1,5 +1,6 @@
 package fr.math.minecraft.shared.world;
 
+import fr.math.minecraft.client.meshs.WaterMesh;
 import fr.math.minecraft.server.world.biome.AbstractBiome;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.client.entity.Player;
@@ -24,6 +25,7 @@ public class Chunk {
     public final static int VOLUME = SIZE * AREA;
     public final static float SPHERE_RADIUS = (float) (SIZE * Math.sqrt(3) / 2.0);
     private ChunkMesh mesh;
+    private WaterMesh waterMesh;
     private boolean shouldDelete;
     private boolean loaded;
     private boolean generated;
@@ -47,6 +49,7 @@ public class Chunk {
         this.loaded = false;
         this.generated = false;
         this.mesh = null;
+        this.waterMesh = null;
         this.biome = null;
     }
 
@@ -77,6 +80,14 @@ public class Chunk {
 
     public void setMesh(ChunkMesh chunkMesh) {
         this.mesh = chunkMesh;
+    }
+
+    public WaterMesh getWaterMesh() {
+        return waterMesh;
+    }
+
+    public void setWaterMesh(WaterMesh waterMesh) {
+        this.waterMesh = waterMesh;
     }
 
     public boolean isEmpty() {
