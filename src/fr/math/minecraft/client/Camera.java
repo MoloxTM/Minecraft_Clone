@@ -70,7 +70,7 @@ public class Camera {
         shader.sendMatrix("projection", projection, projectionBuffer);
         shader.sendMatrix("view", view, viewBuffer);
         shader.sendMatrix("model", model, modelBuffer);
-        shader.sendVector3f("cameraPos", camera.getPosition());
+        shader.sendVector3f("cameraPosition", camera.getPosition());
     }
 
     public void matrix(Shader shader, Chunk chunk) {

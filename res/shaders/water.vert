@@ -8,7 +8,6 @@ layout (location = 3) in float aBlockFace;
 out vec2 textureCoord;
 out float blockID;
 out float blockFace;
-out float brightnessFace;
 out vec3 toCameraVector;
 out vec4 clipSpace;
 
@@ -17,7 +16,6 @@ uniform mat4 view;
 uniform mat4 model;
 uniform vec3 cameraPosition;
 
-float brigthness[6] = float[6](0.85f, 0.6f, 1.0f, 0.6f, 0.85f, 0.6f); /*[px, nx, py, ny, pz, nz]*/
 
 void main() {
 
@@ -27,6 +25,5 @@ void main() {
     textureCoord = aTexture;
     blockID=aBlockID;
     blockFace=aBlockFace;
-    brightnessFace = brigthness[int(blockFace)];
     toCameraVector = cameraPosition - worldPosition.xyz;
 }
