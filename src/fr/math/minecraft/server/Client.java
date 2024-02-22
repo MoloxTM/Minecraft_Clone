@@ -63,8 +63,8 @@ public class Client {
         this.stateBuffer = new StatePayload[GameConfiguration.BUFFER_SIZE];
         this.yaw = 0.0f;
         this.pitch = 0.0f;
-        this.speed = 0.01f;
-        this.Vmax = 1.0f;
+        this.speed = 0.0125f;
+        this.Vmax = 0.03f;
         this.skin = null;
         this.movingLeft = false;
         this.movingRight = false;
@@ -176,22 +176,28 @@ public class Client {
             front.normalize();
             Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
 
-            //velocity.add(gravity);
+            this.resetMoving();
+
+            // velocity.add(gravity);
 
             if (inputData.isMovingForward()) {
                 acceleration.add(front);
+                movingForward = true;
             }
 
             if (inputData.isMovingBackward()) {
                 acceleration.sub(front);
+                movingBackward = true;
             }
 
             if (inputData.isMovingLeft()) {
                 acceleration.sub(right);
+                movingLeft = true;
             }
 
             if (inputData.isMovingRight()) {
                 acceleration.add(right);
+                movingRight = true;
             }
 
             if (inputData.isFlying()) {
@@ -240,19 +246,30 @@ public class Client {
         return node;
     }
 
+    public void resetMoving() {
+        this.movingRight = false;
+        this.movingLeft = false;
+        this.movingBackward = false;
+        this.movingForward = false;
+    }
+
     public ObjectNode toJSON() {
         ObjectNode node = new ObjectMapper().createObjectNode();
+
         node.put("name", this.name);
         node.put("uuid", this.uuid);
         node.put("x", this.position.x);
         node.put("y", this.position.y);
         node.put("z", this.position.z);
+        node.put("vx", this.velocity.x);
+        node.put("vy", this.velocity.y);
+        node.put("vz", this.velocity.z);
+        node.put("movingLeft", movingLeft);
+        node.put("movingRight", movingRight);
+        node.put("movingForward", movingForward);
+        node.put("movingBackward", movingBackward);
         node.put("yaw", this.yaw);
         node.put("pitch", this.pitch);
-        node.put("movingLeft", this.movingLeft);
-        node.put("movingRight", this.movingRight);
-        node.put("movingForward", this.movingForward);
-        node.put("movingBackward", this.movingBackward);
         node.put("bodyYaw", this.bodyYaw);
 
         return node;

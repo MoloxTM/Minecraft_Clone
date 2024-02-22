@@ -16,9 +16,11 @@ public class TickHandler extends Thread {
 
     public final static long TICK_PER_SECONDS = 20;
     public final static long TICK_RATE_MS = 1000 / TICK_PER_SECONDS;
+    private int tick;
 
     public TickHandler() {
         this.setName("TickHandler");
+        this.tick = 0;
     }
 
     @Override
@@ -62,20 +64,24 @@ public class TickHandler extends Thread {
     }
 
     private void sendPlayers() {
+
         MinecraftServer server = MinecraftServer.getInstance();
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode node = mapper.createObjectNode();
 
         ArrayNode playersNode = mapper.createArrayNode();
+
         synchronized (server.getClients()) {
             for (Client client : server.getClients().values()) {
                 if (!client.isActive()) continue;
                 playersNode.add(client.toJSON());
             }
         }
+
         try {
-            node.put("type", "PLAYERS_LIST_PACKET");
+            node.put("type", "PLAYERS_LIST");
             node.set("players", playersNode);
+            node.put("tick", tick);
 
             String message = mapper.writeValueAsString(node);
 
@@ -113,36 +119,11 @@ public class TickHandler extends Thread {
                     if (bufferIndex != -1) {
                         StatePayload payload = client.getStateBuffer()[bufferIndex];
                         payload.send();
-
-                        ObjectMapper mapper = new ObjectMapper();
-                        ObjectNode node = payload.toJSON();
-                        node.put("type", "PLAYER_STATE");
-                        node.put("uuid", client.getUuid());
-                        String payloadJSONData = null;
-
-                        try {
-                            payloadJSONData = mapper.writeValueAsString(node);
-
-                            synchronized (server.getClients()) {
-                                byte[] buffer = payloadJSONData.getBytes(StandardCharsets.UTF_8);
-                                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-                                for (Client onlineClient : server.getClients().values()) {
-                                    if (onlineClient.getUuid().equalsIgnoreCase(client.getUuid())) {
-                                        continue;
-                                    }
-
-                                    packet.setAddress(onlineClient.getAddress());
-                                    packet.setPort(onlineClient.getPort());
-
-                                    server.sendPacket(packet);
-                                }
-                            }
-                        } catch (JsonProcessingException e) {
-                            e.printStackTrace();
-                        }
                     }
                 }
             }
         }
+        this.sendPlayers();
+        tick++;
     }
 }

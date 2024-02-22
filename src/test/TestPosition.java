@@ -8,6 +8,7 @@ import fr.math.minecraft.client.network.packet.PlayerMovePacket;
 import fr.math.minecraft.server.Client;
 import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.shared.network.PlayerInputData;
+import org.joml.Math;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,5 +69,11 @@ public class TestPosition {
         System.out.println(client.getPosition());
 
         Assert.assertEquals(player.getPosition(), client.getPosition());
+    }
+
+    @Test
+    public void testLerp() {
+        float x = 8.125f;
+        System.out.println(Math.lerp(x, x + 2, 0.9f));
     }
 }

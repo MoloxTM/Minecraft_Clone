@@ -6,6 +6,7 @@ import fr.math.minecraft.client.animations.PlayerWalkAnimation;
 import fr.math.minecraft.client.events.listeners.EventListener;
 import fr.math.minecraft.client.events.PlayerMoveEvent;
 import fr.math.minecraft.client.meshs.NametagMesh;
+import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.world.Coordinates;
 import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.shared.world.World;
@@ -15,6 +16,7 @@ import fr.math.minecraft.shared.network.PlayerInputData;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
+import org.joml.Math;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 
@@ -39,7 +41,7 @@ public class Player {
     private boolean movingLeft, movingRight, movingForward, movingBackward;
     private boolean flying, sneaking;
     private boolean movingMouse;
-    private boolean debugKeyPressed, occlusionKeyPressed;
+    private boolean debugKeyPressed, occlusionKeyPressed, interpolationKeyPressed;
     private float lastMouseX, lastMouseY;
     private String name;
     private String uuid;
@@ -58,6 +60,8 @@ public class Player {
     private final Hitbox hitbox;
     private GameMode gameMode;
     private Vector3f lastPosition;
+    private final Vector3f lastServerPosition;
+    private final List<EntityUpdate> updates;
 
     public Player(String name) {
         this.position = new Vector3f(0.0f, 300.0f, 0.0f);
@@ -66,14 +70,15 @@ public class Player {
         this.velocity = new Vector3f();
         this.receivedChunks = new HashSet<>();
         this.inputs = new ArrayList<>();
+        this.updates = new ArrayList<>();
         this.yaw = 0.0f;
-        this.Vmax = 1.0f;
         this.bodyYaw = 0.0f;
         this.pitch = 0.0f;
         this.firstMouse = true;
         this.lastMouseX = 0.0f;
         this.lastMouseY = 0.0f;
-        this.speed = 0.01f;
+        this.speed = 0.0125f;
+        this.Vmax = 0.03f;
         this.ping = 0;
         this.sensitivity = 0.1f;
         this.name = name;
@@ -84,6 +89,7 @@ public class Player {
         this.movingBackward = false;
         this.debugKeyPressed = false;
         this.occlusionKeyPressed = false;
+        this.interpolationKeyPressed = false;
         this.movingMouse = true;
         this.sneaking = false;
         this.flying = false;
@@ -93,6 +99,7 @@ public class Player {
         this.skin = null;
         this.eventListeners = new ArrayList<>();
         this.gameMode = GameMode.CREATIVE;
+        this.lastServerPosition = new Vector3f(position);
         this.initAnimations();
     }
 
@@ -158,14 +165,24 @@ public class Player {
 
         if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
             if (!occlusionKeyPressed) {
-                Game.getInstance().setOcclusion(!Game.getInstance().getOcclusion());
+                GameConfiguration gameConfiguration = Game.getInstance().getGameConfiguration();
+                gameConfiguration.setOcclusionEnabled(!gameConfiguration.isOcclusionEnabled());
                 occlusionKeyPressed = true;
+            }
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
+            if (!interpolationKeyPressed) {
+                GameConfiguration gameConfiguration = Game.getInstance().getGameConfiguration();
+                gameConfiguration.setEntityInterpolation(!gameConfiguration.isEntityInterpolationEnabled());
+                interpolationKeyPressed = true;
             }
         }
 
         if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_PRESS) {
             if (!debugKeyPressed) {
-                Game.getInstance().setDebugging(!Game.getInstance().isDebugging());
+                GameConfiguration gameConfiguration = Game.getInstance().getGameConfiguration();
+                gameConfiguration.setDebugging(!gameConfiguration.isDebugging());
                 debugKeyPressed = true;
             }
         }
@@ -176,6 +193,10 @@ public class Player {
 
         if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_RELEASE) {
             occlusionKeyPressed = false;
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_RELEASE) {
+            interpolationKeyPressed = false;
         }
 
         if (movingLeft || movingRight || movingForward || movingBackward || sneaking || flying) {
@@ -196,9 +217,20 @@ public class Player {
         movingMouse = false;
     }
 
-    public void update() {
+    public void updateAnimations() {
         for (Animation animation : animations) {
             animation.update();
+        }
+    }
+
+    public void update() {
+        this.updateAnimations();
+        GameConfiguration gameConfiguration = Game.getInstance().getGameConfiguration();
+
+        if (gameConfiguration.isEntityInterpolationEnabled()) {
+            position.x = Math.lerp(position.x, lastServerPosition.x, 0.1f);
+            position.y = Math.lerp(position.y, lastServerPosition.y, 0.1f);
+            position.z = Math.lerp(position.z, lastServerPosition.z, 0.1f);
         }
     }
 
@@ -382,7 +414,7 @@ public class Player {
         Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
         Vector3f acceleration = new Vector3f(0, 0, 0);
 
-        //velocity.add(gravity);
+        // velocity.add(gravity);
 
         if (movingForward) {
             acceleration.add(front);
@@ -410,18 +442,18 @@ public class Player {
 
         velocity.add(acceleration.mul(speed));
 
-        if (velocity.length()>Vmax) {
+        if (velocity.length() > Vmax) {
             velocity.normalize().mul(Vmax);
         }
 
         position.x += velocity.x;
-        //handleCollisions(new Vector3f(velocity.x, 0, 0));
+        handleCollisions(new Vector3f(velocity.x, 0, 0));
 
         position.z += velocity.z;
-        //handleCollisions(new Vector3f(0, 0, velocity.z));
+        handleCollisions(new Vector3f(0, 0, velocity.z));
 
         position.y += velocity.y;
-        //handleCollisions(new Vector3f(0, velocity.y, 0));
+        handleCollisions(new Vector3f(0, velocity.y, 0));
 
         velocity.mul(0.95f);
 
@@ -453,4 +485,11 @@ public class Player {
         this.lastPosition = lastPosition;
     }
 
+    public Vector3f getLastServerPosition() {
+        return lastServerPosition;
+    }
+
+    public List<EntityUpdate> getUpdates() {
+        return updates;
+    }
 }

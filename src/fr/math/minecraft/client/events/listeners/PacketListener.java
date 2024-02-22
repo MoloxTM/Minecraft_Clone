@@ -13,6 +13,7 @@ import fr.math.minecraft.client.network.packet.ChunkACKPacket;
 import fr.math.minecraft.client.network.packet.SkinRequestPacket;
 import fr.math.minecraft.client.network.payload.StatePayload;
 import fr.math.minecraft.client.texture.Texture;
+import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.world.Coordinates;
 import fr.math.minecraft.shared.world.World;
@@ -72,30 +73,38 @@ public class PacketListener implements PacketEventListener {
             float playerX = playerNode.get("x").floatValue();
             float playerY = playerNode.get("y").floatValue();
             float playerZ = playerNode.get("z").floatValue();
-            float pitch = playerNode.get("pitch").floatValue();
-            float yaw = playerNode.get("yaw").floatValue();
-            float bodyYaw = playerNode.get("bodyYaw").floatValue();
 
             boolean movingLeft = playerNode.get("movingLeft").asBoolean();
             boolean movingRight = playerNode.get("movingRight").asBoolean();
             boolean movingForward = playerNode.get("movingForward").asBoolean();
             boolean movingBackward = playerNode.get("movingBackward").asBoolean();
 
-            player.getPosition().x = playerX;
-            player.getPosition().y = playerY;
-            player.getPosition().z = playerZ;
+            float pitch = playerNode.get("pitch").floatValue();
+            float yaw = playerNode.get("yaw").floatValue();
+            float bodyYaw = playerNode.get("bodyYaw").floatValue();
+
+            GameConfiguration gameConfiguration = game.getGameConfiguration();
+
+            if (gameConfiguration.isEntityInterpolationEnabled()) {
+                //EntityUpdate entityUpdate = new EntityUpdate(event.getTick(), new Vector3f(playerX, playerY, playerZ));
+                //player.getUpdates().add(entityUpdate);
+                player.getLastServerPosition().x = playerX;
+                player.getLastServerPosition().y = playerY;
+                player.getLastServerPosition().z = playerZ;
+            } else {
+                player.getPosition().x = playerX;
+                player.getPosition().y = playerY;
+                player.getPosition().z = playerZ;
+            }
+
+            player.setMovingRight(movingRight);
+            player.setMovingLeft(movingLeft);
+            player.setMovingBackward(movingBackward);
+            player.setMovingForward(movingForward);
 
             player.setYaw(yaw);
             player.setBodyYaw(bodyYaw);
             player.setPitch(pitch);
-
-            player.setMovingLeft(movingLeft);
-            player.setMovingRight(movingRight);
-            player.setMovingForward(movingForward);
-            player.setMovingBackward(movingBackward);
-
-            System.out.println("Je traite le joueur " + player.getName());
-
         }
     }
 

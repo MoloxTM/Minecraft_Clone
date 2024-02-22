@@ -76,6 +76,7 @@ public class Game {
     private PlayerMovementHandler playerMovementHandler;
     private double lastPingTime;
     private int tick;
+    private GameConfiguration gameConfiguration;
 
     private Game() {
         this.initWindow();
@@ -133,6 +134,7 @@ public class Game {
         this.soundManager = new SoundManager();
         this.menuManager = new MenuManager(this);
         this.worldManager = new WorldManager();
+        this.gameConfiguration = new GameConfiguration();
         this.renderer = new Renderer();
         this.mouseXBuffer = BufferUtils.createDoubleBuffer(1);
         this.mouseYBuffer = BufferUtils.createDoubleBuffer(1);
@@ -275,11 +277,9 @@ public class Game {
 
         player.handleInputs(window);
         player.updatePosition();
+        player.updateAnimations();
         camera.update(player);
 
-        // worldManager.cleanChunks(world);
-
-        // camera.update(player);
         time += 0.01f;
         synchronized (this.getPlayers()) {
             for (Player player : this.getPlayers().values()) {
@@ -425,14 +425,6 @@ public class Game {
         return menuManager;
     }
 
-    public boolean isDebugging() {
-        return debugging;
-    }
-
-    public void setDebugging(boolean debugging) {
-        this.debugging = debugging;
-    }
-
     public FontManager getFontManager() {
         return fontManager;
     }
@@ -465,11 +457,7 @@ public class Game {
         this.lastPingTime = lastPingTime;
     }
 
-    public boolean getOcclusion() {
-        return this.occlusion;
-    }
-
-    public void setOcclusion(boolean occlusion) {
-        this.occlusion = occlusion;
+    public GameConfiguration getGameConfiguration() {
+        return gameConfiguration;
     }
 }

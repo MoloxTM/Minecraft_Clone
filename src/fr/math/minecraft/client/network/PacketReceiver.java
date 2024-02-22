@@ -86,7 +86,13 @@ public class PacketReceiver extends Thread {
                     this.notifyEvent(new PlayerJoinEvent(responseData));
                     break;
                 case "PLAYERS_LIST":
-                    this.notifyEvent(new PlayerListPacketEvent((ArrayNode) responseData.get("players")));
+                    int tick;
+                    if (responseData.get("tick") == null) {
+                        tick = 0;
+                    } else  {
+                        tick = responseData.get("tick").asInt();
+                    }
+                    this.notifyEvent(new PlayerListPacketEvent(tick, (ArrayNode) responseData.get("players")));
                     break;
                 case "STATE_PAYLOAD":
                     game.getPacketPool().submit(() -> {

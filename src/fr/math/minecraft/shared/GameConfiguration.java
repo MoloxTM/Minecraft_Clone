@@ -21,4 +21,37 @@ public class GameConfiguration {
     public final static float CHUNK_TICK = 60.0f;
     public final static float CHUNK_TICK_RATE = 1000.0f / CHUNK_TICK;
 
+    private boolean entityInterpolation;
+    private boolean occlusionEnabled;
+    private boolean debugging;
+
+    public GameConfiguration() {
+        this.entityInterpolation = true;
+        this.occlusionEnabled = true;
+        this.debugging = true;
+    }
+
+    public boolean isOcclusionEnabled() {
+        return occlusionEnabled;
+    }
+
+    public void setOcclusionEnabled(boolean occlusionEnabled) {
+        this.occlusionEnabled = occlusionEnabled;
+    }
+
+    public boolean isEntityInterpolationEnabled() {
+        return entityInterpolation;
+    }
+
+    public void setEntityInterpolation(boolean entityInterpolation) {
+        this.entityInterpolation = entityInterpolation;
+    }
+
+    public void setDebugging(boolean debugging) {
+        this.debugging = debugging;
+    }
+
+    public boolean isDebugging() {
+        return debugging;
+    }
 }
