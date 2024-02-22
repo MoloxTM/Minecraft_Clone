@@ -79,6 +79,7 @@ public class WorldManager {
 
                     ChunkGenerationWorker worker = new ChunkGenerationWorker(world, x, y, z);
                     worker.run();
+
                     loadedChunks.add(coordinates);
                 }
             }

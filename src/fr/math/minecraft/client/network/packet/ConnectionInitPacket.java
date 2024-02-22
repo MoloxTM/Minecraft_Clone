@@ -1,5 +1,6 @@
 package fr.math.minecraft.client.network.packet;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.Camera;
@@ -88,17 +89,32 @@ public class ConnectionInitPacket extends ClientPacket implements Runnable {
             return;
 
         try {
-            String id = client.sendString(message);
+            String data = client.sendString(message);
 
-            if (id.contains("USERNAME_NOT_AVAILABLE")) {
+            JsonNode clientData = mapper.readTree(data);
+
+            String uuid = clientData.get("uuid").asText();
+
+            float spawnX = clientData.get("spawnX").floatValue();
+            float spawnY = clientData.get("spawnY").floatValue();
+            float spawnZ = clientData.get("spawnZ").floatValue();
+
+            if (uuid.contains("USERNAME_NOT_AVAILABLE")) {
                 throw new RuntimeException("Le joueur " + player.getName() + " est déjà connecté !");
             }
 
-            if (id.equalsIgnoreCase("TIMEOUT_REACHED")) {
+            if (uuid.equalsIgnoreCase("TIMEOUT_REACHED")) {
                 throw new RuntimeException("Impossible d'envoyer le packet, le serveur a mis trop de temps à répondre ! (timeout)");
             }
 
-            player.setUuid(id.substring(0, 36));
+            player.setUuid(uuid.substring(0, 36));
+
+            player.getPosition().x = spawnX;
+            player.getPosition().y = spawnY;
+            player.getPosition().z = spawnZ;
+
+            Game.getInstance().getCamera().update(player);
+
             logger.info("Connection initié, ID offert : " + player.getUuid());
 
             PlayersListPacket packet = new PlayersListPacket();

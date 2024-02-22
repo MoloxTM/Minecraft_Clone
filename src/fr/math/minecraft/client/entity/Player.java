@@ -60,7 +60,7 @@ public class Player {
     private Vector3f lastPosition;
 
     public Player(String name) {
-        this.position = new Vector3f(0.0f, 100.0f, 0.0f);
+        this.position = new Vector3f(0.0f, 300.0f, 0.0f);
         this.lastPosition = new Vector3f(0, 0, 0);
         this.gravity = new Vector3f(0, -0.025f, 0);
         this.velocity = new Vector3f();
@@ -315,9 +315,17 @@ public class Player {
     public void handleCollisions(Vector3f velocity) {
         Game game = Game.getInstance();
         World world = game.getWorld();
-        for (int worldX = (int) (position.x - hitbox.getWidth()) ; worldX < position.x + hitbox.getWidth() ; worldX++) {
-            for (int worldY = (int) (position.y - hitbox.getHeight()) ; worldY < position.y + hitbox.getHeight() ; worldY++) {
-                for (int worldZ = (int) (position.z - hitbox.getDepth()) ; worldZ < position.z + hitbox.getDepth() ; worldZ++) {
+
+        int minX = (int) Math.floor(position.x - hitbox.getWidth());
+        int maxX = (int) Math.ceil(position.x + hitbox.getWidth());
+        int minY = (int) Math.floor(position.y - hitbox.getHeight());
+        int maxY = (int) Math.ceil(position.y + hitbox.getHeight());
+        int minZ = (int) Math.floor(position.z - hitbox.getDepth());
+        int maxZ = (int) Math.ceil(position.z + hitbox.getDepth());
+
+        for (int worldX = minX; worldX < maxX; worldX++) {
+            for (int worldY = minY; worldY < maxY; worldY++) {
+                for (int worldZ = minZ; worldZ < maxZ; worldZ++) {
 
                     byte block = world.getBlockAt(worldX, worldY, worldZ);
                     Material material = Material.getMaterialById(block);
@@ -360,9 +368,9 @@ public class Player {
         front.normalize();
 
         Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
-        Vector3f acceleration = new Vector3f(0,0,0);
+        Vector3f acceleration = new Vector3f(0, 0, 0);
 
-        //velocity.add(gravity);
+        velocity.add(gravity);
 
         if (movingForward) {
             acceleration.add(front);

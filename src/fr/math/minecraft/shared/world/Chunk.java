@@ -4,9 +4,13 @@ import fr.math.minecraft.server.world.biome.AbstractBiome;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.meshs.ChunkMesh;
+import fr.math.minecraft.shared.world.generator.OverworldGenerator;
 import fr.math.minecraft.shared.world.generator.TerrainGenerator;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class Chunk {
 
@@ -24,6 +28,7 @@ public class Chunk {
     private boolean loaded;
     private boolean generated;
     private AbstractBiome biome;
+    private final Map<Coordinates, Boolean> emptyMap;
 
     public Chunk(int x, int y, int z) {
         this.position = new Vector3i(x, y, z);
@@ -35,6 +40,7 @@ public class Chunk {
                 }
             }
         }
+        this.emptyMap = new HashMap<>();
         this.center = this.calculateCenter();
         this.empty = true;
         this.shouldDelete = false;
@@ -45,7 +51,7 @@ public class Chunk {
     }
 
     public void generate(World world, TerrainGenerator terrainGenerator) {
-        terrainGenerator.generateChunk(world, this);
+        new OverworldGenerator().generateChunk(world, this);
         this.generated = true;
     }
 
@@ -136,5 +142,9 @@ public class Chunk {
 
     public void setBiome(AbstractBiome biome) {
         this.biome = biome;
+    }
+
+    public Map<Coordinates, Boolean> getEmptyMap() {
+        return emptyMap;
     }
 }

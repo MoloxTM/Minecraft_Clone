@@ -56,7 +56,7 @@ public class Client {
         this.gravity = new Vector3f(0, -0.025f, 0);
         this.acceleration = new Vector3f();
         this.front = new Vector3f(0.0f, 0.0f, 0.0f);
-        this.position = new Vector3f(0.0f, 100.0f, 0.0f);
+        this.position = new Vector3f(0.0f, 300.0f, 0.0f);
         this.lastChunkPosition = new Vector3f(0, 0, 0);
         this.inputVector = new Vector3i(0, 0, 0);
         this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 1.0f, 0.25f));
@@ -115,11 +115,19 @@ public class Client {
     public void handleCollisions(Vector3f velocity) {
         MinecraftServer server = MinecraftServer.getInstance();
         World world = server.getWorld();
-        for (int worldX = (int) (position.x - hitbox.getWidth()) ; worldX < position.x + hitbox.getWidth() ; worldX++) {
-            for (int worldY = (int) (position.y - hitbox.getHeight()) ; worldY < position.y + hitbox.getHeight() ; worldY++) {
-                for (int worldZ = (int) (position.z - hitbox.getDepth()) ; worldZ < position.z + hitbox.getDepth() ; worldZ++) {
 
-                    byte block = world.getBlockAt(worldX, worldY, worldZ);
+        int minX = (int) Math.floor(position.x - hitbox.getWidth());
+        int maxX = (int) Math.ceil(position.x + hitbox.getWidth());
+        int minY = (int) Math.floor(position.y - hitbox.getHeight());
+        int maxY = (int) Math.ceil(position.y + hitbox.getHeight());
+        int minZ = (int) Math.floor(position.z - hitbox.getDepth());
+        int maxZ = (int) Math.ceil(position.z + hitbox.getDepth());
+
+        for (int worldX = minX; worldX < maxX; worldX++) {
+            for (int worldY = minY; worldY < maxY; worldY++) {
+                for (int worldZ = minZ; worldZ < maxZ; worldZ++) {
+
+                    byte block = world.getServerBlockAt(worldX, worldY, worldZ);
                     Material material = Material.getMaterialById(block);
 
                     if (!material.isSolid()) {
@@ -128,22 +136,22 @@ public class Client {
 
                     if (velocity.x > 0) {
                         position.x = worldX - hitbox.getWidth();
-                    } else if(velocity.x<0) {
-                        position.x = worldX + hitbox.getWidth();
+                    } else if (velocity.x < 0) {
+                        position.x = worldX + hitbox.getWidth() + 1;
                     }
 
                     if (velocity.y > 0) {
                         position.y = worldY - hitbox.getHeight();
                         this.velocity.y = 0;
-                    } else if(velocity.y<0) {
+                    } else if (velocity.y < 0) {
                         position.y = worldY + hitbox.getHeight() + 1;
-                        this.velocity.y=0;
+                        this.velocity.y = 0;
                     }
 
                     if (velocity.z > 0) {
                         position.z = worldZ - hitbox.getDepth();
-                    } else if(velocity.z < 0) {
-                        position.z = worldZ + hitbox.getDepth();
+                    } else if (velocity.z < 0) {
+                        position.z = worldZ + hitbox.getDepth() + 1;
                     }
                 }
             }
@@ -168,7 +176,7 @@ public class Client {
             front.normalize();
             Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
 
-            //velocity.add(gravity);
+            velocity.add(gravity);
 
             if (inputData.isMovingForward()) {
                 acceleration.add(front);

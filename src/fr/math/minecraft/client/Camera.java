@@ -82,11 +82,6 @@ public class Camera {
         shader.sendMatrix("view", view, viewBuffer);
         shader.sendMatrix("model", model, modelBuffer);
         shader.sendFloat("biome", biome);
-        /*
-        shader.sendFloat("r", Player.r);
-        shader.sendFloat("g", Player.g);
-        shader.sendFloat("b", Player.b);
-         */
     }
 
     public void matrix(Shader shader, Player player) {

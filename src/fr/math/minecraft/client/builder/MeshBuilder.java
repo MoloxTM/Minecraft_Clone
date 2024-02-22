@@ -23,8 +23,6 @@ public class MeshBuilder {
 
     public boolean isEmpty(int worldX, int worldY, int worldZ) {
 
-        Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
-
         int chunkX = (int) Math.floor(worldX / (double) Chunk.SIZE);
         int chunkY = (int) Math.floor(worldY / (double) Chunk.SIZE);
         int chunkZ = (int) Math.floor(worldZ / (double) Chunk.SIZE);
@@ -34,9 +32,16 @@ public class MeshBuilder {
         Chunk chunk = world.getChunk(chunkX, chunkY, chunkZ);
 
         if (chunk == null) {
-            // chunk = new Chunk(chunkX, chunkY, chunkZ);
-            // chunk.generate(world, world.getTerrainGenerator());
-            return true;
+            chunk = new Chunk(chunkX, chunkY, chunkZ);
+            chunk.generate(world, world.getTerrainGenerator());
+            synchronized (world.getChunks()) {
+                world.addChunk(chunk);
+                if (!chunk.isEmpty()) {
+                    synchronized (game.getPendingMeshs()) {
+                        game.getPendingMeshs().add(chunk);
+                    }
+                }
+            }
         }
 
         int blockX = worldX % Chunk.SIZE;

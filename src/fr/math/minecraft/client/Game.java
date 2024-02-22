@@ -150,6 +150,8 @@ public class Game {
         this.playerMovementHandler = new PlayerMovementHandler();
         this.lastPingTime = 0;
 
+        world.buildSpawnMesh();
+
         player.addEventListener(new PlayerListener(this));
 
         this.loadSplashText();

@@ -1,7 +1,13 @@
 package fr.math.minecraft.shared.world;
 
+import fr.math.minecraft.client.meshs.ChunkMesh;
+import fr.math.minecraft.logger.LogType;
+import fr.math.minecraft.logger.LoggerUtility;
+import fr.math.minecraft.server.RandomSeed;
 import fr.math.minecraft.shared.world.generator.OverworldGenerator;
 import fr.math.minecraft.shared.world.generator.TerrainGenerator;
+import org.apache.log4j.Logger;
+import org.joml.Vector3f;
 import org.joml.Vector3i;
 
 import java.util.*;
@@ -16,6 +22,8 @@ public class World {
     private final Set<Byte> solidBlocks;
 
     private final Map<Coordinates, Region> regions;
+    private final Vector3f spawnPosition;
+    private final static Logger logger = LoggerUtility.getServerLogger(World.class, LogType.TXT);
 
     private TerrainGenerator terrainGenerator;
 
@@ -27,11 +35,59 @@ public class World {
         this.solidBlocks = new HashSet<>();
         this.transparents = initTransparents();
         this.terrainGenerator = new OverworldGenerator();
+        this.buildSpawn();
+        this.spawnPosition = this.calculateSpawnPosition();
 
+        logger.info("Point de spawn calculé en " + spawnPosition);
 
         for (Material material : Material.values()) {
             if (material.isSolid()) {
                 solidBlocks.add(material.getId());
+            }
+        }
+    }
+
+    public Vector3f calculateSpawnPosition() {
+        int spawnX = 0;
+        int spawnZ = 0;
+        for (int chunkY = 0; chunkY < 10; chunkY++) {
+            for (int y = 0; y < Chunk.SIZE; y++) {
+                int worldY = chunkY * Chunk.SIZE + y;
+                byte block = this.getBlockAt(spawnX, worldY, spawnZ);
+                if (block == Material.AIR.getId()) {
+                    return new Vector3f(spawnX, worldY + 1, spawnZ);
+                }
+            }
+        }
+        return new Vector3f(0, 300.0f, 0);
+    }
+
+    public void buildSpawn() {
+        logger.info("Construction du spawn...");
+        for (int x = -2; x < 2; x++) {
+            for (int y = 0; y < 10; y++) {
+                for (int z = -2; z < 2; z++) {
+                    Chunk chunk = new Chunk(x, y, z);
+                    chunk.generate(this, terrainGenerator);
+                    this.addChunk(chunk);
+                }
+            }
+        }
+        logger.info("Spawn construit avec succès !");
+    }
+
+    public void buildSpawnMesh() {
+        for (int x = -2; x < 2; x++) {
+            for (int y = 0; y < 10; y++) {
+                for (int z = -2; z < 2; z++) {
+                    Chunk chunk = this.getChunk(x, y, z);
+                    if (chunk.isEmpty()) {
+                        continue;
+                    }
+                    ChunkMesh chunkMesh = new ChunkMesh(chunk);
+                    chunk.setMesh(chunkMesh);
+                    chunk.setLoaded(true);
+                }
             }
         }
     }
@@ -68,6 +124,31 @@ public class World {
         int chunkZ = (int) Math.floor(worldZ / (double) Chunk.SIZE);
 
         return this.getChunk(chunkX, chunkY, chunkZ);
+    }
+
+    public byte getServerBlockAt(int worldX, int worldY, int worldZ) {
+        Chunk chunk = getChunkAt(worldX, worldY, worldZ);
+
+        if (chunk == null) {
+            int chunkX = (int) Math.floor(worldX / (double) Chunk.SIZE);
+            int chunkY = (int) Math.floor(worldY / (double) Chunk.SIZE);
+            int chunkZ = (int) Math.floor(worldZ / (double) Chunk.SIZE);
+            chunk = new Chunk(chunkX, chunkY, chunkZ);
+            chunk.generate(this, terrainGenerator);
+            synchronized (this.getChunks()) {
+                this.addChunk(chunk);
+            }
+        }
+        //Chopper les coos du block
+        int blockX = worldX % Chunk.SIZE;
+        int blockY = worldY % Chunk.SIZE;
+        int blockZ = worldZ % Chunk.SIZE;
+
+        blockX = blockX < 0 ? blockX + Chunk.SIZE : blockX;
+        blockY = blockY < 0 ? blockY + Chunk.SIZE : blockY;
+        blockZ = blockZ < 0 ? blockZ + Chunk.SIZE : blockZ;
+
+        return chunk.getBlock(blockX, blockY, blockZ);
     }
 
     public byte getBlockAt(int worldX, int worldY, int worldZ) {
@@ -141,5 +222,9 @@ public class World {
 
     public Map<Coordinates, Region> getRegions() {
         return regions;
+    }
+
+    public Vector3f getSpawnPosition() {
+        return spawnPosition;
     }
 }

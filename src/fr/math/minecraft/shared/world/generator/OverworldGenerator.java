@@ -93,7 +93,6 @@ public class OverworldGenerator implements TerrainGenerator {
 
                     Region chunkRegion = world.getRegion(regionX, regionY, regionZ);
 
-                    /*
                     Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
                     if (chunkRegion != null && chunkRegion.getStructure().getStructureMap().containsKey(coordinates)) {
                         if (chunk.isEmpty()) {
@@ -102,7 +101,6 @@ public class OverworldGenerator implements TerrainGenerator {
                         chunk.setBlock(x, y, z, chunkRegion.getStructure().getStructureMap().get(coordinates));
                         continue;
                     }
-                     */
 
                     Material material = Material.AIR;
                     if (worldY < worldHeight) {
