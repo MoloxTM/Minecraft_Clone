@@ -8,10 +8,6 @@ in vec3 toCameraVector;
 
 uniform sampler2D uTexture;
 
-uniform sampler2D reflectionTexture;
-uniform sampler2D refractionTexture;
-
-
 bool equals(float a, float b) {
     return abs(a - b) < 1e-5;
 }
@@ -24,9 +20,11 @@ void main() {
     vec3 faceNormal = vec3(0.0, 1.0, 0.0);
     float fresnel = dot(viewVector, faceNormal);
 
-    vec4 tex = texture(uTexture, textureCoord);
+    vec3 reflected = reflect(viewVector, faceNormal);
 
+    vec4 tex = texture(uTexture, reflected.xy);
     vec4 teinte = vec4(33/255.0, 63/255.0, 153/255.0, 1.0);
+
 
     FragColor = mix(teinte, tex, fresnel);
 }
