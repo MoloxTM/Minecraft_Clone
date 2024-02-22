@@ -78,6 +78,8 @@ public class Camera {
         view.lookAt(position, new Vector3f(position).add(front), up);
         model.translate(chunk.getPosition().x * Chunk.SIZE, chunk.getPosition().y * Chunk.SIZE, chunk.getPosition().z * Chunk.SIZE);
 
+        shader.sendFloat("time", Game.getInstance().getTime());
+        shader.sendFloat("occlusionEnabled", Game.getInstance().getOcclusion() ? 1.0f : 0.0f);
         shader.sendMatrix("projection", projection, projectionBuffer);
         shader.sendMatrix("view", view, viewBuffer);
         shader.sendMatrix("model", model, modelBuffer);

@@ -66,7 +66,7 @@ public class Game {
     private Renderer renderer;
     private MenuManager menuManager;
     private DoubleBuffer mouseXBuffer, mouseYBuffer;
-    private boolean debugging;
+    private boolean debugging, occlusion;
     private int frames, fps, updates;
     private ThreadPoolExecutor chunkMeshLoadingQueue;
     private ThreadPoolExecutor packetPool;
@@ -139,6 +139,7 @@ public class Game {
         this.mouseXBuffer = BufferUtils.createDoubleBuffer(1);
         this.mouseYBuffer = BufferUtils.createDoubleBuffer(1);
         this.debugging = false;
+        this.occlusion = true;
         this.frames = 0;
         this.fps = 0;
         this.tick = 1;
@@ -447,5 +448,13 @@ public class Game {
 
     public void setLastPingTime(double lastPingTime) {
         this.lastPingTime = lastPingTime;
+    }
+
+    public boolean getOcclusion() {
+        return this.occlusion;
+    }
+
+    public void setOcclusion(boolean occlusion) {
+        this.occlusion = occlusion;
     }
 }

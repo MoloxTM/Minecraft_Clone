@@ -5,6 +5,7 @@ import fr.math.minecraft.client.meshs.model.CactusModel;
 import fr.math.minecraft.client.meshs.model.NatureModel;
 import fr.math.minecraft.client.vertex.Vertex;
 import fr.math.minecraft.client.meshs.model.BlockModel;
+import fr.math.minecraft.client.world.BlockFace;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.world.Coordinates;
 import fr.math.minecraft.shared.world.Material;
@@ -14,6 +15,7 @@ import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class MeshBuilder {
 
@@ -22,6 +24,10 @@ public class MeshBuilder {
     private final int SQUARE_POINTS = 4;
 
     public boolean isEmpty(int worldX, int worldY, int worldZ) {
+        return this.isEmpty(worldX, worldY, worldZ, true);
+    }
+
+    public boolean isEmpty(int worldX, int worldY, int worldZ, boolean occlusionMode) {
 
         int chunkX = (int) Math.floor(worldX / (double) Chunk.SIZE);
         int chunkY = (int) Math.floor(worldY / (double) Chunk.SIZE);
@@ -52,7 +58,13 @@ public class MeshBuilder {
         blockY = blockY < 0 ? blockY + Chunk.SIZE : blockY;
         blockZ = blockZ < 0 ? blockZ + Chunk.SIZE : blockZ;
 
-        return world.getTransparents().contains(chunk.getBlock(blockX, blockY, blockZ));
+        byte block = chunk.getBlock(blockX, blockY, blockZ);
+
+        if (occlusionMode) {
+            return block == Material.AIR.getId();
+        }
+
+        return world.getTransparents().contains(block);
     }
 
     public static Vector2f[] calculateTexCoords(int x, int y, float format) {
@@ -117,123 +129,32 @@ public class MeshBuilder {
 
                         for (int k = 0; k < SQUARE_POINTS; k++)  {
                             Vector3f blockVector = new Vector3f(x, y, z);
-                            vertices.add(new Vertex(blockVector.add(NatureModel.FIRST_FACE[k]), textureCoords[k],material.getId(),0));
+                            vertices.add(new Vertex(blockVector.add(NatureModel.FIRST_FACE[k]), textureCoords[k], material.getId(), 0, 3));
                         }
 
                         currentIndice = this.updateIndice(indices, currentIndice);
 
                         for (int k = 0; k < SQUARE_POINTS; k++)  {
                             Vector3f blockVector = new Vector3f(x, y, z);
-                            vertices.add(new Vertex(blockVector.add(NatureModel.SECOND_FACE[k]), textureCoords[k],material.getId(),0));
+                            vertices.add(new Vertex(blockVector.add(NatureModel.SECOND_FACE[k]), textureCoords[k], material.getId(), 0, 3));
                         }
 
                         currentIndice = this.updateIndice(indices, currentIndice);
                     } else if (material == Material.CACTUS) {
                         if (px) {
-                            if(material.isFaces()) {
+
+                            if (material.isFaces()) {
                                 textureCoords = calculateTexCoords(material.getPx().x, material.getPx().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
 
                             }
+
+                            Map<Integer, Integer> map = calculateAmbiantOcclusion(worldX, worldY, worldZ, BlockFace.PX_FACE);
+
                             for (int k = 0; k < SQUARE_POINTS; k++)  {
                                 Vector3f blockVector = new Vector3f(x, y, z);
-                                vertices.add(new Vertex(blockVector.add(CactusModel.PX_POS[k]), textureCoords[k],material.getId(),0));
-                            }
-
-                            currentIndice = this.updateIndice(indices, currentIndice);
-
-                        }
-
-                        if (nx) {
-                            if(material.isFaces()) {
-                                textureCoords = calculateTexCoords(material.getNx().x, material.getNx().y, 16.0f);
-                            } else {
-                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
-
-                            }
-                            for (int k = 0; k < SQUARE_POINTS; k++)  {
-                                Vector3f blockVector = new Vector3f(x, y, z);
-                                vertices.add(new Vertex(blockVector.add(CactusModel.NX_POS[k]), textureCoords[k],material.getId(),1));
-                            }
-
-                            currentIndice = this.updateIndice(indices, currentIndice);
-
-                        }
-
-                        if (py) {
-                            if(material.isFaces()) {
-                                textureCoords = calculateTexCoords(material.getPy().x, material.getPy().y, 16.0f);
-                            } else {
-                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
-
-                            }
-                            for (int k = 0; k < SQUARE_POINTS; k++)  {
-                                Vector3f blockVector = new Vector3f(x, y, z);
-                                vertices.add(new Vertex(blockVector.add(CactusModel.PY_POS[k]), textureCoords[k],material.getId(),2));
-                            }
-
-                            currentIndice = this.updateIndice(indices, currentIndice);
-
-                        }
-
-                        if (ny) {
-                            if(material.isFaces()) {
-                                textureCoords = calculateTexCoords(material.getNy().x, material.getNy().y, 16.0f);
-                            } else {
-                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
-
-                            }
-                            for (int k = 0; k < SQUARE_POINTS; k++)  {
-                                Vector3f blockVector = new Vector3f(x, y, z);
-                                vertices.add(new Vertex(blockVector.add(CactusModel.NY_POS[k]), textureCoords[k],material.getId(),3));
-                            }
-
-                            currentIndice = this.updateIndice(indices, currentIndice);
-
-                        }
-
-                        if (pz) {
-                            if(material.isFaces()) {
-                                textureCoords = calculateTexCoords(material.getPz().x, material.getPz().y, 16.0f);
-                            } else {
-                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
-
-                            }
-                            for (int k = 0; k < SQUARE_POINTS; k++)  {
-                                Vector3f blockVector = new Vector3f(x, y, z);
-                                vertices.add(new Vertex(blockVector.add(CactusModel.PZ_POS[k]), textureCoords[k],material.getId(),4));
-                            }
-
-                            currentIndice = this.updateIndice(indices, currentIndice);
-
-                        }
-
-                        if (nz) {
-                            if(material.isFaces()) {
-                                textureCoords = calculateTexCoords(material.getNz().x, material.getNz().y, 16.0f);
-                            } else {
-                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
-
-                            }
-                            for (int k = 0; k < SQUARE_POINTS; k++)  {
-                                Vector3f blockVector = new Vector3f(x, y, z);
-                                vertices.add(new Vertex(blockVector.add(CactusModel.NZ_POS[k]), textureCoords[k],material.getId(),5));
-                            }
-
-                            currentIndice = this.updateIndice(indices, currentIndice);
-
-                        }
-                    } else {
-                        if (px) {
-                            if(material.isFaces()) {
-                                textureCoords = calculateTexCoords(material.getPx().x, material.getPx().y, 16.0f);
-                            } else {
-                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
-                            }
-                            for (int k = 0; k < SQUARE_POINTS; k++)  {
-                                Vector3f blockVector = new Vector3f(x, y, z);
-                                vertices.add(new Vertex(blockVector.add(BlockModel.PX_POS[k]), textureCoords[k],material.getId(),0));
+                                vertices.add(new Vertex(blockVector.add(CactusModel.PX_POS[k]), textureCoords[k],material.getId(), 0, map.get(k)));
                             }
 
                             currentIndice = this.updateIndice(indices, currentIndice);
@@ -247,69 +168,197 @@ public class MeshBuilder {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
 
                             }
+
+                            Map<Integer, Integer> map = calculateAmbiantOcclusion(worldX, worldY, worldZ, BlockFace.NX_FACE);
+
                             for (int k = 0; k < SQUARE_POINTS; k++)  {
                                 Vector3f blockVector = new Vector3f(x, y, z);
-                                vertices.add(new Vertex(blockVector.add(BlockModel.NX_POS[k]), textureCoords[k],material.getId(),1));
+                                vertices.add(new Vertex(blockVector.add(CactusModel.NX_POS[k]), textureCoords[k],material.getId(), 1, map.get(k)));
+                            }
+
+                            currentIndice = this.updateIndice(indices, currentIndice);
+
+                        }
+
+                        if (py) {
+                            if (material.isFaces()) {
+                                textureCoords = calculateTexCoords(material.getPy().x, material.getPy().y, 16.0f);
+                            } else {
+                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
+
+                            }
+
+                            Map<Integer, Integer> map = calculateAmbiantOcclusion(worldX, worldY, worldZ, BlockFace.PY_FACE);
+
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(CactusModel.PY_POS[k]), textureCoords[k], material.getId(), 2, map.get(k)));
+                            }
+
+                            currentIndice = this.updateIndice(indices, currentIndice);
+
+                        }
+
+                        if (ny) {
+                            if (material.isFaces()) {
+                                textureCoords = calculateTexCoords(material.getNy().x, material.getNy().y, 16.0f);
+                            } else {
+                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
+
+                            }
+
+                            Map<Integer, Integer> map = calculateAmbiantOcclusion(worldX, worldY, worldZ, BlockFace.NY_FACE);
+
+
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(CactusModel.NY_POS[k]), textureCoords[k], material.getId(), 3, map.get(k)));
+                            }
+
+                            currentIndice = this.updateIndice(indices, currentIndice);
+
+                        }
+
+                        if (pz) {
+                            if (material.isFaces()) {
+                                textureCoords = calculateTexCoords(material.getPz().x, material.getPz().y, 16.0f);
+                            } else {
+                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
+
+                            }
+
+                            Map<Integer, Integer> map = calculateAmbiantOcclusion(worldX, worldY, worldZ, BlockFace.PZ_FACE);
+
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(CactusModel.PZ_POS[k]), textureCoords[k], material.getId(), 4, map.get(k)));
+                            }
+
+                            currentIndice = this.updateIndice(indices, currentIndice);
+
+                        }
+
+                        if (nz) {
+                            if (material.isFaces()) {
+                                textureCoords = calculateTexCoords(material.getNz().x, material.getNz().y, 16.0f);
+                            } else {
+                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
+
+                            }
+
+                            Map<Integer, Integer> map = calculateAmbiantOcclusion(worldX, worldY, worldZ, BlockFace.NZ_FACE);
+
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(CactusModel.NZ_POS[k]), textureCoords[k], material.getId(), 5, map.get(k)));
+                            }
+
+                            currentIndice = this.updateIndice(indices, currentIndice);
+                        }
+                    } else {
+                        if (px) {
+                            if (material.isFaces()) {
+                                textureCoords = calculateTexCoords(material.getPx().x, material.getPx().y, 16.0f);
+                            } else {
+                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
+                            }
+
+                            Map<Integer, Integer> map = calculateAmbiantOcclusion(worldX, worldY, worldZ, BlockFace.PX_FACE);
+
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(BlockModel.PX_POS[k]), textureCoords[k], material.getId(), 0, map.get(k)));
+                            }
+
+                            currentIndice = this.updateIndice(indices, currentIndice);
+
+                        }
+
+                        if (nx) {
+                            if (material.isFaces()) {
+                                textureCoords = calculateTexCoords(material.getNx().x, material.getNx().y, 16.0f);
+                            } else {
+                                textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
+
+                            }
+
+                            Map<Integer, Integer> map = calculateAmbiantOcclusion(worldX, worldY, worldZ, BlockFace.NX_FACE);
+
+                            for (int k = 0; k < SQUARE_POINTS; k++)  {
+                                Vector3f blockVector = new Vector3f(x, y, z);
+                                vertices.add(new Vertex(blockVector.add(BlockModel.NX_POS[k]), textureCoords[k], material.getId(), 1, map.get(k)));
                             }
 
                             currentIndice = this.updateIndice(indices, currentIndice);
                         }
 
                         if (py) {
-                            if(material.isFaces()) {
+                            if (material.isFaces()) {
                                 textureCoords = calculateTexCoords(material.getPy().x, material.getPy().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
 
                             }
+
+                            Map<Integer, Integer> map = calculateAmbiantOcclusion(worldX, worldY, worldZ, BlockFace.PY_FACE);
+
                             for (int k = 0; k < SQUARE_POINTS; k++)  {
                                 Vector3f blockVector = new Vector3f(x, y, z);
-                                vertices.add(new Vertex(blockVector.add(BlockModel.PY_POS[k]), textureCoords[k],material.getId(),2));
+                                vertices.add(new Vertex(blockVector.add(BlockModel.PY_POS[k]), textureCoords[k], material.getId(), 2, map.get(k)));
                             }
 
                             currentIndice = this.updateIndice(indices, currentIndice);
                         }
 
                         if (ny) {
-                            if(material.isFaces()) {
+                            if (material.isFaces()) {
                                 textureCoords = calculateTexCoords(material.getNy().x, material.getNy().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
 
                             }
+
+                            Map<Integer, Integer> map = calculateAmbiantOcclusion(worldX, worldY, worldZ, BlockFace.NY_FACE);
+
                             for (int k = 0; k < SQUARE_POINTS; k++)  {
                                 Vector3f blockVector = new Vector3f(x, y, z);
-                                vertices.add(new Vertex(blockVector.add(BlockModel.NY_POS[k]), textureCoords[k],material.getId(),3));
+                                vertices.add(new Vertex(blockVector.add(BlockModel.NY_POS[k]), textureCoords[k], material.getId(), 3, map.get(k)));
                             }
 
                             currentIndice = this.updateIndice(indices, currentIndice);
                         }
 
                         if (pz) {
-                            if(material.isFaces()) {
+                            if (material.isFaces()) {
                                 textureCoords = calculateTexCoords(material.getPz().x, material.getPz().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
 
                             }
+
+                            Map<Integer, Integer> map = calculateAmbiantOcclusion(worldX, worldY, worldZ, BlockFace.PZ_FACE);
+
                             for (int k = 0; k < SQUARE_POINTS; k++)  {
                                 Vector3f blockVector = new Vector3f(x, y, z);
-                                vertices.add(new Vertex(blockVector.add(BlockModel.PZ_POS[k]), textureCoords[k],material.getId(),4));
+                                vertices.add(new Vertex(blockVector.add(BlockModel.PZ_POS[k]), textureCoords[k], material.getId(), 4, map.get(k)));
                             }
 
                             currentIndice = this.updateIndice(indices, currentIndice);
                         }
 
                         if (nz) {
-                            if(material.isFaces()) {
+                            if (material.isFaces()) {
                                 textureCoords = calculateTexCoords(material.getNz().x, material.getNz().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
 
                             }
+
+                            Map<Integer, Integer> map = calculateAmbiantOcclusion(worldX, worldY, worldZ, BlockFace.NZ_FACE);
+
                             for (int k = 0; k < SQUARE_POINTS; k++)  {
                                 Vector3f blockVector = new Vector3f(x, y, z);
-                                vertices.add(new Vertex(blockVector.add(BlockModel.NZ_POS[k]), textureCoords[k],material.getId(),5));
+                                vertices.add(new Vertex(blockVector.add(BlockModel.NZ_POS[k]), textureCoords[k], material.getId(), 5, map.get(k)));
                             }
 
                             currentIndice = this.updateIndice(indices, currentIndice);
@@ -321,6 +370,90 @@ public class MeshBuilder {
         counter = 0;
 
         return vertices.toArray(new Vertex[0]);
+    }
+
+    public Map<Integer, Integer> calculateAmbiantOcclusion(int worldX, int worldY, int worldZ, BlockFace face) {
+
+        int a = 0;
+        int b = 0;
+        int c = 0;
+        int d = 0;
+        int e = 0;
+        int f = 0;
+        int g = 0;
+        int h = 0;
+
+        switch (face) {
+            case PX_FACE:
+                a = isEmpty(worldX + 1, worldY + 1, worldZ) ? 1 : 0;
+                b = isEmpty(worldX + 1, worldY + 1, worldZ + 1) ? 1 : 0;
+                c = isEmpty(worldX + 1, worldY, worldZ + 1) ? 1 : 0;
+                d = isEmpty(worldX + 1, worldY - 1, worldZ + 1) ? 1 : 0;
+                e = isEmpty(worldX + 1, worldY - 1, worldZ) ? 1 : 0;
+                f = isEmpty(worldX + 1, worldY - 1, worldZ - 1) ? 1 : 0;
+                g = isEmpty(worldX + 1, worldY, worldZ - 1) ? 1 : 0;
+                h = isEmpty(worldX + 1, worldY + 1, worldZ - 1) ? 1 : 0;
+                break;
+            case PY_FACE:
+                a = isEmpty(worldX, worldY + 1, worldZ - 1) ? 1 : 0;
+                b = isEmpty(worldX + 1, worldY + 1, worldZ - 1) ? 1 : 0;
+                c = isEmpty(worldX + 1, worldY + 1, worldZ) ? 1 : 0;
+                d = isEmpty(worldX + 1, worldY + 1, worldZ + 1) ? 1 : 0;
+                e = isEmpty(worldX, worldY + 1, worldZ + 1) ? 1 : 0;
+                f = isEmpty(worldX - 1, worldY + 1, worldZ + 1) ? 1 : 0;
+                g = isEmpty(worldX - 1, worldY + 1, worldZ) ? 1 : 0;
+                h = isEmpty(worldX - 1, worldY + 1, worldZ - 1) ? 1 : 0;
+                break;
+            case PZ_FACE:
+                a = isEmpty(worldX, worldY + 1, worldZ + 1) ? 1 : 0;
+                b = isEmpty(worldX + 1, worldY + 1, worldZ + 1) ? 1 : 0;
+                c = isEmpty(worldX + 1, worldY, worldZ + 1) ? 1 : 0;
+                d = isEmpty(worldX + 1, worldY - 1, worldZ + 1) ? 1 : 0;
+                e = isEmpty(worldX, worldY - 1, worldZ + 1) ? 1 : 0;
+                f = isEmpty(worldX - 1, worldY - 1, worldZ + 1) ? 1 : 0;
+                g = isEmpty(worldX - 1, worldY, worldZ + 1) ? 1 : 0;
+                h = isEmpty(worldX - 1, worldY + 1, worldZ + 1) ? 1 : 0;
+                break;
+            case NX_FACE:
+                a = isEmpty(worldX - 1, worldY + 1, worldZ) ? 1 : 0;
+                b = isEmpty(worldX - 1, worldY + 1, worldZ + 1) ? 1 : 0;
+                c = isEmpty(worldX - 1, worldY, worldZ + 1) ? 1 : 0;
+                d = isEmpty(worldX - 1, worldY - 1, worldZ + 1) ? 1 : 0;
+                e = isEmpty(worldX - 1, worldY - 1, worldZ) ? 1 : 0;
+                f = isEmpty(worldX - 1, worldY - 1, worldZ - 1) ? 1 : 0;
+                g = isEmpty(worldX - 1, worldY, worldZ - 1) ? 1 : 0;
+                h = isEmpty(worldX - 1, worldY + 1, worldZ - 1) ? 1 : 0;
+                break;
+            case NY_FACE:
+                a = isEmpty(worldX, worldY - 1, worldZ - 1) ? 1 : 0;
+                b = isEmpty(worldX + 1, worldY - 1, worldZ - 1) ? 1 : 0;
+                c = isEmpty(worldX + 1, worldY - 1, worldZ) ? 1 : 0;
+                d = isEmpty(worldX + 1, worldY - 1, worldZ + 1) ? 1 : 0;
+                e = isEmpty(worldX, worldY - 1, worldZ + 1) ? 1 : 0;
+                f = isEmpty(worldX - 1, worldY - 1, worldZ + 1) ? 1 : 0;
+                g = isEmpty(worldX - 1, worldY - 1, worldZ) ? 1 : 0;
+                h = isEmpty(worldX - 1, worldY - 1, worldZ - 1) ? 1 : 0;
+                break;
+            case NZ_FACE:
+                a = isEmpty(worldX, worldY + 1, worldZ - 1) ? 1 : 0;
+                b = isEmpty(worldX + 1, worldY + 1, worldZ - 1) ? 1 : 0;
+                c = isEmpty(worldX + 1, worldY, worldZ - 1) ? 1 : 0;
+                d = isEmpty(worldX + 1, worldY - 1, worldZ - 1) ? 1 : 0;
+                e = isEmpty(worldX, worldY - 1, worldZ - 1) ? 1 : 0;
+                f = isEmpty(worldX - 1, worldY - 1, worldZ - 1) ? 1 : 0;
+                g = isEmpty(worldX - 1, worldY, worldZ - 1) ? 1 : 0;
+                h = isEmpty(worldX - 1, worldY + 1, worldZ - 1) ? 1 : 0;
+                break;
+        }
+
+        Map<Integer, Integer> map = new HashMap<>();
+
+        map.put(0, g + f + e);
+        map.put(1, g + h + a);
+        map.put(2, a + b + c);
+        map.put(3, c + d + e);
+
+        return map;
     }
 
 }
