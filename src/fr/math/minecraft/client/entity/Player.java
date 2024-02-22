@@ -415,13 +415,13 @@ public class Player {
         }
 
         position.x += velocity.x;
-        handleCollisions(new Vector3f(velocity.x, 0, 0));
+        //handleCollisions(new Vector3f(velocity.x, 0, 0));
 
         position.z += velocity.z;
-        handleCollisions(new Vector3f(0, 0, velocity.z));
+        //handleCollisions(new Vector3f(0, 0, velocity.z));
 
         position.y += velocity.y;
-        handleCollisions(new Vector3f(0, velocity.y, 0));
+        //handleCollisions(new Vector3f(0, velocity.y, 0));
 
         velocity.mul(0.95f);
 

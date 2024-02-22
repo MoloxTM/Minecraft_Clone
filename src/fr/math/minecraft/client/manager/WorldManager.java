@@ -18,12 +18,10 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 public class WorldManager {
 
-    private final ThreadPoolExecutor chunkGenerationPool;
     private final Set<Coordinates> loadedChunks;
 
     public WorldManager() {
         this.loadedChunks = new HashSet<>();
-        this.chunkGenerationPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(8);
     }
 
     public void cleanChunks(World world) {

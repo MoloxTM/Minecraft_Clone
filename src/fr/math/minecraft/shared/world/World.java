@@ -21,7 +21,7 @@ public class World {
     private final Set<Coordinates> loadingChunks;
     private final ArrayList<Byte> transparents;
     private final Set<Byte> solidBlocks;
-
+    private final Map<Vector3i, Chunk> cachedChunks;
     private final Map<Coordinates, Region> regions;
     private final Vector3f spawnPosition;
     private final static Logger logger = LoggerUtility.getServerLogger(World.class, LogType.TXT);
@@ -36,6 +36,7 @@ public class World {
         this.solidBlocks = new HashSet<>();
         this.transparents = initTransparents();
         this.terrainGenerator = new OverworldGenerator();
+        this.cachedChunks = new HashMap<>();
         Region region = new Region(0, 0, 0);
         region.generateStructure(this);
         this.addRegion(region);
@@ -236,5 +237,9 @@ public class World {
 
     public Vector3f getSpawnPosition() {
         return spawnPosition;
+    }
+
+    public Map<Vector3i, Chunk> getCachedChunks() {
+        return cachedChunks;
     }
 }

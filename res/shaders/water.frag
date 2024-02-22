@@ -21,9 +21,9 @@ void main() {
 
     vec3 reflected = reflect(viewVector, faceNormal);
 
-    vec4 tex = texture(uTexture, textureCoord);
-    vec4 teinte = vec4(33/255.0, 63/255.0, 153/255.0, 1.0);
+    vec4 tex = vec4(texture(uTexture, textureCoord).rgb * 0.6, .9);
+    vec4 teinte = vec4(0.0, 0.0, 0.3, 0.3);
 
 
-    FragColor = mix(teinte, tex, fresnel);
+    FragColor = mix(tex, teinte, fresnel);
 }

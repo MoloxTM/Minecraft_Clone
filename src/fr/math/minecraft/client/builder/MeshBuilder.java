@@ -12,6 +12,7 @@ import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.shared.world.World;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,15 +40,11 @@ public class MeshBuilder {
         Chunk chunk = world.getChunk(chunkX, chunkY, chunkZ);
 
         if (chunk == null) {
-            chunk = new Chunk(chunkX, chunkY, chunkZ);
-            chunk.generate(world, world.getTerrainGenerator());
-            synchronized (world.getChunks()) {
-                world.addChunk(chunk);
-                if (!chunk.isEmpty()) {
-                    synchronized (game.getPendingMeshs()) {
-                        game.getPendingMeshs().add(chunk);
-                    }
-                }
+            chunk = world.getCachedChunks().get(new Vector3i(chunkX, chunkY, chunkZ));
+            if (chunk == null) {
+                chunk = new Chunk(chunkX, chunkY, chunkZ);
+                chunk.generate(world, world.getTerrainGenerator());
+                world.getCachedChunks().put(chunk.getPosition(), chunk);
             }
         }
 

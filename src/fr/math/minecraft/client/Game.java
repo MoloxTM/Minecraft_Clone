@@ -20,6 +20,7 @@ import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.network.PlayerInputData;
 import org.apache.log4j.Logger;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.ALC;
@@ -349,7 +350,6 @@ public class Game {
                 renderer.render(camera, player);
             }
         }
-
 
         renderer.renderDebugTools(camera, player, fps);
     }
