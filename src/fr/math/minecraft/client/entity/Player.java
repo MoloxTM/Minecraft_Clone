@@ -29,7 +29,6 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class Player {
 
-
     public final static float WIDTH = .75f;
     public final static float HEIGHT = 1.75f;
     public final static float DEPTH = WIDTH;
@@ -40,7 +39,7 @@ public class Player {
     private float speed;
     private boolean firstMouse;
     private boolean movingLeft, movingRight, movingForward, movingBackward;
-    private boolean flying, sneaking;
+    private boolean flying, sneaking, canJump, inAir, jump;
     private boolean movingMouse;
     private boolean debugKeyPressed, occlusionKeyPressed, interpolationKeyPressed;
     private float lastMouseX, lastMouseY;
@@ -54,7 +53,7 @@ public class Player {
     private final List<EventListener> eventListeners;
     private final Vector3f velocity;
     private final Vector3f gravity;
-    private float Vmax;
+    private float maxSpeed, maxFall;
     private int ping;
     private final List<PlayerInputData> inputs;
     private final Set<Coordinates> receivedChunks;
@@ -80,7 +79,8 @@ public class Player {
         this.lastMouseX = 0.0f;
         this.lastMouseY = 0.0f;
         this.speed = 0.0125f;
-        this.Vmax = 0.03f;
+        this.maxSpeed = 15f;
+        this.maxFall = 0.03f;
         this.ping = 0;
         this.sensitivity = 0.1f;
         this.name = name;
@@ -95,13 +95,16 @@ public class Player {
         this.movingMouse = true;
         this.sneaking = false;
         this.flying = false;
+        this.canJump = false;
+        this.jump = false;
+        this.inAir = true;
         this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 1.0f, 0.25f));
         this.animations = new ArrayList<>();
         this.nametagMesh = new NametagMesh(name);
         this.skin = null;
         this.skinPath = "res/textures/skin.png";
         this.eventListeners = new ArrayList<>();
-        this.gameMode = GameMode.CREATIVE;
+        this.gameMode = GameMode.SURVIVAL;
         this.lastServerPosition = new Vector3f(position);
         this.initAnimations();
     }
@@ -159,7 +162,14 @@ public class Player {
         }
 
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-            flying = true;
+            switch (gameMode) {
+                case CREATIVE :
+                    flying = true;
+                    break;
+                case SURVIVAL :
+                    jump = true;
+                    break;
+            }
         }
 
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
@@ -173,6 +183,7 @@ public class Player {
                 occlusionKeyPressed = true;
             }
         }
+
 
         if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
             if (!interpolationKeyPressed) {
@@ -217,6 +228,7 @@ public class Player {
         movingBackward = false;
         flying = false;
         sneaking = false;
+        jump = false;
         movingMouse = false;
     }
 
@@ -238,7 +250,7 @@ public class Player {
     }
 
     public boolean isMoving() {
-        return movingLeft || movingRight || movingForward || movingBackward || sneaking || flying;
+        return movingLeft || movingRight || movingForward || movingBackward || sneaking || flying || jump;
     }
 
     public float getSpeed() {
@@ -359,6 +371,14 @@ public class Player {
         this.ping = ping;
     }
 
+    public void handleJump() {
+        if(canJump){
+            velocity.y = 0.5f;
+            canJump = false;
+             maxFall = 1f;
+        }
+    }
+
     public void handleCollisions(Vector3f velocity) {
         Game game = Game.getInstance();
         World world = game.getWorld();
@@ -391,6 +411,8 @@ public class Player {
                         position.y = worldY - hitbox.getHeight();
                         this.velocity.y = 0;
                     } else if (velocity.y < 0) {
+                        maxFall = 0.03f;
+                        canJump = true;
                         position.y = worldY + hitbox.getHeight() + 1;
                         this.velocity.y = 0;
                     }
@@ -419,6 +441,7 @@ public class Player {
 
         velocity.add(gravity);
 
+
         if (movingForward) {
             acceleration.add(front);
         }
@@ -443,6 +466,10 @@ public class Player {
             acceleration.sub(new Vector3f(0.0f, .5f, 0.0f));
         }
 
+        if(jump) {
+            handleJump();
+        }
+
         if (movingBackward || movingForward || movingLeft || movingRight) {
             hand.setAnimation(PlayerHandAnimation.MOVING);
         } else {
@@ -451,9 +478,20 @@ public class Player {
 
         velocity.add(acceleration.mul(speed));
 
-        if (velocity.length() > Vmax) {
-            velocity.normalize().mul(Vmax);
+        if (new Vector3f(velocity.x, 0, velocity.z).length() > maxSpeed) {
+            Vector3f velocityNorm = new Vector3f(velocity.x, velocity.y, velocity.z);
+            velocityNorm.normalize().mul(maxSpeed);
+            velocity.x = velocityNorm.x;
+            velocity.z = velocityNorm.z;
         }
+
+        if (new Vector3f(0, velocity.y, 0).length() > maxFall) {
+            Vector3f velocityNorm = new Vector3f(velocity.x, velocity.y, velocity.z);
+            velocityNorm.normalize().mul(maxFall);
+            velocity.y = velocityNorm.y;
+        }
+
+
 
         position.x += velocity.x;
         handleCollisions(new Vector3f(velocity.x, 0, 0));
@@ -475,7 +513,7 @@ public class Player {
     }
 
     public float getMaxSpeed() {
-        return Vmax;
+        return maxSpeed;
     }
 
     public Vector3f getGravity() {
