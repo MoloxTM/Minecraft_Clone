@@ -2,8 +2,10 @@ package fr.math.minecraft.client;
 
 import fr.math.minecraft.client.animations.Animation;
 import fr.math.minecraft.client.entity.Player;
+import fr.math.minecraft.client.entity.PlayerHand;
 import fr.math.minecraft.client.manager.FontManager;
 import fr.math.minecraft.client.math.FrustrumCulling;
+import fr.math.minecraft.client.math.ViewBobbing;
 import fr.math.minecraft.client.meshs.FontMesh;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.GameConfiguration;
@@ -222,6 +224,32 @@ public class Camera {
         shader.sendMatrix("view", view, viewBuffer);
     }
 
+    public void matrixHand(PlayerHand hand, Shader shader) {
+
+        Matrix4f view = new Matrix4f();
+        Matrix4f projection = new Matrix4f();
+        Matrix4f model = new Matrix4f();
+        ViewBobbing viewBobbing = hand.getViewBobbing();
+
+        model.translate(-0.65f, 0.2f, 0.0f);
+        model.rotate((float) Math.toRadians(-80.0f), new Vector3f(0, 1, 0), model);
+        model.rotate((float) Math.toRadians(-30.0f), new Vector3f(1, 0, 0), model);
+        model.rotate((float) Math.toRadians(30.0f), new Vector3f(0, 0, 1), model);
+        model.rotate((float) Math.toRadians(20.0f), new Vector3f(1, 0, 1), model);
+
+        model.rotate((float) Math.toRadians(18.0f), new Vector3f(0.0f, 1.0f, 0.0f), model);
+        model.rotate((float) Math.toRadians(-4.0f), new Vector3f(1.0f, 0.0f, 0.0f), model);
+        model.rotate((float) Math.toRadians(-2.22f), new Vector3f(0.0f, 1.0f, 0.0f), model);
+
+        model.scale(new Vector3f(1.4f, 1.5f, 1.4f));
+        model.translate(0, viewBobbing.getY(), 0);
+        model.translate(viewBobbing.getPosition());
+
+        shader.sendMatrix("projection", projection, projectionBuffer);
+        shader.sendMatrix("view", view, viewBuffer);
+        shader.sendMatrix("model", model, modelBuffer);
+    }
+
     public float getNearPlane() {
         return nearPlane;
     }
@@ -253,4 +281,5 @@ public class Camera {
     public FrustrumCulling getFrustrum() {
         return frustrum;
     }
+
 }

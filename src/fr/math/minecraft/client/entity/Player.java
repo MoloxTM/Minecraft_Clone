@@ -2,6 +2,7 @@ package fr.math.minecraft.client.entity;
 
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.animations.Animation;
+import fr.math.minecraft.client.animations.PlayerHandAnimation;
 import fr.math.minecraft.client.animations.PlayerWalkAnimation;
 import fr.math.minecraft.client.events.listeners.EventListener;
 import fr.math.minecraft.client.events.PlayerMoveEvent;
@@ -61,6 +62,8 @@ public class Player {
     private GameMode gameMode;
     private Vector3f lastPosition;
     private final Vector3f lastServerPosition;
+    private String skinPath;
+    private final PlayerHand hand;
 
     public Player(String name) {
         this.position = new Vector3f(0.0f, 300.0f, 0.0f);
@@ -69,6 +72,7 @@ public class Player {
         this.velocity = new Vector3f();
         this.receivedChunks = new HashSet<>();
         this.inputs = new ArrayList<>();
+        this.hand = new PlayerHand();
         this.yaw = 0.0f;
         this.bodyYaw = 0.0f;
         this.pitch = 0.0f;
@@ -95,6 +99,7 @@ public class Player {
         this.animations = new ArrayList<>();
         this.nametagMesh = new NametagMesh(name);
         this.skin = null;
+        this.skinPath = "res/textures/skin.png";
         this.eventListeners = new ArrayList<>();
         this.gameMode = GameMode.CREATIVE;
         this.lastServerPosition = new Vector3f(position);
@@ -438,6 +443,12 @@ public class Player {
             acceleration.sub(new Vector3f(0.0f, .5f, 0.0f));
         }
 
+        if (movingBackward || movingForward || movingLeft || movingRight) {
+            hand.setAnimation(PlayerHandAnimation.MOVING);
+        } else {
+            hand.setAnimation(PlayerHandAnimation.IDLE);
+        }
+
         velocity.add(acceleration.mul(speed));
 
         if (velocity.length() > Vmax) {
@@ -487,4 +498,15 @@ public class Player {
         return lastServerPosition;
     }
 
+    public String getSkinPath() {
+        return skinPath;
+    }
+
+    public void setSkinPath(String skinPath) {
+        this.skinPath = skinPath;
+    }
+
+    public PlayerHand getHand() {
+        return hand;
+    }
 }

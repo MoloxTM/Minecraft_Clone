@@ -2,6 +2,7 @@ package fr.math.minecraft.client;
 
 import fr.math.minecraft.client.builder.TextureBuilder;
 import fr.math.minecraft.client.entity.Player;
+import fr.math.minecraft.client.entity.PlayerHand;
 import fr.math.minecraft.client.fonts.CFont;
 import fr.math.minecraft.client.gui.buttons.BlockButton;
 import fr.math.minecraft.client.gui.GuiText;
@@ -31,6 +32,7 @@ public class Renderer {
     private final PlayerMesh playerMesh;
     private final FontMesh fontMesh;
     private final SkyboxMesh skyboxMesh;
+    private final HandMesh handMesh;
     private final ButtonMesh buttonMesh;
     private final Shader playerShader;
     private final Shader chunkShader;
@@ -40,7 +42,9 @@ public class Renderer {
     private final Shader nametagShader;
     private final Shader skyboxShader;
     private final Shader waterShader;
+    private final Shader handShader;
     private final Texture terrainTexture;
+    private final Texture skinTexture;
     private final Texture defaultSkinTexture;
     private final Texture minecraftTitleTexture;
     private final Texture widgetsTexture;
@@ -59,7 +63,9 @@ public class Renderer {
         this.font = new CFont(GameConfiguration.FONT_FILE_PATH, GameConfiguration.FONT_SIZE);
         this.fontMesh = new FontMesh(font);
         this.skyboxMesh = new SkyboxMesh();
+        this.handMesh = new HandMesh();
         this.loadedSkins = new HashSet<>();
+
         for (int i = 0; i < 256; i++) {
             emptyText += " ";
         }
@@ -94,12 +100,15 @@ public class Renderer {
         this.skyboxShader = new Shader("res/shaders/skybox.vert", "res/shaders/skybox.frag");
         this.imageShader = new Shader("res/shaders/image.vert", "res/shaders/image.frag");
         this.waterShader = new Shader("res/shaders/water.vert", "res/shaders/water.frag");
+        this.handShader = new Shader("res/shaders/hand.vert", "res/shaders/hand.frag");
 
         this.terrainTexture = new Texture("res/textures/terrain.png", 1);
         this.defaultSkinTexture = new Texture("res/textures/skin.png", 2);
         this.minecraftTitleTexture = new Texture("res/textures/gui/title/minecraft_title.png", 3);
         this.panoramaTexture = new CubemapTexture(panoramas, 4);
         this.widgetsTexture = new Texture("res/textures/gui/widgets.png", 5);
+        this.skinTexture = new Texture(Game.getInstance().getPlayer().getSkinPath(), 6);
+
         this.dirtTexture = new TextureBuilder().buildDirtBackgroundTexture();
 
         this.skinsMap = new HashMap<>();
@@ -110,6 +119,7 @@ public class Renderer {
         this.panoramaTexture.load();
         this.widgetsTexture.load();
         this.dirtTexture.load();
+        this.skinTexture.load();
     }
 
     public void render(Camera camera, Player player) {
@@ -193,6 +203,25 @@ public class Renderer {
 
         chunk.getMesh().draw();
         terrainTexture.unbind();
+    }
+
+    public void renderHand(Camera camera, PlayerHand hand) {
+
+        glDisable(GL_DEPTH_TEST);
+
+        handShader.enable();
+        handShader.sendInt("uTexture", skinTexture.getSlot());
+
+        glActiveTexture(GL_TEXTURE0 + skinTexture.getSlot());
+        skinTexture.bind();
+
+        camera.matrixHand(hand, handShader);
+
+        handMesh.draw();
+
+        skinTexture.unbind();
+        glEnable(GL_DEPTH_TEST);
+
     }
 
     public void renderWater(Camera camera, Chunk chunk) {

@@ -276,9 +276,7 @@ public class Game {
         }
 
         player.handleInputs(window);
-        player.updatePosition();
-        player.updateAnimations();
-        camera.update(player);
+        this.update(player);
 
         time += 0.01f;
         synchronized (this.getPlayers()) {
@@ -286,6 +284,13 @@ public class Game {
                 player.update();
             }
         }
+    }
+
+    public void update(Player player) {
+        player.updatePosition();
+        player.updateAnimations();
+        player.getHand().update(new Vector3f(player.getVelocity()));
+        camera.update(player);
     }
 
     private void render(Renderer renderer) {
@@ -351,6 +356,7 @@ public class Game {
             }
         }
 
+        renderer.renderHand(camera, player.getHand());
         renderer.renderDebugTools(camera, player, fps);
     }
 

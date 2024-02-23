@@ -1,8 +1,11 @@
 package fr.math.minecraft.client.builder;
 
 import fr.math.minecraft.client.Game;
+import fr.math.minecraft.client.meshs.HandMesh;
 import fr.math.minecraft.client.meshs.model.CactusModel;
+import fr.math.minecraft.client.meshs.model.HandModel;
 import fr.math.minecraft.client.meshs.model.NatureModel;
+import fr.math.minecraft.client.vertex.HandVertex;
 import fr.math.minecraft.client.vertex.Vertex;
 import fr.math.minecraft.client.meshs.model.BlockModel;
 import fr.math.minecraft.client.world.BlockFace;
@@ -15,6 +18,7 @@ import org.joml.Vector3f;
 import org.joml.Vector3i;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -585,6 +589,14 @@ public class MeshBuilder {
         map.put(3, c + d + e);
 
         return map;
+    }
+
+    public HandVertex[] buildHandMesh() {
+        ArrayList<HandVertex> vertices = new ArrayList<>();
+
+        Collections.addAll(vertices, HandModel.HAND_VERTICES);
+
+        return vertices.toArray(new HandVertex[0]);
     }
 
 }
