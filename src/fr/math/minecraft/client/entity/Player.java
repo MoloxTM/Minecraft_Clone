@@ -61,7 +61,6 @@ public class Player {
     private GameMode gameMode;
     private Vector3f lastPosition;
     private final Vector3f lastServerPosition;
-    private final List<EntityUpdate> updates;
 
     public Player(String name) {
         this.position = new Vector3f(0.0f, 300.0f, 0.0f);
@@ -70,7 +69,6 @@ public class Player {
         this.velocity = new Vector3f();
         this.receivedChunks = new HashSet<>();
         this.inputs = new ArrayList<>();
-        this.updates = new ArrayList<>();
         this.yaw = 0.0f;
         this.bodyYaw = 0.0f;
         this.pitch = 0.0f;
@@ -414,7 +412,7 @@ public class Player {
         Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
         Vector3f acceleration = new Vector3f(0, 0, 0);
 
-        // velocity.add(gravity);
+        velocity.add(gravity);
 
         if (movingForward) {
             acceleration.add(front);
@@ -489,7 +487,4 @@ public class Player {
         return lastServerPosition;
     }
 
-    public List<EntityUpdate> getUpdates() {
-        return updates;
-    }
 }

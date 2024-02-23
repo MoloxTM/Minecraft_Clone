@@ -42,13 +42,13 @@ public class Shader {
         glCompileShader(vertexShader);
 
         if (glGetShaderi(vertexShader, GL_COMPILE_STATUS) != GL_TRUE) {
-            throw new RuntimeException("Erreur lors de la compilation du vertex shader : " + glGetShaderInfoLog(vertexShader));
+            throw new RuntimeException("Erreur lors de la compilation du vertex shader : " + shaderFilePath + glGetShaderInfoLog(vertexShader));
         }
 
         glShaderSource(fragmentShader, fragmentSourceCode);
         glCompileShader(fragmentShader);
         if (glGetShaderi(fragmentShader, GL_COMPILE_STATUS) != GL_TRUE) {
-            throw new RuntimeException("Erreur lors de la compilation du vertex shader : " + glGetShaderInfoLog(vertexShader));
+            throw new RuntimeException("Erreur lors de la compilation du vertex shader : " + fragmentFilePath + glGetShaderInfoLog(vertexShader));
         }
 
         id = glCreateProgram();

@@ -21,7 +21,7 @@ uniform vec3 cameraPosition;
 
 float brigthness[6] = float[6](0.85f, 0.6f, 1.0f, 0.6f, 0.85f, 0.6f); /*[px, nx, py, ny, pz, nz]*/
 
-float occlusion[4] = float[4](0.1f, 0.25f, 0.5f, 1f);
+float occlusion[4] = float[4](0.1f, 0.25f, 0.5f, 1);
 
 bool equals(float a, float b) {
     return abs(a - b) < 1e-5;

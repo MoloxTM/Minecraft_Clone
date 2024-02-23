@@ -178,7 +178,7 @@ public class Client {
 
             this.resetMoving();
 
-            // velocity.add(gravity);
+            velocity.add(gravity);
 
             if (inputData.isMovingForward()) {
                 acceleration.add(front);

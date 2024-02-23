@@ -18,6 +18,7 @@ public class Camera {
 
     private Vector3f position;
     private Vector3f front, right, up;
+    private Matrix4f view;
     private final float width, height;
     private float yaw, pitch;
     private float fov;
@@ -26,7 +27,6 @@ public class Camera {
     private final FrustrumCulling frustrum;
     private final Matrix4f projection;
     private final Matrix4f model;
-    private Matrix4f view;
 
     public Camera(float width, float height) {
         this.width = width;
@@ -62,20 +62,21 @@ public class Camera {
         front.normalize();
     }
 
+    public void updateView() {
+        view.lookAt(new Vector3f(position).sub(0.5f, 0, 0.5f), new Vector3f(position).sub(0.5f, 0, 0.5f).add(front), up);
+    }
+
     public void matrixWater(Shader shader, Camera camera, Chunk chunk) {
         this.calculateFront(front);
 
         Matrix4f projection = new Matrix4f();
-        Matrix4f view = new Matrix4f();
         Matrix4f model = new Matrix4f();
 
         right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
-        Vector3f up = new Vector3f(right).cross(front).normalize();
-
-        Vector3f newPosition = new Vector3f(position).add(0, 1 + 0.25f, 0);
+        up = new Vector3f(right).cross(front).normalize();
 
         projection.perspective((float) Math.toRadians(fov), width / height, nearPlane ,farPlane);
-        view.lookAt(newPosition, new Vector3f(newPosition).add(front), up);
+        this.updateView();
         model.translate(chunk.getPosition().x * Chunk.SIZE, chunk.getPosition().y * Chunk.SIZE, chunk.getPosition().z * Chunk.SIZE);
 
         shader.sendMatrix("projection", projection, projectionBuffer);
@@ -97,7 +98,7 @@ public class Camera {
         up = new Vector3f(right).cross(front).normalize();
 
         projection.perspective((float) Math.toRadians(fov), width / height, nearPlane ,farPlane);
-        view.lookAt(position, new Vector3f(position).add(front), up);
+        this.updateView();
         model.translate(chunk.getPosition().x * Chunk.SIZE, chunk.getPosition().y * Chunk.SIZE, chunk.getPosition().z * Chunk.SIZE);
 
         shader.sendFloat("time", Game.getInstance().getTime());
@@ -120,7 +121,10 @@ public class Camera {
         up = new Vector3f(right).cross(front).normalize();
 
         projection.perspective((float) Math.toRadians(fov), width / height, nearPlane ,farPlane);
-        view.lookAt(position, new Vector3f(position).add(front), up);
+
+        Vector3f offset = new Vector3f(0, 0.25f, 0);
+        view.lookAt(new Vector3f(position).sub(offset), new Vector3f(position).sub(offset).add(front), up);
+
         model.translate(player.getPosition().x, player.getPosition().y, player.getPosition().z);
         model.rotate((float) Math.toRadians(90.0f), new Vector3f(0.0f, 1.0f, 0.0f), model);
 
@@ -150,7 +154,9 @@ public class Camera {
         up = new Vector3f(right).cross(front).normalize();
 
         projection.perspective((float) Math.toRadians(fov), width / height, nearPlane ,farPlane);
-        view.lookAt(position, new Vector3f(position).add(front), up);
+
+        Vector3f offset = new Vector3f(0, 0.25f, 0);
+        view.lookAt(new Vector3f(position).sub(offset), new Vector3f(position).sub(offset).add(front), up);
         model.translate(player.getPosition().x, player.getPosition().y + 0.8f, player.getPosition().z);
         model.rotate((float) Math.toRadians(90.0f), new Vector3f(0.0f, 1.0f, 0.0f), model);
 
@@ -209,7 +215,7 @@ public class Camera {
         up = new Vector3f(right).cross(front).normalize();
 
         projection.perspective((float) Math.toRadians(fov), width / height, nearPlane ,farPlane);
-        view.lookAt(position, new Vector3f(position).add(front), up);
+        this.updateView();
         view = new Matrix4f(new Matrix3f(view));
 
         shader.sendMatrix("projection", projection, projectionBuffer);
