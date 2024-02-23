@@ -11,15 +11,16 @@ public class PlayerInputData {
     private final float yaw;
     private final float pitch;
     private final boolean movingLeft, movingRight, movingForward, movingBackward;
-    private final boolean flying, sneaking;
+    private final boolean flying, sneaking, jumping;
 
-    public PlayerInputData(boolean movingLeft, boolean movingRight, boolean movingForward, boolean movingBackward, boolean flying, boolean sneaking, float yaw, float pitch) {
+    public PlayerInputData(boolean movingLeft, boolean movingRight, boolean movingForward, boolean movingBackward, boolean flying, boolean sneaking, boolean jumping, float yaw, float pitch) {
         this.movingLeft = movingLeft;
         this.movingRight = movingRight;
         this.movingForward = movingForward;
         this.movingBackward = movingBackward;
         this.flying = flying;
         this.sneaking = sneaking;
+        this.jumping = jumping;
         this.yaw = yaw;
         this.pitch = pitch;
     }
@@ -36,6 +37,7 @@ public class PlayerInputData {
         node.put("sneaking", sneaking);
         node.put("yaw", yaw);
         node.put("pitch", pitch);
+        node.put("jumping", jumping);
 
         return node;
     }
@@ -70,5 +72,9 @@ public class PlayerInputData {
 
     public boolean isFlying() {
         return flying;
+    }
+
+    public boolean isJumping() {
+        return jumping;
     }
 }

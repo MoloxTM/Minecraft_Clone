@@ -20,6 +20,7 @@ import fr.math.minecraft.shared.world.World;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
+import org.joml.Vector3f;
 import org.joml.Vector3i;
 
 import javax.imageio.ImageIO;
@@ -86,11 +87,8 @@ public class PacketListener implements PacketEventListener {
             GameConfiguration gameConfiguration = game.getGameConfiguration();
 
             if (gameConfiguration.isEntityInterpolationEnabled()) {
-                //EntityUpdate entityUpdate = new EntityUpdate(event.getTick(), new Vector3f(playerX, playerY, playerZ));
-                //player.getUpdates().add(entityUpdate);
-                player.getLastServerPosition().x = playerX;
-                player.getLastServerPosition().y = playerY;
-                player.getLastServerPosition().z = playerZ;
+                EntityUpdate entityUpdate = new EntityUpdate(new Vector3f(playerX, playerY, playerZ), yaw, pitch, bodyYaw);
+                player.setLastUpdate(entityUpdate);
             } else {
                 player.getPosition().x = playerX;
                 player.getPosition().y = playerY;

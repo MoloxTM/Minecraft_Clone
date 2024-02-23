@@ -41,8 +41,8 @@ public class StatePayload {
 
     public void predictMovement(Player player, Vector3f playerPosition, Vector3f playerVelocity) {
         Vector3f front = new Vector3f();
-        Vector3f position = new Vector3f(playerPosition);
-        Vector3f velocity = player.getVelocity();
+        //Vector3f position = new Vector3f(playerPosition);
+        //Vector3f velocity = player.getVelocity();
 
         for (PlayerInputData inputData : payload.getInputData()) {
             float yaw = inputData.getYaw();
@@ -60,7 +60,7 @@ public class StatePayload {
             front.normalize();
             Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
 
-            //velocity.add(player.getGravity());
+            player.getVelocity().add(player.getGravity());
 
             if (inputData.isMovingForward()) {
                 acceleration.add(front);
@@ -83,26 +83,43 @@ public class StatePayload {
             }
 
             if (inputData.isSneaking()) {
-                acceleration.sub(new Vector3f(0.0f, .1f, 0.0f));
+                acceleration.sub(new Vector3f(0.0f, .5f, 0.0f));
             }
 
-            velocity.add(acceleration.mul(player.getSpeed()));
-
-            if (velocity.length() > player.getMaxSpeed()) {
-                velocity.normalize().mul(player.getMaxSpeed());
+            if (inputData.isJumping()) {
+                // this.handleJump();
+                if (player.canJump()) {
+                    player.setMaxFallSpeed(0.5f);
+                    acceleration.y += 10.0f;
+                    player.setCanJump(false);
+                }
             }
 
+            player.getVelocity().add(acceleration.mul(player.getSpeed()));
 
-            player.getPosition().x += velocity.x;
-            player.handleCollisions(new Vector3f(velocity.x, 0, 0));
+            if (new Vector3f(velocity.x, 0, velocity.z).length() > player.getMaxSpeed()) {
+                Vector3f velocityNorm = new Vector3f(velocity.x, velocity.y, velocity.z);
+                velocityNorm.normalize().mul(player.getMaxSpeed());
+                player.getVelocity().x = velocityNorm.x;
+                player.getVelocity().z = velocityNorm.z;
+            }
 
-            player.getPosition().z += velocity.z;
-            player.handleCollisions(new Vector3f(0, 0, velocity.z));
+            if (new Vector3f(0, velocity.y, 0).length() > player.getMaxFallSpeed()) {
+                Vector3f velocityNorm = new Vector3f(velocity.x, velocity.y, velocity.z);
+                velocityNorm.normalize().mul(player.getMaxFallSpeed());
+                player.getVelocity().y = velocityNorm.y;
+            }
 
-            player.getPosition().y += velocity.y;
-            player.handleCollisions(new Vector3f(0, velocity.y, 0));
+            player.getPosition().x += player.getVelocity().x;
+            player.handleCollisions(new Vector3f(player.getVelocity().x, 0, 0));
 
-            velocity.mul(0.95f);
+            player.getPosition().z += player.getVelocity().z;
+            player.handleCollisions(new Vector3f(0, 0, player.getVelocity().z));
+
+            player.getPosition().y += player.getVelocity().y;
+            player.handleCollisions(new Vector3f(0, player.getVelocity().y, 0));
+
+            player.getVelocity().mul(0.95f);
         }
 
         this.position = new Vector3f(position);

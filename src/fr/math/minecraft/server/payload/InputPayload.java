@@ -30,9 +30,10 @@ public class InputPayload {
             boolean movingRight = inputNode.get("movingRight").asBoolean();
             boolean sneaking = inputNode.get("sneaking").asBoolean();
             boolean flying = inputNode.get("flying").asBoolean();
+            boolean jumping = inputNode.get("jumping").asBoolean();
             float yaw = inputNode.get("yaw").floatValue();
             float pitch = inputNode.get("pitch").floatValue();
-            PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, yaw, pitch);
+            PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, jumping, yaw, pitch);
 
             inputsData.add(inputData);
         }

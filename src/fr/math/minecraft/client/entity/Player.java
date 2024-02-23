@@ -4,6 +4,7 @@ import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.animations.Animation;
 import fr.math.minecraft.client.animations.PlayerHandAnimation;
 import fr.math.minecraft.client.animations.PlayerWalkAnimation;
+import fr.math.minecraft.client.events.listeners.EntityUpdate;
 import fr.math.minecraft.client.events.listeners.EventListener;
 import fr.math.minecraft.client.events.PlayerMoveEvent;
 import fr.math.minecraft.client.meshs.NametagMesh;
@@ -39,7 +40,7 @@ public class Player {
     private float speed;
     private boolean firstMouse;
     private boolean movingLeft, movingRight, movingForward, movingBackward;
-    private boolean flying, sneaking, canJump, inAir, jump;
+    private boolean flying, sneaking, canJump, inAir, jumping;
     private boolean movingMouse;
     private boolean debugKeyPressed, occlusionKeyPressed, interpolationKeyPressed;
     private float lastMouseX, lastMouseY;
@@ -60,14 +61,15 @@ public class Player {
     private final Hitbox hitbox;
     private GameMode gameMode;
     private Vector3f lastPosition;
-    private final Vector3f lastServerPosition;
     private String skinPath;
     private final PlayerHand hand;
+    private EntityUpdate lastUpdate;
+    private int jumpAccelerationCount;
 
     public Player(String name) {
         this.position = new Vector3f(0.0f, 300.0f, 0.0f);
         this.lastPosition = new Vector3f(0, 0, 0);
-        this.gravity = new Vector3f(0, -0.025f, 0);
+        this.gravity = new Vector3f(0, -0.0025f, 0);
         this.velocity = new Vector3f();
         this.receivedChunks = new HashSet<>();
         this.inputs = new ArrayList<>();
@@ -75,13 +77,15 @@ public class Player {
         this.yaw = 0.0f;
         this.bodyYaw = 0.0f;
         this.pitch = 0.0f;
+        this.lastUpdate = new EntityUpdate(new Vector3f(position), yaw, pitch, bodyYaw);
         this.firstMouse = true;
         this.lastMouseX = 0.0f;
         this.lastMouseY = 0.0f;
         this.speed = 0.0125f;
-        this.maxSpeed = 15f;
+        this.maxSpeed = 0.03f;
         this.maxFall = 0.03f;
         this.ping = 0;
+        this.jumpAccelerationCount = 0;
         this.sensitivity = 0.1f;
         this.name = name;
         this.uuid = null;
@@ -96,7 +100,7 @@ public class Player {
         this.sneaking = false;
         this.flying = false;
         this.canJump = false;
-        this.jump = false;
+        this.jumping = false;
         this.inAir = true;
         this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 1.0f, 0.25f));
         this.animations = new ArrayList<>();
@@ -105,7 +109,6 @@ public class Player {
         this.skinPath = "res/textures/skin.png";
         this.eventListeners = new ArrayList<>();
         this.gameMode = GameMode.SURVIVAL;
-        this.lastServerPosition = new Vector3f(position);
         this.initAnimations();
     }
 
@@ -167,7 +170,7 @@ public class Player {
                     flying = true;
                     break;
                 case SURVIVAL :
-                    jump = true;
+                    jumping = true;
                     break;
             }
         }
@@ -228,7 +231,7 @@ public class Player {
         movingBackward = false;
         flying = false;
         sneaking = false;
-        jump = false;
+        jumping = false;
         movingMouse = false;
     }
 
@@ -243,14 +246,157 @@ public class Player {
         GameConfiguration gameConfiguration = Game.getInstance().getGameConfiguration();
 
         if (gameConfiguration.isEntityInterpolationEnabled()) {
-            position.x = Math.lerp(position.x, lastServerPosition.x, 0.1f);
-            position.y = Math.lerp(position.y, lastServerPosition.y, 0.1f);
-            position.z = Math.lerp(position.z, lastServerPosition.z, 0.1f);
+            position.x = Math.lerp(position.x, lastUpdate.getPosition().x, 0.1f);
+            position.y = Math.lerp(position.y, lastUpdate.getPosition().y, 0.1f);
+            position.z = Math.lerp(position.z, lastUpdate.getPosition().z, 0.1f);
+            yaw = Math.lerp(yaw, lastUpdate.getYaw(), 0.1f);
+            pitch = Math.lerp(pitch, lastUpdate.getPitch(), 0.1f);
+            bodyYaw = Math.lerp(bodyYaw, lastUpdate.getBodyYaw(), 0.1f);
         }
     }
 
+    private void handleJump() {
+        if (canJump) {
+            jumpAccelerationCount = 10;
+            maxFall = 0.5f;
+            canJump = false;
+        }
+    }
+
+    public void handleCollisions(Vector3f velocity) {
+        Game game = Game.getInstance();
+        World world = game.getWorld();
+
+        int minX = (int) Math.floor(position.x - hitbox.getWidth());
+        int maxX = (int) Math.ceil(position.x + hitbox.getWidth());
+        int minY = (int) Math.floor(position.y - hitbox.getHeight());
+        int maxY = (int) Math.ceil(position.y + hitbox.getHeight());
+        int minZ = (int) Math.floor(position.z - hitbox.getDepth());
+        int maxZ = (int) Math.ceil(position.z + hitbox.getDepth());
+
+        for (int worldX = minX; worldX < maxX; worldX++) {
+            for (int worldY = minY; worldY < maxY; worldY++) {
+                for (int worldZ = minZ; worldZ < maxZ; worldZ++) {
+
+                    byte block = world.getBlockAt(worldX, worldY, worldZ);
+                    Material material = Material.getMaterialById(block);
+
+                    if (!material.isSolid()) {
+                        continue;
+                    }
+
+                    if (velocity.x > 0) {
+                        position.x = worldX - hitbox.getWidth();
+                    } else if (velocity.x < 0) {
+                        position.x = worldX + hitbox.getWidth() + 1;
+                    }
+
+                    if (velocity.y > 0) {
+                        position.y = worldY - hitbox.getHeight();
+                        this.velocity.y = 0;
+                    } else if (velocity.y < 0) {
+                        maxFall = 0.03f;
+                        canJump = true;
+                        position.y = worldY + hitbox.getHeight() + 1;
+                        this.velocity.y = 0;
+                    }
+
+                    if (velocity.z > 0) {
+                        position.z = worldZ - hitbox.getDepth();
+                    } else if (velocity.z < 0) {
+                        position.z = worldZ + hitbox.getDepth() + 1;
+                    }
+                }
+            }
+        }
+    }
+
+    public void updatePosition() {
+
+        Vector3f front = new Vector3f();
+        front.x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
+        front.y = (float) Math.sin(Math.toRadians(0.0f));
+        front.z = (float) (Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
+
+        front.normalize();
+
+        Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
+        Vector3f acceleration = new Vector3f(0, 0, 0);
+
+        velocity.add(gravity);
+
+        if (movingForward) {
+            acceleration.add(front);
+        }
+
+        if (movingBackward) {
+            acceleration.sub(front);
+        }
+
+        if (movingLeft) {
+            acceleration.sub(right);
+        }
+
+        if (movingRight) {
+            acceleration.add(right);
+        }
+
+        if (flying) {
+            acceleration.add(new Vector3f(0.0f, .5f, 0.0f));
+        }
+
+        if (sneaking) {
+            acceleration.sub(new Vector3f(0.0f, .5f, 0.0f));
+        }
+
+        if (jumping) {
+            // handleJump();
+            if (canJump) {
+                jumpAccelerationCount = 10;
+                maxFall = 0.5f;
+                acceleration.y += 10.0f;
+                canJump = false;
+            }
+        }
+
+        if (movingBackward || movingForward || movingLeft || movingRight) {
+            hand.setAnimation(PlayerHandAnimation.MOVING);
+        } else {
+            hand.setAnimation(PlayerHandAnimation.IDLE);
+        }
+
+        velocity.add(acceleration.mul(speed));
+
+        if (new Vector3f(velocity.x, 0, velocity.z).length() > maxSpeed) {
+            Vector3f velocityNorm = new Vector3f(velocity.x, velocity.y, velocity.z);
+            velocityNorm.normalize().mul(maxSpeed);
+            velocity.x = velocityNorm.x;
+            velocity.z = velocityNorm.z;
+        }
+
+        if (new Vector3f(0, velocity.y, 0).length() > maxFall) {
+            Vector3f velocityNorm = new Vector3f(velocity.x, velocity.y, velocity.z);
+            velocityNorm.normalize().mul(maxFall);
+            velocity.y = velocityNorm.y;
+        }
+
+        position.x += velocity.x;
+        handleCollisions(new Vector3f(velocity.x, 0, 0));
+
+        position.z += velocity.z;
+        handleCollisions(new Vector3f(0, 0, velocity.z));
+
+        position.y += velocity.y;
+        handleCollisions(new Vector3f(0, velocity.y, 0));
+
+        velocity.mul(0.95f);
+
+        PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, jumping, yaw, pitch);
+        inputs.add(inputData);
+    }
+
     public boolean isMoving() {
-        return movingLeft || movingRight || movingForward || movingBackward || sneaking || flying || jump;
+        return movingLeft || movingRight || movingForward || movingBackward || sneaking || flying || jumping;
     }
 
     public float getSpeed() {
@@ -371,142 +517,6 @@ public class Player {
         this.ping = ping;
     }
 
-    public void handleJump() {
-        if(canJump){
-            velocity.y = 0.5f;
-            canJump = false;
-             maxFall = 1f;
-        }
-    }
-
-    public void handleCollisions(Vector3f velocity) {
-        Game game = Game.getInstance();
-        World world = game.getWorld();
-
-        int minX = (int) Math.floor(position.x - hitbox.getWidth());
-        int maxX = (int) Math.ceil(position.x + hitbox.getWidth());
-        int minY = (int) Math.floor(position.y - hitbox.getHeight());
-        int maxY = (int) Math.ceil(position.y + hitbox.getHeight());
-        int minZ = (int) Math.floor(position.z - hitbox.getDepth());
-        int maxZ = (int) Math.ceil(position.z + hitbox.getDepth());
-
-        for (int worldX = minX; worldX < maxX; worldX++) {
-            for (int worldY = minY; worldY < maxY; worldY++) {
-                for (int worldZ = minZ; worldZ < maxZ; worldZ++) {
-
-                    byte block = world.getBlockAt(worldX, worldY, worldZ);
-                    Material material = Material.getMaterialById(block);
-
-                    if (!material.isSolid()) {
-                        continue;
-                    }
-
-                    if (velocity.x > 0) {
-                        position.x = worldX - hitbox.getWidth();
-                    } else if (velocity.x < 0) {
-                        position.x = worldX + hitbox.getWidth() + 1;
-                    }
-
-                    if (velocity.y > 0) {
-                        position.y = worldY - hitbox.getHeight();
-                        this.velocity.y = 0;
-                    } else if (velocity.y < 0) {
-                        maxFall = 0.03f;
-                        canJump = true;
-                        position.y = worldY + hitbox.getHeight() + 1;
-                        this.velocity.y = 0;
-                    }
-
-                    if (velocity.z > 0) {
-                        position.z = worldZ - hitbox.getDepth();
-                    } else if (velocity.z < 0) {
-                        position.z = worldZ + hitbox.getDepth() + 1;
-                    }
-                }
-            }
-        }
-    }
-
-    public void updatePosition() {
-
-        Vector3f front = new Vector3f();
-        front.x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
-        front.y = (float) Math.sin(Math.toRadians(0.0f));
-        front.z = (float) (Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
-
-        front.normalize();
-
-        Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
-        Vector3f acceleration = new Vector3f(0, 0, 0);
-
-        velocity.add(gravity);
-
-
-        if (movingForward) {
-            acceleration.add(front);
-        }
-
-        if (movingBackward) {
-            acceleration.sub(front);
-        }
-
-        if (movingLeft) {
-            acceleration.sub(right);
-        }
-
-        if (movingRight) {
-            acceleration.add(right);
-        }
-
-        if (flying) {
-            acceleration.add(new Vector3f(0.0f, .5f, 0.0f));
-        }
-
-        if (sneaking) {
-            acceleration.sub(new Vector3f(0.0f, .5f, 0.0f));
-        }
-
-        if(jump) {
-            handleJump();
-        }
-
-        if (movingBackward || movingForward || movingLeft || movingRight) {
-            hand.setAnimation(PlayerHandAnimation.MOVING);
-        } else {
-            hand.setAnimation(PlayerHandAnimation.IDLE);
-        }
-
-        velocity.add(acceleration.mul(speed));
-
-        if (new Vector3f(velocity.x, 0, velocity.z).length() > maxSpeed) {
-            Vector3f velocityNorm = new Vector3f(velocity.x, velocity.y, velocity.z);
-            velocityNorm.normalize().mul(maxSpeed);
-            velocity.x = velocityNorm.x;
-            velocity.z = velocityNorm.z;
-        }
-
-        if (new Vector3f(0, velocity.y, 0).length() > maxFall) {
-            Vector3f velocityNorm = new Vector3f(velocity.x, velocity.y, velocity.z);
-            velocityNorm.normalize().mul(maxFall);
-            velocity.y = velocityNorm.y;
-        }
-
-
-
-        position.x += velocity.x;
-        handleCollisions(new Vector3f(velocity.x, 0, 0));
-
-        position.z += velocity.z;
-        handleCollisions(new Vector3f(0, 0, velocity.z));
-
-        position.y += velocity.y;
-        handleCollisions(new Vector3f(0, velocity.y, 0));
-
-        velocity.mul(0.95f);
-
-        PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, yaw, pitch);
-        inputs.add(inputData);
-    }
 
     public List<PlayerInputData> getInputs() {
         return inputs;
@@ -532,10 +542,6 @@ public class Player {
         this.lastPosition = lastPosition;
     }
 
-    public Vector3f getLastServerPosition() {
-        return lastServerPosition;
-    }
-
     public String getSkinPath() {
         return skinPath;
     }
@@ -546,5 +552,29 @@ public class Player {
 
     public PlayerHand getHand() {
         return hand;
+    }
+
+    public EntityUpdate getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(EntityUpdate lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
+    public boolean canJump() {
+        return this.canJump;
+    }
+
+    public void setCanJump(boolean canJump) {
+        this.canJump = canJump;
+    }
+
+    public float getMaxFallSpeed() {
+        return maxFall;
+    }
+
+    public void setMaxFallSpeed(float maxFall) {
+        this.maxFall = maxFall;
     }
 }

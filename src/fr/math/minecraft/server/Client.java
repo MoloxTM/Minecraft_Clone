@@ -40,11 +40,13 @@ public class Client {
     private final Vector3f velocity;
     private final Vector3f gravity;
     private final Vector3f acceleration;
-    private float Vmax;
+    private float maxSpeed;
+    private float maxFallSpeed;
     private final Hitbox hitbox;
     private Vector3f lastChunkPosition;
     private final Queue<InputPayload> inputQueue;
     private final StatePayload[] stateBuffer;
+    private boolean canJump;
 
     public Client(String uuid, String name, InetAddress address, int port) {
         this.address = address;
@@ -53,7 +55,7 @@ public class Client {
         this.name = name;
         this.velocity = new Vector3f();
         this.inputQueue = new LinkedList<>();
-        this.gravity = new Vector3f(0, -0.025f, 0);
+        this.gravity = new Vector3f(0, -0.0025f, 0);
         this.acceleration = new Vector3f();
         this.front = new Vector3f(0.0f, 0.0f, 0.0f);
         this.position = new Vector3f(0.0f, 300.0f, 0.0f);
@@ -64,7 +66,8 @@ public class Client {
         this.yaw = 0.0f;
         this.pitch = 0.0f;
         this.speed = 0.0125f;
-        this.Vmax = 0.03f;
+        this.maxSpeed = 0.03f;
+        this.maxFallSpeed = 0.03f;
         this.skin = null;
         this.movingLeft = false;
         this.movingRight = false;
@@ -72,6 +75,7 @@ public class Client {
         this.movingForward = false;
         this.flying = false;
         this.sneaking = false;
+        this.canJump = true;
         this.active = false;
     }
 
@@ -144,6 +148,8 @@ public class Client {
                         position.y = worldY - hitbox.getHeight();
                         this.velocity.y = 0;
                     } else if (velocity.y < 0) {
+                        maxFallSpeed = 0.03f;
+                        canJump = true;
                         position.y = worldY + hitbox.getHeight() + 1;
                         this.velocity.y = 0;
                     }
@@ -208,10 +214,28 @@ public class Client {
                 acceleration.sub(new Vector3f(0.0f, .5f, 0.0f));
             }
 
+            if (inputData.isJumping()) {
+                // this.handleJump();
+                if (canJump) {
+                    maxFallSpeed = 0.5f;
+                    acceleration.y += 10.0f;
+                    canJump = false;
+                }
+            }
+
             velocity.add(acceleration.mul(speed));
 
-            if (velocity.length()>Vmax) {
-                velocity.normalize().mul(Vmax);
+            if (new Vector3f(velocity.x, 0, velocity.z).length() > maxSpeed) {
+                Vector3f velocityNorm = new Vector3f(velocity.x, velocity.y, velocity.z);
+                velocityNorm.normalize().mul(maxSpeed);
+                velocity.x = velocityNorm.x;
+                velocity.z = velocityNorm.z;
+            }
+
+            if (new Vector3f(0, velocity.y, 0).length() > maxFallSpeed) {
+                Vector3f velocityNorm = new Vector3f(velocity.x, velocity.y, velocity.z);
+                velocityNorm.normalize().mul(maxFallSpeed);
+                velocity.y = velocityNorm.y;
             }
 
             position.x += velocity.x;
@@ -226,6 +250,14 @@ public class Client {
             velocity.mul(0.95f);
         }
         // System.out.println("Tick " + payload.getTick() + " InputVector: " + payload.getInputVector() + " Calculated position : " + position);
+    }
+
+    private void handleJump() {
+        if (canJump) {
+            velocity.y += gravity.y * (2.5f - 1) * 1.0f / GameConfiguration.UPS;
+            canJump = false;
+            maxFallSpeed = 1f;
+        }
     }
 
     public Vector3f getPosition() {

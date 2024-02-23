@@ -8,6 +8,7 @@ import fr.math.minecraft.client.network.packet.PlayerMovePacket;
 import fr.math.minecraft.server.Client;
 import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.shared.network.PlayerInputData;
+import fr.math.minecraft.shared.world.World;
 import org.joml.Math;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,7 +37,7 @@ public class TestPosition {
         player.setYaw(yaw);
         player.setPitch(pitch);
 
-        PlayerInputData inputData = new PlayerInputData(false, false, true, false, false, false, yaw, pitch);
+        PlayerInputData inputData = new PlayerInputData(false, false, true, false, false, false, false, yaw, pitch);
         List<PlayerInputData> inputs = new ArrayList<>();
         inputs.add(inputData);
 

@@ -268,9 +268,7 @@ public class Game {
         if (tick % 10 == 0) {
             List<PlayerInputData> inputData = new ArrayList<>(player.getInputs());
 
-            if (!player.getLastPosition().equals(player.getPosition())) {
-                playerMovementHandler.handle(player, new Vector3f(player.getPosition()), inputData);
-            }
+            playerMovementHandler.handle(player, new Vector3f(player.getPosition()), inputData);
 
             player.getInputs().clear();
         }

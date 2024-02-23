@@ -93,6 +93,8 @@ public class ConnectionInitPacket extends ClientPacket implements Runnable {
 
             JsonNode clientData = mapper.readTree(data);
 
+            System.out.println(clientData);
+
             String uuid = clientData.get("uuid").asText();
 
             float spawnX = clientData.get("spawnX").floatValue();

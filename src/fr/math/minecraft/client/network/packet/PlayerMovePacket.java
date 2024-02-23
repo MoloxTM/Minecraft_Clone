@@ -22,6 +22,7 @@ public class PlayerMovePacket extends ClientPacket {
     private boolean movingRight;
     private boolean movingForward;
     private boolean movingBackward;
+    private boolean jumping;
     private boolean flying;
     private boolean sneaking;
     private boolean movingHead;
@@ -59,10 +60,6 @@ public class PlayerMovePacket extends ClientPacket {
         messageNode.put("uuid", player.getUuid());
         messageNode.put("clientVersion", "1.0.0");
         messageNode.put("type", "PLAYER_MOVE");
-        messageNode.put("left", movingLeft);
-        messageNode.put("right", movingRight);
-        messageNode.put("forward", movingForward);
-        messageNode.put("backward", movingBackward);
         messageNode.set("inputs", inputsNode);
         messageNode.put("bodyYaw", player.getBodyYaw());
 
