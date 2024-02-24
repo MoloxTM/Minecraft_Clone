@@ -5,6 +5,7 @@ import fr.math.minecraft.server.RandomSeed;
 import fr.math.minecraft.server.builder.StructureBuilder;
 import fr.math.minecraft.server.world.*;
 import fr.math.minecraft.shared.world.Coordinates;
+import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.shared.world.World;
 import fr.math.minecraft.shared.world.generator.NoiseGenerator;
 

@@ -108,7 +108,7 @@ public class Player {
         this.skin = null;
         this.skinPath = "res/textures/skin.png";
         this.eventListeners = new ArrayList<>();
-        this.gameMode = GameMode.SURVIVAL;
+        this.gameMode = GameMode.CREATIVE;
         this.initAnimations();
     }
 
@@ -323,7 +323,7 @@ public class Player {
         Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
         Vector3f acceleration = new Vector3f(0, 0, 0);
 
-        velocity.add(gravity);
+        //velocity.add(gravity);
 
         if (movingForward) {
             acceleration.add(front);
@@ -381,13 +381,13 @@ public class Player {
         }
 
         position.x += velocity.x;
-        handleCollisions(new Vector3f(velocity.x, 0, 0));
+        //handleCollisions(new Vector3f(velocity.x, 0, 0));
 
         position.z += velocity.z;
-        handleCollisions(new Vector3f(0, 0, velocity.z));
+        //handleCollisions(new Vector3f(0, 0, velocity.z));
 
         position.y += velocity.y;
-        handleCollisions(new Vector3f(0, velocity.y, 0));
+        //handleCollisions(new Vector3f(0, velocity.y, 0));
 
         velocity.mul(0.95f);
 

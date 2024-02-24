@@ -4,7 +4,6 @@ import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.meshs.WaterMesh;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
-import fr.math.minecraft.server.RandomSeed;
 import fr.math.minecraft.shared.world.generator.OverworldGenerator;
 import fr.math.minecraft.shared.world.generator.TerrainGenerator;
 import org.apache.log4j.Logger;
@@ -27,6 +26,7 @@ public class World {
     private final static Logger logger = LoggerUtility.getServerLogger(World.class, LogType.TXT);
 
     private TerrainGenerator terrainGenerator;
+    private final int SPAWN_SIZE = 2;
 
     public World() {
         this.chunks = new HashMap<>();
@@ -69,22 +69,23 @@ public class World {
 
     public void buildSpawn() {
         logger.info("Construction du spawn...");
-        for (int x = -2; x < 2; x++) {
+        for (int x = -SPAWN_SIZE; x < SPAWN_SIZE; x++) {
             for (int y = 0; y < 10; y++) {
-                for (int z = -2; z < 2; z++) {
+                for (int z = -SPAWN_SIZE; z < SPAWN_SIZE; z++) {
                     Chunk chunk = new Chunk(x, y, z);
                     chunk.generate(this, terrainGenerator);
                     this.addChunk(chunk);
                 }
             }
         }
+
         logger.info("Spawn construit avec succès !");
     }
 
     public void buildSpawnMesh() {
-        for (int x = -2; x < 2; x++) {
+        for (int x = -SPAWN_SIZE; x < SPAWN_SIZE; x++) {
             for (int y = 0; y < 10; y++) {
-                for (int z = -2; z < 2; z++) {
+                for (int z = -SPAWN_SIZE; z < SPAWN_SIZE; z++) {
                     Chunk chunk = this.getChunk(x, y, z);
 
                     if (chunk.isEmpty()) {
@@ -194,6 +195,7 @@ public class World {
         transparent.add(Material.ROSE.getId());
         transparent.add(Material.CACTUS.getId());
         transparent.add(Material.DEAD_BUSH.getId());
+        transparent.add(Material.WOOL.getId());
         return transparent;
     }
 
@@ -241,5 +243,13 @@ public class World {
 
     public Map<Vector3i, Chunk> getCachedChunks() {
         return cachedChunks;
+    }
+
+    public void setBlock(Vector3i position, byte block) {
+        this.setBlock(position.x, position.y, position.z, block);
+    }
+
+    public void setBlock(int worldX, int worldY, int worldZ, byte block) {
+
     }
 }

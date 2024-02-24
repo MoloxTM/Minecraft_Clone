@@ -2,6 +2,7 @@ package fr.math.minecraft.client.manager;
 
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.math.MathUtils;
+import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.world.worker.ChunkGenerationWorker;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.client.entity.Player;

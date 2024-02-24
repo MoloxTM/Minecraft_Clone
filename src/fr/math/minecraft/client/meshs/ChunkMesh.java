@@ -51,6 +51,9 @@ public class ChunkMesh extends Mesh {
     }
 
     public void delete() {
+        if (!initiated) {
+            return;
+        }
         vao.delete();
         vbo.delete();
     }

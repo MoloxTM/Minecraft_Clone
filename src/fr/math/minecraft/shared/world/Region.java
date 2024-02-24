@@ -53,6 +53,7 @@ public class Region {
                 }
             }
         }
+
         logger.info("Structure généré avec succès ! ");
     }
 

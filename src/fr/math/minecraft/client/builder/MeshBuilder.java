@@ -73,6 +73,61 @@ public class MeshBuilder {
             return block == Material.AIR.getId();
         }
 
+        if (block == Material.WOOL.getId()) {
+            return true;
+        }
+
+        return world.getTransparents().contains(block);
+    }
+
+    public boolean isEmpty(Material material, int worldX, int worldY, int worldZ, int mode) {
+
+        int chunkX = (int) Math.floor(worldX / (double) Chunk.SIZE);
+        int chunkY = (int) Math.floor(worldY / (double) Chunk.SIZE);
+        int chunkZ = (int) Math.floor(worldZ / (double) Chunk.SIZE);
+
+        Game game = Game.getInstance();
+        World world = game.getWorld();
+        Chunk chunk = world.getChunk(chunkX, chunkY, chunkZ);
+
+        if (chunk == null) {
+            chunk = world.getCachedChunks().get(new Vector3i(chunkX, chunkY, chunkZ));
+            if (chunk == null) {
+                chunk = new Chunk(chunkX, chunkY, chunkZ);
+                chunk.generate(world, world.getTerrainGenerator());
+                world.getCachedChunks().put(chunk.getPosition(), chunk);
+            }
+        }
+
+        int blockX = worldX % Chunk.SIZE;
+        int blockY = worldY % Chunk.SIZE;
+        int blockZ = worldZ % Chunk.SIZE;
+
+        blockX = blockX < 0 ? blockX + Chunk.SIZE : blockX;
+        blockY = blockY < 0 ? blockY + Chunk.SIZE : blockY;
+        blockZ = blockZ < 0 ? blockZ + Chunk.SIZE : blockZ;
+
+        byte block = chunk.getBlock(blockX, blockY, blockZ);
+
+        if (block == Material.WATER.getId()) {
+            return mode != WATER_MODE;
+        }
+
+        if (mode == OCCLUSION_MODE) {
+            if (block == Material.WEED.getId() || block == Material.ROSE.getId() || block == Material.DEAD_BUSH.getId()) {
+                return true;
+            }
+            return block == Material.AIR.getId();
+        }
+
+        if (material == Material.WOOL) {
+            return false;
+        } else {
+            if (block == Material.WOOL.getId()) {
+                return true;
+            }
+        }
+
         return world.getTransparents().contains(block);
     }
 
@@ -251,12 +306,12 @@ public class MeshBuilder {
                     int worldY = y + chunk.getPosition().y * Chunk.SIZE;
                     int worldZ = z + chunk.getPosition().z * Chunk.SIZE;
 
-                    boolean px = isEmpty(worldX + 1, worldY, worldZ, CHUNK_MODE);
-                    boolean nx = isEmpty(worldX - 1, worldY, worldZ, CHUNK_MODE);
-                    boolean py = isEmpty(worldX, worldY + 1, worldZ, CHUNK_MODE);
-                    boolean ny = isEmpty(worldX, worldY - 1, worldZ, CHUNK_MODE);
-                    boolean pz = isEmpty(worldX, worldY, worldZ + 1, CHUNK_MODE);
-                    boolean nz = isEmpty(worldX, worldY, worldZ - 1, CHUNK_MODE);
+                    boolean px = isEmpty(material, worldX + 1, worldY, worldZ, CHUNK_MODE);
+                    boolean nx = isEmpty(material, worldX - 1, worldY, worldZ, CHUNK_MODE);
+                    boolean py = isEmpty(material, worldX, worldY + 1, worldZ, CHUNK_MODE);
+                    boolean ny = isEmpty(material, worldX, worldY - 1, worldZ, CHUNK_MODE);
+                    boolean pz = isEmpty(material, worldX, worldY, worldZ + 1, CHUNK_MODE);
+                    boolean nz = isEmpty(material, worldX, worldY, worldZ - 1, CHUNK_MODE);
 
                     Vector2f[] textureCoords;
 

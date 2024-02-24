@@ -1,14 +1,12 @@
 package fr.math.minecraft.shared.world.generator;
 
-import fr.math.minecraft.shared.world.Chunk;
+import fr.math.minecraft.shared.world.*;
 import fr.math.minecraft.server.MinecraftServer;
-import fr.math.minecraft.server.world.*;
 import fr.math.minecraft.server.manager.BiomeManager;
 import fr.math.minecraft.server.math.InterpolateMath;
 import fr.math.minecraft.server.world.biome.AbstractBiome;
-import fr.math.minecraft.shared.world.Coordinates;
-import fr.math.minecraft.shared.world.Region;
-import fr.math.minecraft.shared.world.World;
+import org.joml.Math;
+import org.joml.SimplexNoise;
 import org.joml.Vector2i;
 
 import java.util.HashMap;
@@ -81,11 +79,15 @@ public class OverworldGenerator implements TerrainGenerator {
                 int worldHeight = heightMap.get(new Vector2i(x, z));
 
                 for (int y = 0; y < Chunk.SIZE; y++) {
-                    if (chunk.getBlock(x, y, z) == Material.OAK_LEAVES.getId() || chunk.getBlock(x, y, z) == Material.OAK_LOG.getId()) {
+
+                    byte block = chunk.getBlock(x, y, z);
+                    int worldY = y + chunk.getPosition().y * Chunk.SIZE;
+
+                    Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
+
+                    if (block == Material.OAK_LEAVES.getId() || block == Material.OAK_LOG.getId()) {
                         continue;
                     }
-
-                    int worldY = y + chunk.getPosition().y * Chunk.SIZE;
 
                     int regionX = (int) Math.floor(worldX / (double) (Chunk.SIZE * Region.SIZE));
                     int regionY = (int) Math.floor(worldY / (double) (Chunk.SIZE * Region.SIZE));
@@ -93,11 +95,7 @@ public class OverworldGenerator implements TerrainGenerator {
 
                     Region chunkRegion = world.getRegion(regionX, regionY, regionZ);
 
-                    Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
                     if (chunkRegion != null && chunkRegion.getStructure().getStructureMap().containsKey(coordinates)) {
-                        if (chunk.isEmpty()) {
-                            chunk.setEmpty(false);
-                        }
                         chunk.setBlock(x, y, z, chunkRegion.getStructure().getStructureMap().get(coordinates));
                         continue;
                     }
@@ -118,10 +116,6 @@ public class OverworldGenerator implements TerrainGenerator {
                     }
 
                     if (material == Material.AIR) continue;
-
-                    if (chunk.isEmpty()) {
-                        chunk.setEmpty(false);
-                    }
 
                     chunk.setBlock(x, y, z, material.getId());
                 }
