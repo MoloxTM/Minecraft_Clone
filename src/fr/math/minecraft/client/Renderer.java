@@ -43,12 +43,15 @@ public class Renderer {
     private final Shader skyboxShader;
     private final Shader waterShader;
     private final Shader handShader;
+    private final Shader blockShader;
     private final Texture terrainTexture;
     private final Texture skinTexture;
     private final Texture defaultSkinTexture;
     private final Texture minecraftTitleTexture;
     private final Texture widgetsTexture;
     private final Texture dirtTexture;
+    private final Texture crosshairTexuture;
+    private final Texture placeholdTexture;
     private final ImageMesh minecraftTitleMesh;
     private final ImageMesh screenMesh;
     private final FontManager fontManager;
@@ -101,6 +104,7 @@ public class Renderer {
         this.imageShader = new Shader("res/shaders/image.vert", "res/shaders/image.frag");
         this.waterShader = new Shader("res/shaders/water.vert", "res/shaders/water.frag");
         this.handShader = new Shader("res/shaders/hand.vert", "res/shaders/hand.frag");
+        this.blockShader = new Shader("res/shaders/block.vert", "res/shaders/block.frag");
 
         this.terrainTexture = new Texture("res/textures/terrain.png", 1);
         this.defaultSkinTexture = new Texture("res/textures/skin.png", 2);
@@ -108,6 +112,8 @@ public class Renderer {
         this.panoramaTexture = new CubemapTexture(panoramas, 4);
         this.widgetsTexture = new Texture("res/textures/gui/widgets.png", 5);
         this.skinTexture = new Texture(Game.getInstance().getPlayer().getSkinPath(), 6);
+        this.crosshairTexuture = new Texture("res/textures/gui/crosshair.png", 7);
+        this.placeholdTexture = new Texture("res/textures/gui/crosshair.png", 8);
 
         this.dirtTexture = new TextureBuilder().buildDirtBackgroundTexture();
 
@@ -120,6 +126,8 @@ public class Renderer {
         this.widgetsTexture.load();
         this.dirtTexture.load();
         this.skinTexture.load();
+        this.crosshairTexuture.load();
+        this.placeholdTexture.load();
     }
 
     public void render(Camera camera, Player player) {
