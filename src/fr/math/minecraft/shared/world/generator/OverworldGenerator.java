@@ -72,6 +72,8 @@ public class OverworldGenerator implements TerrainGenerator {
     public void generateChunk(World world, Chunk chunk) {
 
         Map<Vector2i, Integer> heightMap = this.fillHeightMap(chunk.getPosition().x, chunk.getPosition().z, 0, Chunk.SIZE - 1, 0, Chunk.SIZE - 1);
+        PerlinNoiseGenerator noiseGenerator = new PerlinNoiseGenerator(0.005f, 0.2f, 3, 2.175f, 0);
+
         for (int x = 0; x < Chunk.SIZE; x++) {
             for (int z = 0; z < Chunk.SIZE; z++) {
 
