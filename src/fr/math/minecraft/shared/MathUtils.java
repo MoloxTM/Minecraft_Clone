@@ -44,6 +44,6 @@ public class MathUtils {
     }
 
     public static float fra1(float x) {
-        return (float) ((1-x) + Math.floor(x));
+        return (float) (1 - x + Math.floor(x));
     }
 }

@@ -240,7 +240,7 @@ public class Camera {
         Matrix4f model = new Matrix4f();
 
         projection.perspective((float) Math.toRadians(fov), width / height, nearPlane ,farPlane);
-        this.updateView();
+        view.lookAt(new Vector3f(0, 0, 30.0f), new Vector3f(), new Vector3f(0, 1, 0));
 
         shader.sendMatrix("projection", projection, projectionBuffer);
         shader.sendMatrix("view", view, viewBuffer);

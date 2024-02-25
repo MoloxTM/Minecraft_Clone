@@ -51,19 +51,20 @@ public class Ray {
         tMaxZ = dz > 0 ? tDeltaZ * MathUtils.fra1(startPoint.z) : tDeltaZ * MathUtils.fra0(startPoint.z);
 
         while (!(tMaxX > 1 && tMaxY > 1 && tMaxZ > 1)){
-            if(tMaxX < tMaxY && tMaxX < tMaxZ) {
+            if (tMaxX < tMaxY && tMaxX < tMaxZ) {
                 rayPositon.x += dx;
                 tMaxX += tDeltaX;
-            } else if(tMaxY < tMaxX && tMaxY < tMaxZ) {
+            } else if (tMaxY < tMaxX && tMaxY < tMaxZ) {
                 rayPositon.y += dy;
                 tMaxY += tDeltaY;
             } else {
                 rayPositon.z += dz;
                 tMaxZ += tDeltaZ;
             }
-            this.aimedChunk = (world.getChunkAt(rayPositon.x, rayPositon.y, rayPositon.z));
 
-            if(this.aimedChunk != null) {
+            this.aimedChunk = world.getChunkAt(rayPositon.x, rayPositon.y, rayPositon.z);
+
+            if (this.aimedChunk != null) {
                 int blockX = rayPositon.x % Chunk.SIZE;
                 int blockY = rayPositon.y % Chunk.SIZE;
                 int blockZ = rayPositon.z % Chunk.SIZE;
