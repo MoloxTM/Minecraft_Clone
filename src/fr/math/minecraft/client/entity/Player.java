@@ -65,6 +65,7 @@ public class Player {
     private final PlayerHand hand;
     private EntityUpdate lastUpdate;
     private int jumpAccelerationCount;
+    private Ray attackRay, buildRay;
 
     public Player(String name) {
         this.position = new Vector3f(0.0f, 300.0f, 0.0f);
@@ -109,6 +110,8 @@ public class Player {
         this.skinPath = "res/textures/skin.png";
         this.eventListeners = new ArrayList<>();
         this.gameMode = GameMode.SURVIVAL;
+        this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
+        this.buildRay = new Ray(GameConfiguration.BUILDING_REACH);
         this.initAnimations();
     }
 
@@ -187,7 +190,6 @@ public class Player {
             }
         }
 
-
         if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
             if (!interpolationKeyPressed) {
                 GameConfiguration gameConfiguration = Game.getInstance().getGameConfiguration();
@@ -214,6 +216,10 @@ public class Player {
 
         if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_RELEASE) {
             interpolationKeyPressed = false;
+        }
+
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+            System.out.println(Material.getMaterialById(getAttackRay().getAimedBlock()));
         }
 
         if (movingLeft || movingRight || movingForward || movingBackward || sneaking || flying) {
@@ -576,5 +582,13 @@ public class Player {
 
     public void setMaxFallSpeed(float maxFall) {
         this.maxFall = maxFall;
+    }
+
+    public Ray getAttackRay() {
+        return attackRay;
+    }
+
+    public Ray getBuildRay() {
+        return buildRay;
     }
 }

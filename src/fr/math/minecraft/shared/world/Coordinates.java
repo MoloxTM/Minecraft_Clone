@@ -1,7 +1,7 @@
 package fr.math.minecraft.shared.world;
 
 import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.math.MathUtils;
+import fr.math.minecraft.shared.MathUtils;
 import fr.math.minecraft.client.entity.Player;
 
 import java.util.Objects;

@@ -250,6 +250,10 @@ public class Camera {
         shader.sendMatrix("model", model, modelBuffer);
     }
 
+    public void matrixAimedBlock(Camera camera, Shader shader) {
+
+    }
+
     public float getNearPlane() {
         return nearPlane;
     }

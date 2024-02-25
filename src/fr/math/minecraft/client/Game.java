@@ -288,6 +288,8 @@ public class Game {
         player.updatePosition();
         player.updateAnimations();
         player.getHand().update(new Vector3f(player.getVelocity()));
+        player.getAttackRay().update(camera, world);
+        player.getBuildRay().update(camera, world);
         camera.update(player);
     }
 

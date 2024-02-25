@@ -1,20 +1,16 @@
 package fr.math.minecraft.client.manager;
 
 import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.math.MathUtils;
+import fr.math.minecraft.shared.MathUtils;
 import fr.math.minecraft.client.world.worker.ChunkGenerationWorker;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.client.entity.Player;
-import fr.math.minecraft.client.network.packet.ChunkRequestPacket;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.world.Coordinates;
 import fr.math.minecraft.shared.world.World;
 import org.joml.Vector3f;
-import org.joml.Vector3i;
 
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
 public class WorldManager {
 

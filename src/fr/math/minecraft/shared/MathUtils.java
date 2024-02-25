@@ -1,7 +1,8 @@
-package fr.math.minecraft.client.math;
+package fr.math.minecraft.shared;
 
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.shared.world.Coordinates;
+import java.lang.Math;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
@@ -36,5 +37,13 @@ public class MathUtils {
         double z = Math.pow(player.getPosition().z - position.z, 2);
 
         return Math.sqrt(x + y + z);
+    }
+
+    public static float fra0(float x) {
+        return (float) (x - Math.floor(x));
+    }
+
+    public static float fra1(float x) {
+        return (float) ((1-x) + Math.floor(x));
     }
 }
