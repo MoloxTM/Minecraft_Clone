@@ -9,6 +9,7 @@ import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.network.packet.ChunkRequestPacket;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.world.Coordinates;
+import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.shared.world.World;
 import org.joml.Vector3f;
 import org.joml.Vector3i;

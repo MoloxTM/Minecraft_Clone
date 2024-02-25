@@ -121,7 +121,7 @@ public class MeshBuilder {
         }
 
         if (material == Material.WOOL) {
-            return false;
+            return true;
         } else {
             if (block == Material.WOOL.getId()) {
                 return true;
