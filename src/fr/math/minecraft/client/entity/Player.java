@@ -219,7 +219,7 @@ public class Player {
         }
 
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-            System.out.println(Material.getMaterialById(getAttackRay().getAimedBlock()));
+            System.out.println(Material.getMaterialById(buildRay.getAimedBlock()));
         }
 
         if (movingLeft || movingRight || movingForward || movingBackward || sneaking || flying) {

@@ -1,7 +1,7 @@
 package fr.math.minecraft.client.meshs;
 
 import fr.math.minecraft.client.builder.MeshBuilder;
-import fr.math.minecraft.client.vertex.Vertex;
+import fr.math.minecraft.client.vertex.BlockVertex;
 import fr.math.minecraft.client.buffers.EBO;
 import fr.math.minecraft.client.buffers.VAO;
 import fr.math.minecraft.client.buffers.VBO;
@@ -12,50 +12,52 @@ import static org.lwjgl.opengl.GL33.*;
 
 public class BlockMesh extends Mesh {
 
-    public BlockMesh(int x, int y) {
-        super();
-        Vector2f[] textCoordsDiamondOre = MeshBuilder.calculateTexCoords(x, y, 16.0f);
+    private final BlockVertex[] vertices;
 
-        Vector2f texCoordsBottomLeft = textCoordsDiamondOre[0];
-        Vector2f texCoordsUpLeft = textCoordsDiamondOre[1];
-        Vector2f texCoordsUpRight = textCoordsDiamondOre[2];
-        Vector2f texCoordsBottomRight = textCoordsDiamondOre[3];
-        this.vertices = new Vertex[] {
+    public BlockMesh() {
+        super();
+
+        Vector2f texCoordsBottomLeft = new Vector2f(0.0f, 0.0f);
+        Vector2f texCoordsUpLeft = new Vector2f(0.0f, 1.0f);
+        Vector2f texCoordsUpRight = new Vector2f(1.0f, 1.0f);
+        Vector2f texCoordsBottomRight = new Vector2f(1.0f, 0.0f);
+
+        this.vertices = new BlockVertex[] {
                 // Face avant
-                new Vertex(new Vector3f(-0.5f, -0.5f, 0.5f), texCoordsBottomLeft),
-                new Vertex(new Vector3f(0.5f, -0.5f, 0.5f), texCoordsUpLeft),
-                new Vertex(new Vector3f(0.5f, 0.5f, 0.5f), texCoordsUpRight),
-                new Vertex(new Vector3f(-0.5f, 0.5f, 0.5f), texCoordsBottomRight),
+                new BlockVertex(new Vector3f(-0.5f, -0.5f, 0.5f), texCoordsBottomLeft),
+                new BlockVertex(new Vector3f(0.5f, -0.5f, 0.5f), texCoordsUpLeft),
+                new BlockVertex(new Vector3f(0.5f, 0.5f, 0.5f), texCoordsUpRight),
+                new BlockVertex(new Vector3f(-0.5f, 0.5f, 0.5f), texCoordsBottomRight),
 
                 // Face arrière
-                new Vertex(new Vector3f(-0.5f, -0.5f, -0.5f), texCoordsBottomLeft),
-                new Vertex(new Vector3f(0.5f, -0.5f, -0.5f), texCoordsUpLeft),
-                new Vertex(new Vector3f(0.5f, 0.5f, -0.5f), texCoordsUpRight),
-                new Vertex(new Vector3f(-0.5f, 0.5f, -0.5f), texCoordsBottomRight),
+                new BlockVertex(new Vector3f(-0.5f, -0.5f, -0.5f), texCoordsBottomLeft),
+                new BlockVertex(new Vector3f(0.5f, -0.5f, -0.5f), texCoordsUpLeft),
+                new BlockVertex(new Vector3f(0.5f, 0.5f, -0.5f), texCoordsUpRight),
+                new BlockVertex(new Vector3f(-0.5f, 0.5f, -0.5f), texCoordsBottomRight),
 
                 // Face gauche
-                new Vertex(new Vector3f(-0.5f, 0.5f, 0.5f), texCoordsBottomLeft),
-                new Vertex(new Vector3f(-0.5f, 0.5f, -0.5f), texCoordsUpLeft),
-                new Vertex(new Vector3f(-0.5f, -0.5f, -0.5f), texCoordsUpRight),
-                new Vertex(new Vector3f(-0.5f, -0.5f, 0.5f), texCoordsBottomRight),
+                new BlockVertex(new Vector3f(-0.5f, 0.5f, 0.5f), texCoordsBottomLeft),
+                new BlockVertex(new Vector3f(-0.5f, 0.5f, -0.5f), texCoordsUpLeft),
+                new BlockVertex(new Vector3f(-0.5f, -0.5f, -0.5f), texCoordsUpRight),
+                new BlockVertex(new Vector3f(-0.5f, -0.5f, 0.5f), texCoordsBottomRight),
 
                 // Face droite
-                new Vertex(new Vector3f(0.5f, 0.5f, 0.5f), texCoordsBottomLeft),
-                new Vertex(new Vector3f(0.5f, 0.5f, -0.5f), texCoordsUpLeft),
-                new Vertex(new Vector3f(0.5f, -0.5f, -0.5f), texCoordsUpRight),
-                new Vertex(new Vector3f(0.5f, -0.5f, 0.5f), texCoordsBottomRight),
+                new BlockVertex(new Vector3f(0.5f, 0.5f, 0.5f), texCoordsBottomLeft),
+                new BlockVertex(new Vector3f(0.5f, 0.5f, -0.5f), texCoordsUpLeft),
+                new BlockVertex(new Vector3f(0.5f, -0.5f, -0.5f), texCoordsUpRight),
+                new BlockVertex(new Vector3f(0.5f, -0.5f, 0.5f), texCoordsBottomRight),
 
                 // Face supérieure
-                new Vertex(new Vector3f(-0.5f, 0.5f, 0.5f), texCoordsBottomLeft),
-                new Vertex(new Vector3f(0.5f, 0.5f, 0.5f), texCoordsUpLeft),
-                new Vertex(new Vector3f(0.5f, 0.5f, -0.5f), texCoordsUpRight),
-                new Vertex(new Vector3f(-0.5f, 0.5f, -0.5f), texCoordsBottomRight),
+                new BlockVertex(new Vector3f(-0.5f, 0.5f, 0.5f), texCoordsBottomLeft),
+                new BlockVertex(new Vector3f(0.5f, 0.5f, 0.5f), texCoordsUpLeft),
+                new BlockVertex(new Vector3f(0.5f, 0.5f, -0.5f), texCoordsUpRight),
+                new BlockVertex(new Vector3f(-0.5f, 0.5f, -0.5f), texCoordsBottomRight),
 
                 // Face inférieure
-                new Vertex(new Vector3f(-0.5f, -0.5f, 0.5f), texCoordsBottomLeft),
-                new Vertex(new Vector3f(0.5f, -0.5f, 0.5f), texCoordsUpLeft),
-                new Vertex(new Vector3f(0.5f, -0.5f, -0.5f), texCoordsUpRight),
-                new Vertex(new Vector3f(-0.5f, -0.5f, -0.5f), texCoordsBottomRight)
+                new BlockVertex(new Vector3f(-0.5f, -0.5f, 0.5f), texCoordsBottomLeft),
+                new BlockVertex(new Vector3f(0.5f, -0.5f, 0.5f), texCoordsUpLeft),
+                new BlockVertex(new Vector3f(0.5f, -0.5f, -0.5f), texCoordsUpRight),
+                new BlockVertex(new Vector3f(-0.5f, -0.5f, -0.5f), texCoordsBottomRight)
         };
 
         this.indices = new int[] {

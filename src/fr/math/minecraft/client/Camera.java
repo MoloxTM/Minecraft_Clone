@@ -3,6 +3,7 @@ package fr.math.minecraft.client;
 import fr.math.minecraft.client.animations.Animation;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.entity.PlayerHand;
+import fr.math.minecraft.client.entity.Ray;
 import fr.math.minecraft.client.manager.FontManager;
 import fr.math.minecraft.client.math.FrustrumCulling;
 import fr.math.minecraft.client.math.ViewBobbing;
@@ -68,23 +69,29 @@ public class Camera {
         view.lookAt(new Vector3f(position).sub(0.5f, 0, 0.5f), new Vector3f(position).sub(0.5f, 0, 0.5f).add(front), up);
     }
 
-    public void matrixWater(Shader shader, Camera camera, Chunk chunk) {
+    public void matrixWater(Shader shader, Chunk chunk) {
         this.calculateFront(front);
 
-        Matrix4f projection = new Matrix4f();
-        Matrix4f model = new Matrix4f();
+        projection.identity();
+        view.identity();
+        model.identity();
+
+        float biome = (float) chunk.getBiome().getBiomeID();
 
         right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
         up = new Vector3f(right).cross(front).normalize();
 
         projection.perspective((float) Math.toRadians(fov), width / height, nearPlane ,farPlane);
         this.updateView();
-        model.translate(chunk.getPosition().x * Chunk.SIZE, chunk.getPosition().y * Chunk.SIZE, chunk.getPosition().z * Chunk.SIZE);
+        model.translate(chunk.getPosition().x * Chunk.SIZE, chunk.getPosition().y * Chunk.SIZE - 0.1f, chunk.getPosition().z * Chunk.SIZE);
 
+        shader.sendFloat("time", Game.getInstance().getTime());
+        shader.sendFloat("occlusionEnabled", Game.getInstance().getGameConfiguration().isOcclusionEnabled() ? 1.0f : 0.0f);
         shader.sendMatrix("projection", projection, projectionBuffer);
         shader.sendMatrix("view", view, viewBuffer);
         shader.sendMatrix("model", model, modelBuffer);
-        shader.sendVector3f("cameraPosition", camera.getPosition());
+        shader.sendFloat("biome", biome);
+        shader.sendVector3f("cameraPosition", position);
     }
 
     public void matrix(Shader shader, Chunk chunk) {
@@ -109,6 +116,8 @@ public class Camera {
         shader.sendMatrix("view", view, viewBuffer);
         shader.sendMatrix("model", model, modelBuffer);
         shader.sendFloat("biome", biome);
+        shader.sendVector3f("cameraPosition", position);
+
     }
 
     public void matrix(Shader shader, Player player) {
@@ -224,6 +233,21 @@ public class Camera {
         shader.sendMatrix("view", view, viewBuffer);
     }
 
+    public void matrixCrosshair(Shader shader) {
+
+        Matrix4f view = new Matrix4f();
+        Matrix4f projection = new Matrix4f();
+        Matrix4f model = new Matrix4f();
+
+        projection.perspective((float) Math.toRadians(fov), width / height, nearPlane ,farPlane);
+        this.updateView();
+
+        shader.sendMatrix("projection", projection, projectionBuffer);
+        shader.sendMatrix("view", view, viewBuffer);
+        shader.sendMatrix("model", model, modelBuffer);
+
+    }
+
     public void matrixHand(PlayerHand hand, Shader shader) {
 
         Matrix4f view = new Matrix4f();
@@ -250,8 +274,25 @@ public class Camera {
         shader.sendMatrix("model", model, modelBuffer);
     }
 
-    public void matrixAimedBlock(Camera camera, Shader shader) {
+    public void matrixAimedBlock(Ray ray, Shader shader) {
+        this.calculateFront(front);
 
+        projection.identity();
+        view.identity();
+        model.identity();
+
+        right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
+        up = new Vector3f(right).cross(front).normalize();
+
+        projection.perspective((float) Math.toRadians(fov), width / height, nearPlane ,farPlane);
+
+        this.updateView();
+        model.translate(ray.getBlockWorldPosition().x, ray.getBlockWorldPosition().y, ray.getBlockWorldPosition().z);
+        model.scale(1.001f);
+
+        shader.sendMatrix("projection", projection, projectionBuffer);
+        shader.sendMatrix("view", view, viewBuffer);
+        shader.sendMatrix("model", model, modelBuffer);
     }
 
     public float getNearPlane() {

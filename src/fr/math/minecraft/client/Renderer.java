@@ -3,6 +3,7 @@ package fr.math.minecraft.client;
 import fr.math.minecraft.client.builder.TextureBuilder;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.entity.PlayerHand;
+import fr.math.minecraft.client.entity.Ray;
 import fr.math.minecraft.client.fonts.CFont;
 import fr.math.minecraft.client.gui.buttons.BlockButton;
 import fr.math.minecraft.client.gui.GuiText;
@@ -16,6 +17,7 @@ import fr.math.minecraft.client.texture.Texture;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.server.manager.BiomeManager;
 import fr.math.minecraft.shared.GameConfiguration;
+import fr.math.minecraft.shared.world.Material;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
@@ -34,6 +36,7 @@ public class Renderer {
     private final SkyboxMesh skyboxMesh;
     private final HandMesh handMesh;
     private final ButtonMesh buttonMesh;
+    private final BlockMesh blockMesh;
     private final Shader playerShader;
     private final Shader chunkShader;
     private final Shader fontShader;
@@ -44,6 +47,7 @@ public class Renderer {
     private final Shader waterShader;
     private final Shader handShader;
     private final Shader blockShader;
+    private final Shader crosshairShader;
     private final Texture terrainTexture;
     private final Texture skinTexture;
     private final Texture defaultSkinTexture;
@@ -54,6 +58,8 @@ public class Renderer {
     private final Texture placeholdTexture;
     private final ImageMesh minecraftTitleMesh;
     private final ImageMesh screenMesh;
+    private final CrosshairMesh crosshairMesh;
+
     private final FontManager fontManager;
     private final CFont font;
     private final Map<String, Texture> skinsMap;
@@ -66,6 +72,8 @@ public class Renderer {
         this.font = new CFont(GameConfiguration.FONT_FILE_PATH, GameConfiguration.FONT_SIZE);
         this.fontMesh = new FontMesh(font);
         this.skyboxMesh = new SkyboxMesh();
+        this.crosshairMesh = new CrosshairMesh();
+        this.blockMesh = new BlockMesh();
         this.handMesh = new HandMesh();
         this.loadedSkins = new HashSet<>();
 
@@ -104,7 +112,8 @@ public class Renderer {
         this.imageShader = new Shader("res/shaders/image.vert", "res/shaders/image.frag");
         this.waterShader = new Shader("res/shaders/water.vert", "res/shaders/water.frag");
         this.handShader = new Shader("res/shaders/hand.vert", "res/shaders/hand.frag");
-        this.blockShader = new Shader("res/shaders/block.vert", "res/shaders/block.frag");
+        this.blockShader = new Shader("res/shaders/default.vert", "res/shaders/default.frag");
+        this.crosshairShader = new Shader("res/shaders/cursor.vert", "res/shaders/default.frag");
 
         this.terrainTexture = new Texture("res/textures/terrain.png", 1);
         this.defaultSkinTexture = new Texture("res/textures/skin.png", 2);
@@ -113,7 +122,7 @@ public class Renderer {
         this.widgetsTexture = new Texture("res/textures/gui/widgets.png", 5);
         this.skinTexture = new Texture(Game.getInstance().getPlayer().getSkinPath(), 6);
         this.crosshairTexuture = new Texture("res/textures/gui/crosshair.png", 7);
-        this.placeholdTexture = new Texture("res/textures/gui/crosshair.png", 8);
+        this.placeholdTexture = new Texture("res/textures/gui/placehold.png", 8);
 
         this.dirtTexture = new TextureBuilder().buildDirtBackgroundTexture();
 
@@ -200,7 +209,7 @@ public class Renderer {
     }
 
     public void render(Camera camera, Chunk chunk) {
-        Player player = Game.getInstance().getPlayer();
+
         chunkShader.enable();
         chunkShader.sendInt("uTexture", terrainTexture.getSlot());
 
@@ -235,14 +244,12 @@ public class Renderer {
     public void renderWater(Camera camera, Chunk chunk) {
 
         waterShader.enable();
-
         waterShader.sendInt("uTexture", terrainTexture.getSlot());
-
 
         glActiveTexture(GL_TEXTURE0 + terrainTexture.getSlot());
         terrainTexture.bind();
 
-        camera.matrixWater(waterShader, camera, chunk);
+        camera.matrixWater(waterShader, chunk);
 
         chunk.getWaterMesh().draw();
         terrainTexture.unbind();
@@ -343,6 +350,48 @@ public class Renderer {
         float height = fontManager.getTextHeight(fontMesh,GameConfiguration.DEFAULT_SCALE, button.getText());
 
         this.renderText(camera, button.getText(), button.getX() + (ButtonMesh.BUTTON_WIDTH - width) / 2.0f, button.getY() + (ButtonMesh.BUTTON_HEIGHT - height) / 2.0f, button.getZ() + 1, textColor, GameConfiguration.DEFAULT_SCALE);
+    }
+
+    public void renderCrosshair(Camera camera) {
+
+        glDisable(GL_DEPTH_TEST);
+
+        crosshairShader.enable();
+        crosshairShader.sendInt("uTexture", crosshairTexuture.getSlot());
+
+        glActiveTexture(GL_TEXTURE0 + crosshairTexuture.getSlot());
+        crosshairTexuture.bind();
+
+        camera.matrixCrosshair(crosshairShader);
+        crosshairMesh.draw();
+
+        crosshairTexuture.unbind();
+
+        glEnable(GL_DEPTH_TEST);
+
+    }
+
+    public void renderAimedBlock(Camera camera, Ray ray) {
+
+        if (ray.getAimedChunk() == null) {
+            return;
+        }
+
+        if (ray.getAimedBlock() == Material.AIR.getId()) {
+            return;
+        }
+
+        blockShader.enable();
+        blockShader.sendInt("uTexture", placeholdTexture.getSlot());
+
+        glActiveTexture(GL_TEXTURE0 + placeholdTexture.getSlot());
+        placeholdTexture.bind();
+
+        camera.matrixAimedBlock(ray, blockShader);
+        blockMesh.draw();
+
+        placeholdTexture.unbind();
+
     }
 
     public FontMesh getFontMesh() {

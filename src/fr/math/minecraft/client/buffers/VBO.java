@@ -1,5 +1,6 @@
 package fr.math.minecraft.client.buffers;
 
+import fr.math.minecraft.client.vertex.BlockVertex;
 import fr.math.minecraft.client.vertex.HandVertex;
 import fr.math.minecraft.client.vertex.PlayerVertex;
 import fr.math.minecraft.client.vertex.Vertex;
@@ -27,6 +28,24 @@ public class VBO {
             data[bufferPosition++] = vertex.getOcclusion();
         }
         FloatBuffer buffer = BufferUtils.createFloatBuffer(vertices.length * 8);
+        buffer.put(data).flip();
+        glBindBuffer(GL_ARRAY_BUFFER, id);
+        glBufferData(GL_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
+    public VBO(BlockVertex[] vertices) {
+        id = glGenBuffers();
+        float[] data = new float[vertices.length * 5];
+        int bufferPosition = 0;
+        for (BlockVertex vertex : vertices) {
+            data[bufferPosition++] = vertex.getPosition().x;
+            data[bufferPosition++] = vertex.getPosition().y;
+            data[bufferPosition++] = vertex.getPosition().z;
+            data[bufferPosition++] = vertex.getTextureCoords().x;
+            data[bufferPosition++] = vertex.getTextureCoords().y;
+        }
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(vertices.length * 5);
         buffer.put(data).flip();
         glBindBuffer(GL_ARRAY_BUFFER, id);
         glBufferData(GL_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);

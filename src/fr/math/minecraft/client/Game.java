@@ -288,9 +288,9 @@ public class Game {
         player.updatePosition();
         player.updateAnimations();
         player.getHand().update(new Vector3f(player.getVelocity()));
+        camera.update(player);
         player.getAttackRay().update(camera, world);
         player.getBuildRay().update(camera, world);
-        camera.update(player);
     }
 
     private void render(Renderer renderer) {
@@ -356,8 +356,10 @@ public class Game {
             }
         }
 
-        renderer.renderHand(camera, player.getHand());
+        renderer.renderAimedBlock(camera, player.getBuildRay());
         renderer.renderDebugTools(camera, player, fps);
+        renderer.renderHand(camera, player.getHand());
+        renderer.renderCrosshair(camera);
     }
 
     public static Game getInstance() {
