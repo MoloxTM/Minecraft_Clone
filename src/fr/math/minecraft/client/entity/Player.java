@@ -7,6 +7,7 @@ import fr.math.minecraft.client.animations.PlayerWalkAnimation;
 import fr.math.minecraft.client.events.listeners.EntityUpdate;
 import fr.math.minecraft.client.events.listeners.EventListener;
 import fr.math.minecraft.client.events.PlayerMoveEvent;
+import fr.math.minecraft.client.manager.ChunkManager;
 import fr.math.minecraft.client.meshs.NametagMesh;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.world.Coordinates;
@@ -43,6 +44,7 @@ public class Player {
     private boolean flying, sneaking, canJump, inAir, jumping;
     private boolean movingMouse;
     private boolean debugKeyPressed, occlusionKeyPressed, interpolationKeyPressed;
+    private boolean placingBlock, breakingBlock;
     private float lastMouseX, lastMouseY;
     private String name;
     private String uuid;
@@ -103,6 +105,8 @@ public class Player {
         this.canJump = false;
         this.jumping = false;
         this.inAir = true;
+        this.placingBlock = false;
+        this.breakingBlock = false;
         this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 1.0f, 0.25f));
         this.animations = new ArrayList<>();
         this.nametagMesh = new NametagMesh(name);
@@ -219,7 +223,17 @@ public class Player {
         }
 
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-            System.out.println(Material.getMaterialById(buildRay.getAimedBlock()));
+            if(!breakingBlock) {
+                ChunkManager chunkManager = new ChunkManager();
+                if(buildRay.getAimedChunk() != null && (buildRay.getAimedBlock() != Material.AIR.getId() || buildRay.getAimedBlock() != Material.WATER.getId())) {
+                    chunkManager.removeBlock(buildRay.getAimedChunk(), buildRay.getBlockChunkPosition(), Game.getInstance().getWorld());
+                    breakingBlock = true;
+                }
+            }
+        }
+
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
+            breakingBlock = false;
         }
 
         if (movingLeft || movingRight || movingForward || movingBackward || sneaking || flying) {

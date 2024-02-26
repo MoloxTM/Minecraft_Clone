@@ -50,11 +50,6 @@ public class ChunkMesh extends Mesh {
         vao.unbind();
     }
 
-    public void delete() {
-        vao.delete();
-        vbo.delete();
-    }
-
     public boolean isInitiated() {
         return initiated;
     }

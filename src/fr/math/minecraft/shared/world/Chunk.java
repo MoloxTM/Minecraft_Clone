@@ -58,6 +58,15 @@ public class Chunk {
         this.generated = true;
     }
 
+    public void update() {
+        if(!this.loaded) return;
+        mesh.delete();
+        mesh = new ChunkMesh(this);
+
+        waterMesh.delete();
+        waterMesh = new WaterMesh(this);
+    }
+
     public byte[] getBlocks() {
         return blocks;
     }

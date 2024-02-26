@@ -13,7 +13,7 @@ public class Ray {
 
     private Chunk aimedChunk;
     private byte aimedBlock;
-    private Vector3i blockWorldPosition;
+    private Vector3i blockWorldPosition, blockChunkPosition;
 
     private float reach;
 
@@ -21,6 +21,7 @@ public class Ray {
         this.aimedChunk = null;
         this.aimedBlock = Material.AIR.getId();
         this.blockWorldPosition = new Vector3i();
+        this.blockChunkPosition = new Vector3i();
         this.reach = reach;
     }
 
@@ -78,11 +79,20 @@ public class Ray {
                     this.blockWorldPosition.x = rayPositon.x;
                     this.blockWorldPosition.y = rayPositon.y;
                     this.blockWorldPosition.z = rayPositon.z;
+
+                    this.blockChunkPosition.x = blockX;
+                    this.blockChunkPosition.y = blockY;
+                    this.blockChunkPosition.z = blockZ;
+
                     this.aimedBlock = block;
                     break;
                 }
             }
         }
+    }
+
+    public Vector3i getBlockChunkPosition() {
+        return blockChunkPosition;
     }
 
     public Vector3i getBlockWorldPosition() {

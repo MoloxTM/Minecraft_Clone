@@ -9,6 +9,7 @@ import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.world.Coordinates;
 import fr.math.minecraft.shared.world.World;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 
 import java.util.*;
 
@@ -76,6 +77,30 @@ public class WorldManager {
 
                     loadedChunks.add(coordinates);
                 }
+            }
+        }
+    }
+
+    public Vector3i[] getNeighboors(Chunk chunk) {
+        Vector3i[] neighboors = new Vector3i[] {
+
+                new Vector3i(chunk.getPosition().x + 1, chunk.getPosition().y, chunk.getPosition().z),
+                new Vector3i(chunk.getPosition().x - 1, chunk.getPosition().y, chunk.getPosition().z),
+                new Vector3i(chunk.getPosition().x, chunk.getPosition().y + 1, chunk.getPosition().z),
+                new Vector3i(chunk.getPosition().x, chunk.getPosition().y - 1, chunk.getPosition().z),
+                new Vector3i(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z + 1),
+                new Vector3i(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z - 1)
+        };
+        return neighboors;
+    }
+
+    public void updateNeighboors(Chunk chunk, World world) {
+        Vector3i[] neighboors = this.getNeighboors(chunk);
+
+        for (int i = 0; i < neighboors.length; i++) {
+            if(world.getChunk(neighboors[i].x, neighboors[i].y, neighboors[i].z) != null && world.getChunk(neighboors[i].x, neighboors[i].y, neighboors[i].z).isLoaded()) {
+                System.out.println("J'ai udpate un voisin je te jure");
+                world.getChunk(neighboors[i].x, neighboors[i].y, neighboors[i].z).update();
             }
         }
     }
