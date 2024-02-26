@@ -237,7 +237,7 @@ public class Player {
             if(!breakingBlock) {
                 ChunkManager chunkManager = new ChunkManager();
                 if(buildRay.getAimedChunk() != null && (buildRay.getAimedBlock() != Material.AIR.getId() || buildRay.getAimedBlock() != Material.WATER.getId())) {
-                    chunkManager.removeBlock(buildRay.getAimedChunk(), buildRay.getBlockChunkPosition(), Game.getInstance().getWorld());
+                    chunkManager.removeBlock(buildRay.getAimedChunk(), buildRay.getBlockChunkPositionLocal(), Game.getInstance().getWorld());
                     breakingBlock = true;
                 }
             }
@@ -359,10 +359,9 @@ public class Player {
         velocity.add(gravity);
 
         if(sprinting) {
-            System.out.println("Je sprint là :" + this.speed);
             this.setSpeed(GameConfiguration.SPRINT_SPEED);
         } else {
-            System.out.println("No sprint:" + this.speed);
+
             this.setSpeed(GameConfiguration.DEFAULT_SPEED);
         }
 

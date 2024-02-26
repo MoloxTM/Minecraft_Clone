@@ -1,6 +1,5 @@
 package fr.math.minecraft.client.entity;
 
-import fr.math.minecraft.client.Camera;
 import fr.math.minecraft.shared.MathUtils;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.world.Material;
@@ -91,7 +90,7 @@ public class Ray {
         }
     }
 
-    public Vector3i getBlockChunkPosition() {
+    public Vector3i getBlockChunkPositionLocal() {
         return blockChunkPosition;
     }
 

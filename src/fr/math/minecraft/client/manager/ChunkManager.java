@@ -27,8 +27,11 @@ public class ChunkManager {
     public void removeBlock(Chunk chunk, Vector3i blockPosition, World world) {
         chunk.setBlock(blockPosition.x, blockPosition.y, blockPosition.z, Material.AIR.getId());
         chunk.update();
-        WorldManager worldManager = new WorldManager();
-        worldManager.updateNeighboors(chunk, world);
+        if(chunk.isOnBorders(blockPosition)) {
+            System.out.println(blockPosition);
+            WorldManager worldManager = new WorldManager();
+            worldManager.updateNeighboors(chunk, world);
+        }
     }
 
     public void loadChunkData(JsonNode chunkData) {

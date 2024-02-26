@@ -12,6 +12,7 @@ import org.joml.Vector3i;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 public class Chunk {
 
@@ -65,6 +66,11 @@ public class Chunk {
 
         waterMesh.delete();
         waterMesh = new WaterMesh(this);
+    }
+
+    public boolean isOnBorders(Vector3i position) {
+        if(position.x == 0 || position.y == 0 || position.z == 0 || position.x == Chunk.SIZE-1 || position.y == Chunk.SIZE-1 || position.z == Chunk.SIZE-1) return true;
+        return false;
     }
 
     public byte[] getBlocks() {
