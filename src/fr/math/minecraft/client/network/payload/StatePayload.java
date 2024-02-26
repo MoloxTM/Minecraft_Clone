@@ -1,12 +1,16 @@
 package fr.math.minecraft.client.network.payload;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.network.FixedPacketSender;
 import fr.math.minecraft.client.network.packet.PlayerMovePacket;
 import fr.math.minecraft.shared.network.PlayerInputData;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class StatePayload {
 
@@ -15,12 +19,15 @@ public class StatePayload {
     private Vector3f position;
     private Vector3f velocity;
     private Vector3i inputVector;
+    private List<Vector3i> aimedBlockData;
+    private List<Byte> materialAimedBlockData;
     private float yaw, pitch;
 
     public StatePayload(InputPayload payload) {
         this.payload = payload;
         this.position = new Vector3f();
         this.velocity = new Vector3f();
+        this.aimedBlockData = new ArrayList<>();
         this.data = null;
     }
 
@@ -29,6 +36,9 @@ public class StatePayload {
         this.velocity = new Vector3f();
         this.inputVector = new Vector3i();
         this.payload = new InputPayload(stateData.get("tick").asInt());
+        this.aimedBlockData = new ArrayList<>();
+        this.materialAimedBlockData = new ArrayList<>();
+        extractAimedBlockData(stateData);
         position.x = stateData.get("x").floatValue();
         position.y = stateData.get("y").floatValue();
         position.z = stateData.get("z").floatValue();
@@ -39,7 +49,7 @@ public class StatePayload {
         pitch = stateData.get("pitch").floatValue();
     }
 
-    public void predictMovement(Player player, Vector3f playerPosition, Vector3f playerVelocity) {
+    public void reconcilMovement(Player player, Vector3f playerPosition, Vector3f playerVelocity) {
         Vector3f front = new Vector3f();
         //Vector3f position = new Vector3f(playerPosition);
         //Vector3f velocity = player.getVelocity();
@@ -125,9 +135,29 @@ public class StatePayload {
         this.position = new Vector3f(position);
     }
 
+    public void verifyAimedBlocks(List<Vector3i> clientAimedBlockData) {
+        for (int i = 0; i < clientAimedBlockData.size(); i++) {
+            if(!clientAimedBlockData.get(i).equals(this.aimedBlockData.get(i))) {
+                System.out.println("Y'a problème avec :" + clientAimedBlockData.get(i));
+            }
+        }
+
+    }
+
     public void send(Player player) {
         PlayerMovePacket packet = new PlayerMovePacket(player, this, payload);
         FixedPacketSender.getInstance().enqueue(packet);
+    }
+
+    public void extractAimedBlockData(JsonNode data) {
+        ArrayNode positionNode = (ArrayNode) data.get("aimedBlocks");
+        for (int i = 0; i < positionNode.size(); i++) {
+            JsonNode node = positionNode.get(i);
+            Vector3i position = new Vector3i(node.get("x").asInt(), node.get("y").asInt(), node.get("z").asInt());
+            this.aimedBlockData.add(position);
+            this.materialAimedBlockData.add(((byte)node.get("block").asInt()));
+        }
+
     }
 
     public JsonNode getData() {
@@ -160,5 +190,13 @@ public class StatePayload {
 
     public Vector3f getVelocity() {
         return velocity;
+    }
+
+    public void setAimedBlockData(List<Vector3i> aimedBlockData) {
+        this.aimedBlockData = aimedBlockData;
+    }
+
+    public List<Vector3i> getAimedBlockData() {
+        return aimedBlockData;
     }
 }

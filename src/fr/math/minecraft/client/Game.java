@@ -10,10 +10,7 @@ import fr.math.minecraft.client.gui.menus.Menu;
 import fr.math.minecraft.client.handler.PlayerMovementHandler;
 import fr.math.minecraft.client.manager.*;
 import fr.math.minecraft.client.entity.Player;
-import fr.math.minecraft.shared.world.Chunk;
-import fr.math.minecraft.shared.world.Coordinates;
-import fr.math.minecraft.shared.world.Region;
-import fr.math.minecraft.shared.world.World;
+import fr.math.minecraft.shared.world.*;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.shared.GameConfiguration;
@@ -267,10 +264,12 @@ public class Game {
         tick++;
         if (tick % 10 == 0) {
             List<PlayerInputData> inputData = new ArrayList<>(player.getInputs());
+            List<Vector3i> aimedBlockData = new ArrayList<>(player.getAimedBlocks());
 
-            playerMovementHandler.handle(player, new Vector3f(player.getPosition()), inputData);
+            playerMovementHandler.handle(player, new Vector3f(player.getPosition()), inputData, aimedBlockData);
 
             player.getInputs().clear();
+            player.getAimedBlocks().clear();
         }
 
         player.handleInputs(window);
@@ -289,8 +288,11 @@ public class Game {
         player.updateAnimations();
         player.getHand().update(new Vector3f(player.getVelocity()));
         camera.update(player);
-        player.getAttackRay().update(camera, world);
-        player.getBuildRay().update(camera, world);
+        player.getAttackRay().update(camera.getPosition(), camera.getFront(), world);
+        player.getBuildRay().update(camera.getPosition(), camera.getFront(), world);
+        if(player.getBuildRay().getAimedChunk() != null && (player.getBuildRay().getAimedBlock() != Material.AIR.getId() || player.getBuildRay().getAimedBlock() != Material.WATER.getId())){
+            player.getAimedBlocks().add(player.getBuildRay().getBlockWorldPosition());
+        }
     }
 
     private void render(Renderer renderer) {

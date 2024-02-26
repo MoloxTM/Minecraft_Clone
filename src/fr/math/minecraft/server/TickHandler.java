@@ -109,7 +109,7 @@ public class TickHandler extends Thread {
 
                         bufferIndex = inputPayload.getTick() % GameConfiguration.BUFFER_SIZE;
                         StatePayload statePayload = new StatePayload(inputPayload);
-                        statePayload.predictMovement(client);
+                        statePayload.predictMovement(server.getWorld(), client);
 
                         //statePayload.send();
 

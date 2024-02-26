@@ -34,7 +34,9 @@ public class InputPayload {
             boolean jumping = inputNode.get("jumping").asBoolean();
             float yaw = inputNode.get("yaw").floatValue();
             float pitch = inputNode.get("pitch").floatValue();
-            PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, jumping, yaw, pitch, sprinting);
+            boolean breakingBlock = inputNode.get("breakingBlock").asBoolean();
+            boolean placingBlock = inputNode.get("placingBlock").asBoolean();
+            PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, jumping, yaw, pitch, sprinting, placingBlock, breakingBlock);
 
             inputsData.add(inputData);
         }

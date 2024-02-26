@@ -3,6 +3,7 @@ package fr.math.minecraft.server;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.math.minecraft.client.entity.Ray;
 import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.server.payload.StatePayload;
@@ -47,6 +48,9 @@ public class Client {
     private final Queue<InputPayload> inputQueue;
     private final StatePayload[] stateBuffer;
     private boolean canJump;
+    private final Ray buildRay, attackRay;
+    private List<Vector3i> aimedBlocks;
+    private List<Byte> aimedBlocksIDs;
 
     public Client(String uuid, String name, InetAddress address, int port) {
         this.address = address;
@@ -65,7 +69,7 @@ public class Client {
         this.stateBuffer = new StatePayload[GameConfiguration.BUFFER_SIZE];
         this.yaw = 0.0f;
         this.pitch = 0.0f;
-        this.speed = 0.0125f;
+        this.speed = GameConfiguration.DEFAULT_SPEED;
         this.maxSpeed = 0.03f;
         this.maxFallSpeed = 0.03f;
         this.skin = null;
@@ -77,6 +81,10 @@ public class Client {
         this.sneaking = false;
         this.canJump = true;
         this.active = false;
+        this.buildRay = new Ray(GameConfiguration.BUILDING_REACH);
+        this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
+        this.aimedBlocks = new ArrayList<>();
+        this.aimedBlocksIDs = new ArrayList<>();
     }
 
     public String getName() {
@@ -252,6 +260,32 @@ public class Client {
         // System.out.println("Tick " + payload.getTick() + " InputVector: " + payload.getInputVector() + " Calculated position : " + position);
     }
 
+    public void updateActions(World world, InputPayload payload) {
+
+        List<Vector3i> blocksPosition = new ArrayList<>();
+        List<Byte> blocksIDs = new ArrayList<>();
+
+        for (PlayerInputData inputData : payload.getInputsData()) {
+
+            if (inputData.isBreakingBlock()) {
+                buildRay.update(position, front, world);
+                if(buildRay.getAimedChunk() != null && (buildRay.getAimedBlock() != Material.AIR.getId() || buildRay.getAimedBlock() != Material.WATER.getId())) {
+
+                    Vector3i rayPosition = buildRay.getBlockWorldPosition();
+                    byte block = buildRay.getAimedBlock();
+
+                    blocksPosition.add(rayPosition);
+                    blocksIDs.add(block);
+
+                }
+            }
+        }
+
+        this.aimedBlocks = blocksPosition;
+        this.aimedBlocksIDs = blocksIDs;
+
+    }
+
     private void handleJump() {
         if (canJump) {
             velocity.y += gravity.y * (2.5f - 1) * 1.0f / GameConfiguration.UPS;
@@ -359,4 +393,11 @@ public class Client {
         return stateBuffer;
     }
 
+    public List<Byte> getAimedBlocksIDs() {
+        return aimedBlocksIDs;
+    }
+
+    public List<Vector3i> getAimedBlocks() {
+        return aimedBlocks;
+    }
 }

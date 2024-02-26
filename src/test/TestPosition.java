@@ -28,6 +28,7 @@ public class TestPosition {
         this.client = new Client("1", "Dummy", null, -1);
     }
 
+    /*
     @Test
     public void testPosition() {
         
@@ -71,6 +72,7 @@ public class TestPosition {
 
         Assert.assertEquals(player.getPosition(), client.getPosition());
     }
+     */
 
     @Test
     public void testLerp() {

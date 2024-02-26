@@ -12,8 +12,10 @@ public class PlayerInputData {
     private final float pitch;
     private final boolean movingLeft, movingRight, movingForward, movingBackward;
     private final boolean flying, sneaking, jumping, sprinting;
+    private final boolean placingBlock, breakingBlock;
 
-    public PlayerInputData(boolean movingLeft, boolean movingRight, boolean movingForward, boolean movingBackward, boolean flying, boolean sneaking, boolean jumping, float yaw, float pitch, boolean sprinting) {
+
+    public PlayerInputData(boolean movingLeft, boolean movingRight, boolean movingForward, boolean movingBackward, boolean flying, boolean sneaking, boolean jumping, float yaw, float pitch, boolean sprinting, boolean placingBlock, boolean breakingBlock) {
         this.movingLeft = movingLeft;
         this.movingRight = movingRight;
         this.movingForward = movingForward;
@@ -24,6 +26,8 @@ public class PlayerInputData {
         this.yaw = yaw;
         this.pitch = pitch;
         this.sprinting = sprinting;
+        this.breakingBlock = breakingBlock;
+        this.placingBlock = placingBlock;
     }
 
     public ObjectNode toJSON() {
@@ -40,6 +44,8 @@ public class PlayerInputData {
         node.put("pitch", pitch);
         node.put("jumping", jumping);
         node.put("sprinting", sprinting);
+        node.put("placingBlock", placingBlock);
+        node.put("breakingBlock", breakingBlock);
 
         return node;
     }
@@ -78,5 +84,13 @@ public class PlayerInputData {
 
     public boolean isJumping() {
         return jumping;
+    }
+
+    public boolean isBreakingBlock() {
+        return breakingBlock;
+    }
+
+    public boolean isPlacingBlock() {
+        return placingBlock;
     }
 }

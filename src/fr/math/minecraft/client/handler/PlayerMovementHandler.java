@@ -7,6 +7,7 @@ import fr.math.minecraft.shared.network.PlayerInputData;
 import fr.math.minecraft.client.network.payload.InputPayload;
 import fr.math.minecraft.client.network.payload.StatePayload;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 
 import java.util.List;
 
@@ -25,7 +26,7 @@ public class PlayerMovementHandler {
         this.stateBuffer = new StatePayload[BUFFER_SIZE];
     }
 
-    public void handle(Player player, Vector3f playerPosition, List<PlayerInputData> inputData) {
+    public void handle(Player player, Vector3f playerPosition, List<PlayerInputData> inputData, List<Vector3i> aimedBlockData) {
 
         if (lastServerState != null) {
             // this.reconcile(player);
@@ -39,6 +40,7 @@ public class PlayerMovementHandler {
         StatePayload statePayload = new StatePayload(inputPayload);
         // statePayload.predictMovement(player, playerPosition);
         statePayload.setPosition(playerPosition);
+        statePayload.setAimedBlockData(aimedBlockData);
         statePayload.send(player);
 
         player.setLastPosition(new Vector3f(playerPosition));
@@ -58,6 +60,8 @@ public class PlayerMovementHandler {
         StatePayload payload = stateBuffer[serverTick % BUFFER_SIZE];
 
         float positionError = serverPosition.distance(payload.getPosition());
+
+        lastServerState.verifyAimedBlocks(payload.getAimedBlockData());
 
         if (positionError > 0.001f) {
             Camera camera = Game.getInstance().getCamera();
@@ -84,7 +88,7 @@ public class PlayerMovementHandler {
 
                 InputPayload inputPayload = inputBuffer[tickToProcess % BUFFER_SIZE];
                 StatePayload statePayload = new StatePayload(inputPayload);
-                statePayload.predictMovement(player, player.getPosition(), player.getVelocity());
+                statePayload.reconcilMovement(player, player.getPosition(), player.getVelocity());
 
                 camera.update(player);
 

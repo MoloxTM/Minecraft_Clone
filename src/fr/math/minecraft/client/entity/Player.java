@@ -21,6 +21,7 @@ import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
 import org.joml.Math;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 import org.lwjgl.BufferUtils;
 
 import java.awt.image.BufferedImage;
@@ -68,6 +69,7 @@ public class Player {
     private EntityUpdate lastUpdate;
     private int jumpAccelerationCount;
     private Ray attackRay, buildRay;
+    private ArrayList<Vector3i> aimedBlocks;
 
     public Player(String name) {
         this.position = new Vector3f(0.0f, 300.0f, 0.0f);
@@ -116,6 +118,7 @@ public class Player {
         this.gameMode = GameMode.SURVIVAL;
         this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
         this.buildRay = new Ray(GameConfiguration.BUILDING_REACH);
+        this.aimedBlocks = new ArrayList<>();
         this.initAnimations();
     }
 
@@ -261,6 +264,8 @@ public class Player {
         sneaking = false;
         jumping = false;
         movingMouse = false;
+        breakingBlock = false;
+        placingBlock = false;
     }
 
     public void updateAnimations() {
@@ -427,7 +432,7 @@ public class Player {
 
         velocity.mul(0.95f);
 
-        PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, jumping, yaw, pitch, sprinting);
+        PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, jumping, yaw, pitch, sprinting, placingBlock, breakingBlock);
         inputs.add(inputData);
     }
 
@@ -624,5 +629,13 @@ public class Player {
 
     public void setSpeed(float speed) {
         this.speed = speed;
+    }
+
+    public ArrayList<Vector3i> getAimedBlocks() {
+        return aimedBlocks;
+    }
+
+    public void setAimedBlocks(ArrayList<Vector3i> aimedBlocks) {
+        this.aimedBlocks = aimedBlocks;
     }
 }

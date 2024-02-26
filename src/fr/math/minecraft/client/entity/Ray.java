@@ -26,16 +26,16 @@ public class Ray {
     }
 
 
-    public void update(Camera camera, World world) {
+    public void update(Vector3f position, Vector3f front, World world) {
 
         this.aimedChunk = null;
         this.aimedBlock = Material.AIR.getId();
 
-        Vector3f startPoint = new Vector3f(camera.getPosition()).add(0.0f, 0.5f, 0.0f);
+        Vector3f startPoint = new Vector3f(position).add(0.0f, 0.5f, 0.0f);
         Vector3i rayPositon = new Vector3i((int)startPoint.x, (int)startPoint.y, (int)startPoint.z);
         Vector3f endPoint = new Vector3f(startPoint);
 
-        endPoint.add(new Vector3f(camera.getFront()).mul(reach));
+        endPoint.add(new Vector3f(front).mul(reach));
 
         float dx, dy, dz, tDeltaX, tDeltaY, tDeltaZ, tMaxX, tMaxY, tMaxZ;
 
