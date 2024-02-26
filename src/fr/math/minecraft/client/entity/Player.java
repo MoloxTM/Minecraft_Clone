@@ -41,7 +41,7 @@ public class Player {
     private float speed;
     private boolean firstMouse;
     private boolean movingLeft, movingRight, movingForward, movingBackward;
-    private boolean flying, sneaking, canJump, inAir, jumping;
+    private boolean flying, sneaking, canJump, jumping, sprinting;
     private boolean movingMouse;
     private boolean debugKeyPressed, occlusionKeyPressed, interpolationKeyPressed;
     private boolean placingBlock, breakingBlock;
@@ -84,7 +84,7 @@ public class Player {
         this.firstMouse = true;
         this.lastMouseX = 0.0f;
         this.lastMouseY = 0.0f;
-        this.speed = 0.0125f;
+        this.speed = GameConfiguration.DEFAULT_SPEED;
         this.maxSpeed = 0.03f;
         this.maxFall = 0.03f;
         this.ping = 0;
@@ -101,10 +101,10 @@ public class Player {
         this.interpolationKeyPressed = false;
         this.movingMouse = true;
         this.sneaking = false;
+        this.sprinting = false;
         this.flying = false;
         this.canJump = false;
         this.jumping = false;
-        this.inAir = true;
         this.placingBlock = false;
         this.breakingBlock = false;
         this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 1.0f, 0.25f));
@@ -169,6 +169,14 @@ public class Player {
 
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
             movingRight = true;
+        }
+
+        if(glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+            if(!sprinting) {
+                sprinting = true;
+            } else {
+                sprinting = false;
+            }
         }
 
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
@@ -345,6 +353,14 @@ public class Player {
 
         velocity.add(gravity);
 
+        if(sprinting) {
+            System.out.println("Je sprint là :" + this.speed);
+            this.setSpeed(GameConfiguration.SPRINT_SPEED);
+        } else {
+            System.out.println("No sprint:" + this.speed);
+            this.setSpeed(GameConfiguration.DEFAULT_SPEED);
+        }
+
         if (movingForward) {
             acceleration.add(front);
         }
@@ -411,7 +427,7 @@ public class Player {
 
         velocity.mul(0.95f);
 
-        PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, jumping, yaw, pitch);
+        PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, jumping, yaw, pitch, sprinting);
         inputs.add(inputData);
     }
 
@@ -604,5 +620,9 @@ public class Player {
 
     public Ray getBuildRay() {
         return buildRay;
+    }
+
+    public void setSpeed(float speed) {
+        this.speed = speed;
     }
 }

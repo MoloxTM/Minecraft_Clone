@@ -4,7 +4,6 @@ import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.world.Region;
 import fr.math.minecraft.shared.world.World;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 public class TestChunkGeneration {

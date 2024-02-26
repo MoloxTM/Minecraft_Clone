@@ -37,7 +37,7 @@ public class TestPosition {
         player.setYaw(yaw);
         player.setPitch(pitch);
 
-        PlayerInputData inputData = new PlayerInputData(false, false, true, false, false, false, false, yaw, pitch);
+        PlayerInputData inputData = new PlayerInputData(false, false, true, false, false, false, false, yaw, pitch, false);
         List<PlayerInputData> inputs = new ArrayList<>();
         inputs.add(inputData);
 

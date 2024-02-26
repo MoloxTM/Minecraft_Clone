@@ -99,7 +99,6 @@ public class WorldManager {
 
         for (int i = 0; i < neighboors.length; i++) {
             if(world.getChunk(neighboors[i].x, neighboors[i].y, neighboors[i].z) != null && world.getChunk(neighboors[i].x, neighboors[i].y, neighboors[i].z).isLoaded()) {
-                System.out.println("J'ai udpate un voisin je te jure");
                 world.getChunk(neighboors[i].x, neighboors[i].y, neighboors[i].z).update();
             }
         }
