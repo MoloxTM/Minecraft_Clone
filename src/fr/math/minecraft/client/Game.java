@@ -288,8 +288,8 @@ public class Game {
         player.updateAnimations();
         player.getHand().update(new Vector3f(player.getVelocity()));
         camera.update(player);
-        player.getAttackRay().update(camera.getPosition(), camera.getFront(), world);
-        player.getBuildRay().update(camera.getPosition(), camera.getFront(), world);
+        player.getAttackRay().update(camera.getPosition(), camera.getFront(), world, false);
+        player.getBuildRay().update(camera.getPosition(), camera.getFront(), world, false);
         if(player.getBuildRay().getAimedChunk() != null && (player.getBuildRay().getAimedBlock() != Material.AIR.getId() || player.getBuildRay().getAimedBlock() != Material.WATER.getId())){
             player.getAimedBlocks().add(player.getBuildRay().getBlockWorldPosition());
         }

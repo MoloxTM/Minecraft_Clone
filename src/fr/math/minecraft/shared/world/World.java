@@ -136,6 +136,14 @@ public class World {
         return this.getChunk(chunkX, chunkY, chunkZ);
     }
 
+    public Chunk getChunkAt(Vector3i worldPosition) {
+        int chunkX = (int) Math.floor(worldPosition.x / (double) Chunk.SIZE);
+        int chunkY = (int) Math.floor(worldPosition.y / (double) Chunk.SIZE);
+        int chunkZ = (int) Math.floor(worldPosition.z / (double) Chunk.SIZE);
+
+        return this.getChunk(chunkX, chunkY, chunkZ);
+    }
+
     public byte getServerBlockAt(int worldX, int worldY, int worldZ) {
         Chunk chunk = getChunkAt(worldX, worldY, worldZ);
 

@@ -1,5 +1,6 @@
 package fr.math.minecraft.client.entity;
 
+import fr.math.minecraft.server.Utils;
 import fr.math.minecraft.shared.MathUtils;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.world.Material;
@@ -25,7 +26,7 @@ public class Ray {
     }
 
 
-    public void update(Vector3f position, Vector3f front, World world) {
+    public void update(Vector3f position, Vector3f front, World world, boolean isServer) {
 
         this.aimedChunk = null;
         this.aimedBlock = Material.AIR.getId();
@@ -63,6 +64,12 @@ public class Ray {
             }
 
             this.aimedChunk = world.getChunkAt(rayPositon.x, rayPositon.y, rayPositon.z);
+            if(this.aimedChunk == null && isServer) {
+                Vector3i chunkPos = Utils.getChunkPosition(rayPositon.x, rayPositon.y, rayPositon.z);
+                this.aimedChunk = new Chunk(chunkPos.x, chunkPos.y, chunkPos.z);
+                this.aimedChunk.generate(world, world.getTerrainGenerator());
+                world.addChunk(this.aimedChunk);
+            }
 
             if (this.aimedChunk != null) {
                 int blockX = rayPositon.x % Chunk.SIZE;

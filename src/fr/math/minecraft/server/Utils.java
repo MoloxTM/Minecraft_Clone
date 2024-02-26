@@ -39,4 +39,25 @@ public class Utils {
         return Math.sqrt(x + y + z);
     }
 
+    public static Vector3i worldToLocal(Vector3i worldPosition) {
+        int blockX = worldPosition.x % Chunk.SIZE;
+        int blockY = worldPosition.y % Chunk.SIZE;
+        int blockZ = worldPosition.z % Chunk.SIZE;
+
+        blockX = blockX < 0 ? blockX + Chunk.SIZE : blockX;
+        blockY = blockY < 0 ? blockY + Chunk.SIZE : blockY;
+        blockZ = blockZ < 0 ? blockZ + Chunk.SIZE : blockZ;
+
+        return new Vector3i(blockX, blockY, blockZ);
+    }
+
+    public static Vector3i getChunkPosition(float x, float y, float z) {
+
+        int chunkX = (int) Math.floor(x / (double) Chunk.SIZE);
+        int chunkY = (int) Math.floor(y / (double) Chunk.SIZE);
+        int chunkZ = (int) Math.floor(z / (double) Chunk.SIZE);
+
+        return new Vector3i(chunkX, chunkY, chunkZ);
+    }
+
 }

@@ -16,6 +16,7 @@ import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.shared.GameConfiguration;
 import org.apache.log4j.Logger;
+import org.joml.Vector3i;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -122,6 +123,16 @@ public class PacketReceiver extends Thread {
 
                     this.ping = (int) (currentTime - sentTime);
                     break;
+                case "PLAYER_BREAK_EVENT":
+                    System.out.println(responseData);
+                    ArrayNode blocksData = (ArrayNode) responseData.get("aimedBlocks");
+                    Player player = game.getPlayers().get(responseData.get("uuid"));
+                    for (int i = 0; i < blocksData.size(); i++) {
+                        JsonNode node = blocksData.get(i);
+                        Vector3i blockPosition = new Vector3i(node.get("x").asInt(), node.get("y").asInt(), node.get("z").asInt());
+                        this.notifyEvent(new BlockBreakEvent(player, blockPosition));
+                    }
+                    break;
                 default:
                     logger.warn("Le packet " + packetType + " est inconnu et a été ignoré.");
             }
@@ -163,6 +174,12 @@ public class PacketReceiver extends Thread {
     private void notifyEvent(SkinPacketEvent event) {
         for (PacketEventListener listener : packetListeners) {
             listener.onSkinPacket(event);
+        }
+    }
+
+    private void notifyEvent(BlockBreakEvent event) {
+        for (EventListener listener : eventListeners) {
+            listener.onBlockBreak(event);
         }
     }
 

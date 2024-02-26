@@ -268,14 +268,17 @@ public class Client {
         for (PlayerInputData inputData : payload.getInputsData()) {
 
             if (inputData.isBreakingBlock()) {
-                buildRay.update(position, front, world);
-                if(buildRay.getAimedChunk() != null && (buildRay.getAimedBlock() != Material.AIR.getId() || buildRay.getAimedBlock() != Material.WATER.getId())) {
+                buildRay.update(position, front, world, true);
+
+                if(buildRay.getAimedChunk() != null && (buildRay.getAimedBlock() != Material.AIR.getId() && buildRay.getAimedBlock() != Material.WATER.getId())) {
+                    System.out.println("j'ai détecté ça :" + buildRay.getAimedBlock());
 
                     Vector3i rayPosition = buildRay.getBlockWorldPosition();
+                    Vector3i blockPositionLocal = Utils.worldToLocal(rayPosition);
                     byte block = buildRay.getAimedBlock();
-
                     blocksPosition.add(rayPosition);
                     blocksIDs.add(block);
+                    buildRay.getAimedChunk().setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, Material.AIR.getId());
 
                 }
             }

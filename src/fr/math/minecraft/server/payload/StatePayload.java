@@ -71,6 +71,7 @@ public class StatePayload {
         }
 
         ObjectNode payloadNode = this.toJSON();
+        ObjectNode payloadEventNode = this.toJSONEvent();
         ObjectMapper mapper = new ObjectMapper();
 
         try {
@@ -82,6 +83,48 @@ public class StatePayload {
             e.printStackTrace();
         }
 
+        try {
+            String payloadEventData = mapper.writeValueAsString(payloadEventNode);
+            byte[] buffer = payloadEventData.getBytes(StandardCharsets.UTF_8);
+            DatagramPacket packetEvent = new DatagramPacket(buffer, buffer.length);
+
+            synchronized (server.getClients()) {
+                for (Client onlineClient : server.getClients().values()) {
+                    if(!onlineClient.getUuid().equalsIgnoreCase(payload.getClientUuid())) {
+                        packetEvent.setAddress(onlineClient.getAddress());
+                        packetEvent.setPort(onlineClient.getPort());
+                        server.sendPacket(packetEvent);
+                    }
+                }
+            }
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    public ObjectNode toJSONEvent() {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode payloadNode = mapper.createObjectNode();
+        ArrayNode blocksArray = mapper.createArrayNode();
+
+        payloadNode.put("type", "PLAYER_BREAK_EVENT");
+        payloadNode.put("uuid", payload.getClientUuid());
+        
+        for (int i = 0; i < aimedBlocks.size(); i++) {
+            Vector3i blockPosition = aimedBlocks.get(i);
+            byte block = aimedBlocksIDs.get(i);
+            ObjectNode blockNode = mapper.createObjectNode();
+
+            blockNode.put("x", blockPosition.x);
+            blockNode.put("y", blockPosition.y);
+            blockNode.put("z", blockPosition.z);
+            blockNode.put("block", block);
+        }
+        payloadNode.set("aimedBlocks", blocksArray);
+
+        return payloadNode;
     }
 
     public ObjectNode toJSON() {
@@ -99,6 +142,7 @@ public class StatePayload {
         payloadNode.put("vz", velocity.z);
         payloadNode.put("yaw", yaw);
         payloadNode.put("pitch", pitch);
+        payloadNode.put("uuid", payload.getClientUuid());
 
         for (int i = 0; i < aimedBlocks.size(); i++) {
             Vector3i blockPosition = aimedBlocks.get(i);
