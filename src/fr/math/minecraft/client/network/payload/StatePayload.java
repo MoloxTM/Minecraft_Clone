@@ -6,6 +6,7 @@ import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.network.FixedPacketSender;
 import fr.math.minecraft.client.network.packet.PlayerMovePacket;
 import fr.math.minecraft.shared.network.PlayerInputData;
+import org.joml.Math;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 

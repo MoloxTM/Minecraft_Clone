@@ -42,7 +42,7 @@ public class Player {
     private float speed;
     private boolean firstMouse;
     private boolean movingLeft, movingRight, movingForward, movingBackward;
-    private boolean flying, sneaking, canJump, jumping, sprinting;
+    private boolean flying, sneaking, canJump, canBreakBlock, jumping, sprinting;
     private boolean movingMouse;
     private boolean debugKeyPressed, occlusionKeyPressed, interpolationKeyPressed;
     private boolean placingBlock, breakingBlock;
@@ -67,7 +67,7 @@ public class Player {
     private String skinPath;
     private final PlayerHand hand;
     private EntityUpdate lastUpdate;
-    private int jumpAccelerationCount;
+    private int breakBlockCooldown;
     private Ray attackRay, buildRay;
     private ArrayList<Vector3i> aimedBlocks;
 
@@ -90,7 +90,6 @@ public class Player {
         this.maxSpeed = 0.03f;
         this.maxFall = 0.03f;
         this.ping = 0;
-        this.jumpAccelerationCount = 0;
         this.sensitivity = 0.1f;
         this.name = name;
         this.uuid = null;
@@ -106,6 +105,7 @@ public class Player {
         this.sprinting = false;
         this.flying = false;
         this.canJump = false;
+        this.canBreakBlock = true;
         this.jumping = false;
         this.placingBlock = false;
         this.breakingBlock = false;
@@ -115,7 +115,7 @@ public class Player {
         this.skin = null;
         this.skinPath = "res/textures/skin.png";
         this.eventListeners = new ArrayList<>();
-        this.gameMode = GameMode.CREATIVE;
+        this.gameMode = GameMode.SURVIVAL;
         this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
         this.buildRay = new Ray(GameConfiguration.BUILDING_REACH);
         this.aimedBlocks = new ArrayList<>();
@@ -237,6 +237,11 @@ public class Player {
             breakingBlock = true;
         }
 
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
+            breakingBlock = false;
+            canBreakBlock = true;
+        }
+
         if (movingLeft || movingRight || movingForward || movingBackward || sneaking || flying) {
             this.notifyEvent(new PlayerMoveEvent(this));
         }
@@ -254,8 +259,8 @@ public class Player {
         sneaking = false;
         jumping = false;
         movingMouse = false;
-        breakingBlock = false;
-        placingBlock = false;
+        //breakingBlock = false;
+        //placingBlock = false;
     }
 
     public void updateAnimations() {
@@ -280,7 +285,6 @@ public class Player {
 
     private void handleJump() {
         if (canJump) {
-            jumpAccelerationCount = 10;
             maxFall = 0.5f;
             canJump = false;
         }
@@ -346,9 +350,9 @@ public class Player {
         Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
         Vector3f acceleration = new Vector3f(0, 0, 0);
 
-        //velocity.add(gravity);
+        velocity.add(gravity);
 
-        if(sprinting) {
+        if (sprinting) {
             this.setSpeed(GameConfiguration.SPRINT_SPEED);
         } else {
 
@@ -382,7 +386,6 @@ public class Player {
         if (jumping) {
             // handleJump();
             if (canJump) {
-                jumpAccelerationCount = 10;
                 maxFall = 0.5f;
                 acceleration.y += 10.0f;
                 canJump = false;
@@ -390,9 +393,20 @@ public class Player {
         }
 
         if (breakingBlock) {
-            ChunkManager chunkManager = new ChunkManager();
-            if (buildRay.getAimedChunk() != null && (buildRay.getAimedBlock() != Material.AIR.getId() || buildRay.getAimedBlock() != Material.WATER.getId())) {
-                chunkManager.removeBlock(buildRay.getAimedChunk(), buildRay.getBlockChunkPositionLocal(), Game.getInstance().getWorld());
+            if (canBreakBlock) {
+                ChunkManager chunkManager = new ChunkManager();
+                if (buildRay.getAimedChunk() != null && (buildRay.getAimedBlock() != Material.AIR.getId() || buildRay.getAimedBlock() != Material.WATER.getId())) {
+                    chunkManager.removeBlock(buildRay.getAimedChunk(), buildRay.getBlockChunkPositionLocal(), Game.getInstance().getWorld());
+                }
+                canBreakBlock = false;
+                breakBlockCooldown = (int) GameConfiguration.UPS / 3;
+            }
+        }
+
+        if (breakBlockCooldown > 0) {
+            breakBlockCooldown--;
+            if (breakBlockCooldown == 0) {
+                canBreakBlock = true;
             }
         }
 

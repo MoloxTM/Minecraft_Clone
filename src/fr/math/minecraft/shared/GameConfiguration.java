@@ -25,6 +25,8 @@ public class GameConfiguration {
     public final static float DEFAULT_SPEED= 0.0125f;
     public final static float SPRINT_SPEED = DEFAULT_SPEED * 2f ;
 
+    public final static int BLOCK_BREAK_COOLDOWN = (int) UPS / 3;
+
     private boolean entityInterpolation;
     private boolean occlusionEnabled;
     private boolean debugging;

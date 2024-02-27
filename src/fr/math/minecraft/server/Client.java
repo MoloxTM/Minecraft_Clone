@@ -40,6 +40,7 @@ public class Client {
     private BufferedImage skin;
     private boolean movingLeft, movingRight, movingForward, movingBackward;
     private boolean flying, sneaking;
+    private boolean canBreakBlock;
     private boolean active;
     private final Vector3i inputVector;
     private final Vector3f velocity;
@@ -55,6 +56,7 @@ public class Client {
     private final Ray buildRay, attackRay;
     private List<Vector3i> aimedBlocks;
     private List<Byte> aimedBlocksIDs;
+    private int breakBlockCooldown;
     private final static Logger logger = LoggerUtility.getServerLogger(Client.class, LogType.TXT);
 
     public Client(String uuid, String name, InetAddress address, int port) {
@@ -77,6 +79,7 @@ public class Client {
         this.speed = GameConfiguration.DEFAULT_SPEED;
         this.maxSpeed = 0.03f;
         this.maxFallSpeed = 0.03f;
+        this.breakBlockCooldown = GameConfiguration.BLOCK_BREAK_COOLDOWN;
         this.skin = null;
         this.movingLeft = false;
         this.movingRight = false;
@@ -85,6 +88,7 @@ public class Client {
         this.flying = false;
         this.sneaking = false;
         this.canJump = true;
+        this.canBreakBlock = true;
         this.active = false;
         this.buildRay = new Ray(GameConfiguration.BUILDING_REACH);
         this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
@@ -203,7 +207,7 @@ public class Client {
 
             this.resetMoving();
 
-            //velocity.add(gravity);
+            velocity.add(gravity);
 
             if (inputData.isMovingForward()) {
                 acceleration.add(front);
@@ -268,22 +272,29 @@ public class Client {
 
             buildRay.update(position, cameraFront, world, true);
 
+            if (!inputData.isBreakingBlock()) {
+                canBreakBlock = true;
+            }
+
             if (inputData.isBreakingBlock()) {
 
                 byte block = buildRay.getAimedBlock();
 
-                if (buildRay.getAimedChunk() != null && block != Material.AIR.getId() && block != Material.WATER.getId()) {
+                if (this.canBreakBlock) {
+                    if (buildRay.getAimedChunk() != null && block != Material.AIR.getId() && block != Material.WATER.getId()) {
 
-                    Vector3i rayPosition = buildRay.getBlockWorldPosition();
-                    Vector3i blockPositionLocal = Utils.worldToLocal(rayPosition);
+                        Vector3i rayPosition = buildRay.getBlockWorldPosition();
+                        Vector3i blockPositionLocal = Utils.worldToLocal(rayPosition);
 
-                    blocksPosition.add(rayPosition);
-                    blocksIDs.add(block);
+                        blocksPosition.add(rayPosition);
+                        blocksIDs.add(block);
 
-                    logger.info(name + " (" + uuid + ") a cassé un block de " + Material.getMaterialById(block) + " en " + buildRay.getBlockWorldPosition());
+                        logger.info(name + " (" + uuid + ") a cassé un block de " + Material.getMaterialById(block) + " en " + buildRay.getBlockWorldPosition());
 
-                    buildRay.getAimedChunk().setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, Material.AIR.getId());
-                    buildRay.reset();
+                        buildRay.getAimedChunk().setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, Material.AIR.getId());
+                        buildRay.reset();
+                        this.canBreakBlock = false;
+                    }
                 }
             }
 
