@@ -9,6 +9,8 @@ import org.joml.Math;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
+import java.util.Arrays;
+
 public class Ray {
 
     private Chunk aimedChunk;
@@ -32,7 +34,7 @@ public class Ray {
         this.aimedBlock = Material.AIR.getId();
 
         Vector3f startPoint = new Vector3f(position).add(0.0f, 0.5f, 0.0f);
-        Vector3i rayPositon = new Vector3i((int)startPoint.x, (int)startPoint.y, (int)startPoint.z);
+        Vector3i rayPosition = new Vector3i((int)startPoint.x, (int)startPoint.y, (int)startPoint.z);
         Vector3f endPoint = new Vector3f(startPoint);
 
         endPoint.add(new Vector3f(front).mul(reach));
@@ -53,47 +55,53 @@ public class Ray {
 
         while (!(tMaxX > 1 && tMaxY > 1 && tMaxZ > 1)){
             if (tMaxX < tMaxY && tMaxX < tMaxZ) {
-                rayPositon.x += dx;
+                rayPosition.x += dx;
                 tMaxX += tDeltaX;
             } else if (tMaxY < tMaxX && tMaxY < tMaxZ) {
-                rayPositon.y += dy;
+                rayPosition.y += dy;
                 tMaxY += tDeltaY;
             } else {
-                rayPositon.z += dz;
+                rayPosition.z += dz;
                 tMaxZ += tDeltaZ;
             }
 
-            this.aimedChunk = world.getChunkAt(rayPositon.x, rayPositon.y, rayPositon.z);
-            if(this.aimedChunk == null && isServer) {
-                Vector3i chunkPos = Utils.getChunkPosition(rayPositon.x, rayPositon.y, rayPositon.z);
-                this.aimedChunk = new Chunk(chunkPos.x, chunkPos.y, chunkPos.z);
-                this.aimedChunk.generate(world, world.getTerrainGenerator());
-                world.addChunk(this.aimedChunk);
-            }
+            synchronized (world.getChunks()) {
+                this.aimedChunk = world.getChunkAt(rayPosition.x, rayPosition.y, rayPosition.z);
 
-            if (this.aimedChunk != null) {
-                int blockX = rayPositon.x % Chunk.SIZE;
-                int blockY = rayPositon.y % Chunk.SIZE;
-                int blockZ = rayPositon.z % Chunk.SIZE;
+                if (this.aimedChunk == null && isServer) {
+                    Vector3i chunkPos = Utils.getChunkPosition(rayPosition.x, rayPosition.y, rayPosition.z);
+                    this.aimedChunk = new Chunk(chunkPos.x, chunkPos.y, chunkPos.z);
+                    this.aimedChunk.generate(world, world.getTerrainGenerator());
+                    world.addChunk(this.aimedChunk);
+                }
 
-                blockX = blockX < 0 ? blockX + Chunk.SIZE : blockX;
-                blockY = blockY < 0 ? blockY + Chunk.SIZE : blockY;
-                blockZ = blockZ < 0 ? blockZ + Chunk.SIZE : blockZ;
 
-                byte block = this.aimedChunk.getBlock(blockX, blockY, blockZ);
-                if (block != Material.AIR.getId() && block != Material.WATER.getId()) {
-                    this.blockWorldPosition.x = rayPositon.x;
-                    this.blockWorldPosition.y = rayPositon.y;
-                    this.blockWorldPosition.z = rayPositon.z;
+                if (this.aimedChunk != null) {
+                    int blockX = rayPosition.x % Chunk.SIZE;
+                    int blockY = rayPosition.y % Chunk.SIZE;
+                    int blockZ = rayPosition.z % Chunk.SIZE;
 
-                    this.blockChunkPosition.x = blockX;
-                    this.blockChunkPosition.y = blockY;
-                    this.blockChunkPosition.z = blockZ;
+                    blockX = blockX < 0 ? blockX + Chunk.SIZE : blockX;
+                    blockY = blockY < 0 ? blockY + Chunk.SIZE : blockY;
+                    blockZ = blockZ < 0 ? blockZ + Chunk.SIZE : blockZ;
 
-                    this.aimedBlock = block;
-                    break;
+                    byte block = this.aimedChunk.getBlock(blockX, blockY, blockZ);
+
+                    if (block != Material.AIR.getId() && block != Material.WATER.getId()) {
+                        this.blockWorldPosition.x = rayPosition.x;
+                        this.blockWorldPosition.y = rayPosition.y;
+                        this.blockWorldPosition.z = rayPosition.z;
+
+                        this.blockChunkPosition.x = blockX;
+                        this.blockChunkPosition.y = blockY;
+                        this.blockChunkPosition.z = blockZ;
+
+                        this.aimedBlock = block;
+                        break;
+                    }
                 }
             }
+
         }
     }
 
@@ -127,5 +135,12 @@ public class Ray {
 
     public void setReach(float reach) {
         this.reach = reach;
+    }
+
+    public void reset() {
+        this.aimedChunk = null;
+        this.aimedBlock = Material.AIR.getId();
+        this.blockChunkPosition = new Vector3i();
+        this.blockWorldPosition = new Vector3i();
     }
 }

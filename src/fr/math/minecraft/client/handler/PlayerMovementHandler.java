@@ -29,7 +29,7 @@ public class PlayerMovementHandler {
     public void handle(Player player, Vector3f playerPosition, List<PlayerInputData> inputData, List<Vector3i> aimedBlockData) {
 
         if (lastServerState != null) {
-            // this.reconcile(player);
+            this.reconcile(player);
         }
 
         int bufferIndex = currentTick % BUFFER_SIZE;
@@ -61,7 +61,7 @@ public class PlayerMovementHandler {
 
         float positionError = serverPosition.distance(payload.getPosition());
 
-        lastServerState.verifyAimedBlocks(payload.getAimedBlockData());
+        // lastServerState.verifyAimedBlocks(payload.getAimedBlockData());
 
         if (positionError > 0.001f) {
             Camera camera = Game.getInstance().getCamera();

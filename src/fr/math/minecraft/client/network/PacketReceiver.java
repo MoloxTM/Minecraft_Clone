@@ -124,7 +124,6 @@ public class PacketReceiver extends Thread {
                     this.ping = (int) (currentTime - sentTime);
                     break;
                 case "PLAYER_BREAK_EVENT":
-                    System.out.println(responseData);
                     ArrayNode blocksData = (ArrayNode) responseData.get("aimedBlocks");
                     Player player = game.getPlayers().get(responseData.get("uuid"));
                     for (int i = 0; i < blocksData.size(); i++) {

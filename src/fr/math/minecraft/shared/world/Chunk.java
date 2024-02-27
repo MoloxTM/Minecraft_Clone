@@ -78,6 +78,9 @@ public class Chunk {
     }
 
     public void setBlock(int x, int y, int z, byte block) {
+        if (block != Material.AIR.getId() && empty) {
+            empty = false;
+        }
         blocks[x + y * AREA + z * SIZE] = block;
     }
 

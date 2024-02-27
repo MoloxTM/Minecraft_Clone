@@ -63,6 +63,10 @@ public class TickHandler extends Thread {
         }
     }
 
+    private void sendChunks() {
+
+    }
+
     private void sendPlayers() {
 
         MinecraftServer server = MinecraftServer.getInstance();
@@ -96,16 +100,14 @@ public class TickHandler extends Thread {
         synchronized (server.getClients()) {
             for (Client client : server.getClients().values()) {
 
+                if (!client.isActive()) continue;
+
                 synchronized (client.getInputQueue()) {
                     int bufferIndex = -1;
                     while (!client.getInputQueue().isEmpty()) {
                         InputPayload inputPayload = client.getInputQueue().poll();
 
                         if (inputPayload == null) continue;
-
-                        if (!client.isActive()) {
-                            continue;
-                        }
 
                         bufferIndex = inputPayload.getTick() % GameConfiguration.BUFFER_SIZE;
                         StatePayload statePayload = new StatePayload(inputPayload);
@@ -121,6 +123,9 @@ public class TickHandler extends Thread {
                         payload.send();
                     }
                 }
+
+                client.getBuildRay().update(client.getPosition(), client.getFront(), server.getWorld(), true);
+
             }
         }
         this.sendPlayers();

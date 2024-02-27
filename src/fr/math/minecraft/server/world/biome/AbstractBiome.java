@@ -1,6 +1,7 @@
 package fr.math.minecraft.server.world.biome;
 
 import fr.math.minecraft.server.world.*;
+import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.shared.world.World;
 import fr.math.minecraft.shared.world.generator.NoiseGenerator;
 

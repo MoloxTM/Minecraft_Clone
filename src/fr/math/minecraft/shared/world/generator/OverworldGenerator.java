@@ -1,14 +1,11 @@
 package fr.math.minecraft.shared.world.generator;
 
-import fr.math.minecraft.shared.world.Chunk;
-import fr.math.minecraft.server.MinecraftServer;
+import fr.math.minecraft.server.world.biome.DesertBiome;
+import fr.math.minecraft.shared.world.*;
 import fr.math.minecraft.server.world.*;
 import fr.math.minecraft.server.manager.BiomeManager;
 import fr.math.minecraft.server.math.InterpolateMath;
 import fr.math.minecraft.server.world.biome.AbstractBiome;
-import fr.math.minecraft.shared.world.Coordinates;
-import fr.math.minecraft.shared.world.Region;
-import fr.math.minecraft.shared.world.World;
 import org.joml.Vector2i;
 
 import java.util.HashMap;

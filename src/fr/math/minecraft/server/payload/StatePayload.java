@@ -39,13 +39,15 @@ public class StatePayload {
     }
 
     public void predictMovement(World world, Client client) {
-        client.updatePosition(payload);
-        client.updateActions(world, payload);
+        client.update(world, payload);
+
         Vector3f newPosition = new Vector3f(client.getPosition());
         Vector3f newVelocity = new Vector3f(client.getVelocity());
 
-        this.aimedBlocks = client.getAimedBlocks();
-        this.aimedBlocksIDs = client.getAimedBlocksIDs();
+        this.aimedBlocks = new ArrayList<>(client.getAimedBlocks());
+        this.aimedBlocksIDs = new ArrayList<>(client.getAimedBlocksIDs());
+
+        // System.out.println(aimedBlocks);
 
         /*
         if (client.getLastChunkPosition().distance(position.x, position.y, position.z) >= ServerChunk.SIZE) {

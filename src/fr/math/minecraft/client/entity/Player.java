@@ -115,7 +115,7 @@ public class Player {
         this.skin = null;
         this.skinPath = "res/textures/skin.png";
         this.eventListeners = new ArrayList<>();
-        this.gameMode = GameMode.SURVIVAL;
+        this.gameMode = GameMode.CREATIVE;
         this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
         this.buildRay = new Ray(GameConfiguration.BUILDING_REACH);
         this.aimedBlocks = new ArrayList<>();
@@ -234,17 +234,7 @@ public class Player {
         }
 
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-            if(!breakingBlock) {
-                ChunkManager chunkManager = new ChunkManager();
-                if(buildRay.getAimedChunk() != null && (buildRay.getAimedBlock() != Material.AIR.getId() || buildRay.getAimedBlock() != Material.WATER.getId())) {
-                    chunkManager.removeBlock(buildRay.getAimedChunk(), buildRay.getBlockChunkPositionLocal(), Game.getInstance().getWorld());
-                    breakingBlock = true;
-                }
-            }
-        }
-
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
-            breakingBlock = false;
+            breakingBlock = true;
         }
 
         if (movingLeft || movingRight || movingForward || movingBackward || sneaking || flying) {
@@ -356,7 +346,7 @@ public class Player {
         Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
         Vector3f acceleration = new Vector3f(0, 0, 0);
 
-        velocity.add(gravity);
+        //velocity.add(gravity);
 
         if(sprinting) {
             this.setSpeed(GameConfiguration.SPRINT_SPEED);
@@ -396,6 +386,13 @@ public class Player {
                 maxFall = 0.5f;
                 acceleration.y += 10.0f;
                 canJump = false;
+            }
+        }
+
+        if (breakingBlock) {
+            ChunkManager chunkManager = new ChunkManager();
+            if(buildRay.getAimedChunk() != null && (buildRay.getAimedBlock() != Material.AIR.getId() || buildRay.getAimedBlock() != Material.WATER.getId())) {
+                chunkManager.removeBlock(buildRay.getAimedChunk(), buildRay.getBlockChunkPositionLocal(), Game.getInstance().getWorld());
             }
         }
 

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.entity.Ray;
+import fr.math.minecraft.logger.LogType;
+import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.server.payload.StatePayload;
@@ -11,6 +13,7 @@ import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.network.Hitbox;
 import fr.math.minecraft.shared.network.PlayerInputData;
 import fr.math.minecraft.shared.world.World;
+import org.apache.log4j.Logger;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
@@ -51,6 +54,7 @@ public class Client {
     private final Ray buildRay, attackRay;
     private List<Vector3i> aimedBlocks;
     private List<Byte> aimedBlocksIDs;
+    private final static Logger logger = LoggerUtility.getServerLogger(Client.class, LogType.TXT);
 
     public Client(String uuid, String name, InetAddress address, int port) {
         this.address = address;
@@ -172,7 +176,10 @@ public class Client {
         }
     }
 
-    public void updatePosition(InputPayload payload) {
+    public void update(World world, InputPayload payload) {
+
+        List<Vector3i> blocksPosition = new ArrayList<>();
+        List<Byte> blocksIDs = new ArrayList<>();
 
         for (PlayerInputData inputData : payload.getInputsData()) {
             float yaw = inputData.getYaw();
@@ -181,7 +188,7 @@ public class Client {
             this.yaw = yaw;
             this.pitch = pitch;
 
-            Vector3f acceleration = new Vector3f(0,0,0);
+            Vector3f acceleration = new Vector3f(0, 0, 0);
 
             front.x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
             front.y = (float) Math.sin(Math.toRadians(0.0f));
@@ -192,7 +199,7 @@ public class Client {
 
             this.resetMoving();
 
-            velocity.add(gravity);
+            //velocity.add(gravity);
 
             if (inputData.isMovingForward()) {
                 acceleration.add(front);
@@ -255,38 +262,33 @@ public class Client {
             position.y += velocity.y;
             handleCollisions(new Vector3f(0, velocity.y, 0));
 
-            velocity.mul(0.95f);
-        }
-        // System.out.println("Tick " + payload.getTick() + " InputVector: " + payload.getInputVector() + " Calculated position : " + position);
-    }
-
-    public void updateActions(World world, InputPayload payload) {
-
-        List<Vector3i> blocksPosition = new ArrayList<>();
-        List<Byte> blocksIDs = new ArrayList<>();
-
-        for (PlayerInputData inputData : payload.getInputsData()) {
+            buildRay.update(position, front, world, true);
 
             if (inputData.isBreakingBlock()) {
-                buildRay.update(position, front, world, true);
 
-                if(buildRay.getAimedChunk() != null && (buildRay.getAimedBlock() != Material.AIR.getId() && buildRay.getAimedBlock() != Material.WATER.getId())) {
-                    System.out.println("j'ai détecté ça :" + buildRay.getAimedBlock());
+                byte block = buildRay.getAimedBlock();
+
+                if (buildRay.getAimedChunk() != null && block != Material.AIR.getId() && block != Material.WATER.getId()) {
 
                     Vector3i rayPosition = buildRay.getBlockWorldPosition();
                     Vector3i blockPositionLocal = Utils.worldToLocal(rayPosition);
-                    byte block = buildRay.getAimedBlock();
+
                     blocksPosition.add(rayPosition);
                     blocksIDs.add(block);
-                    buildRay.getAimedChunk().setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, Material.AIR.getId());
 
+                    logger.info(name + " (" + uuid + ") a cassé un block de " + Material.getMaterialById(block) + " en " + buildRay.getBlockWorldPosition());
+
+                    buildRay.getAimedChunk().setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, Material.AIR.getId());
+                    buildRay.reset();
                 }
             }
+
+            velocity.mul(0.95f);
         }
 
         this.aimedBlocks = blocksPosition;
         this.aimedBlocksIDs = blocksIDs;
-
+        // System.out.println("Tick " + payload.getTick() + " InputVector: " + payload.getInputVector() + " Calculated position : " + position);
     }
 
     private void handleJump() {
@@ -402,5 +404,21 @@ public class Client {
 
     public List<Vector3i> getAimedBlocks() {
         return aimedBlocks;
+    }
+
+    public Vector3f getFront() {
+        return front;
+    }
+
+    public Vector3f getGravity() {
+        return gravity;
+    }
+
+    public Ray getAttackRay() {
+        return attackRay;
+    }
+
+    public Ray getBuildRay() {
+        return buildRay;
     }
 }
