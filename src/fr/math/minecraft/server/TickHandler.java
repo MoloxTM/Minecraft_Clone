@@ -124,7 +124,7 @@ public class TickHandler extends Thread {
                     }
                 }
 
-                client.getBuildRay().update(client.getPosition(), client.getFront(), server.getWorld(), true);
+                // client.getBuildRay().update(client.getPosition(), client.getFront(), server.getWorld(), true);
 
             }
         }

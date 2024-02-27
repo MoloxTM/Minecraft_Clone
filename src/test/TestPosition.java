@@ -3,13 +3,19 @@ package test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.math.minecraft.client.Camera;
+import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.network.packet.PlayerMovePacket;
 import fr.math.minecraft.server.Client;
 import fr.math.minecraft.server.payload.InputPayload;
+import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.network.PlayerInputData;
+import fr.math.minecraft.shared.world.Chunk;
+import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.shared.world.World;
 import org.joml.Math;
+import org.joml.Vector3f;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -75,8 +81,60 @@ public class TestPosition {
      */
 
     @Test
-    public void testLerp() {
-        float x = 8.125f;
-        System.out.println(Math.lerp(x, x + 2, 0.9f));
+    public void testChunkGeneration() {
+
+        Chunk chunk = new Chunk(0, 3, 0);
+        Chunk otherChunk = new Chunk(0, 3, 0);
+
+        World world = new World();
+        World serverWorld = new World();
+
+        player = new Player("");
+        client = new Client("", "", null, -1);
+
+        chunk.generate(world, world.getTerrainGenerator());
+        otherChunk.generate(world, world.getTerrainGenerator());
+
+        int i = 0;
+        while (i < Chunk.VOLUME && chunk.getBlocks()[i] == otherChunk.getBlocks()[i]) {
+            i++;
+        }
+
+
+        Vector3f startPosition = new Vector3f(1 * Chunk.SIZE, 3 * Chunk.SIZE, 0);
+
+        Camera camera = new Camera(GameConfiguration.WINDOW_WIDTH, GameConfiguration.WINDOW_HEIGHT);
+
+        world.addChunk(chunk);
+
+        player.setPosition(new Vector3f(startPosition).add(0, 3, 0));
+        player.setYaw(0);
+        player.setPitch(-90.0f);
+
+        client.getPosition().x = player.getPosition().x;
+        client.getPosition().y = player.getPosition().y;
+        client.getPosition().z = player.getPosition().z;
+
+        client.setYaw(0);
+        client.setPitch(-90.0f);
+
+        camera.update(player);
+
+        System.out.println(serverWorld.getChunks().size());
+
+        player.getBuildRay().update(startPosition, camera.getFront(), world, false);
+        client.getBuildRay().update(startPosition, client.getFront(), serverWorld, true);
+
+        byte block = player.getBuildRay().getAimedBlock();
+        byte serverBlock = client.getBuildRay().getAimedBlock();
+
+        System.out.println(Material.getMaterialById(block));
+        System.out.println(Material.getMaterialById(serverBlock));
+
+        Assert.assertEquals(i, Chunk.VOLUME);
+
+
     }
+
+
 }

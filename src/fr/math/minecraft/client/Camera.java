@@ -10,6 +10,7 @@ import fr.math.minecraft.client.math.ViewBobbing;
 import fr.math.minecraft.client.meshs.FontMesh;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.GameConfiguration;
+import org.joml.Math;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;

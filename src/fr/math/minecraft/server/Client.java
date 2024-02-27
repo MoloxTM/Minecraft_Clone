@@ -14,6 +14,7 @@ import fr.math.minecraft.shared.network.Hitbox;
 import fr.math.minecraft.shared.network.PlayerInputData;
 import fr.math.minecraft.shared.world.World;
 import org.apache.log4j.Logger;
+import org.joml.Math;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
@@ -194,6 +195,9 @@ public class Client {
             front.y = (float) Math.sin(Math.toRadians(0.0f));
             front.z = (float) (Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
 
+            Vector3f cameraFront = new Vector3f(front);
+            cameraFront.y = Math.sin(Math.toRadians(pitch));
+
             front.normalize();
             Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
 
@@ -262,7 +266,7 @@ public class Client {
             position.y += velocity.y;
             handleCollisions(new Vector3f(0, velocity.y, 0));
 
-            buildRay.update(position, front, world, true);
+            buildRay.update(position, cameraFront, world, true);
 
             if (inputData.isBreakingBlock()) {
 
@@ -278,7 +282,7 @@ public class Client {
 
                     logger.info(name + " (" + uuid + ") a cassé un block de " + Material.getMaterialById(block) + " en " + buildRay.getBlockWorldPosition());
 
-                    buildRay.getAimedChunk().setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, Material.AIR.getId());
+                    //buildRay.getAimedChunk().setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, Material.AIR.getId());
                     buildRay.reset();
                 }
             }
@@ -390,6 +394,14 @@ public class Client {
         return pitch;
     }
 
+    public void setPitch(float pitch) {
+        this.pitch = pitch;
+    }
+
+    public void setYaw(float yaw) {
+        this.yaw = yaw;
+    }
+
     public Queue<InputPayload> getInputQueue() {
         return inputQueue;
     }
@@ -421,4 +433,5 @@ public class Client {
     public Ray getBuildRay() {
         return buildRay;
     }
+
 }

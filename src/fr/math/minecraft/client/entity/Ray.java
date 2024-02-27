@@ -69,6 +69,7 @@ public class Ray {
                 this.aimedChunk = world.getChunkAt(rayPosition.x, rayPosition.y, rayPosition.z);
 
                 if (this.aimedChunk == null && isServer) {
+                    System.out.println("Génération d'un chunk...");
                     Vector3i chunkPos = Utils.getChunkPosition(rayPosition.x, rayPosition.y, rayPosition.z);
                     this.aimedChunk = new Chunk(chunkPos.x, chunkPos.y, chunkPos.z);
                     this.aimedChunk.generate(world, world.getTerrainGenerator());
@@ -87,11 +88,13 @@ public class Ray {
 
                     byte block = this.aimedChunk.getBlock(blockX, blockY, blockZ);
 
+                    //System.out.println("Ray position " + rayPosition + " aimedChunk " + aimedChunk + " " + aimedChunk.getPosition());
+                    //System.out.println("localX " + blockX + " localY " + blockY + " localZ " + blockZ + " " + Material.getMaterialById(block));
+
                     if (block != Material.AIR.getId() && block != Material.WATER.getId()) {
                         this.blockWorldPosition.x = rayPosition.x;
                         this.blockWorldPosition.y = rayPosition.y;
                         this.blockWorldPosition.z = rayPosition.z;
-
                         this.blockChunkPosition.x = blockX;
                         this.blockChunkPosition.y = blockY;
                         this.blockChunkPosition.z = blockZ;
