@@ -113,8 +113,6 @@ public class TickHandler extends Thread {
                         StatePayload statePayload = new StatePayload(inputPayload);
                         statePayload.predictMovement(server.getWorld(), client);
 
-                        //statePayload.send();
-
                         client.getStateBuffer()[bufferIndex] = statePayload;
                     }
 
@@ -123,9 +121,6 @@ public class TickHandler extends Thread {
                         payload.send();
                     }
                 }
-
-                // client.getBuildRay().update(client.getPosition(), client.getFront(), server.getWorld(), true);
-
             }
         }
         this.sendPlayers();

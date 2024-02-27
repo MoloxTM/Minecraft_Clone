@@ -74,6 +74,7 @@ public class Game {
     private double lastPingTime;
     private int tick;
     private GameConfiguration gameConfiguration;
+    private List<Chunk> chunkUpdateQueue;
 
     private Game() {
         this.initWindow();
@@ -147,6 +148,7 @@ public class Game {
         this.pendingMeshs = new LinkedList<>();
         this.playerMovementHandler = new PlayerMovementHandler();
         this.lastPingTime = 0;
+        this.chunkUpdateQueue = new ArrayList<>();
 
         world.buildSpawnMesh();
 
@@ -259,6 +261,14 @@ public class Game {
 
         if (state == GameState.MAIN_MENU) {
             return;
+        }
+
+        synchronized (this.getChunkUpdateQueue()) {
+            for (Chunk chunk : chunkUpdateQueue) {
+                chunk.update();
+            }
+
+            chunkUpdateQueue.clear();
         }
 
         tick++;
@@ -470,5 +480,9 @@ public class Game {
 
     public GameConfiguration getGameConfiguration() {
         return gameConfiguration;
+    }
+
+    public List<Chunk> getChunkUpdateQueue() {
+        return chunkUpdateQueue;
     }
 }

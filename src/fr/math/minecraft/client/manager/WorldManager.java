@@ -1,6 +1,7 @@
 package fr.math.minecraft.client.manager;
 
 import fr.math.minecraft.client.Game;
+import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.shared.MathUtils;
 import fr.math.minecraft.client.world.worker.ChunkGenerationWorker;
 import fr.math.minecraft.shared.GameConfiguration;
@@ -16,9 +17,11 @@ import java.util.*;
 public class WorldManager {
 
     private final Set<Coordinates> loadedChunks;
+    private final List<ChunkMesh> meshsDeleteQueue;
 
     public WorldManager() {
         this.loadedChunks = new HashSet<>();
+        this.meshsDeleteQueue = new ArrayList<>();
     }
 
     public void cleanChunks(World world) {
@@ -96,11 +99,19 @@ public class WorldManager {
 
     public void updateNeighboors(Chunk chunk, World world) {
         Vector3i[] neighboors = this.getNeighboors(chunk);
+        Game game = Game.getInstance();
 
         for (int i = 0; i < neighboors.length; i++) {
-            if(world.getChunk(neighboors[i].x, neighboors[i].y, neighboors[i].z) != null && world.getChunk(neighboors[i].x, neighboors[i].y, neighboors[i].z).isLoaded()) {
-                world.getChunk(neighboors[i].x, neighboors[i].y, neighboors[i].z).update();
+            Chunk neighboorChunk = world.getChunk(neighboors[i].x, neighboors[i].y, neighboors[i].z);
+            if (neighboorChunk != null && world.getChunk(neighboors[i].x, neighboors[i].y, neighboors[i].z).isLoaded()) {
+                synchronized (game.getChunkUpdateQueue()) {
+                    game.getChunkUpdateQueue().add(neighboorChunk);
+                }
             }
         }
+    }
+
+    public List<ChunkMesh> getMeshsDeleteQueue() {
+        return meshsDeleteQueue;
     }
 }

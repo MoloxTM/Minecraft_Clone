@@ -282,7 +282,7 @@ public class Client {
 
                     logger.info(name + " (" + uuid + ") a cassé un block de " + Material.getMaterialById(block) + " en " + buildRay.getBlockWorldPosition());
 
-                    //buildRay.getAimedChunk().setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, Material.AIR.getId());
+                    buildRay.getAimedChunk().setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, Material.AIR.getId());
                     buildRay.reset();
                 }
             }

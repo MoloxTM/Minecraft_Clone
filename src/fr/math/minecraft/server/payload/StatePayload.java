@@ -14,6 +14,7 @@ import org.joml.Vector3i;
 import java.net.DatagramPacket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class StatePayload {
@@ -46,8 +47,6 @@ public class StatePayload {
 
         this.aimedBlocks = new ArrayList<>(client.getAimedBlocks());
         this.aimedBlocksIDs = new ArrayList<>(client.getAimedBlocksIDs());
-
-        // System.out.println(aimedBlocks);
 
         /*
         if (client.getLastChunkPosition().distance(position.x, position.y, position.z) >= ServerChunk.SIZE) {
@@ -85,10 +84,16 @@ public class StatePayload {
             e.printStackTrace();
         }
 
+        if (payloadEventNode == null) {
+            return;
+        }
+
         try {
             String payloadEventData = mapper.writeValueAsString(payloadEventNode);
             byte[] buffer = payloadEventData.getBytes(StandardCharsets.UTF_8);
             DatagramPacket packetEvent = new DatagramPacket(buffer, buffer.length);
+
+            System.out.println(payloadEventData);
 
             synchronized (server.getClients()) {
                 for (Client onlineClient : server.getClients().values()) {
@@ -107,6 +112,11 @@ public class StatePayload {
     }
 
     public ObjectNode toJSONEvent() {
+
+        if (aimedBlocks.isEmpty()) {
+            return null;
+        }
+
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode payloadNode = mapper.createObjectNode();
         ArrayNode blocksArray = mapper.createArrayNode();
@@ -123,7 +133,10 @@ public class StatePayload {
             blockNode.put("y", blockPosition.y);
             blockNode.put("z", blockPosition.z);
             blockNode.put("block", block);
+
+            blocksArray.add(blockNode);
         }
+
         payloadNode.set("aimedBlocks", blocksArray);
 
         return payloadNode;

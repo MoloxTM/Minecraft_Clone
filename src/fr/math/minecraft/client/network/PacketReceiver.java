@@ -124,8 +124,9 @@ public class PacketReceiver extends Thread {
                     this.ping = (int) (currentTime - sentTime);
                     break;
                 case "PLAYER_BREAK_EVENT":
+                    System.out.println(responseData);
                     ArrayNode blocksData = (ArrayNode) responseData.get("aimedBlocks");
-                    Player player = game.getPlayers().get(responseData.get("uuid"));
+                    Player player = game.getPlayers().get(responseData.get("uuid").asText());
                     for (int i = 0; i < blocksData.size(); i++) {
                         JsonNode node = blocksData.get(i);
                         Vector3i blockPosition = new Vector3i(node.get("x").asInt(), node.get("y").asInt(), node.get("z").asInt());

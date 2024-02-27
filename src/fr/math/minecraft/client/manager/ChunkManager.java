@@ -4,13 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.shared.world.Chunk;
-import fr.math.minecraft.shared.world.Coordinates;
 import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.shared.world.World;
 import org.joml.Vector3i;
-
-import java.util.Iterator;
-import java.util.Vector;
 
 public class ChunkManager {
 
@@ -26,10 +22,14 @@ public class ChunkManager {
 
     public void removeBlock(Chunk chunk, Vector3i blockPosition, World world) {
         chunk.setBlock(blockPosition.x, blockPosition.y, blockPosition.z, Material.AIR.getId());
-        chunk.update();
+        Game game = Game.getInstance();
+        // chunk.update();
         if (chunk.isOnBorders(blockPosition)) {
             WorldManager worldManager = new WorldManager();
             worldManager.updateNeighboors(chunk, world);
+        }
+        synchronized (game.getChunkUpdateQueue()) {
+            game.getChunkUpdateQueue().add(chunk);
         }
     }
 

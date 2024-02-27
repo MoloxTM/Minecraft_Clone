@@ -23,9 +23,9 @@ public abstract class Mesh {
     public abstract void init();
     public abstract void draw();
     public void delete() {
-        if(vao != null) vao.delete();
-        if(vbo != null) vbo.delete();
-        if(ebo != null) ebo.delete();
+        if (vao != null) vao.delete();
+        if (vbo != null) vbo.delete();
+        if (ebo != null) ebo.delete();
     }
 
     public VAO getVAO() {
