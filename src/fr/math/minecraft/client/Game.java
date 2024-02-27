@@ -355,6 +355,7 @@ public class Game {
         renderer.renderHand(camera, player.getHand());
         renderer.renderDebugTools(camera, player, fps);
         renderer.renderInventory(camera, player);
+        renderer.renderHotbar(camera, player, player.getHotbar());
     }
 
     public static Game getInstance() {

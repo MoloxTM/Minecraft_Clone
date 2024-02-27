@@ -13,6 +13,7 @@ import fr.math.minecraft.client.manager.FontManager;
 import fr.math.minecraft.client.meshs.*;
 import fr.math.minecraft.client.texture.CubemapTexture;
 import fr.math.minecraft.client.texture.Texture;
+import fr.math.minecraft.inventory.Hotbar;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.server.manager.BiomeManager;
 import fr.math.minecraft.shared.GameConfiguration;
@@ -50,6 +51,8 @@ public class Renderer {
     private final Texture widgetsTexture;
     private final Texture dirtTexture;
     private final Texture invetoryTexture;
+    private final Texture iconsTexture;
+    private final Texture guiBlocksTexture;
     private final ImageMesh minecraftTitleMesh;
     private final ImageMesh screenMesh;
     private final ImageMesh imageMesh;
@@ -115,6 +118,8 @@ public class Renderer {
         this.widgetsTexture = new Texture("res/textures/gui/widgets.png", 5);
         this.skinTexture = new Texture(Game.getInstance().getPlayer().getSkinPath(), 6);
         this.invetoryTexture = new Texture("res/textures/gui/inventory.png", 8);
+        this.iconsTexture = new Texture("res/textures/gui/icons.png", 9);
+        this.guiBlocksTexture = new Texture("res/textures/gui/gui_blocks.png", 10);
 
         this.dirtTexture = new TextureBuilder().buildDirtBackgroundTexture();
 
@@ -128,6 +133,8 @@ public class Renderer {
         this.dirtTexture.load();
         this.skinTexture.load();
         this.invetoryTexture.load();
+        this.iconsTexture.load();
+        this.guiBlocksTexture.load();
     }
 
     public void render(Camera camera, Player player) {
@@ -432,7 +439,7 @@ public class Renderer {
         float inventoryX = (GameConfiguration.WINDOW_WIDTH - inventoryWidth) / 2;
         float inventoryY = (GameConfiguration.WINDOW_HEIGHT - inventoryHeight) / 2;
 
-        imageMesh.getSubImage(0, 90, 177, 166, inventoryWidth, inventoryHeight);
+        imageMesh.texSubImage(0, 90, 177, 166, inventoryWidth, inventoryHeight);
         imageMesh.translate(inventoryX, inventoryY, inventoryWidth, inventoryHeight);
 
         camera.matrixOrtho(imageShader, inventoryX, inventoryY);
@@ -440,6 +447,65 @@ public class Renderer {
         imageMesh.draw();
 
         invetoryTexture.unbind();
+    }
+
+    public void renderHotbar(Camera camera, Player player, Hotbar hotbar) {
+
+        imageShader.enable();
+        imageShader.sendInt("uTexture", widgetsTexture.getSlot());
+
+        glActiveTexture(GL_TEXTURE0 + widgetsTexture.getSlot());
+        widgetsTexture.bind();
+
+        int hotbarWidth = 182;
+        int hotbarHeight = 22;
+        float scale = 2.0f;
+
+        float hotbarX = (GameConfiguration.WINDOW_WIDTH - hotbarWidth * scale) / 2.0f;
+        float hotbarY = 0;
+
+        int slotSize = 22;
+
+        imageMesh.texSubImage(0, 256.0f - hotbarHeight, hotbarWidth, hotbarHeight, 256.0f, 256.0f);
+        imageMesh.translate(hotbarX, hotbarY, hotbarWidth, hotbarHeight, scale);
+
+        imageShader.sendFloat("depth", -10);
+        camera.matrixOrtho(imageShader, 0, 0);
+        imageMesh.draw();
+
+        slotSize = slotSize + 2;
+        hotbarX = hotbarX - 2;
+        hotbarY = hotbarY - 1;
+
+        imageMesh.texSubImage(0, 256.0f - hotbarHeight - slotSize, slotSize, slotSize, 256.0f, 256.0f);
+        imageMesh.translate(hotbarX + hotbar.getCurrentSlot() * 20 * scale, hotbarY, slotSize, slotSize, scale);
+
+        imageShader.sendFloat("depth", -9);
+        camera.matrixOrtho(imageShader, 0, 0);
+        imageMesh.draw();
+
+        widgetsTexture.unbind();
+
+        int filledHearts = (int) player.getHealth() / 2;
+        float missingHearts = player.getMaxHealth() - player.getHealth();
+
+        glActiveTexture(GL_TEXTURE0 + iconsTexture.getSlot());
+        iconsTexture.bind();
+
+        imageShader.sendInt("uTexture", iconsTexture.getSlot());
+
+        int iconSize = 9;
+
+        imageMesh.texSubImage(16 + 4 * iconSize, 256.0f - iconSize, iconSize, iconSize, 256.0f, 256.0f);
+
+        for (int i = 0; i < filledHearts; i++) {
+            imageMesh.translate(hotbarX + i * iconSize * scale, hotbarY + hotbarHeight * scale, iconSize * scale, iconSize * scale);
+            camera.matrixOrtho(imageShader, 0, 0);
+            imageMesh.draw();
+        }
+
+        iconsTexture.unbind();
+
     }
 
     public Map<String, Texture> getSkinsMap() {

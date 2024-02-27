@@ -43,7 +43,7 @@ public class ImageMesh extends Mesh {
         this.init();
     }
 
-    public void getSubImage(float x, float y, float width, float height, float imageWidth, float imageHeight) {
+    public void texSubImage(float x, float y, float width, float height, float imageWidth, float imageHeight) {
 
         float textureX = x / imageWidth;
         float textureY = y / imageHeight;
@@ -55,7 +55,6 @@ public class ImageMesh extends Mesh {
         textureCoords[1] = new Vector2f(textureX, textureY + height);
         textureCoords[2] = new Vector2f(textureX + width, textureY + height);
         textureCoords[3] = new Vector2f(textureX + width, textureY);
-
     }
 
     public void translate(float x, float y, float width, float height) {

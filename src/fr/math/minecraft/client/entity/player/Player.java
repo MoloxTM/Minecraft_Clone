@@ -8,6 +8,7 @@ import fr.math.minecraft.client.events.listeners.EntityUpdate;
 import fr.math.minecraft.client.events.listeners.EventListener;
 import fr.math.minecraft.client.events.PlayerMoveEvent;
 import fr.math.minecraft.client.meshs.NametagMesh;
+import fr.math.minecraft.inventory.Hotbar;
 import fr.math.minecraft.inventory.PlayerInventory;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.world.Coordinates;
@@ -35,6 +36,7 @@ public class Player {
     public final static float HEIGHT = 1.75f;
     public final static float DEPTH = WIDTH;
     private Vector3f position;
+    private final Hotbar hotbar;
     private float yaw;
     private float bodyYaw;
     private float pitch;
@@ -67,6 +69,8 @@ public class Player {
     private EntityUpdate lastUpdate;
     private int jumpAccelerationCount;
     private final PlayerInventory inventory;
+    private final float health;
+    private final float maxHealth;
 
     public Player(String name) {
         this.position = new Vector3f(0.0f, 300.0f, 0.0f);
@@ -87,6 +91,8 @@ public class Player {
         this.speed = 0.0125f;
         this.maxSpeed = 0.03f;
         this.maxFall = 0.03f;
+        this.health = 20.0f;
+        this.maxHealth = 20.0f;
         this.ping = 0;
         this.jumpAccelerationCount = 0;
         this.sensitivity = 0.1f;
@@ -108,6 +114,7 @@ public class Player {
         this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 1.0f, 0.25f));
         this.animations = new ArrayList<>();
         this.nametagMesh = new NametagMesh(name);
+        this.hotbar = new Hotbar();
         this.skin = null;
         this.skinPath = "res/textures/skin.png";
         this.eventListeners = new ArrayList<>();
@@ -205,6 +212,42 @@ public class Player {
                 gameConfiguration.setDebugging(!gameConfiguration.isDebugging());
                 debugKeyPressed = true;
             }
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
+            hotbar.setCurrentSlot(0);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
+            hotbar.setCurrentSlot(1);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
+            hotbar.setCurrentSlot(2);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
+            hotbar.setCurrentSlot(3);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) {
+            hotbar.setCurrentSlot(4);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS) {
+            hotbar.setCurrentSlot(5);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS) {
+            hotbar.setCurrentSlot(6);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_8) == GLFW_PRESS) {
+            hotbar.setCurrentSlot(7);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS) {
+            hotbar.setCurrentSlot(8);
         }
 
         if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_RELEASE) {
@@ -583,5 +626,17 @@ public class Player {
 
     public PlayerInventory getInventory() {
         return inventory;
+    }
+
+    public Hotbar getHotbar() {
+        return hotbar;
+    }
+
+    public float getHealth() {
+        return health;
+    }
+
+    public float getMaxHealth() {
+        return maxHealth;
     }
 }
