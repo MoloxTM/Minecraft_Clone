@@ -20,6 +20,7 @@ public class GameConfiguration {
     public final static int BUFFER_SIZE = 1024;
     public final static float CHUNK_TICK = 60.0f;
     public final static float CHUNK_TICK_RATE = 1000.0f / CHUNK_TICK;
+    public final static int PLAYER_INVENTORY_SIZE = 27;
 
     private boolean entityInterpolation;
     private boolean occlusionEnabled;

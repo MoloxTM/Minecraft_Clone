@@ -1,4 +1,4 @@
-package fr.math.minecraft.client.entity;
+package fr.math.minecraft.client.entity.player;
 
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.animations.Animation;
@@ -8,6 +8,7 @@ import fr.math.minecraft.client.events.listeners.EntityUpdate;
 import fr.math.minecraft.client.events.listeners.EventListener;
 import fr.math.minecraft.client.events.PlayerMoveEvent;
 import fr.math.minecraft.client.meshs.NametagMesh;
+import fr.math.minecraft.inventory.PlayerInventory;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.world.Coordinates;
 import fr.math.minecraft.shared.world.Material;
@@ -65,6 +66,7 @@ public class Player {
     private final PlayerHand hand;
     private EntityUpdate lastUpdate;
     private int jumpAccelerationCount;
+    private final PlayerInventory inventory;
 
     public Player(String name) {
         this.position = new Vector3f(0.0f, 300.0f, 0.0f);
@@ -74,6 +76,7 @@ public class Player {
         this.receivedChunks = new HashSet<>();
         this.inputs = new ArrayList<>();
         this.hand = new PlayerHand();
+        this.inventory = new PlayerInventory();
         this.yaw = 0.0f;
         this.bodyYaw = 0.0f;
         this.pitch = 0.0f;
@@ -576,5 +579,9 @@ public class Player {
 
     public void setMaxFallSpeed(float maxFall) {
         this.maxFall = maxFall;
+    }
+
+    public PlayerInventory getInventory() {
+        return inventory;
     }
 }

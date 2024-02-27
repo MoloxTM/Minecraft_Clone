@@ -1,8 +1,8 @@
 package fr.math.minecraft.client;
 
 import fr.math.minecraft.client.builder.TextureBuilder;
-import fr.math.minecraft.client.entity.Player;
-import fr.math.minecraft.client.entity.PlayerHand;
+import fr.math.minecraft.client.entity.player.Player;
+import fr.math.minecraft.client.entity.player.PlayerHand;
 import fr.math.minecraft.client.fonts.CFont;
 import fr.math.minecraft.client.gui.buttons.BlockButton;
 import fr.math.minecraft.client.gui.GuiText;
@@ -49,8 +49,10 @@ public class Renderer {
     private final Texture minecraftTitleTexture;
     private final Texture widgetsTexture;
     private final Texture dirtTexture;
+    private final Texture invetoryTexture;
     private final ImageMesh minecraftTitleMesh;
     private final ImageMesh screenMesh;
+    private final ImageMesh imageMesh;
     private final FontManager fontManager;
     private final CFont font;
     private final Map<String, Texture> skinsMap;
@@ -60,6 +62,7 @@ public class Renderer {
 
     public Renderer() {
         this.playerMesh = new PlayerMesh();
+        this.imageMesh = new ImageMesh(0, 0, 0, 0);
         this.font = new CFont(GameConfiguration.FONT_FILE_PATH, GameConfiguration.FONT_SIZE);
         this.fontMesh = new FontMesh(font);
         this.skyboxMesh = new SkyboxMesh();
@@ -83,11 +86,14 @@ public class Renderer {
         int titleHeight = (int) (197 * .5f);
 
         this.minecraftTitleMesh = new ImageMesh(
-                titleWidth,
-                titleHeight,
-                GameConfiguration.WINDOW_CENTER_X - titleWidth * .5f ,
-                GameConfiguration.WINDOW_HEIGHT - titleHeight * .5f - 150
+            titleWidth,
+            titleHeight,
+            GameConfiguration.WINDOW_CENTER_X - titleWidth * .5f ,
+            GameConfiguration.WINDOW_HEIGHT - titleHeight * .5f - 150
         );
+
+
+
         this.screenMesh = new ImageMesh(GameConfiguration.WINDOW_WIDTH, GameConfiguration.WINDOW_HEIGHT, 0, 0);
 
         this.fontManager = new FontManager();
@@ -108,6 +114,7 @@ public class Renderer {
         this.panoramaTexture = new CubemapTexture(panoramas, 4);
         this.widgetsTexture = new Texture("res/textures/gui/widgets.png", 5);
         this.skinTexture = new Texture(Game.getInstance().getPlayer().getSkinPath(), 6);
+        this.invetoryTexture = new Texture("res/textures/gui/inventory.png", 8);
 
         this.dirtTexture = new TextureBuilder().buildDirtBackgroundTexture();
 
@@ -120,6 +127,7 @@ public class Renderer {
         this.widgetsTexture.load();
         this.dirtTexture.load();
         this.skinTexture.load();
+        this.invetoryTexture.load();
     }
 
     public void render(Camera camera, Player player) {
@@ -320,6 +328,9 @@ public class Renderer {
 
         int textColor = 0xFFFFFF;
 
+        buttonMesh.setX(button.getX());
+        buttonMesh.setY(button.getY());
+
         if (button.isHovered()) {
             textColor = 0xFFFF00;
             buttonMesh.hover();
@@ -405,6 +416,30 @@ public class Renderer {
         BiomeManager biomeManager = new BiomeManager();
         this.renderText(camera, "BIOME: " + biomeManager.getBiome((int) player.getPosition().x, (int)player.getPosition().z).getBiomeName(), 0, GameConfiguration.WINDOW_HEIGHT - 160, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
         this.renderText(camera, "Entity Interpolation: " + gameConfiguration.isEntityInterpolationEnabled(), 0, GameConfiguration.WINDOW_HEIGHT - 180, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
+    }
+
+    public void renderInventory(Camera camera, Player player) {
+
+        imageShader.enable();
+        imageShader.sendInt("uTexture", invetoryTexture.getSlot());
+
+        glActiveTexture(GL_TEXTURE0 + invetoryTexture.getSlot());
+        invetoryTexture.bind();
+
+        float inventoryWidth = 256.0f;
+        float inventoryHeight = 256.0f;
+
+        float inventoryX = (GameConfiguration.WINDOW_WIDTH - inventoryWidth) / 2;
+        float inventoryY = (GameConfiguration.WINDOW_HEIGHT - inventoryHeight) / 2;
+
+        imageMesh.getSubImage(0, 90, 177, 166, inventoryWidth, inventoryHeight);
+        imageMesh.translate(inventoryX, inventoryY, inventoryWidth, inventoryHeight);
+
+        camera.matrixOrtho(imageShader, inventoryX, inventoryY);
+
+        imageMesh.draw();
+
+        invetoryTexture.unbind();
     }
 
     public Map<String, Texture> getSkinsMap() {

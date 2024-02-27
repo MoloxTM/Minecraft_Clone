@@ -2,7 +2,7 @@ package fr.math.minecraft.client.animations;
 
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.Shader;
-import fr.math.minecraft.client.entity.Player;
+import fr.math.minecraft.client.entity.player.Player;
 import org.joml.Math;
 
 public class PlayerWalkAnimation extends Animation {

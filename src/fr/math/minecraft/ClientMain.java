@@ -1,7 +1,7 @@
 package fr.math.minecraft;
 
 import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.entity.Player;
+import fr.math.minecraft.client.entity.player.Player;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

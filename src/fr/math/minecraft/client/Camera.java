@@ -1,8 +1,8 @@
 package fr.math.minecraft.client;
 
 import fr.math.minecraft.client.animations.Animation;
-import fr.math.minecraft.client.entity.Player;
-import fr.math.minecraft.client.entity.PlayerHand;
+import fr.math.minecraft.client.entity.player.Player;
+import fr.math.minecraft.client.entity.player.PlayerHand;
 import fr.math.minecraft.client.manager.FontManager;
 import fr.math.minecraft.client.math.FrustrumCulling;
 import fr.math.minecraft.client.math.ViewBobbing;
@@ -175,7 +175,7 @@ public class Camera {
         model.identity();
 
         projection.ortho(0, GameConfiguration.WINDOW_WIDTH, 0, GameConfiguration.WINDOW_HEIGHT, nearPlane ,farPlane);
-        model.translate(x, y, z);
+        // model.translate(x, y, z);
 
         shader.sendMatrix("projection", projection, projectionBuffer);
         shader.sendMatrix("model", model, modelBuffer);
