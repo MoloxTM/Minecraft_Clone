@@ -1,6 +1,7 @@
 package fr.math.minecraft.client;
 
 import fr.math.minecraft.client.builder.TextureBuilder;
+import fr.math.minecraft.client.entity.Ray;
 import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.client.entity.player.PlayerHand;
 import fr.math.minecraft.client.fonts.CFont;
@@ -33,6 +34,7 @@ public class Renderer {
     private final FontMesh fontMesh;
     private final SkyboxMesh skyboxMesh;
     private final BlockMesh handBlockMesh;
+    private final BlockMesh blockMesh;
     private final HandMesh handMesh;
     private final Shader playerShader;
     private final Shader chunkShader;
@@ -57,9 +59,9 @@ public class Renderer {
     private final Texture invetoryTexture;
     private final Texture iconsTexture;
     private final Texture guiBlocksTexture;
-    private final ImageMesh minecraftTitleMesh;
     private final CrosshairMesh crosshairMesh;
     private final ImageMesh imageMesh;
+    private final ImageMesh screenMesh;
     private final FontManager fontManager;
     private final CFont font;
     private final Map<String, Texture> skinsMap;

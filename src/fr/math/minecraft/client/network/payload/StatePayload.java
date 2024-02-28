@@ -1,6 +1,7 @@
 package fr.math.minecraft.client.network.payload;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.client.network.FixedPacketSender;
 import fr.math.minecraft.client.network.packet.PlayerMovePacket;

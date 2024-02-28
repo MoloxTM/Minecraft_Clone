@@ -4,6 +4,7 @@ import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.animations.Animation;
 import fr.math.minecraft.client.animations.PlayerHandAnimation;
 import fr.math.minecraft.client.animations.PlayerWalkAnimation;
+import fr.math.minecraft.client.entity.Ray;
 import fr.math.minecraft.client.events.listeners.EntityUpdate;
 import fr.math.minecraft.client.events.listeners.EventListener;
 import fr.math.minecraft.client.events.PlayerMoveEvent;

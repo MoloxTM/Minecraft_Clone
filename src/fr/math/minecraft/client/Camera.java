@@ -1,6 +1,7 @@
 package fr.math.minecraft.client;
 
 import fr.math.minecraft.client.animations.Animation;
+import fr.math.minecraft.client.entity.Ray;
 import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.client.entity.player.PlayerHand;
 import fr.math.minecraft.client.manager.FontManager;

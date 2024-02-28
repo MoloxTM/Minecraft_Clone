@@ -9,8 +9,6 @@ import fr.math.minecraft.client.gui.menus.MainMenu;
 import fr.math.minecraft.client.gui.menus.Menu;
 import fr.math.minecraft.client.handler.PlayerMovementHandler;
 import fr.math.minecraft.client.manager.*;
-import fr.math.minecraft.client.entity.Player;
-import fr.math.minecraft.shared.world.*;
 import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.inventory.ItemStack;
 import fr.math.minecraft.shared.world.Chunk;
@@ -23,6 +21,7 @@ import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.network.PlayerInputData;
 import org.apache.log4j.Logger;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.ALC;
@@ -381,6 +380,7 @@ public class Game {
 
         ItemStack selectedItem = player.getHotbar().getSelectedItem();
 
+        renderer.renderAimedBlock(camera, player.getBuildRay());
         if (selectedItem == null) {
             renderer.renderHand(camera, player.getHand());
         } else {

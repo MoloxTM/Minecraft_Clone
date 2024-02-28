@@ -1,6 +1,7 @@
 package fr.math.minecraft.server;
 
 import fr.math.minecraft.client.entity.player.Player;
+import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.world.Coordinates;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
