@@ -383,6 +383,7 @@ public class Game {
         ItemStack selectedItem = player.getHotbar().getSelectedItem();
 
         renderer.renderAimedBlock(camera, player.getBuildRay());
+
         if (selectedItem == null) {
             renderer.renderHand(camera, player.getHand());
         } else {

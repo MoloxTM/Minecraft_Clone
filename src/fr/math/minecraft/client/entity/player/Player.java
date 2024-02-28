@@ -79,7 +79,7 @@ public class Player {
     private final float maxHealth;
 
     public Player(String name) {
-        this.position = new Vector3f(0.0f, 300.0f, 0.0f);
+        this.position = new Vector3f(0.0f, 100.0f, 0.0f);
         this.lastPosition = new Vector3f(0, 0, 0);
         this.gravity = new Vector3f(0, -0.0025f, 0);
         this.velocity = new Vector3f();
@@ -407,7 +407,7 @@ public class Player {
         Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
         Vector3f acceleration = new Vector3f(0, 0, 0);
 
-        //velocity.add(gravity);
+        velocity.add(gravity);
 
         if (sprinting) {
             this.setSpeed(GameConfiguration.SPRINT_SPEED);

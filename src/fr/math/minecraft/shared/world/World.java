@@ -42,7 +42,7 @@ public class World {
         Region region = new Region(0, 0, 0);
         region.generateStructure(this);
         this.addRegion(region);
-        this.spawnPosition = new Vector3f();
+        this.spawnPosition = this.calculateSpawnPosition();
 
         logger.info("Point de spawn calculé en " + spawnPosition);
 
@@ -56,7 +56,7 @@ public class World {
     public Vector3f calculateSpawnPosition() {
         int spawnX = 0;
         int spawnZ = 0;
-        for (int chunkY = 0; chunkY < 10; chunkY++) {
+        for (int chunkY = 3; chunkY < 10; chunkY++) {
             for (int y = 0; y < Chunk.SIZE; y++) {
                 int worldY = chunkY * Chunk.SIZE + y;
                 byte block = this.getBlockAt(spawnX, worldY, spawnZ);
@@ -67,6 +67,7 @@ public class World {
         }
         return new Vector3f(0, 300.0f, 0);
     }
+
 
     public void buildSpawn() {
         logger.info("Construction du spawn...");
@@ -142,14 +143,6 @@ public class World {
         return this.getChunk(chunkX, chunkY, chunkZ);
     }
 
-    public Chunk getChunkAt(Vector3i worldPosition) {
-        int chunkX = (int) Math.floor(worldPosition.x / (double) Chunk.SIZE);
-        int chunkY = (int) Math.floor(worldPosition.y / (double) Chunk.SIZE);
-        int chunkZ = (int) Math.floor(worldPosition.z / (double) Chunk.SIZE);
-
-        return this.getChunk(chunkX, chunkY, chunkZ);
-    }
-
     public byte getServerBlockAt(int worldX, int worldY, int worldZ) {
         Chunk chunk = getChunkAt(worldX, worldY, worldZ);
 
@@ -208,7 +201,6 @@ public class World {
         transparent.add(Material.ROSE.getId());
         transparent.add(Material.CACTUS.getId());
         transparent.add(Material.DEAD_BUSH.getId());
-        transparent.add(Material.WOOL.getId());
         return transparent;
     }
 

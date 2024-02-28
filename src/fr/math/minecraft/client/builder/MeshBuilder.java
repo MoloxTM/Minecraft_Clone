@@ -73,10 +73,6 @@ public class MeshBuilder {
             return block == Material.AIR.getId();
         }
 
-        if (block == Material.WOOL.getId()) {
-            return true;
-        }
-
         return world.getTransparents().contains(block);
     }
 
@@ -118,14 +114,6 @@ public class MeshBuilder {
                 return true;
             }
             return block == Material.AIR.getId();
-        }
-
-        if (material == Material.WOOL) {
-            return true;
-        } else {
-            if (block == Material.WOOL.getId()) {
-                return true;
-            }
         }
 
         return world.getTransparents().contains(block);

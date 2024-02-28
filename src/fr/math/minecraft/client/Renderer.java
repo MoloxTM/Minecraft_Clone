@@ -454,6 +454,9 @@ public class Renderer {
         glActiveTexture(GL_TEXTURE0 + dirtTexture.getSlot());
         dirtTexture.bind();
 
+        screenMesh.texSubImage(0, 0, GameConfiguration.WINDOW_WIDTH, GameConfiguration.WINDOW_HEIGHT, GameConfiguration.WINDOW_WIDTH, GameConfiguration.WINDOW_HEIGHT);
+        screenMesh.translate(imageShader, 0, 0, GameConfiguration.WINDOW_WIDTH, GameConfiguration.WINDOW_HEIGHT);
+
         camera.matrixOrtho(imageShader, 0, 0);
         screenMesh.draw();
 
