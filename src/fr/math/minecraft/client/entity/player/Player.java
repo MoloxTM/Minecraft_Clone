@@ -407,7 +407,7 @@ public class Player {
         Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
         Vector3f acceleration = new Vector3f(0, 0, 0);
 
-        velocity.add(gravity);
+        //velocity.add(gravity);
 
         if (sprinting) {
             this.setSpeed(GameConfiguration.SPRINT_SPEED);

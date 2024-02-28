@@ -1,20 +1,24 @@
 package fr.math.minecraft.shared.world.generator;
 
-import fr.math.minecraft.server.world.biome.DesertBiome;
 import fr.math.minecraft.shared.world.*;
-import fr.math.minecraft.server.world.*;
+import fr.math.minecraft.server.MinecraftServer;
 import fr.math.minecraft.server.manager.BiomeManager;
 import fr.math.minecraft.server.math.InterpolateMath;
 import fr.math.minecraft.server.world.biome.AbstractBiome;
+import org.joml.Math;
+import org.joml.SimplexNoise;
 import org.joml.Vector2i;
+import org.joml.Vector3i;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class OverworldGenerator implements TerrainGenerator {
-    private final HashMap<Vector2i, Integer> heightMap;
+
+    private final CavesGenerator cavesGenerator;
 
     public OverworldGenerator() {
-        this.heightMap = new HashMap<>();
+        this.cavesGenerator = new OverworldCavesGenerator();
     }
 
     public float calculBiomeHeight(int worldX, int worldZ) {
@@ -24,7 +28,9 @@ public class OverworldGenerator implements TerrainGenerator {
         return height;
     }
 
-    public void fillHeightMap(int chunkX, int chunkZ, int xMin, int xMax, int zMin, int zMax) {
+    public Map<Vector2i, Integer> fillHeightMap(int chunkX, int chunkZ, int xMin, int xMax, int zMin, int zMax) {
+
+        Map<Vector2i, Integer> heightMap = new HashMap<>();
 
         int worldX = chunkX * Chunk.SIZE;
         int worldZ = chunkZ * Chunk.SIZE;
@@ -40,6 +46,8 @@ public class OverworldGenerator implements TerrainGenerator {
                 heightMap.put(new Vector2i(x, z), worldHeight);
             }
         }
+
+        return heightMap;
     }
 
     public int getHeight(int worldX, int worldZ) {
@@ -63,7 +71,9 @@ public class OverworldGenerator implements TerrainGenerator {
     @Override
     public void generateChunk(World world, Chunk chunk) {
 
-        this.fillHeightMap(chunk.getPosition().x, chunk.getPosition().z, 0, Chunk.SIZE - 1, 0, Chunk.SIZE - 1);
+        Map<Vector2i, Integer> heightMap = this.fillHeightMap(chunk.getPosition().x, chunk.getPosition().z, 0, Chunk.SIZE - 1, 0, Chunk.SIZE - 1);
+        PerlinNoiseGenerator noiseGenerator = new PerlinNoiseGenerator(0.005f, 0.2f, 3, 2.175f, 0);
+
         for (int x = 0; x < Chunk.SIZE; x++) {
             for (int z = 0; z < Chunk.SIZE; z++) {
 
@@ -78,11 +88,16 @@ public class OverworldGenerator implements TerrainGenerator {
                 int worldHeight = heightMap.get(new Vector2i(x, z));
 
                 for (int y = 0; y < Chunk.SIZE; y++) {
-                    if (chunk.getBlock(x, y, z) == Material.OAK_LEAVES.getId() || chunk.getBlock(x, y, z) == Material.OAK_LOG.getId()) {
+
+                    byte block = chunk.getBlock(x, y, z);
+                    int worldY = y + chunk.getPosition().y * Chunk.SIZE;
+
+                    Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
+                    Vector3i blockWorldPosition = new Vector3i(worldX, worldY, worldZ);
+
+                    if (block == Material.OAK_LEAVES.getId() || block == Material.OAK_LOG.getId()) {
                         continue;
                     }
-
-                    int worldY = y + chunk.getPosition().y * Chunk.SIZE;
 
                     int regionX = (int) Math.floor(worldX / (double) (Chunk.SIZE * Region.SIZE));
                     int regionY = (int) Math.floor(worldY / (double) (Chunk.SIZE * Region.SIZE));
@@ -90,11 +105,7 @@ public class OverworldGenerator implements TerrainGenerator {
 
                     Region chunkRegion = world.getRegion(regionX, regionY, regionZ);
 
-                    Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
                     if (chunkRegion != null && chunkRegion.getStructure().getStructureMap().containsKey(coordinates)) {
-                        if (chunk.isEmpty()) {
-                            chunk.setEmpty(false);
-                        }
                         chunk.setBlock(x, y, z, chunkRegion.getStructure().getStructureMap().get(coordinates));
                         continue;
                     }
@@ -116,13 +127,11 @@ public class OverworldGenerator implements TerrainGenerator {
 
                     if (material == Material.AIR) continue;
 
-                    if (chunk.isEmpty()) {
-                        chunk.setEmpty(false);
-                    }
-
                     chunk.setBlock(x, y, z, material.getId());
                 }
             }
         }
+
+        cavesGenerator.generateCaves(world, chunk);
     }
 }
