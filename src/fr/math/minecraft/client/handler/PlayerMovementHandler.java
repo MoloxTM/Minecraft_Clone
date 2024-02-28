@@ -6,6 +6,7 @@ import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.shared.network.PlayerInputData;
 import fr.math.minecraft.client.network.payload.InputPayload;
 import fr.math.minecraft.client.network.payload.StatePayload;
+import fr.math.minecraft.shared.world.World;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
@@ -26,11 +27,7 @@ public class PlayerMovementHandler {
         this.stateBuffer = new StatePayload[BUFFER_SIZE];
     }
 
-    public void handle(Player player, Vector3f playerPosition, List<PlayerInputData> inputData, List<Vector3i> aimedBlockData) {
-
-        if (lastServerState != null) {
-            this.reconcile(player);
-        }
+    public void handle(World world, Player player, Vector3f playerPosition, List<PlayerInputData> inputData, List<Vector3i> aimedBlockData) {
 
         int bufferIndex = currentTick % BUFFER_SIZE;
 
@@ -48,14 +45,18 @@ public class PlayerMovementHandler {
         // System.out.println("Tick " + currentTick + " InputVector: " + inputVector + " Calculated position : " + playerPosition);
         stateBuffer[bufferIndex] = statePayload;
 
+        if (lastServerState != null) {
+            this.reconcile(world, player);
+        }
+
         currentTick++;
     }
 
-    public void reconcile(Player player) {
+    public void reconcile(World world, Player player) {
 
         int serverTick = lastServerState.getInputPayload().getTick();
         Vector3f serverPosition = lastServerState.getPosition();
-        Vector3f serverVelocity = lastServerState.getPosition();
+        Vector3f serverVelocity = lastServerState.getVelocity();
 
         StatePayload payload = stateBuffer[serverTick % BUFFER_SIZE];
 
@@ -84,11 +85,11 @@ public class PlayerMovementHandler {
 
             camera.update(player);
 
-            while (tickToProcess < currentTick) {
+            while (tickToProcess <= currentTick) {
 
                 InputPayload inputPayload = inputBuffer[tickToProcess % BUFFER_SIZE];
                 StatePayload statePayload = new StatePayload(inputPayload);
-                statePayload.reconcilMovement(player, player.getPosition(), player.getVelocity());
+                statePayload.reconcileMovement(world, player, player.getPosition(), player.getVelocity());
 
                 camera.update(player);
 

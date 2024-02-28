@@ -7,6 +7,7 @@ import fr.math.minecraft.client.Camera;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.network.packet.PlayerMovePacket;
+import fr.math.minecraft.client.network.payload.StatePayload;
 import fr.math.minecraft.server.Client;
 import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.shared.GameConfiguration;
@@ -34,17 +35,18 @@ public class TestPosition {
         this.client = new Client("1", "Dummy", null, -1);
     }
 
-    /*
     @Test
     public void testPosition() {
-        
+
+        World world = new World();
+
         float yaw = 0.0f;
         float pitch = 0.0f;
         
         player.setYaw(yaw);
         player.setPitch(pitch);
 
-        PlayerInputData inputData = new PlayerInputData(false, false, true, false, false, false, false, yaw, pitch, false);
+        PlayerInputData inputData = new PlayerInputData(false, false, true, false, false, false, false, yaw, pitch, false, false, false);
         List<PlayerInputData> inputs = new ArrayList<>();
         inputs.add(inputData);
 
@@ -65,20 +67,27 @@ public class TestPosition {
 
 
         for (int i = 0; i < 1; i++) {
-            client.updatePosition(inputPayload);
+            client.update(world, inputPayload);
         }
 
+        /*
         player.setMovingForward(true);
         for (int i = 0; i < 1; i++) {
-            player.updatePosition();
+            player.updatePosition(world);
         }
+         */
+
+        StatePayload payload = new StatePayload(new fr.math.minecraft.client.network.payload.InputPayload(0, inputs));
+
+        payload.reconcileMovement(world, player, new Vector3f(), new Vector3f());
+
+        System.out.println(payload.getPosition());
 
         System.out.println(player.getPosition());
         System.out.println(client.getPosition());
 
         Assert.assertEquals(player.getPosition(), client.getPosition());
     }
-     */
 
     @Test
     public void testChunkGeneration() {

@@ -6,6 +6,7 @@ import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.network.FixedPacketSender;
 import fr.math.minecraft.client.network.packet.PlayerMovePacket;
 import fr.math.minecraft.shared.network.PlayerInputData;
+import fr.math.minecraft.shared.world.World;
 import org.joml.Math;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
@@ -50,7 +51,7 @@ public class StatePayload {
         pitch = stateData.get("pitch").floatValue();
     }
 
-    public void reconcilMovement(Player player, Vector3f playerPosition, Vector3f playerVelocity) {
+    public void reconcileMovement(World world, Player player, Vector3f playerPosition, Vector3f playerVelocity) {
         Vector3f front = new Vector3f();
         //Vector3f position = new Vector3f(playerPosition);
         //Vector3f velocity = player.getVelocity();
@@ -122,18 +123,18 @@ public class StatePayload {
             }
 
             player.getPosition().x += player.getVelocity().x;
-            player.handleCollisions(new Vector3f(player.getVelocity().x, 0, 0));
+            player.handleCollisions(world, new Vector3f(player.getVelocity().x, 0, 0));
 
             player.getPosition().z += player.getVelocity().z;
-            player.handleCollisions(new Vector3f(0, 0, player.getVelocity().z));
+            player.handleCollisions(world, new Vector3f(0, 0, player.getVelocity().z));
 
             player.getPosition().y += player.getVelocity().y;
-            player.handleCollisions(new Vector3f(0, player.getVelocity().y, 0));
+            player.handleCollisions(world, new Vector3f(0, player.getVelocity().y, 0));
 
             player.getVelocity().mul(0.95f);
         }
 
-        this.position = new Vector3f(position);
+        this.position = new Vector3f(player.getPosition());
     }
 
     public void verifyAimedBlocks(List<Vector3i> clientAimedBlockData) {

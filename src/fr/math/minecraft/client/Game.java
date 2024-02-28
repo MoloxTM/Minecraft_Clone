@@ -276,7 +276,7 @@ public class Game {
             List<PlayerInputData> inputData = new ArrayList<>(player.getInputs());
             List<Vector3i> aimedBlockData = new ArrayList<>(player.getAimedBlocks());
 
-            playerMovementHandler.handle(player, new Vector3f(player.getPosition()), inputData, aimedBlockData);
+            playerMovementHandler.handle(world, player, new Vector3f(player.getPosition()), inputData, aimedBlockData);
 
             player.getInputs().clear();
             player.getAimedBlocks().clear();
@@ -294,7 +294,7 @@ public class Game {
     }
 
     public void update(Player player) {
-        player.updatePosition();
+        player.updatePosition(world);
         player.updateAnimations();
         player.getHand().update(new Vector3f(player.getVelocity()));
         camera.update(player);

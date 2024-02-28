@@ -290,9 +290,7 @@ public class Player {
         }
     }
 
-    public void handleCollisions(Vector3f velocity) {
-        Game game = Game.getInstance();
-        World world = game.getWorld();
+    public void handleCollisions(World world, Vector3f velocity) {
 
         int minX = (int) Math.floor(position.x - hitbox.getWidth());
         int maxX = (int) Math.ceil(position.x + hitbox.getWidth());
@@ -338,7 +336,7 @@ public class Player {
         }
     }
 
-    public void updatePosition() {
+    public void updatePosition(World world) {
 
         Vector3f front = new Vector3f();
         front.x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
@@ -432,13 +430,13 @@ public class Player {
         }
 
         position.x += velocity.x;
-        handleCollisions(new Vector3f(velocity.x, 0, 0));
+        handleCollisions(world, new Vector3f(velocity.x, 0, 0));
 
         position.z += velocity.z;
-        handleCollisions(new Vector3f(0, 0, velocity.z));
+        handleCollisions(world, new Vector3f(0, 0, velocity.z));
 
         position.y += velocity.y;
-        handleCollisions(new Vector3f(0, velocity.y, 0));
+        handleCollisions(world, new Vector3f(0, velocity.y, 0));
 
         velocity.mul(0.95f);
 
