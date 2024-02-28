@@ -17,9 +17,11 @@ public class ButtonMesh extends Mesh {
     public static final float BUTTON_WIDTH = 200 * 2;
     public static final float BUTTON_HEIGHT = 20 * 2;
     private final FloatBuffer buffer;
+    private float x, y;
 
     public ButtonMesh() {
-        int x = 0, y = 0;
+        this.x = 0;
+        this.y = 0;
         this.buffer = BufferUtils.createFloatBuffer(4 * 4);
         this.vertices = new float[] {
             // x, y, u, v (u = texcoords.x, v = texcoords.y)
@@ -37,8 +39,6 @@ public class ButtonMesh extends Mesh {
     }
 
     public void hover() {
-        int x = 0, y = 0;
-
         this.vertices = new float[] {
             // x, y, u, v (u = texcoords.x, v = texcoords.y)
             x, y, 0.0f, 150.f / 256.0f,
@@ -53,14 +53,12 @@ public class ButtonMesh extends Mesh {
     }
 
     public void unhover() {
-        int x = 0, y = 0;
-
         this.vertices = new float[] {
-                // x, y, u, v (u = texcoords.x, v = texcoords.y)
-                x, y, 0.0f, 170.f / 256.0f,
-                x, y + BUTTON_HEIGHT, 0.0f, 190.f / 256.0f,
-                x + BUTTON_WIDTH, y + BUTTON_HEIGHT, 200.0f / 256.0f, 190.f / 256.0f,
-                x + BUTTON_WIDTH, y, 200.0f / 256.0f, 170.f / 256.0f
+            // x, y, u, v (u = texcoords.x, v = texcoords.y)
+            x, y, 0.0f, 170.f / 256.0f,
+            x, y + BUTTON_HEIGHT, 0.0f, 190.f / 256.0f,
+            x + BUTTON_WIDTH, y + BUTTON_HEIGHT, 200.0f / 256.0f, 190.f / 256.0f,
+            x + BUTTON_WIDTH, y, 200.0f / 256.0f, 170.f / 256.0f
         };
         vbo.bind();
         vbo.bufferFloat(buffer, GL_STATIC_DRAW);
@@ -89,5 +87,13 @@ public class ButtonMesh extends Mesh {
         vao.bind();
         glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
         vao.unbind();
+    }
+
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    public void setY(float y) {
+        this.y = y;
     }
 }

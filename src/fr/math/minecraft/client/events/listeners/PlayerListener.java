@@ -2,8 +2,7 @@ package fr.math.minecraft.client.events.listeners;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.entity.Player;
-import fr.math.minecraft.client.events.BlockBreakEvent;
+import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.client.events.PlayerJoinEvent;
 import fr.math.minecraft.client.events.PlayerMoveEvent;
 import fr.math.minecraft.client.manager.ChunkManager;

@@ -6,8 +6,18 @@ import org.joml.Vector3f;
 
 public class BlockVertex extends Vertex {
 
-    public BlockVertex(Vector3f position, Vector2f textureCoords) {
+    private final float index;
+
+    public BlockVertex(Vector3f position, Vector2f textureCoords, int index) {
         super(position, textureCoords);
+        this.index = index;
     }
 
+    public BlockVertex(Vector3f position, Vector2f textureCoords) {
+        this(position, textureCoords, -1);
+    }
+
+    public float getIndex() {
+        return index;
+    }
 }

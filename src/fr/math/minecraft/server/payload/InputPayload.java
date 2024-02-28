@@ -2,10 +2,7 @@ package fr.math.minecraft.server.payload;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.shared.network.PlayerInputData;
-import org.joml.Vector3i;
 
 import java.util.ArrayList;
 import java.util.List;

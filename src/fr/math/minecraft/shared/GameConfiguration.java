@@ -26,6 +26,7 @@ public class GameConfiguration {
     public final static float SPRINT_SPEED = DEFAULT_SPEED * 2f ;
 
     public final static int BLOCK_BREAK_COOLDOWN = (int) UPS / 3;
+    public final static int PLAYER_INVENTORY_SIZE = 27;
 
     private boolean entityInterpolation;
     private boolean occlusionEnabled;

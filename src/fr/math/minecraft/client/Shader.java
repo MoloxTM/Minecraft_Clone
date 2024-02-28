@@ -1,6 +1,7 @@
 package fr.math.minecraft.client;
 
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
@@ -87,6 +88,10 @@ public class Shader {
 
     public void sendVector3f(String name, Vector3f vector3f) {
         glUniform3f(glGetUniformLocation(id, name), vector3f.x, vector3f.y, vector3f.z);
+    }
+
+    public void sendVector2f(String name, Vector2f vector) {
+        glUniform2f(glGetUniformLocation(id, name), vector.x, vector.y);
     }
 
 }

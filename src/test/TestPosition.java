@@ -8,6 +8,7 @@ import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.network.packet.PlayerMovePacket;
 import fr.math.minecraft.client.network.payload.StatePayload;
+import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.server.Client;
 import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.shared.GameConfiguration;

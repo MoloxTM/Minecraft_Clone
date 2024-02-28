@@ -5,12 +5,11 @@ import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.shared.MathUtils;
 import fr.math.minecraft.client.world.worker.ChunkGenerationWorker;
 import fr.math.minecraft.shared.GameConfiguration;
-import fr.math.minecraft.client.entity.Player;
+import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.world.Coordinates;
 import fr.math.minecraft.shared.world.World;
 import org.joml.Vector3f;
-import org.joml.Vector3i;
 
 import java.util.*;
 
