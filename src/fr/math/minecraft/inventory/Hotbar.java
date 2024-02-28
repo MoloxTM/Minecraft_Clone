@@ -1,8 +1,7 @@
 package fr.math.minecraft.inventory;
 
-public class Hotbar {
+public class Hotbar extends Inventory {
 
-    private final ItemStack[] items;
     private int currentSlot;
 
     public Hotbar() {
@@ -21,4 +20,5 @@ public class Hotbar {
     public void setCurrentSlot(int currentSlot) {
         this.currentSlot = currentSlot;
     }
+
 }

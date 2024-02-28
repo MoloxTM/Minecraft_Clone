@@ -14,9 +14,11 @@ import fr.math.minecraft.client.meshs.*;
 import fr.math.minecraft.client.texture.CubemapTexture;
 import fr.math.minecraft.client.texture.Texture;
 import fr.math.minecraft.inventory.Hotbar;
+import fr.math.minecraft.inventory.ItemStack;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.server.manager.BiomeManager;
 import fr.math.minecraft.shared.GameConfiguration;
+import fr.math.minecraft.shared.world.Material;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
@@ -469,22 +471,44 @@ public class Renderer {
         imageMesh.texSubImage(0, 256.0f - hotbarHeight, hotbarWidth, hotbarHeight, 256.0f, 256.0f);
         imageMesh.translate(hotbarX, hotbarY, hotbarWidth, hotbarHeight, scale);
 
-        imageShader.sendFloat("depth", -10);
+        imageShader.sendFloat("depth", -11);
         camera.matrixOrtho(imageShader, 0, 0);
         imageMesh.draw();
 
         slotSize = slotSize + 2;
-        hotbarX = hotbarX - 2;
-        hotbarY = hotbarY - 1;
 
         imageMesh.texSubImage(0, 256.0f - hotbarHeight - slotSize, slotSize, slotSize, 256.0f, 256.0f);
-        imageMesh.translate(hotbarX + hotbar.getCurrentSlot() * 20 * scale, hotbarY, slotSize, slotSize, scale);
+        imageMesh.translate(hotbarX - 2 + hotbar.getCurrentSlot() * 20 * scale, hotbarY - 1, slotSize, slotSize, scale);
 
-        imageShader.sendFloat("depth", -9);
+        imageShader.sendFloat("depth", -10);
         camera.matrixOrtho(imageShader, 0, 0);
         imageMesh.draw();
 
         widgetsTexture.unbind();
+
+        guiBlocksTexture.bind();
+
+        for (int i = 0; i < hotbar.getCurrentSize(); i++) {
+            ItemStack item = hotbar.getItems()[i];
+
+            Material material = item.getMaterial();
+            imageShader.sendFloat("depth", -9);
+            imageMesh.texSubImage(material.getBlockIconX() * 48.0f, material.getBlockIconY() * 48.0f + 80, 48.0f, 48.0f, 512.0f, 512.0f);
+
+            float itemX = hotbarX + i * 21 * scale + 2;
+
+            if (i == 0) {
+                itemX += 3;
+            }
+
+            float itemY = 22.0f * scale * .7f * 0.25f;
+
+            imageMesh.translate(itemX, itemY, 22 * scale * .7f, 22 * scale * .7f);
+
+            camera.matrixOrtho(imageShader, 0, 0);
+
+            imageMesh.draw();
+        }
 
         int filledHearts = (int) player.getHealth() / 2;
         float missingHearts = player.getMaxHealth() - player.getHealth();
@@ -499,7 +523,15 @@ public class Renderer {
         imageMesh.texSubImage(16 + 4 * iconSize, 256.0f - iconSize, iconSize, iconSize, 256.0f, 256.0f);
 
         for (int i = 0; i < filledHearts; i++) {
-            imageMesh.translate(hotbarX + i * iconSize * scale, hotbarY + hotbarHeight * scale, iconSize * scale, iconSize * scale);
+            imageShader.sendFloat("depth", -10);
+            imageMesh.texSubImage(16 + 0 * iconSize, 256.0f - iconSize, iconSize, iconSize, 256.0f, 256.0f);
+            imageMesh.translate(hotbarX + i * iconSize * scale, hotbarY + hotbarHeight * scale + 5, iconSize * scale, iconSize * scale);
+            camera.matrixOrtho(imageShader, 0, 0);
+            imageMesh.draw();
+
+            imageShader.sendFloat("depth", -9);
+            imageMesh.texSubImage(16 + 4 * iconSize, 256.0f - iconSize, iconSize, iconSize, 256.0f, 256.0f);
+            imageMesh.translate(hotbarX + i * iconSize * scale, hotbarY + hotbarHeight * scale + 5, iconSize * scale, iconSize * scale);
             camera.matrixOrtho(imageShader, 0, 0);
             imageMesh.draw();
         }

@@ -10,8 +10,10 @@ import fr.math.minecraft.client.gui.menus.Menu;
 import fr.math.minecraft.client.handler.PlayerMovementHandler;
 import fr.math.minecraft.client.manager.*;
 import fr.math.minecraft.client.entity.player.Player;
+import fr.math.minecraft.inventory.ItemStack;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.world.Coordinates;
+import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.shared.world.World;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
@@ -200,6 +202,11 @@ public class Game {
         //soundManager.getRandomMusic().play();
 
         menuManager.open(MainMenu.class);
+
+        player.getHotbar().addItem(new ItemStack(Material.STONE, 1));
+        player.getHotbar().addItem(new ItemStack(Material.DIRT, 1));
+        player.getHotbar().addItem(new ItemStack(Material.SAND, 1));
+        player.getHotbar().addItem(new ItemStack(Material.GRASS, 1));
 
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.58f, 0.83f, 0.99f, 1);

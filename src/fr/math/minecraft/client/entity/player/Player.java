@@ -45,7 +45,7 @@ public class Player {
     private boolean movingLeft, movingRight, movingForward, movingBackward;
     private boolean flying, sneaking, canJump, inAir, jumping;
     private boolean movingMouse;
-    private boolean debugKeyPressed, occlusionKeyPressed, interpolationKeyPressed;
+    private boolean debugKeyPressed, occlusionKeyPressed, interpolationKeyPressed, inventoryOpen;
     private float lastMouseX, lastMouseY;
     private String name;
     private String uuid;
@@ -67,7 +67,6 @@ public class Player {
     private String skinPath;
     private final PlayerHand hand;
     private EntityUpdate lastUpdate;
-    private int jumpAccelerationCount;
     private final PlayerInventory inventory;
     private final float health;
     private final float maxHealth;
@@ -94,7 +93,6 @@ public class Player {
         this.health = 20.0f;
         this.maxHealth = 20.0f;
         this.ping = 0;
-        this.jumpAccelerationCount = 0;
         this.sensitivity = 0.1f;
         this.name = name;
         this.uuid = null;
@@ -105,6 +103,7 @@ public class Player {
         this.debugKeyPressed = false;
         this.occlusionKeyPressed = false;
         this.interpolationKeyPressed = false;
+        this.inventoryOpen = false;
         this.movingMouse = true;
         this.sneaking = false;
         this.flying = false;
@@ -303,7 +302,6 @@ public class Player {
 
     private void handleJump() {
         if (canJump) {
-            jumpAccelerationCount = 10;
             maxFall = 0.5f;
             canJump = false;
         }
@@ -398,7 +396,6 @@ public class Player {
         if (jumping) {
             // handleJump();
             if (canJump) {
-                jumpAccelerationCount = 10;
                 maxFall = 0.5f;
                 acceleration.y += 10.0f;
                 canJump = false;

@@ -110,4 +110,8 @@ public class ImageMesh extends Mesh {
         glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
         vao.unbind();
     }
+
+    public void setTextureCoords(Vector2f[] textureCoords) {
+        this.textureCoords = textureCoords;
+    }
 }
