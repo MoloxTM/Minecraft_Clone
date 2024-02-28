@@ -23,10 +23,7 @@ import org.joml.Vector3f;
 import org.joml.Vector3i;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.lwjgl.opengl.GL33.*;
 
@@ -35,8 +32,8 @@ public class Renderer {
     private final PlayerMesh playerMesh;
     private final FontMesh fontMesh;
     private final SkyboxMesh skyboxMesh;
+    private final BlockMesh handBlockMesh;
     private final HandMesh handMesh;
-    private final ButtonMesh buttonMesh;
     private final Shader playerShader;
     private final Shader chunkShader;
     private final Shader fontShader;
@@ -46,6 +43,7 @@ public class Renderer {
     private final Shader skyboxShader;
     private final Shader waterShader;
     private final Shader handShader;
+    private final Shader handBlockShader;
     private final Texture terrainTexture;
     private final Texture skinTexture;
     private final Texture defaultSkinTexture;
@@ -55,7 +53,6 @@ public class Renderer {
     private final Texture invetoryTexture;
     private final Texture iconsTexture;
     private final Texture guiBlocksTexture;
-    private final ImageMesh minecraftTitleMesh;
     private final ImageMesh screenMesh;
     private final ImageMesh imageMesh;
     private final FontManager fontManager;
@@ -72,6 +69,7 @@ public class Renderer {
         this.fontMesh = new FontMesh(font);
         this.skyboxMesh = new SkyboxMesh();
         this.handMesh = new HandMesh();
+        this.handBlockMesh = new BlockMesh(Material.STONE);
         this.loadedSkins = new HashSet<>();
 
         for (int i = 0; i < 256; i++) {
@@ -84,20 +82,6 @@ public class Renderer {
         for (int i = 0; i < index.length; i++) {
             panoramas[i] = "res/textures/gui/title/panorama_" + index[i] + ".png";
         }
-
-        this.buttonMesh = new ButtonMesh();
-
-        int titleWidth = (int) (1002 * .5f);
-        int titleHeight = (int) (197 * .5f);
-
-        this.minecraftTitleMesh = new ImageMesh(
-            titleWidth,
-            titleHeight,
-            GameConfiguration.WINDOW_CENTER_X - titleWidth * .5f ,
-            GameConfiguration.WINDOW_HEIGHT - titleHeight * .5f - 150
-        );
-
-
 
         this.screenMesh = new ImageMesh(GameConfiguration.WINDOW_WIDTH, GameConfiguration.WINDOW_HEIGHT, 0, 0);
 
@@ -112,6 +96,7 @@ public class Renderer {
         this.imageShader = new Shader("res/shaders/image.vert", "res/shaders/image.frag");
         this.waterShader = new Shader("res/shaders/water.vert", "res/shaders/water.frag");
         this.handShader = new Shader("res/shaders/hand.vert", "res/shaders/hand.frag");
+        this.handBlockShader = new Shader("res/shaders/handblock.vert", "res/shaders/handblock.frag");
 
         this.terrainTexture = new Texture("res/textures/terrain.png", 1);
         this.defaultSkinTexture = new Texture("res/textures/skin.png", 2);
@@ -315,6 +300,12 @@ public class Renderer {
         imageShader.sendFloat("depth", -10);
         imageShader.sendInt("uTexture", texture.getSlot());
 
+        int titleWidth = (int) (1002 * .5f);
+        int titleHeight = (int) (197 * .5f);
+
+        imageMesh.texSubImage(0, 0, 1002, 188, 1002, 188);
+        imageMesh.translate(imageShader, GameConfiguration.WINDOW_CENTER_X - titleWidth * .5f, GameConfiguration.WINDOW_HEIGHT - titleHeight * .5f - 150, titleWidth, titleHeight);
+
         glActiveTexture(GL_TEXTURE0 + texture.getSlot());
         texture.bind();
 
@@ -333,26 +324,23 @@ public class Renderer {
         glActiveTexture(GL_TEXTURE0 + widgetsTexture.getSlot());
         widgetsTexture.bind();
 
+        if (button.isHovered()) {
+            imageMesh.texSubImage(0, 256.0f - 106, 200, 20, 256.0f, 256.0f);
+        } else {
+            imageMesh.texSubImage(0, 256.0f - 86, 200, 20, 256.0f, 256.0f);
+        }
+
+        imageMesh.translate(imageShader, button.getX(), button.getY(), ButtonMesh.BUTTON_WIDTH, ButtonMesh.BUTTON_HEIGHT);
         camera.matrixOrtho(imageShader, button.getX(), button.getY());
 
         int textColor = 0xFFFFFF;
 
-        buttonMesh.setX(button.getX());
-        buttonMesh.setY(button.getY());
-
-        if (button.isHovered()) {
-            textColor = 0xFFFF00;
-            buttonMesh.hover();
-        } else {
-            buttonMesh.unhover();
-        }
-
-        buttonMesh.draw();
+        imageMesh.draw();
 
         widgetsTexture.unbind();
 
-        float width = fontManager.getTextWidth(fontMesh,GameConfiguration.DEFAULT_SCALE, button.getText());
-        float height = fontManager.getTextHeight(fontMesh,GameConfiguration.DEFAULT_SCALE, button.getText());
+        float width = fontManager.getTextWidth(fontMesh, GameConfiguration.DEFAULT_SCALE, button.getText());
+        float height = fontManager.getTextHeight(fontMesh, GameConfiguration.DEFAULT_SCALE, button.getText());
 
         this.renderText(camera, button.getText(), button.getX() + (ButtonMesh.BUTTON_WIDTH - width) / 2.0f, button.getY() + (ButtonMesh.BUTTON_HEIGHT - height) / 2.0f, button.getZ() + 1, textColor, GameConfiguration.DEFAULT_SCALE);
     }
@@ -370,7 +358,7 @@ public class Renderer {
         }
 
         if (menu instanceof MainMenu) {
-            this.renderImage(camera, minecraftTitleMesh, minecraftTitleTexture);
+            this.renderImage(camera, imageMesh, minecraftTitleTexture);
         }
 
         GuiText menuTitle = menu.getTitle();
@@ -442,7 +430,7 @@ public class Renderer {
         float inventoryY = (GameConfiguration.WINDOW_HEIGHT - inventoryHeight) / 2;
 
         imageMesh.texSubImage(0, 90, 177, 166, inventoryWidth, inventoryHeight);
-        imageMesh.translate(inventoryX, inventoryY, inventoryWidth, inventoryHeight);
+        imageMesh.translate(imageShader, inventoryX, inventoryY, inventoryWidth, inventoryHeight);
 
         camera.matrixOrtho(imageShader, inventoryX, inventoryY);
 
@@ -469,7 +457,7 @@ public class Renderer {
         int slotSize = 22;
 
         imageMesh.texSubImage(0, 256.0f - hotbarHeight, hotbarWidth, hotbarHeight, 256.0f, 256.0f);
-        imageMesh.translate(hotbarX, hotbarY, hotbarWidth, hotbarHeight, scale);
+        imageMesh.translate(imageShader, hotbarX, hotbarY, hotbarWidth, hotbarHeight, scale);
 
         imageShader.sendFloat("depth", -11);
         camera.matrixOrtho(imageShader, 0, 0);
@@ -478,7 +466,7 @@ public class Renderer {
         slotSize = slotSize + 2;
 
         imageMesh.texSubImage(0, 256.0f - hotbarHeight - slotSize, slotSize, slotSize, 256.0f, 256.0f);
-        imageMesh.translate(hotbarX - 2 + hotbar.getCurrentSlot() * 20 * scale, hotbarY - 1, slotSize, slotSize, scale);
+        imageMesh.translate(imageShader, hotbarX - 2 + hotbar.getCurrentSlot() * 20 * scale, hotbarY - 1, slotSize, slotSize, scale);
 
         imageShader.sendFloat("depth", -10);
         camera.matrixOrtho(imageShader, 0, 0);
@@ -503,7 +491,7 @@ public class Renderer {
 
             float itemY = 22.0f * scale * .7f * 0.25f;
 
-            imageMesh.translate(itemX, itemY, 22 * scale * .7f, 22 * scale * .7f);
+            imageMesh.translate(imageShader, itemX, itemY, 22 * scale * .7f, 22 * scale * .7f);
 
             camera.matrixOrtho(imageShader, 0, 0);
 
@@ -525,18 +513,39 @@ public class Renderer {
         for (int i = 0; i < filledHearts; i++) {
             imageShader.sendFloat("depth", -10);
             imageMesh.texSubImage(16 + 0 * iconSize, 256.0f - iconSize, iconSize, iconSize, 256.0f, 256.0f);
-            imageMesh.translate(hotbarX + i * iconSize * scale, hotbarY + hotbarHeight * scale + 5, iconSize * scale, iconSize * scale);
+            imageMesh.translate(imageShader, hotbarX + i * iconSize * scale, hotbarY + hotbarHeight * scale + 5, iconSize * scale, iconSize * scale);
             camera.matrixOrtho(imageShader, 0, 0);
             imageMesh.draw();
 
             imageShader.sendFloat("depth", -9);
             imageMesh.texSubImage(16 + 4 * iconSize, 256.0f - iconSize, iconSize, iconSize, 256.0f, 256.0f);
-            imageMesh.translate(hotbarX + i * iconSize * scale, hotbarY + hotbarHeight * scale + 5, iconSize * scale, iconSize * scale);
+            imageMesh.translate(imageShader, hotbarX + i * iconSize * scale, hotbarY + hotbarHeight * scale + 5, iconSize * scale, iconSize * scale);
             camera.matrixOrtho(imageShader, 0, 0);
             imageMesh.draw();
         }
 
         iconsTexture.unbind();
+
+    }
+
+    public void renderSelectedItem(Camera camera, Player player, Material material) {
+
+        glDisable(GL_DEPTH_TEST);
+
+        handBlockShader.enable();
+        handBlockShader.sendInt("uTexture", terrainTexture.getSlot());
+
+        glActiveTexture(GL_TEXTURE0 + terrainTexture.getSlot());
+        terrainTexture.bind();
+
+        handBlockMesh.update(handBlockShader, material);
+        camera.matrixSelectedItem(player.getHand(), handBlockShader);
+
+        handBlockMesh.draw();
+
+        terrainTexture.unbind();
+
+        glEnable(GL_DEPTH_TEST);
 
     }
 

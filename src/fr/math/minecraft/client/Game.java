@@ -359,9 +359,18 @@ public class Game {
             }
         }
 
-        renderer.renderHand(camera, player.getHand());
+        ItemStack selectedItem = player.getHotbar().getSelectedItem();
+
+        if (selectedItem == null) {
+            renderer.renderHand(camera, player.getHand());
+        } else {
+            renderer.renderSelectedItem(camera, player, selectedItem.getMaterial());
+        }
+
         renderer.renderDebugTools(camera, player, fps);
-        renderer.renderInventory(camera, player);
+        if (player.getInventory().isOpen()) {
+            renderer.renderInventory(camera, player);
+        }
         renderer.renderHotbar(camera, player, player.getHotbar());
     }
 

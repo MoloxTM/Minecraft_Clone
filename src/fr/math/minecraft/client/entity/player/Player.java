@@ -45,7 +45,7 @@ public class Player {
     private boolean movingLeft, movingRight, movingForward, movingBackward;
     private boolean flying, sneaking, canJump, inAir, jumping;
     private boolean movingMouse;
-    private boolean debugKeyPressed, occlusionKeyPressed, interpolationKeyPressed, inventoryOpen;
+    private boolean debugKeyPressed, occlusionKeyPressed, interpolationKeyPressed, inventoryKeyPressed;
     private float lastMouseX, lastMouseY;
     private String name;
     private String uuid;
@@ -103,7 +103,7 @@ public class Player {
         this.debugKeyPressed = false;
         this.occlusionKeyPressed = false;
         this.interpolationKeyPressed = false;
-        this.inventoryOpen = false;
+        this.inventoryKeyPressed = false;
         this.movingMouse = true;
         this.sneaking = false;
         this.flying = false;
@@ -213,6 +213,13 @@ public class Player {
             }
         }
 
+        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+            if (!inventoryKeyPressed) {
+                inventory.setOpen(!inventory.isOpen());
+                inventoryKeyPressed = true;
+            }
+        }
+
         if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
             hotbar.setCurrentSlot(0);
         }
@@ -247,6 +254,10 @@ public class Player {
 
         if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS) {
             hotbar.setCurrentSlot(8);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE) {
+            inventoryKeyPressed = false;
         }
 
         if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_RELEASE) {
