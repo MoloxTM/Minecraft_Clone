@@ -1,16 +1,14 @@
 package fr.math.minecraft.client.entity.player;
 
 import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.animations.Animation;
-import fr.math.minecraft.client.animations.HotbarAnimation;
-import fr.math.minecraft.client.animations.PlayerHandAnimation;
-import fr.math.minecraft.client.animations.PlayerWalkAnimation;
+import fr.math.minecraft.client.animations.*;
 import fr.math.minecraft.client.entity.Ray;
 import fr.math.minecraft.client.events.listeners.EntityUpdate;
 import fr.math.minecraft.client.events.listeners.EventListener;
 import fr.math.minecraft.client.events.PlayerMoveEvent;
 import fr.math.minecraft.client.manager.ChunkManager;
 import fr.math.minecraft.client.meshs.NametagMesh;
+import fr.math.minecraft.client.texture.Sprite;
 import fr.math.minecraft.inventory.Hotbar;
 import fr.math.minecraft.inventory.PlayerInventory;
 import fr.math.minecraft.shared.GameConfiguration;
@@ -55,6 +53,7 @@ public class Player {
     private String name;
     private String uuid;
     private final ArrayList<Animation> animations;
+    private final MiningAnimation miningAnimation;
     private NametagMesh nametagMesh;
     private BufferedImage skin;
     private float sensitivity;
@@ -78,6 +77,8 @@ public class Player {
     private final PlayerInventory inventory;
     private final float health;
     private final float maxHealth;
+    private PlayerAction action;
+    private Sprite sprite;
 
     public Player(String name) {
         this.position = new Vector3f(0.0f, 100.0f, 0.0f);
@@ -88,10 +89,21 @@ public class Player {
         this.inputs = new ArrayList<>();
         this.hand = new PlayerHand();
         this.inventory = new PlayerInventory();
+        this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 1.0f, 0.25f));
+        this.animations = new ArrayList<>();
+        this.nametagMesh = new NametagMesh(name);
+        this.hotbar = new Hotbar();
+        this.lastUpdate = new EntityUpdate(new Vector3f(position), yaw, pitch, bodyYaw);
+        this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
+        this.buildRay = new Ray(GameConfiguration.BUILDING_REACH);
+        this.aimedBlocks = new ArrayList<>();
+        this.eventListeners = new ArrayList<>();
+        this.sprite = new Sprite();
+        this.miningAnimation = new MiningAnimation();
+        this.action = PlayerAction.MINING;
         this.yaw = 0.0f;
         this.bodyYaw = 0.0f;
         this.pitch = 0.0f;
-        this.lastUpdate = new EntityUpdate(new Vector3f(position), yaw, pitch, bodyYaw);
         this.firstMouse = true;
         this.lastMouseX = 0.0f;
         this.lastMouseY = 0.0f;
@@ -121,17 +133,9 @@ public class Player {
         this.jumping = false;
         this.placingBlock = false;
         this.breakingBlock = false;
-        this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 1.0f, 0.25f));
-        this.animations = new ArrayList<>();
-        this.nametagMesh = new NametagMesh(name);
-        this.hotbar = new Hotbar();
         this.skin = null;
         this.skinPath = "res/textures/skin.png";
-        this.eventListeners = new ArrayList<>();
         this.gameMode = GameMode.SURVIVAL;
-        this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
-        this.buildRay = new Ray(GameConfiguration.BUILDING_REACH);
-        this.aimedBlocks = new ArrayList<>();
         this.initAnimations();
     }
 
@@ -300,6 +304,7 @@ public class Player {
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
             breakingBlock = false;
             canBreakBlock = true;
+            action = null;
         }
 
         if (movingLeft || movingRight || movingForward || movingBackward || sneaking || flying) {
@@ -452,17 +457,24 @@ public class Player {
         }
 
         if (breakingBlock) {
-            if (canBreakBlock) {
+
+            if (action == PlayerAction.MINING && sprite.getIndex() == action.getLength() - 1) {
                 ChunkManager chunkManager = new ChunkManager();
+                chunkManager.removeBlock(buildRay.getAimedChunk(), buildRay.getBlockChunkPositionLocal(), Game.getInstance().getWorld());
+                sprite.reset();
+            }
+
+            if (canBreakBlock) {
                 if (buildRay.getAimedChunk() != null && (buildRay.getAimedBlock() != Material.AIR.getId() || buildRay.getAimedBlock() != Material.WATER.getId())) {
-                    chunkManager.removeBlock(buildRay.getAimedChunk(), buildRay.getBlockChunkPositionLocal(), Game.getInstance().getWorld());
+                    action = PlayerAction.MINING;
+                    sprite.reset();
                 }
                 canBreakBlock = false;
                 breakBlockCooldown = (int) GameConfiguration.UPS / 3;
             }
         }
 
-        if (breakBlockCooldown > 0) {
+        if (gameMode == GameMode.CREATIVE && breakBlockCooldown > 0) {
             breakBlockCooldown--;
             if (breakBlockCooldown == 0) {
                 canBreakBlock = true;
@@ -722,5 +734,25 @@ public class Player {
 
     public float getMaxHealth() {
         return maxHealth;
+    }
+
+    public PlayerAction getAction() {
+        return action;
+    }
+
+    public void setAction(PlayerAction action) {
+        this.action = action;
+    }
+
+    public Sprite getSprite() {
+        return sprite;
+    }
+
+    public void setSprite(Sprite sprite) {
+        this.sprite = sprite;
+    }
+
+    public MiningAnimation getMiningAnimation() {
+        return miningAnimation;
     }
 }

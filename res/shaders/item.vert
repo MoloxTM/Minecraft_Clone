@@ -8,6 +8,7 @@ out vec2 textureCoords;
 uniform mat4 projection;
 uniform mat4 model;
 uniform float yTranslation;
+uniform float rotationAngleX;
 
 mat4 translate(float x, float y, float z) {
     return mat4(
@@ -18,7 +19,16 @@ mat4 translate(float x, float y, float z) {
     );
 }
 
+mat4 rotateX(float angle) {
+    return mat4(
+        cos(angle),  0, sin(angle), 0,
+        0,           1, 0,          0,
+        -sin(angle), 0, cos(angle), 0,
+        0,           0, 0,          1
+    );
+}
+
 void main() {
-    gl_Position = projection * model * translate(0, yTranslation, 0) * vec4(aPosition, 1.0);
+    gl_Position = projection * model * rotateX(rotationAngleX) * translate(0, yTranslation, 0) * vec4(aPosition, 1.0);
     textureCoords = aTexture;
 }

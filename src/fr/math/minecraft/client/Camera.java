@@ -1,6 +1,7 @@
 package fr.math.minecraft.client;
 
 import fr.math.minecraft.client.animations.Animation;
+import fr.math.minecraft.client.animations.MiningAnimation;
 import fr.math.minecraft.client.entity.Ray;
 import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.client.entity.player.PlayerHand;
@@ -119,6 +120,26 @@ public class Camera {
         shader.sendMatrix("model", model, modelBuffer);
         shader.sendFloat("biome", biome);
         shader.sendVector3f("cameraPosition", position);
+
+    }
+
+    public void matrixInWorld(Shader shader, Vector3f position) {
+        this.calculateFront(front);
+
+        projection.identity();
+        view.identity();
+        model.identity();
+
+        right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
+        up = new Vector3f(right).cross(front).normalize();
+
+        projection.perspective(Math.toRadians(fov), width / height, nearPlane ,farPlane);
+        this.updateView();
+        model.translate(position.x, position.y, position.z);
+
+        shader.sendMatrix("projection", projection, projectionBuffer);
+        shader.sendMatrix("view", view, viewBuffer);
+        shader.sendMatrix("model", model, modelBuffer);
 
     }
 
@@ -324,7 +345,7 @@ public class Camera {
         //shader.sendMatrix("projection", projection, projectionBuffer);
     }
 
-    public void matrixItem(PlayerHand hand, Shader shader, ItemModelData itemModelData) {
+    public void matrixItem(PlayerHand hand, MiningAnimation animation, Shader shader, ItemModelData itemModelData) {
 
         Matrix4f view = new Matrix4f();
         Matrix4f projection = new Matrix4f();
@@ -335,6 +356,8 @@ public class Camera {
         model.rotate(Math.toRadians(itemModelData.getRotation().x), new Vector3f(1, 0, 0));
         model.rotate(Math.toRadians(itemModelData.getRotation().y), new Vector3f(0, 1, 0));
         model.rotate(Math.toRadians(180.0f), new Vector3f(1, 0, 0));
+
+        model.rotate(Math.toRadians(animation.getRotation()), new Vector3f(0, 0.0f, 1));
 
         model.scale(itemModelData.getScale());
         model.translate(0, viewBobbing.getY(), 0);

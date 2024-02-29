@@ -3,6 +3,8 @@ package fr.math.minecraft.client;
 import fr.math.minecraft.client.animations.HotbarAnimation;
 import fr.math.minecraft.client.audio.Sound;
 import fr.math.minecraft.client.audio.Sounds;
+import fr.math.minecraft.client.entity.Ray;
+import fr.math.minecraft.client.entity.player.PlayerAction;
 import fr.math.minecraft.client.events.listeners.PlayerListener;
 import fr.math.minecraft.client.gui.buttons.BlockButton;
 import fr.math.minecraft.client.gui.menus.ConnectionMenu;
@@ -165,12 +167,15 @@ public class Game {
 
         this.loadSplashText();
 
+
         for (Sounds sound : Sounds.values()) {
             soundManager.addSound(sound.getFilePath(), false);
         }
 
-        for (Sound sound : soundManager.getAllSounds()) {
-            sound.load();
+        if (gameConfiguration.isMusicEnabled()) {
+            for (Sound sound : soundManager.getAllSounds()) {
+                sound.load();
+            }
         }
 
         Menu mainMenu = new MainMenu(this);
@@ -178,7 +183,6 @@ public class Game {
 
         menuManager.registerMenu(mainMenu);
         menuManager.registerMenu(connectionMenu);
-
     }
 
     private void loadSplashText() {
@@ -207,7 +211,9 @@ public class Game {
         double lastDeltaTime = glfwGetTime();
         double lastFramesTime = glfwGetTime();
 
-        soundManager.getRandomMusic().play();
+        if (gameConfiguration.isMusicEnabled()) {
+            soundManager.getRandomMusic().play();
+        }
 
         menuManager.open(MainMenu.class);
 
@@ -317,6 +323,11 @@ public class Game {
         camera.update(player);
         player.getAttackRay().update(camera.getPosition(), camera.getFront(), world, false);
         player.getBuildRay().update(camera.getPosition(), camera.getFront(), world, false);
+        player.getMiningAnimation().update(player);
+
+        if (player.getSprite() != null) {
+            player.getSprite().update(player);
+        }
 
         if (player.getBuildRay().getAimedChunk() != null && (player.getBuildRay().getAimedBlock() != Material.AIR.getId() || player.getBuildRay().getAimedBlock() != Material.WATER.getId())){
             player.getAimedBlocks().add(player.getBuildRay().getBlockWorldPosition());
@@ -387,8 +398,13 @@ public class Game {
         }
 
         ItemStack selectedItem = player.getHotbar().getSelectedItem();
+        Ray ray = player.getBuildRay();
 
         renderer.renderAimedBlock(camera, player.getBuildRay());
+
+        if (player.getAction() == PlayerAction.MINING && ray.getAimedChunk() != null && ray.getAimedBlock() != Material.AIR.getId()) {
+            renderer.renderMining(camera, ray.getBlockWorldPosition().x, ray.getBlockWorldPosition().y, ray.getBlockWorldPosition().z, player.getSprite());
+        }
 
         if (selectedItem == null) {
             renderer.renderHand(camera, player.getHand());

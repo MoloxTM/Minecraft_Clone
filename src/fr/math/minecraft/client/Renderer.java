@@ -4,6 +4,7 @@ import fr.math.minecraft.client.animations.HotbarAnimation;
 import fr.math.minecraft.client.builder.TextureBuilder;
 import fr.math.minecraft.client.entity.Ray;
 import fr.math.minecraft.client.entity.player.Player;
+import fr.math.minecraft.client.entity.player.PlayerAction;
 import fr.math.minecraft.client.entity.player.PlayerHand;
 import fr.math.minecraft.client.fonts.CFont;
 import fr.math.minecraft.client.gui.buttons.BlockButton;
@@ -15,6 +16,7 @@ import fr.math.minecraft.client.manager.FontManager;
 import fr.math.minecraft.client.meshs.*;
 import fr.math.minecraft.client.meshs.model.ItemModelData;
 import fr.math.minecraft.client.texture.CubemapTexture;
+import fr.math.minecraft.client.texture.Sprite;
 import fr.math.minecraft.client.texture.Texture;
 import fr.math.minecraft.inventory.Hotbar;
 import fr.math.minecraft.inventory.ItemStack;
@@ -36,6 +38,7 @@ public class Renderer {
     private final FontMesh fontMesh;
     private final SkyboxMesh skyboxMesh;
     private final BlockMesh handBlockMesh;
+    private final BlockMesh selectedBlockMesh;
     private final BlockMesh blockMesh;
     private final HandMesh handMesh;
     private final ItemMesh itemMesh;
@@ -52,6 +55,7 @@ public class Renderer {
     private final Shader crosshairShader;
     private final Shader handBlockShader;
     private final Shader itemShader;
+    private final Shader selectedBlockShader;
     private final Texture terrainTexture;
     private final Texture skinTexture;
     private final Texture defaultSkinTexture;
@@ -83,6 +87,7 @@ public class Renderer {
         this.skyboxMesh = new SkyboxMesh();
         this.crosshairMesh = new CrosshairMesh();
         this.blockMesh = new BlockMesh();
+        this.selectedBlockMesh = new BlockMesh(0, 0);
         this.handMesh = new HandMesh();
         this.handBlockMesh = new BlockMesh(Material.STONE);
         this.loadedSkins = new HashSet<>();
@@ -113,6 +118,7 @@ public class Renderer {
         this.waterShader = new Shader("res/shaders/water.vert", "res/shaders/water.frag");
         this.handShader = new Shader("res/shaders/hand.vert", "res/shaders/hand.frag");
         this.blockShader = new Shader("res/shaders/default.vert", "res/shaders/default.frag");
+        this.selectedBlockShader = new Shader("res/shaders/selected_block.vert", "res/shaders/selected_block.frag");
         this.crosshairShader = new Shader("res/shaders/cursor.vert", "res/shaders/default.frag");
         this.handBlockShader = new Shader("res/shaders/handblock.vert", "res/shaders/handblock.frag");
         this.itemShader = new Shader("res/shaders/item.vert", "res/shaders/item.frag");
@@ -408,6 +414,23 @@ public class Renderer {
 
     }
 
+    public void renderMining(Camera camera, int worldX, int worldY, int worldZ, Sprite sprite) {
+
+        selectedBlockShader.enable();
+        selectedBlockShader.sendInt("uTexture", terrainTexture.getSlot());
+        selectedBlockShader.sendFloat("spriteIndex", sprite.getIndex());
+        selectedBlockShader.sendFloat("scale", 1.002f);
+
+        glActiveTexture(GL_TEXTURE0 + terrainTexture.getSlot());
+        terrainTexture.bind();
+
+        camera.matrixInWorld(selectedBlockShader, new Vector3f(worldX, worldY, worldZ));
+        selectedBlockMesh.draw();
+
+        terrainTexture.unbind();
+
+    }
+
     public FontMesh getFontMesh() {
         return fontMesh;
     }
@@ -628,6 +651,8 @@ public class Renderer {
 
         itemShader.enable();
         itemShader.sendInt("uTexture", guiBlocksTexture.getSlot());
+        itemShader.sendFloat("rotationAngleX", 0);
+
         //player.getHotbar().getAnimation().sendUniforms(itemShader);
         //itemShader.sendFloat("depth", -30);
 
@@ -636,7 +661,7 @@ public class Renderer {
 
         ItemModelData itemModelData = ItemModelData.valueOf(String.valueOf(material));
 
-        camera.matrixItem(player.getHand(), itemShader, itemModelData);
+        camera.matrixItem(player.getHand(), player.getMiningAnimation(), itemShader, itemModelData);
 
         itemMesh.draw();
 

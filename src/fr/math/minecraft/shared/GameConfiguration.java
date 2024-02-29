@@ -31,11 +31,13 @@ public class GameConfiguration {
     private boolean entityInterpolation;
     private boolean occlusionEnabled;
     private boolean debugging;
+    private boolean musicEnabled;
 
     public GameConfiguration() {
         this.entityInterpolation = true;
         this.occlusionEnabled = true;
         this.debugging = true;
+        this.musicEnabled = false;
     }
 
     public boolean isOcclusionEnabled() {
@@ -60,5 +62,17 @@ public class GameConfiguration {
 
     public boolean isDebugging() {
         return debugging;
+    }
+
+    public boolean isMusicEnabled() {
+        return musicEnabled;
+    }
+
+    public void disableMusic() {
+        musicEnabled = false;
+    }
+
+    public void enableMusic() {
+        musicEnabled = true;
     }
 }
