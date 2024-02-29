@@ -2,6 +2,7 @@ package fr.math.minecraft.client.entity.player;
 
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.animations.Animation;
+import fr.math.minecraft.client.animations.HotbarAnimation;
 import fr.math.minecraft.client.animations.PlayerHandAnimation;
 import fr.math.minecraft.client.animations.PlayerWalkAnimation;
 import fr.math.minecraft.client.entity.Ray;
@@ -326,6 +327,7 @@ public class Player {
         for (Animation animation : animations) {
             animation.update();
         }
+        // hotbar.getAnimation().update();
     }
 
     public void update() {

@@ -1,5 +1,6 @@
 package fr.math.minecraft.client;
 
+import fr.math.minecraft.client.animations.HotbarAnimation;
 import fr.math.minecraft.client.builder.TextureBuilder;
 import fr.math.minecraft.client.entity.Ray;
 import fr.math.minecraft.client.entity.player.Player;
@@ -12,6 +13,7 @@ import fr.math.minecraft.client.gui.menus.Menu;
 import fr.math.minecraft.client.gui.menus.MenuBackgroundType;
 import fr.math.minecraft.client.manager.FontManager;
 import fr.math.minecraft.client.meshs.*;
+import fr.math.minecraft.client.meshs.model.ItemModelData;
 import fr.math.minecraft.client.texture.CubemapTexture;
 import fr.math.minecraft.client.texture.Texture;
 import fr.math.minecraft.inventory.Hotbar;
@@ -70,6 +72,7 @@ public class Renderer {
     private final CubemapTexture panoramaTexture;
     private String emptyText;
     private Set<String> loadedSkins;
+    private Material lastItemInHand;
 
     public Renderer() {
         this.playerMesh = new PlayerMesh();
@@ -83,6 +86,7 @@ public class Renderer {
         this.handMesh = new HandMesh();
         this.handBlockMesh = new BlockMesh(Material.STONE);
         this.loadedSkins = new HashSet<>();
+        this.lastItemInHand = null;
 
         for (int i = 0; i < 256; i++) {
             emptyText += " ";
@@ -592,7 +596,7 @@ public class Renderer {
 
     }
 
-    public void renderSelectedItem(Camera camera, Player player, Material material) {
+    public void renderSelectedBlock(Camera camera, Player player, Material material) {
 
         glDisable(GL_DEPTH_TEST);
 
@@ -603,7 +607,7 @@ public class Renderer {
         terrainTexture.bind();
 
         handBlockMesh.update(handBlockShader, material);
-        camera.matrixSelectedItem(player.getHand(), handBlockShader);
+        camera.matrixSelectedBlock(player.getHand(), handBlockShader);
 
         handBlockMesh.draw();
 
@@ -613,22 +617,30 @@ public class Renderer {
 
     }
 
-    public void renderItemInHand(Camera camera, Player player) {
+    public void renderItemInHand(Camera camera, Player player, Material material) {
 
-        glDisable(GL_DEPTH_TEST);
+        glClear(GL_DEPTH_BUFFER_BIT);
+
+        if (lastItemInHand != material) {
+            lastItemInHand = material;
+            itemMesh.update(material);
+        }
 
         itemShader.enable();
         itemShader.sendInt("uTexture", guiBlocksTexture.getSlot());
+        //player.getHotbar().getAnimation().sendUniforms(itemShader);
         //itemShader.sendFloat("depth", -30);
 
         glActiveTexture(GL_TEXTURE0 + guiBlocksTexture.getSlot());
         guiBlocksTexture.bind();
 
-        camera.matrixSelectedItem(player.getHand(), itemShader);
+        ItemModelData itemModelData = ItemModelData.valueOf(String.valueOf(material));
+
+        camera.matrixItem(player.getHand(), itemShader, itemModelData);
+
         itemMesh.draw();
 
         guiBlocksTexture.unbind();
-        glEnable(GL_DEPTH_TEST);
 
     }
 

@@ -8,6 +8,7 @@ import fr.math.minecraft.client.manager.FontManager;
 import fr.math.minecraft.client.math.FrustrumCulling;
 import fr.math.minecraft.client.math.ViewBobbing;
 import fr.math.minecraft.client.meshs.FontMesh;
+import fr.math.minecraft.client.meshs.model.ItemModelData;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.GameConfiguration;
 import org.joml.Math;
@@ -296,7 +297,7 @@ public class Camera {
         shader.sendMatrix("model", model, modelBuffer);
     }
     
-    public void matrixSelectedItem(PlayerHand hand, Shader shader) {
+    public void matrixSelectedBlock(PlayerHand hand, Shader shader) {
 
         Matrix4f view = new Matrix4f();
         Matrix4f projection = new Matrix4f();
@@ -311,6 +312,33 @@ public class Camera {
         model.translate(0, viewBobbing.getY(), 0);
         model.translate(viewBobbing.getPosition());
 
+
+        projection.perspective(Math.toRadians(fov), width / height, nearPlane ,farPlane);
+
+        shader.sendMatrix("projection", projection, projectionBuffer);
+        shader.sendMatrix("view", view, viewBuffer);
+        shader.sendMatrix("model", model, modelBuffer);
+
+        //projection.perspective((float) Math.toRadians(fov), width / height, nearPlane ,farPlane);
+
+        //shader.sendMatrix("projection", projection, projectionBuffer);
+    }
+
+    public void matrixItem(PlayerHand hand, Shader shader, ItemModelData itemModelData) {
+
+        Matrix4f view = new Matrix4f();
+        Matrix4f projection = new Matrix4f();
+        Matrix4f model = new Matrix4f();
+        ViewBobbing viewBobbing = hand.getViewBobbing();
+
+        model.translate(itemModelData.getTranslation());
+        model.rotate(Math.toRadians(itemModelData.getRotation().x), new Vector3f(1, 0, 0));
+        model.rotate(Math.toRadians(itemModelData.getRotation().y), new Vector3f(0, 1, 0));
+        model.rotate(Math.toRadians(180.0f), new Vector3f(1, 0, 0));
+
+        model.scale(itemModelData.getScale());
+        model.translate(0, viewBobbing.getY(), 0);
+        model.translate(viewBobbing.getPosition());
 
         projection.perspective(Math.toRadians(fov), width / height, nearPlane ,farPlane);
 

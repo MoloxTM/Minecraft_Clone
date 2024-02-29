@@ -1,5 +1,6 @@
 package fr.math.minecraft.client;
 
+import fr.math.minecraft.client.animations.HotbarAnimation;
 import fr.math.minecraft.client.audio.Sound;
 import fr.math.minecraft.client.audio.Sounds;
 import fr.math.minecraft.client.events.listeners.PlayerListener;
@@ -169,7 +170,7 @@ public class Game {
         }
 
         for (Sound sound : soundManager.getAllSounds()) {
-            // sound.load();
+            sound.load();
         }
 
         Menu mainMenu = new MainMenu(this);
@@ -206,7 +207,7 @@ public class Game {
         double lastDeltaTime = glfwGetTime();
         double lastFramesTime = glfwGetTime();
 
-        //soundManager.getRandomMusic().play();
+        soundManager.getRandomMusic().play();
 
         menuManager.open(MainMenu.class);
 
@@ -215,6 +216,8 @@ public class Game {
         player.getHotbar().addItem(new ItemStack(Material.SAND, 1));
         player.getHotbar().addItem(new ItemStack(Material.GRASS, 1));
         player.getHotbar().addItem(new ItemStack(Material.DIAMOND_SWORD, 1));
+        player.getHotbar().addItem(new ItemStack(Material.APPLE, 1));
+        player.getHotbar().addItem(new ItemStack(Material.DIAMOND_AXE, 1));
 
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.58f, 0.83f, 0.99f, 1);
@@ -391,9 +394,9 @@ public class Game {
             renderer.renderHand(camera, player.getHand());
         } else {
             if (selectedItem.getMaterial().isItem()) {
-                renderer.renderItemInHand(camera, player);
+                renderer.renderItemInHand(camera, player, selectedItem.getMaterial());
             } else {
-                renderer.renderSelectedItem(camera, player, selectedItem.getMaterial());
+                renderer.renderSelectedBlock(camera, player, selectedItem.getMaterial());
             }
         }
 

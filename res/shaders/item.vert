@@ -7,9 +7,18 @@ out vec2 textureCoords;
 
 uniform mat4 projection;
 uniform mat4 model;
+uniform float yTranslation;
 
+mat4 translate(float x, float y, float z) {
+    return mat4(
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        x, y, z, 1
+    );
+}
 
 void main() {
-    gl_Position = projection * model * vec4(aPosition, 1.0);
+    gl_Position = projection * model * translate(0, yTranslation, 0) * vec4(aPosition, 1.0);
     textureCoords = aTexture;
 }

@@ -13,7 +13,7 @@ import static org.lwjgl.opengl.GL33.*;
 
 public class ItemMesh extends Mesh {
 
-    private final ItemVertex[] vertices;
+    private ItemVertex[] vertices;
 
     public ItemMesh(Material material) {
         super();
@@ -48,4 +48,12 @@ public class ItemMesh extends Mesh {
         vao.unbind();
     }
 
+    public void update(Material material) {
+        vbo.delete();
+        ebo.delete();
+        vao.delete();
+        this.vertices = ItemMeshBuilder.buildItemMesh(material, new ArrayList<>());
+        this.init();
+        System.out.println("update!");
+    }
 }
