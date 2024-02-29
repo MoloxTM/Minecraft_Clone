@@ -66,6 +66,7 @@ public class Game {
     private int scaleFactor = 1;
     private String splash;
     private Renderer renderer;
+    private ItemRenderer itemRenderer;
     private MenuManager menuManager;
     private DoubleBuffer mouseXBuffer, mouseYBuffer;
     private boolean debugging, occlusion;
@@ -140,6 +141,7 @@ public class Game {
         this.worldManager = new WorldManager();
         this.gameConfiguration = new GameConfiguration();
         this.renderer = new Renderer();
+        this.itemRenderer = new ItemRenderer();
         this.mouseXBuffer = BufferUtils.createDoubleBuffer(1);
         this.mouseYBuffer = BufferUtils.createDoubleBuffer(1);
         this.debugging = false;
@@ -212,6 +214,7 @@ public class Game {
         player.getHotbar().addItem(new ItemStack(Material.DIRT, 1));
         player.getHotbar().addItem(new ItemStack(Material.SAND, 1));
         player.getHotbar().addItem(new ItemStack(Material.GRASS, 1));
+        player.getHotbar().addItem(new ItemStack(Material.DIAMOND_SWORD, 1));
 
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.58f, 0.83f, 0.99f, 1);
@@ -387,7 +390,11 @@ public class Game {
         if (selectedItem == null) {
             renderer.renderHand(camera, player.getHand());
         } else {
-            renderer.renderSelectedItem(camera, player, selectedItem.getMaterial());
+            if (selectedItem.getMaterial().isItem()) {
+                renderer.renderItemInHand(camera, player);
+            } else {
+                renderer.renderSelectedItem(camera, player, selectedItem.getMaterial());
+            }
         }
 
         renderer.renderDebugTools(camera, player, fps);

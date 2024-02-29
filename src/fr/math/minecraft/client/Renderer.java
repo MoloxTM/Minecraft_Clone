@@ -36,6 +36,7 @@ public class Renderer {
     private final BlockMesh handBlockMesh;
     private final BlockMesh blockMesh;
     private final HandMesh handMesh;
+    private final ItemMesh itemMesh;
     private final Shader playerShader;
     private final Shader chunkShader;
     private final Shader fontShader;
@@ -48,6 +49,7 @@ public class Renderer {
     private final Shader blockShader;
     private final Shader crosshairShader;
     private final Shader handBlockShader;
+    private final Shader itemShader;
     private final Texture terrainTexture;
     private final Texture skinTexture;
     private final Texture defaultSkinTexture;
@@ -72,6 +74,7 @@ public class Renderer {
     public Renderer() {
         this.playerMesh = new PlayerMesh();
         this.imageMesh = new ImageMesh(0, 0, 0, 0);
+        this.itemMesh = new ItemMesh(Material.DIAMOND_SWORD);
         this.font = new CFont(GameConfiguration.FONT_FILE_PATH, GameConfiguration.FONT_SIZE);
         this.fontMesh = new FontMesh(font);
         this.skyboxMesh = new SkyboxMesh();
@@ -108,6 +111,7 @@ public class Renderer {
         this.blockShader = new Shader("res/shaders/default.vert", "res/shaders/default.frag");
         this.crosshairShader = new Shader("res/shaders/cursor.vert", "res/shaders/default.frag");
         this.handBlockShader = new Shader("res/shaders/handblock.vert", "res/shaders/handblock.frag");
+        this.itemShader = new Shader("res/shaders/item.vert", "res/shaders/item.frag");
 
         this.terrainTexture = new Texture("res/textures/terrain.png", 1);
         this.defaultSkinTexture = new Texture("res/textures/skin.png", 2);
@@ -536,10 +540,12 @@ public class Renderer {
 
         for (int i = 0; i < hotbar.getCurrentSize(); i++) {
             ItemStack item = hotbar.getItems()[i];
-
             Material material = item.getMaterial();
+            float size = material.isItem() ? 16.0f : 48.0f;
+            float offset = material.isItem() ? 0.0f : 80.0f;
+
             imageShader.sendFloat("depth", -9);
-            imageMesh.texSubImage(material.getBlockIconX() * 48.0f, material.getBlockIconY() * 48.0f + 80, 48.0f, 48.0f, 512.0f, 512.0f);
+            imageMesh.texSubImage(material.getBlockIconX() * size, material.getBlockIconY() * size + offset, size, size, 512.0f, 512.0f);
 
             float itemX = hotbarX + i * 21 * scale + 2;
 
@@ -603,6 +609,25 @@ public class Renderer {
 
         terrainTexture.unbind();
 
+        glEnable(GL_DEPTH_TEST);
+
+    }
+
+    public void renderItemInHand(Camera camera, Player player) {
+
+        glDisable(GL_DEPTH_TEST);
+
+        itemShader.enable();
+        itemShader.sendInt("uTexture", guiBlocksTexture.getSlot());
+        //itemShader.sendFloat("depth", -30);
+
+        glActiveTexture(GL_TEXTURE0 + guiBlocksTexture.getSlot());
+        guiBlocksTexture.bind();
+
+        camera.matrixSelectedItem(player.getHand(), itemShader);
+        itemMesh.draw();
+
+        guiBlocksTexture.unbind();
         glEnable(GL_DEPTH_TEST);
 
     }

@@ -312,7 +312,7 @@ public class Camera {
         model.translate(viewBobbing.getPosition());
 
 
-        projection.perspective((float) Math.toRadians(fov), width / height, nearPlane ,farPlane);
+        projection.perspective(Math.toRadians(fov), width / height, nearPlane ,farPlane);
 
         shader.sendMatrix("projection", projection, projectionBuffer);
         shader.sendMatrix("view", view, viewBuffer);
