@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.entity.Ray;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
+import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.server.payload.StatePayload;
@@ -40,7 +41,7 @@ public class Client {
     private BufferedImage skin;
     private boolean movingLeft, movingRight, movingForward, movingBackward;
     private boolean flying, sneaking;
-    private boolean canBreakBlock;
+    private boolean canBreakBlock, canPlaceBlock;
     private boolean active;
     private final Vector3i inputVector;
     private final Vector3f velocity;
@@ -56,7 +57,7 @@ public class Client {
     private final Ray buildRay, attackRay;
     private List<Vector3i> aimedBlocks;
     private List<Byte> aimedBlocksIDs;
-    private int breakBlockCooldown;
+    private int breakBlockCooldown, placeBlockCoolDown;
     private final static Logger logger = LoggerUtility.getServerLogger(Client.class, LogType.TXT);
 
     public Client(String uuid, String name, InetAddress address, int port) {
@@ -80,6 +81,7 @@ public class Client {
         this.maxSpeed = 0.03f;
         this.maxFallSpeed = 0.03f;
         this.breakBlockCooldown = GameConfiguration.BLOCK_BREAK_COOLDOWN;
+        this.placeBlockCoolDown= GameConfiguration.BLOCK_BREAK_COOLDOWN;
         this.skin = null;
         this.movingLeft = false;
         this.movingRight = false;
@@ -89,6 +91,7 @@ public class Client {
         this.sneaking = false;
         this.canJump = true;
         this.canBreakBlock = true;
+        this.canPlaceBlock = true;
         this.active = false;
         this.buildRay = new Ray(GameConfiguration.BUILDING_REACH);
         this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
@@ -294,6 +297,39 @@ public class Client {
                         buildRay.getAimedChunk().setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, Material.AIR.getId());
                         buildRay.reset();
                         this.canBreakBlock = false;
+                    }
+                }
+            }
+
+            if (!inputData.isPlacingBlock()) {
+                canPlaceBlock = true;
+            }
+
+            if (inputData.isPlacingBlock()) {
+
+                byte block = buildRay.getAimedBlock();
+
+                if (this.canPlaceBlock) {
+                    if (buildRay.getAimedChunk() != null && block != Material.AIR.getId() && block != Material.WATER.getId()) {
+
+                        Vector3i rayPosition = buildRay.getBlockWorldPosition();
+                        Vector3i placedBlock = buildRay.getBlockPlacedPosition(rayPosition);
+
+                        Vector3i blockPositionLocal = Utils.worldToLocal(placedBlock);
+
+                        blocksPosition.add(placedBlock);
+
+                        /*On détermine le chunk où le */
+                        Chunk aimedChunk = world.getChunkAt(placedBlock);
+                        System.out.println("Blocks IDS:" + blocksIDs);
+                        blocksIDs.add(aimedChunk.getBlock(blockPositionLocal));
+
+                        aimedChunk.setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, Material.STONE.getId());
+
+                        logger.info(name + " (" + uuid + ") a placé un block de " + Material.getMaterialById(block) + " en " + buildRay.getBlockWorldPosition());
+
+                        buildRay.reset();
+                        this.canPlaceBlock = false;
                     }
                 }
             }

@@ -14,7 +14,6 @@ import org.joml.Vector3i;
 import java.net.DatagramPacket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 public class StatePayload {
@@ -72,7 +71,8 @@ public class StatePayload {
         }
 
         ObjectNode payloadNode = this.toJSON();
-        ObjectNode payloadEventNode = this.toJSONEvent();
+        ObjectNode payloadEventBreakNode = this.toJSONEventBreak();
+        ObjectNode payloadEventPlaceNode = this.toJSONEventPlace();
         ObjectMapper mapper = new ObjectMapper();
 
         try {
@@ -84,12 +84,12 @@ public class StatePayload {
             e.printStackTrace();
         }
 
-        if (payloadEventNode == null) {
+        if (payloadEventBreakNode == null) {
             return;
         }
 
         try {
-            String payloadEventData = mapper.writeValueAsString(payloadEventNode);
+            String payloadEventData = mapper.writeValueAsString(payloadEventBreakNode);
             byte[] buffer = payloadEventData.getBytes(StandardCharsets.UTF_8);
             DatagramPacket packetEvent = new DatagramPacket(buffer, buffer.length);
 
@@ -109,9 +109,33 @@ public class StatePayload {
         }
 
 
+        if (payloadEventPlaceNode == null) {
+            return;
+        }
+
+        try {
+            String payloadEventData = mapper.writeValueAsString(payloadEventPlaceNode);
+            byte[] buffer = payloadEventData.getBytes(StandardCharsets.UTF_8);
+            DatagramPacket packetEvent = new DatagramPacket(buffer, buffer.length);
+
+            System.out.println(payloadEventData);
+
+            synchronized (server.getClients()) {
+                for (Client onlineClient : server.getClients().values()) {
+                    if(!onlineClient.getUuid().equalsIgnoreCase(payload.getClientUuid())) {
+                        packetEvent.setAddress(onlineClient.getAddress());
+                        packetEvent.setPort(onlineClient.getPort());
+                        server.sendPacket(packetEvent);
+                    }
+                }
+            }
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
     }
 
-    public ObjectNode toJSONEvent() {
+    public ObjectNode toJSONEventBreak() {
 
         if (aimedBlocks.isEmpty()) {
             return null;
@@ -138,6 +162,37 @@ public class StatePayload {
         }
 
         payloadNode.set("aimedBlocks", blocksArray);
+
+        return payloadNode;
+    }
+
+    public ObjectNode toJSONEventPlace() {
+
+        if (aimedBlocks.isEmpty()) {
+            return null;
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode payloadNode = mapper.createObjectNode();
+        ArrayNode blocksArray = mapper.createArrayNode();
+
+        payloadNode.put("type", "PLAYER_PLACE_EVENT");
+        payloadNode.put("uuid", payload.getClientUuid());
+
+        for (int i = 0; i < aimedBlocks.size(); i++) {
+            Vector3i blockPosition = aimedBlocks.get(i);
+            byte block = aimedBlocksIDs.get(i);
+            ObjectNode blockNode = mapper.createObjectNode();
+
+            blockNode.put("x", blockPosition.x);
+            blockNode.put("y", blockPosition.y);
+            blockNode.put("z", blockPosition.z);
+            blockNode.put("block", block);
+
+            blocksArray.add(blockNode);
+        }
+
+        payloadNode.set("aimedPlacedBlocks", blocksArray);
 
         return payloadNode;
     }

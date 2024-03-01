@@ -88,6 +88,10 @@ public class Chunk {
         return blocks[x + y * AREA + z * SIZE];
     }
 
+    public byte getBlock(Vector3i position) {
+        return blocks[position.x + position.y * AREA + position.z * SIZE];
+    }
+
     public Vector3i getPosition() {
         return position;
     }

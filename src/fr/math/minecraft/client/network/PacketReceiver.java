@@ -15,6 +15,7 @@ import fr.math.minecraft.client.network.payload.StatePayload;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.shared.GameConfiguration;
+import fr.math.minecraft.shared.world.Material;
 import org.apache.log4j.Logger;
 import org.joml.Vector3i;
 
@@ -72,6 +73,7 @@ public class PacketReceiver extends Thread {
     private void handlePacket() {
         MinecraftClient client = Game.getInstance().getClient();
         ObjectMapper mapper = new ObjectMapper();
+
 
         try {
             String response = client.receive();
@@ -133,6 +135,16 @@ public class PacketReceiver extends Thread {
                         this.notifyEvent(new BlockBreakEvent(player, blockPosition));
                     }
                     break;
+                case "PLAYER_PLACE_EVENT":
+                    System.out.println(responseData);
+                    ArrayNode blocksDataPlace = (ArrayNode) responseData.get("aimedPlacedBlocks");
+                    Player playerPlace = game.getPlayers().get(responseData.get("uuid").asText());
+                    for (int i = 0; i < blocksDataPlace.size(); i++) {
+                        JsonNode node = blocksDataPlace.get(i);
+                        Vector3i blockPosition = new Vector3i(node.get("x").asInt(), node.get("y").asInt(), node.get("z").asInt());
+                        this.notifyEvent(new BlockPlaceEvent(playerPlace, blockPosition, Material.STONE));
+                    }
+                    break;
                 default:
                     logger.warn("Le packet " + packetType + " est inconnu et a été ignoré.");
             }
@@ -180,6 +192,12 @@ public class PacketReceiver extends Thread {
     private void notifyEvent(BlockBreakEvent event) {
         for (EventListener listener : eventListeners) {
             listener.onBlockBreak(event);
+        }
+    }
+
+    private void notifyEvent(BlockPlaceEvent event) {
+        for (EventListener listener : eventListeners) {
+            listener.onBlockPlace(event);
         }
     }
 

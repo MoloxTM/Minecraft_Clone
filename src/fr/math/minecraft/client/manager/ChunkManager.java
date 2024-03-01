@@ -33,6 +33,19 @@ public class ChunkManager {
         }
     }
 
+    public void placeBlock(Chunk chunk, Vector3i blockPosition, World world, Material material) {
+        chunk.setBlock(blockPosition.x, blockPosition.y, blockPosition.z, material.getId());
+        Game game = Game.getInstance();
+        // chunk.update();
+        if (chunk.isOnBorders(blockPosition)) {
+            WorldManager worldManager = new WorldManager();
+            worldManager.updateNeighboors(chunk, world);
+        }
+        synchronized (game.getChunkUpdateQueue()) {
+            game.getChunkUpdateQueue().add(chunk);
+        }
+    }
+
     public void loadChunkData(JsonNode chunkData) {
         /*
         JsonNode blocks = chunkData.get("blocks");

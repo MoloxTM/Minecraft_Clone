@@ -9,7 +9,9 @@ import fr.math.minecraft.client.events.listeners.EventListener;
 import fr.math.minecraft.client.events.PlayerMoveEvent;
 import fr.math.minecraft.client.manager.ChunkManager;
 import fr.math.minecraft.client.meshs.NametagMesh;
+import fr.math.minecraft.server.Utils;
 import fr.math.minecraft.shared.GameConfiguration;
+import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.world.Coordinates;
 import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.shared.world.World;
@@ -42,7 +44,7 @@ public class Player {
     private float speed;
     private boolean firstMouse;
     private boolean movingLeft, movingRight, movingForward, movingBackward;
-    private boolean flying, sneaking, canJump, canBreakBlock, jumping, sprinting;
+    private boolean flying, sneaking, canJump, canBreakBlock, canPlaceBlock, jumping, sprinting;
     private boolean movingMouse;
     private boolean debugKeyPressed, occlusionKeyPressed, interpolationKeyPressed;
     private boolean placingBlock, breakingBlock;
@@ -67,7 +69,7 @@ public class Player {
     private String skinPath;
     private final PlayerHand hand;
     private EntityUpdate lastUpdate;
-    private int breakBlockCooldown;
+    private int breakBlockCooldown, placeBlockCooldown;
     private Ray attackRay, buildRay;
     private ArrayList<Vector3i> aimedBlocks;
 
@@ -106,6 +108,7 @@ public class Player {
         this.flying = false;
         this.canJump = false;
         this.canBreakBlock = true;
+        this.canPlaceBlock = true;
         this.jumping = false;
         this.placingBlock = false;
         this.breakingBlock = false;
@@ -174,6 +177,7 @@ public class Player {
             movingRight = true;
         }
 
+        /*
         if(glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
             if(!sprinting) {
                 sprinting = true;
@@ -181,6 +185,7 @@ public class Player {
                 sprinting = false;
             }
         }
+        */
 
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
             switch (gameMode) {
@@ -240,6 +245,16 @@ public class Player {
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
             breakingBlock = false;
             canBreakBlock = true;
+        }
+
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+            placingBlock = true;
+        }
+
+
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
+            placingBlock = false;
+            canPlaceBlock = true;
         }
 
         if (movingLeft || movingRight || movingForward || movingBackward || sneaking || flying) {
@@ -405,6 +420,33 @@ public class Player {
             breakBlockCooldown--;
             if (breakBlockCooldown == 0) {
                 canBreakBlock = true;
+            }
+        }
+
+        if (placingBlock) {
+            if (canPlaceBlock) {
+                ChunkManager chunkManager = new ChunkManager();
+                if (buildRay.getAimedChunk() != null && (buildRay.getAimedBlock() != Material.AIR.getId() || buildRay.getAimedBlock() != Material.WATER.getId())) {
+                    Vector3i rayPosition = buildRay.getBlockWorldPosition();
+                    Vector3i placedBlock = buildRay.getBlockPlacedPosition(rayPosition);
+
+                    Vector3i blockPositionLocal = Utils.worldToLocal(placedBlock);
+
+
+                    /*On détermine le chunk où le */
+                    Chunk aimedChunk = world.getChunkAt(placedBlock);
+
+                    chunkManager.placeBlock(aimedChunk, blockPositionLocal, Game.getInstance().getWorld(), Material.STONE);
+                }
+                canPlaceBlock = false;
+                placeBlockCooldown = (int) GameConfiguration.UPS / 3;
+            }
+        }
+
+        if (placeBlockCooldown > 0) {
+            placeBlockCooldown--;
+            if (placeBlockCooldown == 0) {
+                canPlaceBlock = true;
             }
         }
 

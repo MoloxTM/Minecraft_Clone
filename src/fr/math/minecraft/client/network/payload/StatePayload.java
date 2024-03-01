@@ -41,6 +41,7 @@ public class StatePayload {
         this.aimedBlockData = new ArrayList<>();
         this.materialAimedBlockData = new ArrayList<>();
         extractAimedBlockData(stateData);
+        extractAimedPlacedBlockData(stateData);
         position.x = stateData.get("x").floatValue();
         position.y = stateData.get("y").floatValue();
         position.z = stateData.get("z").floatValue();
@@ -153,6 +154,17 @@ public class StatePayload {
 
     public void extractAimedBlockData(JsonNode data) {
         ArrayNode positionNode = (ArrayNode) data.get("aimedBlocks");
+        for (int i = 0; i < positionNode.size(); i++) {
+            JsonNode node = positionNode.get(i);
+            Vector3i position = new Vector3i(node.get("x").asInt(), node.get("y").asInt(), node.get("z").asInt());
+            this.aimedBlockData.add(position);
+            this.materialAimedBlockData.add(((byte)node.get("block").asInt()));
+        }
+
+    }
+
+    public void extractAimedPlacedBlockData(JsonNode data) {
+        ArrayNode positionNode = (ArrayNode) data.get("aimedPlacedBlocks");
         for (int i = 0; i < positionNode.size(); i++) {
             JsonNode node = positionNode.get(i);
             Vector3i position = new Vector3i(node.get("x").asInt(), node.get("y").asInt(), node.get("z").asInt());
