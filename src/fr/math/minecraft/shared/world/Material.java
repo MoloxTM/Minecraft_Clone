@@ -18,7 +18,8 @@ public enum Material {
     ROSE("Rose", 9, 12, 15, -1, -1),
     DEAD_BUSH("Dead bush", 10, 7, 12, -1, -1),
     BIRCH_LOG("Birch log", 11, new Vector2i(5, 8), new Vector2i(5, 8), new Vector2i(5, 8), new Vector2i(5, 8), new Vector2i(10, 7), new Vector2i(10, 7), 8, 7),
-    BIRCH_LEAVES("Oak leaves", 12, 4, 7, 0, 0);
+    BIRCH_LEAVES("Oak leaves", 12, 4, 7, 0, 0),
+    OAK_PLANKS("Oak planks", 13, 4, 15, 0, 0);
 
     private final int blockIconX, x;
     private final int blockIconY, y;
