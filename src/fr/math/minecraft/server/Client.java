@@ -54,9 +54,9 @@ public class Client {
     private final Queue<InputPayload> inputQueue;
     private final StatePayload[] stateBuffer;
     private boolean canJump;
-    private final Ray buildRay, attackRay;
-    private List<Vector3i> aimedBlocks;
-    private List<Byte> aimedBlocksIDs;
+    private final Ray buildRay, attackRay, breakRay;
+    private List<Vector3i> aimedPLacedBlocks, aimedBreakedBlocks;
+    private List<Byte> aimedPLacedBlocksIDs, aimedBreakedBlocksIDs;;
     private int breakBlockCooldown, placeBlockCoolDown;
     private final static Logger logger = LoggerUtility.getServerLogger(Client.class, LogType.TXT);
 
@@ -94,9 +94,12 @@ public class Client {
         this.canPlaceBlock = true;
         this.active = false;
         this.buildRay = new Ray(GameConfiguration.BUILDING_REACH);
+        this.breakRay = new Ray(GameConfiguration.BUILDING_REACH);
         this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
-        this.aimedBlocks = new ArrayList<>();
-        this.aimedBlocksIDs = new ArrayList<>();
+        this.aimedPLacedBlocks = new ArrayList<>();
+        this.aimedPLacedBlocksIDs = new ArrayList<>();
+        this.aimedBreakedBlocks = new ArrayList<>();
+        this.aimedBreakedBlocksIDs = new ArrayList<>();
     }
 
     public String getName() {
@@ -274,6 +277,7 @@ public class Client {
             handleCollisions(new Vector3f(0, velocity.y, 0));
 
             buildRay.update(position, cameraFront, world, true);
+            breakRay.update(position, cameraFront, world, true);
 
             if (!inputData.isBreakingBlock()) {
                 canBreakBlock = true;
@@ -281,25 +285,28 @@ public class Client {
 
             if (inputData.isBreakingBlock()) {
 
-                byte block = buildRay.getAimedBlock();
+                byte block = breakRay.getAimedBlock();
 
                 if (this.canBreakBlock) {
-                    if (buildRay.getAimedChunk() != null && block != Material.AIR.getId() && block != Material.WATER.getId()) {
+                    if (breakRay.getAimedChunk() != null && block != Material.AIR.getId() && block != Material.WATER.getId()) {
 
-                        Vector3i rayPosition = buildRay.getBlockWorldPosition();
+                        Vector3i rayPosition = breakRay.getBlockWorldPosition();
                         Vector3i blockPositionLocal = Utils.worldToLocal(rayPosition);
 
                         blocksPosition.add(rayPosition);
                         blocksIDs.add(block);
 
-                        logger.info(name + " (" + uuid + ") a cassé un block de " + Material.getMaterialById(block) + " en " + buildRay.getBlockWorldPosition());
+                        logger.info(name + " (" + uuid + ") a cassé un block de " + Material.getMaterialById(block) + " en " + breakRay.getBlockWorldPosition());
 
-                        buildRay.getAimedChunk().setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, Material.AIR.getId());
-                        buildRay.reset();
+                        breakRay.getAimedChunk().setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, Material.AIR.getId());
+                        breakRay.reset();
                         this.canBreakBlock = false;
                     }
                 }
+                this.aimedBreakedBlocksIDs = blocksIDs;
+                this.aimedBreakedBlocks = blocksPosition;
             }
+
 
             if (!inputData.isPlacingBlock()) {
                 canPlaceBlock = true;
@@ -332,13 +339,15 @@ public class Client {
                         this.canPlaceBlock = false;
                     }
                 }
+                this.aimedPLacedBlocks = blocksPosition;
+                this.aimedPLacedBlocksIDs = blocksIDs;
             }
 
             velocity.mul(0.95f);
         }
 
-        this.aimedBlocks = blocksPosition;
-        this.aimedBlocksIDs = blocksIDs;
+
+
         // System.out.println("Tick " + payload.getTick() + " InputVector: " + payload.getInputVector() + " Calculated position : " + position);
     }
 
@@ -457,12 +466,20 @@ public class Client {
         return stateBuffer;
     }
 
-    public List<Byte> getAimedBlocksIDs() {
-        return aimedBlocksIDs;
+    public List<Byte> getAimedPLacedBlocksIDs() {
+        return aimedPLacedBlocksIDs;
     }
 
-    public List<Vector3i> getAimedBlocks() {
-        return aimedBlocks;
+    public List<Vector3i> getAimedPLacedBlocks() {
+        return aimedPLacedBlocks;
+    }
+
+    public List<Byte> getAimedBreakedBlocksIDs() {
+        return aimedBreakedBlocksIDs;
+    }
+
+    public List<Vector3i> getAimedBreakedBlocks() {
+        return aimedBreakedBlocks;
     }
 
     public Vector3f getFront() {
@@ -481,4 +498,7 @@ public class Client {
         return buildRay;
     }
 
+    public Ray getBreakRay() {
+        return breakRay;
+    }
 }

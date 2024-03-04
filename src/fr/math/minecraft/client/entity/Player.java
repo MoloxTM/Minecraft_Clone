@@ -70,7 +70,7 @@ public class Player {
     private final PlayerHand hand;
     private EntityUpdate lastUpdate;
     private int breakBlockCooldown, placeBlockCooldown;
-    private Ray attackRay, buildRay;
+    private Ray attackRay, buildRay, breakRay;
     private ArrayList<Vector3i> aimedBlocks;
 
     public Player(String name) {
@@ -121,6 +121,7 @@ public class Player {
         this.gameMode = GameMode.SURVIVAL;
         this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
         this.buildRay = new Ray(GameConfiguration.BUILDING_REACH);
+        this.breakRay = new Ray(GameConfiguration.BUILDING_REACH);
         this.aimedBlocks = new ArrayList<>();
         this.initAnimations();
     }
@@ -408,8 +409,8 @@ public class Player {
         if (breakingBlock) {
             if (canBreakBlock) {
                 ChunkManager chunkManager = new ChunkManager();
-                if (buildRay.getAimedChunk() != null && (buildRay.getAimedBlock() != Material.AIR.getId() || buildRay.getAimedBlock() != Material.WATER.getId())) {
-                    chunkManager.removeBlock(buildRay.getAimedChunk(), buildRay.getBlockChunkPositionLocal(), Game.getInstance().getWorld());
+                if (breakRay.getAimedChunk() != null && (breakRay.getAimedBlock() != Material.AIR.getId() || breakRay.getAimedBlock() != Material.WATER.getId())) {
+                    chunkManager.removeBlock(breakRay.getAimedChunk(), breakRay.getBlockChunkPositionLocal(), Game.getInstance().getWorld());
                 }
                 canBreakBlock = false;
                 breakBlockCooldown = (int) GameConfiguration.UPS / 3;
@@ -675,6 +676,10 @@ public class Player {
 
     public Ray getBuildRay() {
         return buildRay;
+    }
+
+    public Ray getBreakRay() {
+        return breakRay;
     }
 
     public void setSpeed(float speed) {

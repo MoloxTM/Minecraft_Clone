@@ -24,15 +24,17 @@ public class StatePayload {
     private Vector3f velocity;
     private float yaw;
     private float pitch;
-    private List<Byte> aimedBlocksIDs;
-    private List<Vector3i> aimedBlocks;
+    private List<Byte> aimedPLacedBlocksIDs, aimedBreakedBlocksIDs;
+    private List<Vector3i> aimedPlacedBlocks, aimedBreakedBlocks;
 
     public StatePayload(InputPayload payload) {
         this.payload = payload;
         this.position = new Vector3f();
         this.velocity = new Vector3f();
-        this.aimedBlocks = new ArrayList<>();
-        this.aimedBlocksIDs = new ArrayList<>();
+        this.aimedPlacedBlocks = new ArrayList<>();
+        this.aimedPLacedBlocksIDs = new ArrayList<>();
+        this.aimedBreakedBlocks = new ArrayList<>();
+        this.aimedBreakedBlocksIDs = new ArrayList<>();
         this.data = null;
         this.yaw = 0.0f;
         this.pitch = 0.0f;
@@ -44,8 +46,10 @@ public class StatePayload {
         Vector3f newPosition = new Vector3f(client.getPosition());
         Vector3f newVelocity = new Vector3f(client.getVelocity());
 
-        this.aimedBlocks = new ArrayList<>(client.getAimedBlocks());
-        this.aimedBlocksIDs = new ArrayList<>(client.getAimedBlocksIDs());
+        this.aimedPlacedBlocks = new ArrayList<>(client.getAimedPLacedBlocks());
+        this.aimedPLacedBlocksIDs = new ArrayList<>(client.getAimedPLacedBlocksIDs());
+        this.aimedBreakedBlocks = new ArrayList<>(client.getAimedBreakedBlocks());
+        this.aimedBreakedBlocksIDs = new ArrayList<>(client.getAimedBreakedBlocksIDs());
 
         /*
         if (client.getLastChunkPosition().distance(position.x, position.y, position.z) >= ServerChunk.SIZE) {
@@ -84,61 +88,60 @@ public class StatePayload {
             e.printStackTrace();
         }
 
-        if (payloadEventBreakNode == null) {
-            return;
-        }
+        if (payloadEventBreakNode != null) {
+            try {
+                String payloadEventData = mapper.writeValueAsString(payloadEventBreakNode);
+                byte[] buffer = payloadEventData.getBytes(StandardCharsets.UTF_8);
+                DatagramPacket packetEvent = new DatagramPacket(buffer, buffer.length);
 
-        try {
-            String payloadEventData = mapper.writeValueAsString(payloadEventBreakNode);
-            byte[] buffer = payloadEventData.getBytes(StandardCharsets.UTF_8);
-            DatagramPacket packetEvent = new DatagramPacket(buffer, buffer.length);
+                System.out.println(payloadEventData);
 
-            System.out.println(payloadEventData);
-
-            synchronized (server.getClients()) {
-                for (Client onlineClient : server.getClients().values()) {
-                    if(!onlineClient.getUuid().equalsIgnoreCase(payload.getClientUuid())) {
-                        packetEvent.setAddress(onlineClient.getAddress());
-                        packetEvent.setPort(onlineClient.getPort());
-                        server.sendPacket(packetEvent);
+                synchronized (server.getClients()) {
+                    for (Client onlineClient : server.getClients().values()) {
+                        if(!onlineClient.getUuid().equalsIgnoreCase(payload.getClientUuid())) {
+                            packetEvent.setAddress(onlineClient.getAddress());
+                            packetEvent.setPort(onlineClient.getPort());
+                            server.sendPacket(packetEvent);
+                        }
                     }
                 }
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
             }
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
         }
 
 
-        if (payloadEventPlaceNode == null) {
-            return;
-        }
+        if (payloadEventPlaceNode != null) {
+            try {
+                String payloadEventData = mapper.writeValueAsString(payloadEventPlaceNode);
+                byte[] buffer = payloadEventData.getBytes(StandardCharsets.UTF_8);
+                DatagramPacket packetEvent = new DatagramPacket(buffer, buffer.length);
 
-        try {
-            String payloadEventData = mapper.writeValueAsString(payloadEventPlaceNode);
-            byte[] buffer = payloadEventData.getBytes(StandardCharsets.UTF_8);
-            DatagramPacket packetEvent = new DatagramPacket(buffer, buffer.length);
+                System.out.println(payloadEventData);
 
-            System.out.println(payloadEventData);
-
-            synchronized (server.getClients()) {
-                for (Client onlineClient : server.getClients().values()) {
-                    if(!onlineClient.getUuid().equalsIgnoreCase(payload.getClientUuid())) {
-                        packetEvent.setAddress(onlineClient.getAddress());
-                        packetEvent.setPort(onlineClient.getPort());
-                        server.sendPacket(packetEvent);
+                synchronized (server.getClients()) {
+                    for (Client onlineClient : server.getClients().values()) {
+                        if(!onlineClient.getUuid().equalsIgnoreCase(payload.getClientUuid())) {
+                            packetEvent.setAddress(onlineClient.getAddress());
+                            packetEvent.setPort(onlineClient.getPort());
+                            server.sendPacket(packetEvent);
+                        }
                     }
                 }
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
             }
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
         }
+
 
     }
 
     public ObjectNode toJSONEventBreak() {
 
-        if (aimedBlocks.isEmpty()) {
+        if (aimedBreakedBlocks.isEmpty()) {
             return null;
+        } else {
+
         }
 
         ObjectMapper mapper = new ObjectMapper();
@@ -148,9 +151,9 @@ public class StatePayload {
         payloadNode.put("type", "PLAYER_BREAK_EVENT");
         payloadNode.put("uuid", payload.getClientUuid());
         
-        for (int i = 0; i < aimedBlocks.size(); i++) {
-            Vector3i blockPosition = aimedBlocks.get(i);
-            byte block = aimedBlocksIDs.get(i);
+        for (int i = 0; i < aimedBreakedBlocks.size(); i++) {
+            Vector3i blockPosition = aimedBreakedBlocks.get(i);
+            byte block = aimedBreakedBlocksIDs.get(i);
             ObjectNode blockNode = mapper.createObjectNode();
 
             blockNode.put("x", blockPosition.x);
@@ -168,8 +171,10 @@ public class StatePayload {
 
     public ObjectNode toJSONEventPlace() {
 
-        if (aimedBlocks.isEmpty()) {
+        if (aimedPlacedBlocks.isEmpty()) {
             return null;
+        } else {
+            System.out.println("Le aimedPlacedBlocs pas vide");
         }
 
         ObjectMapper mapper = new ObjectMapper();
@@ -179,9 +184,9 @@ public class StatePayload {
         payloadNode.put("type", "PLAYER_PLACE_EVENT");
         payloadNode.put("uuid", payload.getClientUuid());
 
-        for (int i = 0; i < aimedBlocks.size(); i++) {
-            Vector3i blockPosition = aimedBlocks.get(i);
-            byte block = aimedBlocksIDs.get(i);
+        for (int i = 0; i < aimedPlacedBlocks.size(); i++) {
+            Vector3i blockPosition = aimedPlacedBlocks.get(i);
+            byte block = aimedPLacedBlocksIDs.get(i);
             ObjectNode blockNode = mapper.createObjectNode();
 
             blockNode.put("x", blockPosition.x);
@@ -192,7 +197,7 @@ public class StatePayload {
             blocksArray.add(blockNode);
         }
 
-        payloadNode.set("aimedPlacedBlocks", blocksArray);
+        payloadNode.set("aimedBlocks", blocksArray);
 
         return payloadNode;
     }
@@ -214,9 +219,9 @@ public class StatePayload {
         payloadNode.put("pitch", pitch);
         payloadNode.put("uuid", payload.getClientUuid());
 
-        for (int i = 0; i < aimedBlocks.size(); i++) {
-            Vector3i blockPosition = aimedBlocks.get(i);
-            byte block = aimedBlocksIDs.get(i);
+        for (int i = 0; i < aimedPlacedBlocks.size(); i++) {
+            Vector3i blockPosition = aimedPlacedBlocks.get(i);
+            byte block = aimedPLacedBlocksIDs.get(i);
             ObjectNode blockNode = mapper.createObjectNode();
 
             blockNode.put("x", blockPosition.x);

@@ -137,7 +137,7 @@ public class PacketReceiver extends Thread {
                     break;
                 case "PLAYER_PLACE_EVENT":
                     System.out.println(responseData);
-                    ArrayNode blocksDataPlace = (ArrayNode) responseData.get("aimedPlacedBlocks");
+                    ArrayNode blocksDataPlace = (ArrayNode) responseData.get("aimedBlocks");
                     Player playerPlace = game.getPlayers().get(responseData.get("uuid").asText());
                     for (int i = 0; i < blocksDataPlace.size(); i++) {
                         JsonNode node = blocksDataPlace.get(i);
