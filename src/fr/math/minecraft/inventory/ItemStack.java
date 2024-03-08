@@ -3,14 +3,24 @@ package fr.math.minecraft.inventory;
 import fr.math.minecraft.shared.world.Material;
 import org.joml.Vector2f;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ItemStack {
 
     private int amount;
     private final Material material;
+    private final List<String> lore;
+    private boolean hovered;
 
     public ItemStack(Material material, int amount) {
         this.amount = amount;
         this.material = material;
+        this.lore = new ArrayList<>();
+    }
+
+    public List<String> getLore() {
+        return lore;
     }
 
     public int getAmount() {
@@ -23,6 +33,14 @@ public class ItemStack {
 
     public Material getMaterial() {
         return material;
+    }
+
+    public boolean isHovered() {
+        return hovered;
+    }
+
+    public void setHovered(boolean hovered) {
+        this.hovered = hovered;
     }
 
     public Vector2f[] calculateTexCoords() {

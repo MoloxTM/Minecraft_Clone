@@ -19,6 +19,7 @@ import fr.math.minecraft.client.texture.CubemapTexture;
 import fr.math.minecraft.client.texture.Sprite;
 import fr.math.minecraft.client.texture.Texture;
 import fr.math.minecraft.inventory.Hotbar;
+import fr.math.minecraft.inventory.Inventory;
 import fr.math.minecraft.inventory.ItemStack;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.server.manager.BiomeManager;
@@ -54,6 +55,7 @@ public class Renderer {
     private final Shader blockShader;
     private final Shader crosshairShader;
     private final Shader handBlockShader;
+    private final Shader colorShader;
     private final Shader itemShader;
     private final Shader selectedBlockShader;
     private final Texture terrainTexture;
@@ -77,6 +79,8 @@ public class Renderer {
     private String emptyText;
     private Set<String> loadedSkins;
     private Material lastItemInHand;
+    private final GameConfiguration gameConfiguration;
+    private final static float HOTBAR_SCALE = 1.8f;
 
     public Renderer() {
         this.playerMesh = new PlayerMesh();
@@ -92,6 +96,7 @@ public class Renderer {
         this.handBlockMesh = new BlockMesh(Material.STONE);
         this.loadedSkins = new HashSet<>();
         this.lastItemInHand = null;
+        this.gameConfiguration = GameConfiguration.getInstance();
 
         for (int i = 0; i < 256; i++) {
             emptyText += " ";
@@ -122,6 +127,7 @@ public class Renderer {
         this.crosshairShader = new Shader("res/shaders/cursor.vert", "res/shaders/default.frag");
         this.handBlockShader = new Shader("res/shaders/handblock.vert", "res/shaders/handblock.frag");
         this.itemShader = new Shader("res/shaders/item.vert", "res/shaders/item.frag");
+        this.colorShader = new Shader("res/shaders/color.vert", "res/shaders/color.frag");
 
         this.terrainTexture = new Texture("res/textures/terrain.png", 1);
         this.defaultSkinTexture = new Texture("res/textures/skin.png", 2);
@@ -351,10 +357,12 @@ public class Renderer {
         glActiveTexture(GL_TEXTURE0 + widgetsTexture.getSlot());
         widgetsTexture.bind();
 
+        float scale = gameConfiguration.getGuiScale();
+
         if (button.isHovered()) {
-            imageMesh.texSubImage(0, 256.0f - 106, 200, 20, 256.0f, 256.0f);
+            imageMesh.texSubImage(0, 256.0f - 106, 200 * scale, 20 * scale, 256.0f, 256.0f);
         } else {
-            imageMesh.texSubImage(0, 256.0f - 86, 200, 20, 256.0f, 256.0f);
+            imageMesh.texSubImage(0, 256.0f - 86, 200 * scale, 20 * scale, 256.0f, 256.0f);
         }
 
         imageMesh.translate(imageShader, button.getX(), button.getY(), ButtonMesh.BUTTON_WIDTH, ButtonMesh.BUTTON_HEIGHT);
@@ -495,7 +503,7 @@ public class Renderer {
     }
 
     public void renderDebugTools(Camera camera, Player player, int frames) {
-        GameConfiguration gameConfiguration = Game.getInstance().getGameConfiguration();
+        GameConfiguration gameConfiguration = GameConfiguration.getInstance();
         this.renderText(camera, "XYZ: " + player.getPosition().x + " / " + player.getPosition().y + " / " + player.getPosition().z, 0, GameConfiguration.WINDOW_HEIGHT - 100,0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
         this.renderText(camera, "FPS: " + frames, 0, GameConfiguration.WINDOW_HEIGHT - 120,0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
         this.renderText(camera, "Ping: " + player.getPing() + "ms", 0, GameConfiguration.WINDOW_HEIGHT - 140,0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
@@ -504,19 +512,23 @@ public class Renderer {
         this.renderText(camera, "Entity Interpolation: " + gameConfiguration.isEntityInterpolationEnabled(), 0, GameConfiguration.WINDOW_HEIGHT - 180, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
     }
 
-    public void renderInventory(Camera camera, Player player) {
+    public void renderInventory(Camera camera, Inventory inventory) {
 
         imageShader.enable();
         imageShader.sendInt("uTexture", invetoryTexture.getSlot());
+        imageShader.sendFloat("depth", -12);
+
+        imageMesh.translate(imageShader, 0, 0, GameConfiguration.WINDOW_WIDTH, GameConfiguration.WINDOW_HEIGHT);
 
         glActiveTexture(GL_TEXTURE0 + invetoryTexture.getSlot());
         invetoryTexture.bind();
 
-        float inventoryWidth = 256.0f;
-        float inventoryHeight = 256.0f;
-
+        float inventoryWidth = GameConfiguration.INVENTORY_TEXTURE_WIDTH;
+        float inventoryHeight = GameConfiguration.INVENTORY_TEXTURE_HEIGHT;
         float inventoryX = (GameConfiguration.WINDOW_WIDTH - inventoryWidth) / 2;
         float inventoryY = (GameConfiguration.WINDOW_HEIGHT - inventoryHeight) / 2;
+
+        float inventoryScale = gameConfiguration.getGuiScale() * HOTBAR_SCALE;
 
         imageMesh.texSubImage(0, 90, 177, 166, inventoryWidth, inventoryHeight);
         imageMesh.translate(imageShader, inventoryX, inventoryY, inventoryWidth, inventoryHeight);
@@ -526,6 +538,63 @@ public class Renderer {
         imageMesh.draw();
 
         invetoryTexture.unbind();
+
+        glActiveTexture(GL_TEXTURE0 + guiBlocksTexture.getSlot());
+        imageShader.sendInt("uTexture", guiBlocksTexture.getSlot());
+
+        guiBlocksTexture.bind();
+
+        float slotScale = 1.4463276836158192f;
+        float slotSize = 16.0f;
+        float selectedItemX = -1, selectedItemY = -1;
+
+        for (int i = 0; i < inventory.getCurrentSize(); i++) {
+            ItemStack item = inventory.getItems()[i];
+            Material material = item.getMaterial();
+
+            float size = material.isItem() ? 16.0f : 48.0f;
+            float offset = material.isItem() ? 0.0f : 80.0f;
+
+            imageShader.sendFloat("depth", -11);
+            imageMesh.texSubImage(material.getBlockIconX() * size, material.getBlockIconY() * size + offset, size, size, 512.0f, 512.0f);
+
+            float itemX = 7.0f * slotScale + inventoryX + i * 18.0f * slotScale;
+            float itemY = inventoryY + 6.0f + 4.0f + slotSize * 4 * slotScale;
+
+            imageMesh.translate(imageShader, itemX, itemY, slotSize * 1.4f, slotSize * 1.4f);
+            camera.matrixOrtho(imageShader, 0, 0);
+
+            if (inventory.getSelectedItem() != null && inventory.getSelectedItem().equals(item)) {
+                selectedItemX = itemX;
+                selectedItemY = itemY;
+            }
+
+            imageMesh.draw();
+        }
+
+        ItemStack selectedItem = inventory.getSelectedItem();
+
+        if (selectedItem != null) {
+            colorShader.enable();
+
+            int rgb = 0xFFFFFF;
+            float r = (float) ((rgb >> 16) & 0xFF) / 255.0f;
+            float g = (float) ((rgb >> 8) & 0xFF) / 255.0f;
+            float b = (float) ((rgb >> 0) & 0xFF) / 255.0f;
+
+            colorShader.sendFloat("depth", -10);
+            colorShader.sendFloat("r", r);
+            colorShader.sendFloat("g", g);
+            colorShader.sendFloat("b", b);
+            colorShader.sendFloat("a", .7f);
+
+            imageMesh.translate(colorShader, selectedItemX, selectedItemY, 18 * 1.4f, 18 * 1.4f);
+            camera.matrixOrtho(colorShader, 0, 0);
+
+            imageMesh.draw();
+        }
+
+        guiBlocksTexture.unbind();
     }
 
     public void renderHotbar(Camera camera, Player player, Hotbar hotbar) {
@@ -538,7 +607,7 @@ public class Renderer {
 
         int hotbarWidth = 182;
         int hotbarHeight = 22;
-        float scale = 2.0f;
+        float scale = gameConfiguration.getGuiScale() * HOTBAR_SCALE;
 
         float hotbarX = (GameConfiguration.WINDOW_WIDTH - hotbarWidth * scale) / 2.0f;
         float hotbarY = 0;
@@ -664,9 +733,12 @@ public class Renderer {
         camera.matrixItem(player.getHand(), player.getMiningAnimation(), itemShader, itemModelData);
 
         itemMesh.draw();
-
         guiBlocksTexture.unbind();
 
+        float itemTextX = (GameConfiguration.WINDOW_WIDTH - fontManager.getTextWidth(fontMesh, material.getName())) / 2.0f;
+        float itemTextY = 22 * HOTBAR_SCALE * gameConfiguration.getGuiScale() + 20;
+
+        this.renderText(camera, material.getName(), itemTextX, itemTextY, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
     }
 
     public Map<String, Texture> getSkinsMap() {

@@ -84,7 +84,7 @@ public class PacketListener implements PacketEventListener {
             float yaw = playerNode.get("yaw").floatValue();
             float bodyYaw = playerNode.get("bodyYaw").floatValue();
 
-            GameConfiguration gameConfiguration = game.getGameConfiguration();
+            GameConfiguration gameConfiguration = GameConfiguration.getInstance();
 
             if (gameConfiguration.isEntityInterpolationEnabled()) {
                 EntityUpdate entityUpdate = new EntityUpdate(new Vector3f(playerX, playerY, playerZ), yaw, pitch, bodyYaw);

@@ -22,6 +22,16 @@ public class Hotbar extends Inventory {
         animation.start();
     }
 
+    @Override
+    public ItemStack getSelectedItem() {
+
+        if (currentSlot < items.length) {
+            return items[currentSlot];
+        }
+
+        return null;
+    }
+
     public HotbarAnimation getAnimation() {
         return animation;
     }

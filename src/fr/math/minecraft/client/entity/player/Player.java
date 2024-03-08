@@ -6,6 +6,7 @@ import fr.math.minecraft.client.entity.Ray;
 import fr.math.minecraft.client.events.listeners.EntityUpdate;
 import fr.math.minecraft.client.events.listeners.EventListener;
 import fr.math.minecraft.client.events.PlayerMoveEvent;
+import fr.math.minecraft.client.handler.InventoryInputsHandler;
 import fr.math.minecraft.client.manager.ChunkManager;
 import fr.math.minecraft.client.meshs.NametagMesh;
 import fr.math.minecraft.client.texture.Sprite;
@@ -40,6 +41,7 @@ public class Player {
     private Vector3f position;
     private final Hotbar hotbar;
     private float yaw;
+    private float lastYaw;
     private float bodyYaw;
     private float pitch;
     private float speed;
@@ -102,6 +104,7 @@ public class Player {
         this.miningAnimation = new MiningAnimation();
         this.action = PlayerAction.MINING;
         this.yaw = 0.0f;
+        this.lastYaw = 0.0f;
         this.bodyYaw = 0.0f;
         this.pitch = 0.0f;
         this.firstMouse = true;
@@ -144,9 +147,32 @@ public class Player {
     }
 
     public void handleInputs(long window) {
+
+        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+            if (!inventoryKeyPressed) {
+                if (!inventory.isOpen()) {
+                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                } else {
+                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                }
+                inventory.setOpen(!inventory.isOpen());
+                inventoryKeyPressed = true;
+            }
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE) {
+            inventoryKeyPressed = false;
+        }
+
         DoubleBuffer mouseX = BufferUtils.createDoubleBuffer(1);
         DoubleBuffer mouseY = BufferUtils.createDoubleBuffer(1);
         glfwGetCursorPos(window, mouseX, mouseY);
+
+        if (inventory.isOpen()) {
+            InventoryInputsHandler handler = new InventoryInputsHandler();
+            handler.handleInputs(this, inventory, (float) mouseX.get(0), (float) mouseY.get(0));
+            return;
+        }
 
         if (firstMouse) {
             lastMouseX = (float) mouseX.get(0);
@@ -214,9 +240,10 @@ public class Player {
             sneaking = true;
         }
 
+        GameConfiguration gameConfiguration = GameConfiguration.getInstance();
+
         if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
             if (!occlusionKeyPressed) {
-                GameConfiguration gameConfiguration = Game.getInstance().getGameConfiguration();
                 gameConfiguration.setOcclusionEnabled(!gameConfiguration.isOcclusionEnabled());
                 occlusionKeyPressed = true;
             }
@@ -224,7 +251,6 @@ public class Player {
 
         if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
             if (!interpolationKeyPressed) {
-                GameConfiguration gameConfiguration = Game.getInstance().getGameConfiguration();
                 gameConfiguration.setEntityInterpolation(!gameConfiguration.isEntityInterpolationEnabled());
                 interpolationKeyPressed = true;
             }
@@ -232,16 +258,8 @@ public class Player {
 
         if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_PRESS) {
             if (!debugKeyPressed) {
-                GameConfiguration gameConfiguration = Game.getInstance().getGameConfiguration();
                 gameConfiguration.setDebugging(!gameConfiguration.isDebugging());
                 debugKeyPressed = true;
-            }
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-            if (!inventoryKeyPressed) {
-                inventory.setOpen(!inventory.isOpen());
-                inventoryKeyPressed = true;
             }
         }
 
@@ -279,10 +297,6 @@ public class Player {
 
         if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS) {
             hotbar.setCurrentSlot(8);
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE) {
-            inventoryKeyPressed = false;
         }
 
         if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_RELEASE) {
@@ -337,7 +351,7 @@ public class Player {
 
     public void update() {
         this.updateAnimations();
-        GameConfiguration gameConfiguration = Game.getInstance().getGameConfiguration();
+        GameConfiguration gameConfiguration = GameConfiguration.getInstance();
 
         if (gameConfiguration.isEntityInterpolationEnabled()) {
             position.x = Math.lerp(position.x, lastUpdate.getPosition().x, 0.1f);
@@ -419,7 +433,6 @@ public class Player {
         if (sprinting) {
             this.setSpeed(GameConfiguration.SPRINT_SPEED);
         } else {
-
             this.setSpeed(GameConfiguration.DEFAULT_SPEED);
         }
 

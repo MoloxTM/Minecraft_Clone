@@ -142,7 +142,6 @@ public class Game {
         this.soundManager = new SoundManager();
         this.menuManager = new MenuManager(this);
         this.worldManager = new WorldManager();
-        this.gameConfiguration = new GameConfiguration();
         this.renderer = new Renderer();
         this.itemRenderer = new ItemRenderer();
         this.mouseXBuffer = BufferUtils.createDoubleBuffer(1);
@@ -160,6 +159,7 @@ public class Game {
         this.playerMovementHandler = new PlayerMovementHandler();
         this.lastPingTime = 0;
         this.chunkUpdateQueue = new ArrayList<>();
+        this.gameConfiguration = GameConfiguration.getInstance();
 
         world.buildSpawnMesh();
 
@@ -217,13 +217,20 @@ public class Game {
 
         menuManager.open(MainMenu.class);
 
+        ItemStack sword = new ItemStack(Material.DIAMOND_SWORD, 1);
+        sword.getLore().add("Hello, World!");
+
         player.getHotbar().addItem(new ItemStack(Material.STONE, 1));
         player.getHotbar().addItem(new ItemStack(Material.DIRT, 1));
         player.getHotbar().addItem(new ItemStack(Material.SAND, 1));
         player.getHotbar().addItem(new ItemStack(Material.GRASS, 1));
         player.getHotbar().addItem(new ItemStack(Material.DIAMOND_SWORD, 1));
         player.getHotbar().addItem(new ItemStack(Material.APPLE, 1));
-        player.getHotbar().addItem(new ItemStack(Material.DIAMOND_AXE, 1));
+        player.getHotbar().addItem(sword);
+
+        player.getInventory().addItem(sword);
+        player.getInventory().addItem(new ItemStack(Material.APPLE, 1));
+        player.getInventory().addItem(new ItemStack(Material.DIAMOND_AXE, 1));
 
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.58f, 0.83f, 0.99f, 1);
@@ -417,11 +424,11 @@ public class Game {
         }
 
         renderer.renderDebugTools(camera, player, fps);
-        if (player.getInventory().isOpen()) {
-            renderer.renderInventory(camera, player);
-        }
         renderer.renderHotbar(camera, player, player.getHotbar());
         renderer.renderCrosshair(camera);
+        if (player.getInventory().isOpen()) {
+            renderer.renderInventory(camera, player.getInventory());
+        }
     }
 
     public static Game getInstance() {
@@ -525,10 +532,6 @@ public class Game {
 
     public void setLastPingTime(double lastPingTime) {
         this.lastPingTime = lastPingTime;
-    }
-
-    public GameConfiguration getGameConfiguration() {
-        return gameConfiguration;
     }
 
     public List<Chunk> getChunkUpdateQueue() {
