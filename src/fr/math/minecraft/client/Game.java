@@ -274,12 +274,14 @@ public class Game {
         tick++;
         if (tick % 10 == 0) {
             List<PlayerInputData> inputData = new ArrayList<>(player.getInputs());
-            List<Vector3i> aimedBlockData = new ArrayList<>(player.getAimedBlocks());
+            List<Vector3i> aimedPlacedBlockData = new ArrayList<>(player.getAimedPlacedBlocks());
+            List<Vector3i> aimedBreakedBlockData = new ArrayList<>(player.getAimedBreakedBlocks());
 
-            playerMovementHandler.handle(world, player, new Vector3f(player.getPosition()), inputData, aimedBlockData);
+            playerMovementHandler.handle(world, player, new Vector3f(player.getPosition()), inputData, aimedPlacedBlockData, aimedBreakedBlockData);
 
             player.getInputs().clear();
-            player.getAimedBlocks().clear();
+            player.getAimedPlacedBlocks().clear();
+            player.getAimedBreakedBlocks().clear();
         }
 
         player.handleInputs(window);
@@ -303,10 +305,10 @@ public class Game {
         player.getBreakRay().update(camera.getPosition(), camera.getFront(), world, false);
 
         if (player.getBuildRay().getAimedChunk() != null && (player.getBuildRay().getAimedBlock() != Material.AIR.getId() || player.getBuildRay().getAimedBlock() != Material.WATER.getId())){
-            player.getAimedBlocks().add(player.getBuildRay().getBlockWorldPosition());
+            player.getAimedPlacedBlocks().add(player.getBuildRay().getBlockWorldPosition());
         }
         if (player.getBreakRay().getAimedChunk() != null && (player.getBreakRay().getAimedBlock() != Material.AIR.getId() || player.getBreakRay().getAimedBlock() != Material.WATER.getId())){
-            player.getAimedBlocks().add(player.getBreakRay().getBlockWorldPosition());
+            player.getAimedBreakedBlocks().add(player.getBreakRay().getBlockWorldPosition());
         }
     }
 

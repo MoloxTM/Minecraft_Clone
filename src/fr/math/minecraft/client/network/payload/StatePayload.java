@@ -5,8 +5,11 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.math.minecraft.client.entity.Player;
 import fr.math.minecraft.client.network.FixedPacketSender;
 import fr.math.minecraft.client.network.packet.PlayerMovePacket;
+import fr.math.minecraft.logger.LogType;
+import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.shared.network.PlayerInputData;
 import fr.math.minecraft.shared.world.World;
+import org.apache.log4j.Logger;
 import org.joml.Math;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
@@ -21,15 +24,20 @@ public class StatePayload {
     private Vector3f position;
     private Vector3f velocity;
     private Vector3i inputVector;
-    private List<Vector3i> aimedBlockData;
-    private List<Byte> materialAimedBlockData;
+    private List<Vector3i> aimedBreakedBlockData;
+    private List<Vector3i> aimedPlacedBlockData;
+    private List<Byte> materialAimedBreakedBlockData, materialAimedPlacedBlockData;
     private float yaw, pitch;
+
+    private final static Logger logger = LoggerUtility.getClientLogger(StatePayload.class, LogType.TXT);
+
 
     public StatePayload(InputPayload payload) {
         this.payload = payload;
         this.position = new Vector3f();
         this.velocity = new Vector3f();
-        this.aimedBlockData = new ArrayList<>();
+        this.aimedBreakedBlockData = new ArrayList<>();
+        this.aimedPlacedBlockData = new ArrayList<>();
         this.data = null;
     }
 
@@ -38,9 +46,11 @@ public class StatePayload {
         this.velocity = new Vector3f();
         this.inputVector = new Vector3i();
         this.payload = new InputPayload(stateData.get("tick").asInt());
-        this.aimedBlockData = new ArrayList<>();
-        this.materialAimedBlockData = new ArrayList<>();
-        extractAimedBlockData(stateData);
+        this.aimedBreakedBlockData = new ArrayList<>();
+        this.aimedPlacedBlockData = new ArrayList<>();
+        this.materialAimedBreakedBlockData = new ArrayList<>();
+        this.materialAimedPlacedBlockData = new ArrayList<>();
+        extractAimedBreakedBlockData(stateData);
         extractAimedPlacedBlockData(stateData);
         position.x = stateData.get("x").floatValue();
         position.y = stateData.get("y").floatValue();
@@ -138,13 +148,32 @@ public class StatePayload {
         this.position = new Vector3f(player.getPosition());
     }
 
-    public void verifyAimedBlocks(List<Vector3i> clientAimedBlockData) {
-        for (int i = 0; i < clientAimedBlockData.size(); i++) {
-            if(!clientAimedBlockData.get(i).equals(this.aimedBlockData.get(i))) {
-                System.out.println("Y'a problème avec :" + clientAimedBlockData.get(i));
+    public boolean verifyAimedPlacedBlocks(List<Vector3i> clientAimedPlacedBlockData) {
+        if(clientAimedPlacedBlockData.isEmpty()) {
+            return false;
+        }
+        for (int i = 0; i < aimedPlacedBlockData.size(); i++) {
+            if(!clientAimedPlacedBlockData.get(i).equals(this.aimedPlacedBlockData.get(i))) {
+                logger.warn("Y'a problème avec :" + clientAimedPlacedBlockData.get(i));
+                return true;
             }
         }
 
+        return false;
+    }
+
+    public boolean verifyAimedBreakedBlocks(List<Vector3i> clientAimedBreakedBlockData) {
+        if(clientAimedBreakedBlockData.isEmpty()) {
+            return false;
+        }
+        for (int i = 0; i < aimedBreakedBlockData.size(); i++) {
+            if(!clientAimedBreakedBlockData.get(i).equals(this.aimedBreakedBlockData.get(i))) {
+                logger.warn("Y'a problème avec :" + clientAimedBreakedBlockData.get(i));
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void send(Player player) {
@@ -152,13 +181,13 @@ public class StatePayload {
         FixedPacketSender.getInstance().enqueue(packet);
     }
 
-    public void extractAimedBlockData(JsonNode data) {
-        ArrayNode positionNode = (ArrayNode) data.get("aimedBlocks");
+    public void extractAimedBreakedBlockData(JsonNode data) {
+        ArrayNode positionNode = (ArrayNode) data.get("aimedBreakedBlocks");
         for (int i = 0; i < positionNode.size(); i++) {
             JsonNode node = positionNode.get(i);
             Vector3i position = new Vector3i(node.get("x").asInt(), node.get("y").asInt(), node.get("z").asInt());
-            this.aimedBlockData.add(position);
-            this.materialAimedBlockData.add(((byte)node.get("block").asInt()));
+            this.aimedBreakedBlockData.add(position);
+            this.materialAimedBreakedBlockData.add(((byte)node.get("block").asInt()));
         }
 
     }
@@ -168,8 +197,8 @@ public class StatePayload {
         for (int i = 0; i < positionNode.size(); i++) {
             JsonNode node = positionNode.get(i);
             Vector3i position = new Vector3i(node.get("x").asInt(), node.get("y").asInt(), node.get("z").asInt());
-            this.aimedBlockData.add(position);
-            this.materialAimedBlockData.add(((byte)node.get("block").asInt()));
+            this.aimedPlacedBlockData.add(position);
+            this.materialAimedPlacedBlockData.add(((byte)node.get("block").asInt()));
         }
 
     }
@@ -206,11 +235,19 @@ public class StatePayload {
         return velocity;
     }
 
-    public void setAimedBlockData(List<Vector3i> aimedBlockData) {
-        this.aimedBlockData = aimedBlockData;
+    public void setAimedBreakedBlockData(List<Vector3i> aimedBreakedBlockData) {
+        this.aimedBreakedBlockData = aimedBreakedBlockData;
     }
 
-    public List<Vector3i> getAimedBlockData() {
-        return aimedBlockData;
+    public List<Vector3i> getAimedBreakedBlockData() {
+        return aimedBreakedBlockData;
+    }
+
+    public void setAimedPlacedBlockData(List<Vector3i> aimedPlacedBlockData) {
+        this.aimedPlacedBlockData = aimedPlacedBlockData;
+    }
+
+    public List<Vector3i> getAimedPlacedBlockData() {
+        return aimedPlacedBlockData;
     }
 }

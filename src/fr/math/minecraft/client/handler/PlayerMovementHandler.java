@@ -27,7 +27,7 @@ public class PlayerMovementHandler {
         this.stateBuffer = new StatePayload[BUFFER_SIZE];
     }
 
-    public void handle(World world, Player player, Vector3f playerPosition, List<PlayerInputData> inputData, List<Vector3i> aimedBlockData) {
+    public void handle(World world, Player player, Vector3f playerPosition, List<PlayerInputData> inputData, List<Vector3i> aimedPlacedBlockData, List<Vector3i> aimedBreakedBlockData) {
 
         int bufferIndex = currentTick % BUFFER_SIZE;
 
@@ -37,7 +37,8 @@ public class PlayerMovementHandler {
         StatePayload statePayload = new StatePayload(inputPayload);
         // statePayload.predictMovement(player, playerPosition);
         statePayload.setPosition(playerPosition);
-        statePayload.setAimedBlockData(aimedBlockData);
+        statePayload.setAimedBreakedBlockData(aimedBreakedBlockData);
+        statePayload.setAimedPlacedBlockData(aimedPlacedBlockData);
         statePayload.send(player);
 
         player.setLastPosition(new Vector3f(playerPosition));
@@ -61,8 +62,9 @@ public class PlayerMovementHandler {
         StatePayload payload = stateBuffer[serverTick % BUFFER_SIZE];
 
         float positionError = serverPosition.distance(payload.getPosition());
+        boolean placedBlockError = lastServerState.verifyAimedPlacedBlocks(payload.getAimedPlacedBlockData());
+        boolean breakedBlockError = lastServerState.verifyAimedBreakedBlocks(payload.getAimedBreakedBlockData());
 
-        // lastServerState.verifyAimedBlocks(payload.getAimedBlockData());
 
         if (positionError > 0.001f) {
             Camera camera = Game.getInstance().getCamera();
@@ -98,6 +100,14 @@ public class PlayerMovementHandler {
 
                 tickToProcess++;
             }
+        }
+
+        if(placedBlockError) {
+            System.out.println("Y'a un problème avec les blocks placés");
+        }
+
+        if(breakedBlockError) {
+            System.out.println("Y'a un problème avec les blocks cassés");
         }
     }
 

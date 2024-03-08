@@ -71,7 +71,8 @@ public class Player {
     private EntityUpdate lastUpdate;
     private int breakBlockCooldown, placeBlockCooldown;
     private Ray attackRay, buildRay, breakRay;
-    private ArrayList<Vector3i> aimedBlocks;
+    private ArrayList<Vector3i> aimedPlacedBlocks;
+    private ArrayList<Vector3i> aimedBreakedBlocks;
 
     public Player(String name) {
         this.position = new Vector3f(0.0f, 300.0f, 0.0f);
@@ -122,7 +123,8 @@ public class Player {
         this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
         this.buildRay = new Ray(GameConfiguration.BUILDING_REACH);
         this.breakRay = new Ray(GameConfiguration.BUILDING_REACH);
-        this.aimedBlocks = new ArrayList<>();
+        this.aimedPlacedBlocks = new ArrayList<>();
+        this.aimedBreakedBlocks = new ArrayList<>();
         this.initAnimations();
     }
 
@@ -411,6 +413,7 @@ public class Player {
                 ChunkManager chunkManager = new ChunkManager();
                 if (breakRay.getAimedChunk() != null && (breakRay.getAimedBlock() != Material.AIR.getId() || breakRay.getAimedBlock() != Material.WATER.getId())) {
                     chunkManager.removeBlock(breakRay.getAimedChunk(), breakRay.getBlockChunkPositionLocal(), Game.getInstance().getWorld());
+                    this.getAimedBreakedBlocks().add(breakRay.getBlockWorldPosition());
                 }
                 canBreakBlock = false;
                 breakBlockCooldown = (int) GameConfiguration.UPS / 3;
@@ -434,10 +437,10 @@ public class Player {
                     Vector3i blockPositionLocal = Utils.worldToLocal(placedBlock);
 
 
-                    /*On détermine le chunk où le */
                     Chunk aimedChunk = world.getChunkAt(placedBlock);
 
                     chunkManager.placeBlock(aimedChunk, blockPositionLocal, Game.getInstance().getWorld(), Material.STONE);
+                    this.getAimedPlacedBlocks().add(placedBlock);
                 }
                 canPlaceBlock = false;
                 placeBlockCooldown = (int) GameConfiguration.UPS / 3;
@@ -686,11 +689,19 @@ public class Player {
         this.speed = speed;
     }
 
-    public ArrayList<Vector3i> getAimedBlocks() {
-        return aimedBlocks;
+    public ArrayList<Vector3i> getAimedPlacedBlocks() {
+        return aimedPlacedBlocks;
     }
 
-    public void setAimedBlocks(ArrayList<Vector3i> aimedBlocks) {
-        this.aimedBlocks = aimedBlocks;
+    public ArrayList<Vector3i> getAimedBreakedBlocks() {
+        return aimedBreakedBlocks;
+    }
+
+    public void setAimedPlacedBlocks(ArrayList<Vector3i> aimedPlacedBlocks) {
+        this.aimedPlacedBlocks = aimedPlacedBlocks;
+    }
+
+    public void setAimedBreakedBlocks(ArrayList<Vector3i> aimedBreakedBlocks) {
+        this.aimedBreakedBlocks = aimedBreakedBlocks;
     }
 }

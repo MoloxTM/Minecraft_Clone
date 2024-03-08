@@ -5,9 +5,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.math.minecraft.client.events.listeners.PacketListener;
+import fr.math.minecraft.logger.LogType;
+import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.server.Client;
 import fr.math.minecraft.server.MinecraftServer;
 import fr.math.minecraft.shared.world.World;
+import org.apache.log4j.Logger;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
@@ -26,6 +30,8 @@ public class StatePayload {
     private float pitch;
     private List<Byte> aimedPLacedBlocksIDs, aimedBreakedBlocksIDs;
     private List<Vector3i> aimedPlacedBlocks, aimedBreakedBlocks;
+
+
 
     public StatePayload(InputPayload payload) {
         this.payload = payload;
@@ -140,8 +146,6 @@ public class StatePayload {
 
         if (aimedBreakedBlocks.isEmpty()) {
             return null;
-        } else {
-
         }
 
         ObjectMapper mapper = new ObjectMapper();
@@ -164,7 +168,7 @@ public class StatePayload {
             blocksArray.add(blockNode);
         }
 
-        payloadNode.set("aimedBlocks", blocksArray);
+        payloadNode.set("aimedBreakedBlocks", blocksArray);
 
         return payloadNode;
     }
@@ -173,8 +177,6 @@ public class StatePayload {
 
         if (aimedPlacedBlocks.isEmpty()) {
             return null;
-        } else {
-            System.out.println("Le aimedPlacedBlocs pas vide");
         }
 
         ObjectMapper mapper = new ObjectMapper();
@@ -197,7 +199,7 @@ public class StatePayload {
             blocksArray.add(blockNode);
         }
 
-        payloadNode.set("aimedBlocks", blocksArray);
+        payloadNode.set("aimedPlacedBlocks", blocksArray);
 
         return payloadNode;
     }
@@ -231,7 +233,21 @@ public class StatePayload {
 
         }
 
-        payloadNode.set("aimedBlocks", blocksArray);
+        payloadNode.set("aimedPlacedBlocks", blocksArray);
+
+        for (int i = 0; i < aimedBreakedBlocks.size(); i++) {
+            Vector3i blockPosition = aimedBreakedBlocks.get(i);
+            byte block = aimedBreakedBlocksIDs.get(i);
+            ObjectNode blockNode = mapper.createObjectNode();
+
+            blockNode.put("x", blockPosition.x);
+            blockNode.put("y", blockPosition.y);
+            blockNode.put("z", blockPosition.z);
+            blockNode.put("block", block);
+
+        }
+
+        payloadNode.set("aimedBreakedBlocks", blocksArray);
 
         return payloadNode;
     }
