@@ -70,8 +70,6 @@ public class ItemMeshBuilder {
             float vertexY = ITEM_SIZE;
             float step = ITEM_SIZE * 2;
 
-            ImageIO.write(itemImage, "png", new File("res/test.png"));
-
             for (int x = 0; x < ITEM_PIXEL_SIZE; x++) {
                 for (int y = ITEM_PIXEL_SIZE - 1; y >= 0; y--) {
 

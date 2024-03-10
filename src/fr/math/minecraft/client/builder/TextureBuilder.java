@@ -13,7 +13,7 @@ import java.io.IOException;
 
 public class TextureBuilder {
 
-    public Texture buildDirtBackgroundTexture() {
+    public static Texture buildDirtBackgroundTexture() {
         try {
             BufferedImage dirtImage = ImageIO.read(new File("res/textures/gui/dirt.png"));
             BufferedImage image = new BufferedImage((int) GameConfiguration.WINDOW_WIDTH, (int) GameConfiguration.WINDOW_HEIGHT, BufferedImage.TYPE_INT_ARGB);

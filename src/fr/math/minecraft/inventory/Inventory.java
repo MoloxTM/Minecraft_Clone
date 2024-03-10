@@ -9,14 +9,14 @@ public abstract class Inventory {
     protected int currentSize;
     protected int currentSlot;
     protected boolean open;
-    protected ItemStack selectedItem;
+    protected int holdedSlot;
 
     public Inventory() {
         this.slotIndex = 0;
         this.currentSize = 0;
         this.currentSlot = 0;
+        this.holdedSlot = -1;
         this.open = false;
-        this.selectedItem = null;
     }
 
     public ItemStack[] getItems() {
@@ -32,7 +32,12 @@ public abstract class Inventory {
     }
 
     public ItemStack getSelectedItem() {
-        return this.selectedItem;
+
+        if (currentSlot < items.length) {
+            return items[currentSlot];
+        }
+
+        return null;
     }
 
     public int getItemIndex(ItemStack itemStack) {
@@ -62,6 +67,10 @@ public abstract class Inventory {
         currentItem.setAmount(currentItem.getAmount() + 1);
     }
 
+    public void setItem(ItemStack item, int slot) {
+        items[slot] = item;
+    }
+
     public int getCurrentSize() {
         return currentSize;
     }
@@ -82,11 +91,19 @@ public abstract class Inventory {
         this.currentSlot = currentSlot;
     }
 
+    public int getSize() {
+        return items.length;
+    }
+
     public void setCurrentSize(int currentSize) {
         this.currentSize = currentSize;
     }
 
-    public void setSelectedItem(ItemStack selectedItem) {
-        this.selectedItem = selectedItem;
+    public int getHoldedSlot() {
+        return holdedSlot;
+    }
+
+    public void setHoldedSlot(int holdedSlot) {
+        this.holdedSlot = holdedSlot;
     }
 }

@@ -50,6 +50,7 @@ public class Player {
     private boolean flying, sneaking, canJump, canBreakBlock, jumping, sprinting;
     private boolean movingMouse;
     private boolean placingBlock, breakingBlock;
+    private boolean canHoldItem, canPlaceHoldedItem;
     private boolean debugKeyPressed, occlusionKeyPressed, interpolationKeyPressed, inventoryKeyPressed;
     private float lastMouseX, lastMouseY;
     private String name;
@@ -127,6 +128,8 @@ public class Player {
         this.occlusionKeyPressed = false;
         this.interpolationKeyPressed = false;
         this.inventoryKeyPressed = false;
+        this.canHoldItem = false;
+        this.canPlaceHoldedItem = false;
         this.movingMouse = true;
         this.sneaking = false;
         this.sprinting = false;
@@ -170,7 +173,7 @@ public class Player {
 
         if (inventory.isOpen()) {
             InventoryInputsHandler handler = new InventoryInputsHandler();
-            handler.handleInputs(this, inventory, (float) mouseX.get(0), (float) mouseY.get(0));
+            handler.handleInputs(window, this, inventory, (float) mouseX.get(0), (float) mouseY.get(0));
             return;
         }
 
@@ -767,5 +770,21 @@ public class Player {
 
     public MiningAnimation getMiningAnimation() {
         return miningAnimation;
+    }
+
+    public boolean canPlaceHoldedItem() {
+        return canPlaceHoldedItem;
+    }
+
+    public void setCanPlaceHoldedItem(boolean canPlaceHoldedItem) {
+        this.canPlaceHoldedItem = canPlaceHoldedItem;
+    }
+
+    public boolean canHoldItem() {
+        return canHoldItem;
+    }
+
+    public void setCanHoldItem(boolean canHoldItem) {
+        this.canHoldItem = canHoldItem;
     }
 }

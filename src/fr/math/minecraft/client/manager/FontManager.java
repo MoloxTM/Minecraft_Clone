@@ -116,6 +116,10 @@ public class FontManager {
         return this.getTextWidth(fontMesh, GameConfiguration.DEFAULT_SCALE, text);
     }
 
+    public float getTextHeight(FontMesh fontMesh, String text) {
+        return this.getTextHeight(fontMesh, GameConfiguration.DEFAULT_SCALE, text);
+    }
+
     public float getTextWidth(FontMesh fontMesh, float scale, String text) {
         float width = 0;
         for (int i = 0; i < text.length(); i++) {

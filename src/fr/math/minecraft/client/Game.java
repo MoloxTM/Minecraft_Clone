@@ -218,7 +218,11 @@ public class Game {
         menuManager.open(MainMenu.class);
 
         ItemStack sword = new ItemStack(Material.DIAMOND_SWORD, 1);
-        sword.getLore().add("Hello, World!");
+        sword.getLore().add("S'il te plait Amelia");
+        sword.getLore().add("Laisse moi l'opportunité");
+        sword.getLore().add("de te DM pitié. Avant");
+        sword.getLore().add("que tu me recales parce que");
+        sword.getLore().add("j'ai été trop audacieux");
 
         player.getHotbar().addItem(new ItemStack(Material.STONE, 1));
         player.getHotbar().addItem(new ItemStack(Material.DIRT, 1));

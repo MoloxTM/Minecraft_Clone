@@ -27,10 +27,13 @@ import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.world.Material;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
+import org.lwjgl.BufferUtils;
 
 import java.awt.image.BufferedImage;
+import java.nio.DoubleBuffer;
 import java.util.*;
 
+import static org.lwjgl.glfw.GLFW.glfwGetCursorPos;
 import static org.lwjgl.opengl.GL33.*;
 
 public class Renderer {
@@ -81,6 +84,7 @@ public class Renderer {
     private Material lastItemInHand;
     private final GameConfiguration gameConfiguration;
     private final static float HOTBAR_SCALE = 1.8f;
+    private final DoubleBuffer mouseX, mouseY;
 
     public Renderer() {
         this.playerMesh = new PlayerMesh();
@@ -97,6 +101,8 @@ public class Renderer {
         this.loadedSkins = new HashSet<>();
         this.lastItemInHand = null;
         this.gameConfiguration = GameConfiguration.getInstance();
+        this.mouseX = BufferUtils.createDoubleBuffer(1);
+        this.mouseY = BufferUtils.createDoubleBuffer(1);
 
         for (int i = 0; i < 256; i++) {
             emptyText += " ";
@@ -512,6 +518,25 @@ public class Renderer {
         this.renderText(camera, "Entity Interpolation: " + gameConfiguration.isEntityInterpolationEnabled(), 0, GameConfiguration.WINDOW_HEIGHT - 180, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
     }
 
+    public void renderRect(Camera camera, float x, float y, float width, float height, int rgb, float alpha, float depth) {
+        float r = (float) ((rgb >> 16) & 0xFF) / 255.0f;
+        float g = (float) ((rgb >> 8) & 0xFF) / 255.0f;
+        float b = (float) ((rgb >> 0) & 0xFF) / 255.0f;
+
+        colorShader.enable();
+        colorShader.sendFloat("depth", depth);
+        colorShader.sendFloat("r", r);
+        colorShader.sendFloat("g", g);
+        colorShader.sendFloat("b", b);
+        colorShader.sendFloat("a", alpha);
+
+        imageMesh.translate(colorShader, x, y, width, height);
+        camera.matrixOrtho(colorShader, 0, 0);
+
+        imageMesh.draw();
+
+    }
+
     public void renderInventory(Camera camera, Inventory inventory) {
 
         imageShader.enable();
@@ -523,14 +548,13 @@ public class Renderer {
         glActiveTexture(GL_TEXTURE0 + invetoryTexture.getSlot());
         invetoryTexture.bind();
 
-        float inventoryWidth = GameConfiguration.INVENTORY_TEXTURE_WIDTH;
-        float inventoryHeight = GameConfiguration.INVENTORY_TEXTURE_HEIGHT;
+        float inventoryWidth = GameConfiguration.INVENTORY_TEXTURE_WIDTH * 1.4f * gameConfiguration.getGuiScale();
+        float inventoryHeight = GameConfiguration.INVENTORY_TEXTURE_HEIGHT * 1.4f * gameConfiguration.getGuiScale();
+
         float inventoryX = (GameConfiguration.WINDOW_WIDTH - inventoryWidth) / 2;
         float inventoryY = (GameConfiguration.WINDOW_HEIGHT - inventoryHeight) / 2;
 
-        float inventoryScale = gameConfiguration.getGuiScale() * HOTBAR_SCALE;
-
-        imageMesh.texSubImage(0, 90, 177, 166, inventoryWidth, inventoryHeight);
+        imageMesh.texSubImage(0, 90, 177, 166, GameConfiguration.INVENTORY_TEXTURE_WIDTH, GameConfiguration.INVENTORY_TEXTURE_HEIGHT);
         imageMesh.translate(imageShader, inventoryX, inventoryY, inventoryWidth, inventoryHeight);
 
         camera.matrixOrtho(imageShader, inventoryX, inventoryY);
@@ -544,12 +568,25 @@ public class Renderer {
 
         guiBlocksTexture.bind();
 
-        float slotScale = 1.4463276836158192f;
-        float slotSize = 16.0f;
-        float selectedItemX = -1, selectedItemY = -1;
+        float slotScaleX = inventoryWidth / 177.0f;
+        float slotScaleY = inventoryHeight / 166.0f;
+        float slotHeight = 18.0f * slotScaleY;
+        float slotWidth = 18.0f * slotScaleX;
+        float slotSize = 16.0f * 1.4f * gameConfiguration.getGuiScale();
+        ItemStack selectedItem = inventory.getSelectedItem();
+        int currentSlot = inventory.getCurrentSlot();
+        Player player = Game.getInstance().getPlayer();
 
-        for (int i = 0; i < inventory.getCurrentSize(); i++) {
+        for (int i = 0; i < inventory.getSize(); i++) {
             ItemStack item = inventory.getItems()[i];
+
+            if (item == null) {
+                continue;
+            }
+
+            float itemX = 8.0f * slotScaleX + inventoryX + (i % 9) * slotWidth;
+            float itemY = inventoryY + 12.0f * slotScaleY + (3 - (int) (i / 9.0f)) * slotHeight;
+
             Material material = item.getMaterial();
 
             float size = material.isItem() ? 16.0f : 48.0f;
@@ -558,43 +595,86 @@ public class Renderer {
             imageShader.sendFloat("depth", -11);
             imageMesh.texSubImage(material.getBlockIconX() * size, material.getBlockIconY() * size + offset, size, size, 512.0f, 512.0f);
 
-            float itemX = 7.0f * slotScale + inventoryX + i * 18.0f * slotScale;
-            float itemY = inventoryY + 6.0f + 4.0f + slotSize * 4 * slotScale;
-
-            imageMesh.translate(imageShader, itemX, itemY, slotSize * 1.4f, slotSize * 1.4f);
-            camera.matrixOrtho(imageShader, 0, 0);
-
-            if (inventory.getSelectedItem() != null && inventory.getSelectedItem().equals(item)) {
-                selectedItemX = itemX;
-                selectedItemY = itemY;
+            if (inventory.getHoldedSlot() == i) {
+                glfwGetCursorPos(Game.getInstance().getWindow(), mouseX, mouseY);
+                imageMesh.translate(imageShader, (float) mouseX.get(0),  GameConfiguration.WINDOW_HEIGHT - (float) mouseY.get(0), slotSize * 1.4f, slotSize * 1.4f);
+            } else {
+                imageMesh.translate(imageShader, itemX, itemY, slotSize * 1.4f, slotSize * 1.4f);
             }
 
-            imageMesh.draw();
-        }
-
-        ItemStack selectedItem = inventory.getSelectedItem();
-
-        if (selectedItem != null) {
-            colorShader.enable();
-
-            int rgb = 0xFFFFFF;
-            float r = (float) ((rgb >> 16) & 0xFF) / 255.0f;
-            float g = (float) ((rgb >> 8) & 0xFF) / 255.0f;
-            float b = (float) ((rgb >> 0) & 0xFF) / 255.0f;
-
-            colorShader.sendFloat("depth", -10);
-            colorShader.sendFloat("r", r);
-            colorShader.sendFloat("g", g);
-            colorShader.sendFloat("b", b);
-            colorShader.sendFloat("a", .7f);
-
-            imageMesh.translate(colorShader, selectedItemX, selectedItemY, 18 * 1.4f, 18 * 1.4f);
-            camera.matrixOrtho(colorShader, 0, 0);
+            camera.matrixOrtho(imageShader, 0, 0);
 
             imageMesh.draw();
         }
+
 
         guiBlocksTexture.unbind();
+
+        if (selectedItem != null) {
+
+            colorShader.enable();
+            Material material = selectedItem.getMaterial();
+
+            float textWidth = fontManager.getTextWidth(fontMesh, material.getName());
+            float textHeight = fontManager.getTextHeight(fontMesh, material.getName());
+
+            if (!selectedItem.getLore().isEmpty()) {
+                for (String lore : selectedItem.getLore()) {
+                    float loreWidth = fontManager.getTextWidth(fontMesh, lore);
+                    if (loreWidth > textWidth) {
+                        textWidth = loreWidth;
+                    }
+                }
+            }
+
+            float itemX = 8.0f * slotScaleX + inventoryX + (currentSlot % 9) * slotWidth;
+            float itemY = inventoryY + 12.0f * slotScaleY + (3 - (int) (currentSlot / 9.0f)) * slotHeight;
+
+            float backgroundX = itemX + slotSize * 1.4f;
+            float backgroundY = itemY;
+
+            this.renderRect(camera, itemX, itemY, slotSize * 1.4f, slotSize * 1.4f, 0xFFFFFF, 0.7f, -10);
+
+            float paddingY = 10 + (selectedItem.getLore().isEmpty() ? 0 : selectedItem.getLore().size() * textHeight + textHeight + 3 + 35);
+            int borderSize = 3;
+
+            this.renderRect(camera, backgroundX - 5, backgroundY - paddingY, textWidth + 20, textHeight + paddingY, 0x110210, 0.9f, -9);
+
+            this.renderRect(camera, backgroundX - 5 - borderSize, backgroundY - paddingY + textHeight + paddingY, textWidth + 20 + borderSize * 2, borderSize, 0x2b0861, 1.0f, -9);
+            this.renderRect(camera, backgroundX - 5 - borderSize, backgroundY - paddingY - borderSize, textWidth + 20 + borderSize * 2, borderSize, 0x2b0861, 1.0f, -9);
+
+            this.renderRect(camera, backgroundX - 5 - borderSize, backgroundY - paddingY + textHeight + paddingY + borderSize, textWidth + 20 + borderSize * 2, borderSize, 0x110210, 1.0f, -9);
+            this.renderRect(camera, backgroundX - 5 - borderSize, backgroundY - paddingY - borderSize * 2, textWidth + 20 + borderSize * 2, borderSize, 0x110210, 1.0f, -9);
+
+            this.renderRect(camera, backgroundX - 5 - borderSize, backgroundY - paddingY, borderSize, textHeight + paddingY + borderSize, 0x2b0861, 1.0f, -9);
+            this.renderRect(camera, backgroundX - 5 + textWidth + 20, backgroundY - paddingY, borderSize, textHeight + paddingY + borderSize, 0x2b0861, 1.0f, -9);
+
+            this.renderRect(camera, backgroundX - 5 - borderSize * 2, backgroundY - paddingY - borderSize, borderSize, textHeight + paddingY + borderSize * 2, 0x110210, 1.0f, -9);
+            this.renderRect(camera, backgroundX - 5 + textWidth + 20 + borderSize, backgroundY - paddingY - borderSize, borderSize, textHeight + paddingY + borderSize * 2, 0x110210, 1.0f, -9);
+
+            float textY = selectedItem.getLore().isEmpty() ? backgroundY - paddingY / 2.0f : backgroundY - borderSize - 3;
+
+            this.renderText(camera, material.getName(), backgroundX, textY, -8, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
+
+            float loreY = backgroundY - 15 - textHeight - 5;
+
+            for (String lore : selectedItem.getLore()) {
+                this.renderText(camera, lore, backgroundX, loreY, -8, 0xAAAAAA, GameConfiguration.DEFAULT_SCALE);
+                loreY -= textHeight + 5;
+            }
+        } else {
+            if (currentSlot >= inventory.getSize()) {
+                return;
+            }
+            float itemX = 8.0f * slotScaleX + inventoryX + (currentSlot % 9) * slotWidth;
+            float itemY = inventoryY + 12.0f * slotScaleY + (3 - (int) (currentSlot / 9.0f)) * slotHeight;
+
+            this.renderRect(camera, itemX, itemY, slotSize * 1.4f, slotSize * 1.4f, 0xFFFFFF, 0.7f, -10);
+        }
+    }
+
+    public void renderItem(Camera camera, ItemStack item) {
+
     }
 
     public void renderHotbar(Camera camera, Player player, Hotbar hotbar) {
