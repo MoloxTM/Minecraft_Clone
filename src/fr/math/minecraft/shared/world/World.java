@@ -1,10 +1,12 @@
 package fr.math.minecraft.shared.world;
 
+import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.meshs.WaterMesh;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.server.RandomSeed;
+import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.world.generator.OverworldGenerator;
 import fr.math.minecraft.shared.world.generator.TerrainGenerator;
 import org.apache.log4j.Logger;
@@ -37,9 +39,6 @@ public class World {
         this.transparents = initTransparents();
         this.terrainGenerator = new OverworldGenerator();
         this.cachedChunks = new HashMap<>();
-        Region region = new Region(0, 0, 0);
-        region.generateStructure(this);
-        this.addRegion(region);
         this.buildSpawn();
         this.spawnPosition = this.calculateSpawnPosition();
 
@@ -221,13 +220,31 @@ public class World {
         return terrainGenerator;
     }
 
-    public void addRegion(int regionX, int regionY, int regionZ) {
-        Region region = new Region(new Vector3i(regionX, regionY, regionZ));
-        this.regions.put(new Coordinates(regionX, regionY, regionZ), region);
+    public Vector3i regionPosition(Vector3f playerPos) {
+        Vector3i intPlayerPos = new Vector3i((int)playerPos.x, (int)playerPos.y, (int)playerPos.z);
+        Vector3i regionPosition = new Vector3i();
+        int offset = (Region.SIZE * Chunk.SIZE)/2;
+        Vector3i offsetVector = new Vector3i(-offset, 0, -offset);
+        regionPosition.add(intPlayerPos);
+        regionPosition.add(offsetVector);
+        return regionPosition;
+    }
+
+    public void generateRegion(Vector3i regionPosition) {
+        Coordinates coordinates = new Coordinates(regionPosition);
+        if(!regions.containsKey(coordinates)) {
+            Region region = new Region(regionPosition);
+            region.generateStructure(this);
+            this.addRegion(region, coordinates);
+        }
     }
 
     public void addRegion(Region region) {
         this.regions.put(new Coordinates(region.getPosition().x, region.getPosition().y, region.getPosition().z), region);
+    }
+
+    public void addRegion(Region region, Coordinates coordinates) {
+        this.regions.put(coordinates, region);
     }
 
     public Region getRegion(int x, int y, int z) {

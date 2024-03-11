@@ -19,7 +19,7 @@ public class Region {
 
     private final Vector3i position;
     private final Map<Coordinates, Byte> structureMap;
-    public final static int SIZE = 8;
+    public final static int SIZE = 16;
     private final Structure structure;
     private final static Logger logger = LoggerUtility.getServerLogger(Region.class, LogType.TXT);
     public Region(Vector3i position) {

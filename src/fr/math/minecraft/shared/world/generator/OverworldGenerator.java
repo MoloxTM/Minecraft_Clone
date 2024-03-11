@@ -7,6 +7,7 @@ import fr.math.minecraft.server.manager.BiomeManager;
 import fr.math.minecraft.server.math.InterpolateMath;
 import fr.math.minecraft.server.world.biome.AbstractBiome;
 import org.joml.Vector2i;
+import org.joml.Vector3i;
 
 import java.util.HashMap;
 
@@ -55,7 +56,13 @@ public class OverworldGenerator implements TerrainGenerator {
         float topLeft =  this.calculBiomeHeight(chunkX + xMin, chunkZ + zMax);
         float topRight =  this.calculBiomeHeight(chunkX + xMax, chunkZ + zMax);
 
-        int worldHeight = (int) (InterpolateMath.smoothInterpolation(bottomLeft, bottomRight, topLeft, topRight, xMin, xMax, zMin, zMax, worldX % Chunk.SIZE, worldZ % Chunk.SIZE));
+        int x = (worldX % Chunk.SIZE);
+        int z = (worldZ % Chunk.SIZE);
+
+        x = x < 0 ? x + Chunk.SIZE : x;
+        z = z < 0 ? z + Chunk.SIZE : z;
+
+        int worldHeight = (int) (InterpolateMath.smoothInterpolation(bottomLeft, bottomRight, topLeft, topRight, xMin, xMax, zMin, zMax, x, z));
 
         return worldHeight;
     }
@@ -63,7 +70,15 @@ public class OverworldGenerator implements TerrainGenerator {
     @Override
     public void generateChunk(World world, Chunk chunk) {
 
+
         this.fillHeightMap(chunk.getPosition().x, chunk.getPosition().z, 0, Chunk.SIZE - 1, 0, Chunk.SIZE - 1);
+
+        int regionX = (int) Math.floor((chunk.getPosition().x * Chunk.SIZE)/ (double) (Chunk.SIZE * Region.SIZE));
+        int regionY = (int) Math.floor((chunk.getPosition().y * Chunk.SIZE) / (double) (Chunk.SIZE * Region.SIZE));
+        int regionZ = (int) Math.floor((chunk.getPosition().z * Chunk.SIZE) / (double) (Chunk.SIZE * Region.SIZE));
+
+        world.generateRegion(new Vector3i(regionX, regionY, regionZ));
+
         for (int x = 0; x < Chunk.SIZE; x++) {
             for (int z = 0; z < Chunk.SIZE; z++) {
 
@@ -84,10 +99,9 @@ public class OverworldGenerator implements TerrainGenerator {
 
                     int worldY = y + chunk.getPosition().y * Chunk.SIZE;
 
-                    int regionX = (int) Math.floor(worldX / (double) (Chunk.SIZE * Region.SIZE));
-                    int regionY = (int) Math.floor(worldY / (double) (Chunk.SIZE * Region.SIZE));
-                    int regionZ = (int) Math.floor(worldZ / (double) (Chunk.SIZE * Region.SIZE));
-
+                    regionX = (int) Math.floor(worldX / (double) (Chunk.SIZE * Region.SIZE));
+                    regionY = (int) Math.floor(worldY / (double) (Chunk.SIZE * Region.SIZE));
+                    regionZ = (int) Math.floor(worldZ / (double) (Chunk.SIZE * Region.SIZE));
                     Region chunkRegion = world.getRegion(regionX, regionY, regionZ);
 
                     Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
