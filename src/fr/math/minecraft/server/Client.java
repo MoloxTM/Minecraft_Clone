@@ -61,10 +61,8 @@ public class Client {
     private List<Vector3i> aimedPLacedBlocks, aimedBreakedBlocks;
     private List<Byte> aimedPLacedBlocksIDs, aimedBreakedBlocksIDs;;
     private int breakBlockCooldown, placeBlockCoolDown;
-    private final Ray buildRay, attackRay;
     private List<Vector3i> aimedBlocks;
     private List<Byte> aimedBlocksIDs;
-    private int breakBlockCooldown;
     private Sprite sprite;
     private PlayerAction action;
     private final static Logger logger = LoggerUtility.getServerLogger(Client.class, LogType.TXT);

@@ -28,7 +28,7 @@ public class World {
     private final Set<Byte> solidBlocks;
     private final Map<Vector3i, Chunk> cachedChunks;
     private final Map<Coordinates, Region> regions;
-    private final Vector3f spawnPosition;
+    private Vector3f spawnPosition;
     private final Map<String, DroppedItem> droppedItems;
     private final static Logger logger = LoggerUtility.getServerLogger(World.class, LogType.TXT);
 
@@ -45,9 +45,7 @@ public class World {
         this.transparents = initTransparents();
         this.terrainGenerator = new OverworldGenerator();
         this.cachedChunks = new HashMap<>();
-        this.buildSpawn();
         this.droppedItems = new HashMap<>();
-        logger.info("Point de spawn calculé en " + spawnPosition);
 
         for (Material material : Material.values()) {
             if (material.isSolid()) {
@@ -56,7 +54,7 @@ public class World {
         }
     }
 
-    public Vector3f calculateSpawnPosition() {
+    public void calculateSpawnPosition() {
         int spawnX = 0;
         int spawnZ = 0;
         for (int chunkY = 3; chunkY < 10; chunkY++) {
@@ -64,11 +62,11 @@ public class World {
                 int worldY = chunkY * Chunk.SIZE + y;
                 byte block = this.getBlockAt(spawnX, worldY, spawnZ);
                 if (block == Material.AIR.getId()) {
-                    return new Vector3f(spawnX, worldY + 20, spawnZ);
+                    spawnPosition = new Vector3f(spawnX, worldY + 20, spawnZ);
                 }
             }
         }
-        return new Vector3f(0, 300.0f, 0);
+        spawnPosition = new Vector3f(0, 300.0f, 0);
     }
 
 
@@ -285,5 +283,9 @@ public class World {
 
     public Map<String, DroppedItem> getDroppedItems() {
         return droppedItems;
+    }
+
+    public void setSpawnPosition(Vector3f spawnPosition) {
+        this.spawnPosition = spawnPosition;
     }
 }

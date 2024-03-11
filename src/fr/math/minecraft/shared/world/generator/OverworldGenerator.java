@@ -78,7 +78,7 @@ public class OverworldGenerator implements TerrainGenerator {
     public void generateChunk(World world, Chunk chunk) {
 
 
-        this.fillHeightMap(chunk.getPosition().x, chunk.getPosition().z, 0, Chunk.SIZE - 1, 0, Chunk.SIZE - 1);
+        Map<Vector2i, Integer> heightMap = fillHeightMap(chunk.getPosition().x, chunk.getPosition().z, 0, Chunk.SIZE - 1, 0, Chunk.SIZE - 1);
 
         int regionX = (int) Math.floor((chunk.getPosition().x * Chunk.SIZE)/ (double) (Chunk.SIZE * Region.SIZE));
         int regionY = (int) Math.floor((chunk.getPosition().y * Chunk.SIZE) / (double) (Chunk.SIZE * Region.SIZE));
@@ -111,7 +111,7 @@ public class OverworldGenerator implements TerrainGenerator {
                         continue;
                     }
 
-                    int worldY = y + chunk.getPosition().y * Chunk.SIZE;
+                    worldY = y + chunk.getPosition().y * Chunk.SIZE;
 
                     regionX = (int) Math.floor(worldX / (double) (Chunk.SIZE * Region.SIZE));
                     regionY = (int) Math.floor(worldY / (double) (Chunk.SIZE * Region.SIZE));

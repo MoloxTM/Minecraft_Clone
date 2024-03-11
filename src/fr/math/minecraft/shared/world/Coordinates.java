@@ -3,7 +3,6 @@ package fr.math.minecraft.shared.world;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.shared.MathUtils;
-import fr.math.minecraft.client.entity.Player;
 import org.joml.Vector3i;
 
 import java.util.Objects;

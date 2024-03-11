@@ -86,8 +86,6 @@ public class Player {
     private Ray attackRay, buildRay, breakRay;
     private ArrayList<Vector3i> aimedPlacedBlocks;
     private ArrayList<Vector3i> aimedBreakedBlocks;
-    private int breakBlockCooldown;
-    private Ray attackRay, buildRay;
     private ArrayList<Vector3i> aimedBlocks;
     private final PlayerInventory inventory;
     private Inventory lastInventory;

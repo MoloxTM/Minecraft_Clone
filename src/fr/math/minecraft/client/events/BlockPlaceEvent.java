@@ -1,6 +1,6 @@
 package fr.math.minecraft.client.events;
 
-import fr.math.minecraft.client.entity.Player;
+import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.shared.world.Material;
 import org.joml.Vector3i;
 
