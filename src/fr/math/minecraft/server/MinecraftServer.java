@@ -42,6 +42,8 @@ public class MinecraftServer {
         this.sockets = new HashMap<>();
         this.lastActivities = new HashMap<>();
         this.world = new World();
+        this.world.buildSpawn();
+        this.world.calculateSpawnPosition();
         this.packetQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(4);
         this.tickHandler = new TickHandler();
         this.chunkManager = new ChunkManager();
@@ -68,7 +70,6 @@ public class MinecraftServer {
                 continue;
 
             String packetType = packetData.get("type").asText();
-            //logger.info("Un client a envoyé " + packetType);
             byte[] buffer;
             switch (packetType) {
                 case "CONNECTION_INIT_ACK":

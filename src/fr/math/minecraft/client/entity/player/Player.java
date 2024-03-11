@@ -1,17 +1,25 @@
-package fr.math.minecraft.client.entity;
+package fr.math.minecraft.client.entity.player;
 
 import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.animations.Animation;
-import fr.math.minecraft.client.animations.PlayerHandAnimation;
-import fr.math.minecraft.client.animations.PlayerWalkAnimation;
+import fr.math.minecraft.client.animations.*;
+import fr.math.minecraft.client.entity.Ray;
 import fr.math.minecraft.client.events.listeners.EntityUpdate;
 import fr.math.minecraft.client.events.listeners.EventListener;
 import fr.math.minecraft.client.events.PlayerMoveEvent;
+import fr.math.minecraft.client.handler.InventoryInputsHandler;
 import fr.math.minecraft.client.manager.ChunkManager;
 import fr.math.minecraft.client.meshs.NametagMesh;
 import fr.math.minecraft.server.Utils;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.world.Chunk;
+import fr.math.minecraft.shared.Sprite;
+import fr.math.minecraft.shared.PlayerAction;
+import fr.math.minecraft.shared.inventory.Hotbar;
+import fr.math.minecraft.shared.inventory.Inventory;
+import fr.math.minecraft.shared.inventory.PlayerCraftInventory;
+import fr.math.minecraft.shared.inventory.PlayerInventory;
+import fr.math.minecraft.shared.GameConfiguration;
+import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.world.Coordinates;
 import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.shared.world.World;
@@ -38,7 +46,9 @@ public class Player {
     public final static float HEIGHT = 1.75f;
     public final static float DEPTH = WIDTH;
     private Vector3f position;
+    private final Hotbar hotbar;
     private float yaw;
+    private float lastYaw;
     private float bodyYaw;
     private float pitch;
     private float speed;
@@ -46,12 +56,15 @@ public class Player {
     private boolean movingLeft, movingRight, movingForward, movingBackward;
     private boolean flying, sneaking, canJump, canBreakBlock, canPlaceBlock, jumping, sprinting;
     private boolean movingMouse;
-    private boolean debugKeyPressed, occlusionKeyPressed, interpolationKeyPressed;
+    private boolean droppingItem;
     private boolean placingBlock, breakingBlock;
+    private boolean canHoldItem, canPlaceHoldedItem;
+    private boolean debugKeyPressed, occlusionKeyPressed, interpolationKeyPressed, inventoryKeyPressed;
     private float lastMouseX, lastMouseY;
     private String name;
     private String uuid;
     private final ArrayList<Animation> animations;
+    private final MiningAnimation miningAnimation;
     private NametagMesh nametagMesh;
     private BufferedImage skin;
     private float sensitivity;
@@ -73,25 +86,50 @@ public class Player {
     private Ray attackRay, buildRay, breakRay;
     private ArrayList<Vector3i> aimedPlacedBlocks;
     private ArrayList<Vector3i> aimedBreakedBlocks;
+    private int breakBlockCooldown;
+    private Ray attackRay, buildRay;
+    private ArrayList<Vector3i> aimedBlocks;
+    private final PlayerInventory inventory;
+    private Inventory lastInventory;
+    private final float health;
+    private final float maxHealth;
+    private PlayerAction action;
+    private Sprite sprite;
+    private final PlayerCraftInventory craftInventory;
 
     public Player(String name) {
-        this.position = new Vector3f(0.0f, 300.0f, 0.0f);
+        this.position = new Vector3f(0.0f, 100.0f, 0.0f);
         this.lastPosition = new Vector3f(0, 0, 0);
         this.gravity = new Vector3f(0, -0.0025f, 0);
         this.velocity = new Vector3f();
         this.receivedChunks = new HashSet<>();
         this.inputs = new ArrayList<>();
         this.hand = new PlayerHand();
+        this.inventory = new PlayerInventory();
+        this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 1.0f, 0.25f));
+        this.animations = new ArrayList<>();
+        this.nametagMesh = new NametagMesh(name);
+        this.hotbar = new Hotbar();
+        this.lastUpdate = new EntityUpdate(new Vector3f(position), yaw, pitch, bodyYaw);
+        this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
+        this.buildRay = new Ray(GameConfiguration.BUILDING_REACH);
+        this.aimedBlocks = new ArrayList<>();
+        this.eventListeners = new ArrayList<>();
+        this.sprite = new Sprite();
+        this.miningAnimation = new MiningAnimation();
+        this.action = PlayerAction.MINING;
         this.yaw = 0.0f;
+        this.lastYaw = 0.0f;
         this.bodyYaw = 0.0f;
         this.pitch = 0.0f;
-        this.lastUpdate = new EntityUpdate(new Vector3f(position), yaw, pitch, bodyYaw);
         this.firstMouse = true;
         this.lastMouseX = 0.0f;
         this.lastMouseY = 0.0f;
         this.speed = GameConfiguration.DEFAULT_SPEED;
         this.maxSpeed = 0.03f;
         this.maxFall = 0.03f;
+        this.health = 20.0f;
+        this.maxHealth = 20.0f;
         this.ping = 0;
         this.sensitivity = 0.1f;
         this.name = name;
@@ -100,9 +138,13 @@ public class Player {
         this.movingRight = false;
         this.movingForward = false;
         this.movingBackward = false;
+        this.droppingItem = false;
         this.debugKeyPressed = false;
         this.occlusionKeyPressed = false;
         this.interpolationKeyPressed = false;
+        this.inventoryKeyPressed = false;
+        this.canHoldItem = false;
+        this.canPlaceHoldedItem = false;
         this.movingMouse = true;
         this.sneaking = false;
         this.sprinting = false;
@@ -113,18 +155,16 @@ public class Player {
         this.jumping = false;
         this.placingBlock = false;
         this.breakingBlock = false;
-        this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 1.0f, 0.25f));
-        this.animations = new ArrayList<>();
-        this.nametagMesh = new NametagMesh(name);
         this.skin = null;
         this.skinPath = "res/textures/skin.png";
-        this.eventListeners = new ArrayList<>();
         this.gameMode = GameMode.SURVIVAL;
         this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
         this.buildRay = new Ray(GameConfiguration.BUILDING_REACH);
         this.breakRay = new Ray(GameConfiguration.BUILDING_REACH);
         this.aimedPlacedBlocks = new ArrayList<>();
         this.aimedBreakedBlocks = new ArrayList<>();
+        this.craftInventory = new PlayerCraftInventory();
+        this.lastInventory = inventory;
         this.initAnimations();
     }
 
@@ -133,9 +173,34 @@ public class Player {
     }
 
     public void handleInputs(long window) {
+
+        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+            if (!inventoryKeyPressed) {
+                if (!inventory.isOpen()) {
+                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                } else {
+                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                }
+                inventory.setOpen(!inventory.isOpen());
+                inventoryKeyPressed = true;
+            }
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE) {
+            inventoryKeyPressed = false;
+        }
+
         DoubleBuffer mouseX = BufferUtils.createDoubleBuffer(1);
         DoubleBuffer mouseY = BufferUtils.createDoubleBuffer(1);
         glfwGetCursorPos(window, mouseX, mouseY);
+
+        if (inventory.isOpen()) {
+            InventoryInputsHandler handler = new InventoryInputsHandler();
+            handler.handleInputs(window, this, inventory, (float) mouseX.get(0), (float) mouseY.get(0));
+            handler.handleInputs(window, this, craftInventory, (float) mouseX.get(0), (float) mouseY.get(0));
+            handler.handleInputs(window, this, hotbar, (float) mouseX.get(0), (float) mouseY.get(0));
+            return;
+        }
 
         if (firstMouse) {
             lastMouseX = (float) mouseX.get(0);
@@ -180,15 +245,6 @@ public class Player {
             movingRight = true;
         }
 
-        /*
-        if(glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
-            if(!sprinting) {
-                sprinting = true;
-            } else {
-                sprinting = false;
-            }
-        }
-        */
 
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
             switch (gameMode) {
@@ -205,9 +261,10 @@ public class Player {
             sneaking = true;
         }
 
+        GameConfiguration gameConfiguration = GameConfiguration.getInstance();
+
         if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
             if (!occlusionKeyPressed) {
-                GameConfiguration gameConfiguration = Game.getInstance().getGameConfiguration();
                 gameConfiguration.setOcclusionEnabled(!gameConfiguration.isOcclusionEnabled());
                 occlusionKeyPressed = true;
             }
@@ -215,7 +272,6 @@ public class Player {
 
         if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
             if (!interpolationKeyPressed) {
-                GameConfiguration gameConfiguration = Game.getInstance().getGameConfiguration();
                 gameConfiguration.setEntityInterpolation(!gameConfiguration.isEntityInterpolationEnabled());
                 interpolationKeyPressed = true;
             }
@@ -223,10 +279,45 @@ public class Player {
 
         if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_PRESS) {
             if (!debugKeyPressed) {
-                GameConfiguration gameConfiguration = Game.getInstance().getGameConfiguration();
                 gameConfiguration.setDebugging(!gameConfiguration.isDebugging());
                 debugKeyPressed = true;
             }
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
+            hotbar.setSelectedSlot(0);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
+            hotbar.setSelectedSlot(1);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
+            hotbar.setSelectedSlot(2);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
+            hotbar.setSelectedSlot(3);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) {
+            hotbar.setSelectedSlot(4);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS) {
+            hotbar.setSelectedSlot(5);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS) {
+            hotbar.setSelectedSlot(6);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_8) == GLFW_PRESS) {
+            hotbar.setSelectedSlot(7);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS) {
+            hotbar.setSelectedSlot(8);
         }
 
         if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_RELEASE) {
@@ -248,6 +339,7 @@ public class Player {
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
             breakingBlock = false;
             canBreakBlock = true;
+            action = null;
         }
 
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
@@ -277,6 +369,7 @@ public class Player {
         sneaking = false;
         jumping = false;
         movingMouse = false;
+        droppingItem = false;
         //breakingBlock = false;
         //placingBlock = false;
     }
@@ -285,11 +378,12 @@ public class Player {
         for (Animation animation : animations) {
             animation.update();
         }
+        // hotbar.getAnimation().update();
     }
 
     public void update() {
         this.updateAnimations();
-        GameConfiguration gameConfiguration = Game.getInstance().getGameConfiguration();
+        GameConfiguration gameConfiguration = GameConfiguration.getInstance();
 
         if (gameConfiguration.isEntityInterpolationEnabled()) {
             position.x = Math.lerp(position.x, lastUpdate.getPosition().x, 0.1f);
@@ -371,7 +465,6 @@ public class Player {
         if (sprinting) {
             this.setSpeed(GameConfiguration.SPRINT_SPEED);
         } else {
-
             this.setSpeed(GameConfiguration.DEFAULT_SPEED);
         }
 
@@ -409,18 +502,27 @@ public class Player {
         }
 
         if (breakingBlock) {
-            if (canBreakBlock) {
+            sprite.update(PlayerAction.MINING);
+
+            if (action == PlayerAction.MINING && sprite.getIndex() == action.getLength() - 1) {
                 ChunkManager chunkManager = new ChunkManager();
                 if (breakRay.getAimedChunk() != null && (breakRay.getAimedBlock() != Material.AIR.getId() || breakRay.getAimedBlock() != Material.WATER.getId())) {
                     chunkManager.removeBlock(breakRay.getAimedChunk(), breakRay.getBlockChunkPositionLocal(), Game.getInstance().getWorld());
                     this.getAimedBreakedBlocks().add(breakRay.getBlockWorldPosition());
+                    sprite.reset();
+                }
+            }
+
+            if (canBreakBlock) {
+                if (breakRay.getAimedChunk() != null && (breakRay.getAimedBlock() != Material.AIR.getId() || breakRay.getAimedBlock() != Material.WATER.getId())) {
+                    action = PlayerAction.MINING;
                 }
                 canBreakBlock = false;
                 breakBlockCooldown = (int) GameConfiguration.UPS / 3;
             }
         }
 
-        if (breakBlockCooldown > 0) {
+        if (gameMode == GameMode.CREATIVE && breakBlockCooldown > 0) {
             breakBlockCooldown--;
             if (breakBlockCooldown == 0) {
                 canBreakBlock = true;
@@ -460,6 +562,19 @@ public class Player {
             hand.setAnimation(PlayerHandAnimation.IDLE);
         }
 
+        if (droppingItem) {
+            ItemStack item = hotbar.getItems()[hotbar.getSelectedSlot()];
+            if (item != null) {
+                /*
+                item.setAmount(item.getAmount() - 1);
+                if (item.getAmount() == 0) {
+                    hotbar.setItem(null, hotbar.getSelectedSlot());
+                }
+                world.getDroppedItems().add(new ItemStack(item.getMaterial(), 1));
+                 */
+            }
+        }
+
         velocity.add(acceleration.mul(speed));
 
         if (new Vector3f(velocity.x, 0, velocity.z).length() > maxSpeed) {
@@ -486,7 +601,7 @@ public class Player {
 
         velocity.mul(0.95f);
 
-        PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, jumping, yaw, pitch, sprinting, placingBlock, breakingBlock);
+        PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, jumping, yaw, pitch, sprinting, placingBlock, breakingBlock, droppingItem);
         inputs.add(inputData);
     }
 
@@ -704,4 +819,69 @@ public class Player {
     public void setAimedBreakedBlocks(ArrayList<Vector3i> aimedBreakedBlocks) {
         this.aimedBreakedBlocks = aimedBreakedBlocks;
     }
+    
+    public PlayerInventory getInventory() {
+        return inventory;
+    }
+
+    public Hotbar getHotbar() {
+        return hotbar;
+    }
+
+    public float getHealth() {
+        return health;
+    }
+
+    public float getMaxHealth() {
+        return maxHealth;
+    }
+
+    public PlayerAction getAction() {
+        return action;
+    }
+
+    public void setAction(PlayerAction action) {
+        this.action = action;
+    }
+
+    public Sprite getSprite() {
+        return sprite;
+    }
+
+    public void setSprite(Sprite sprite) {
+        this.sprite = sprite;
+    }
+
+    public MiningAnimation getMiningAnimation() {
+        return miningAnimation;
+    }
+
+    public boolean canPlaceHoldedItem() {
+        return canPlaceHoldedItem;
+    }
+
+    public void setCanPlaceHoldedItem(boolean canPlaceHoldedItem) {
+        this.canPlaceHoldedItem = canPlaceHoldedItem;
+    }
+
+    public boolean canHoldItem() {
+        return canHoldItem;
+    }
+
+    public void setCanHoldItem(boolean canHoldItem) {
+        this.canHoldItem = canHoldItem;
+    }
+
+    public PlayerCraftInventory getCraftInventory() {
+        return craftInventory;
+    }
+
+    public Inventory getLastInventory() {
+        return lastInventory;
+    }
+
+    public void setLastInventory(Inventory lastInventory) {
+        this.lastInventory = lastInventory;
+    }
+
 }

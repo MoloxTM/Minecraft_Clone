@@ -2,6 +2,8 @@ package fr.math.minecraft.client;
 
 import fr.math.minecraft.client.audio.Sound;
 import fr.math.minecraft.client.audio.Sounds;
+import fr.math.minecraft.client.entity.Ray;
+import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.client.events.listeners.PlayerListener;
 import fr.math.minecraft.client.gui.buttons.BlockButton;
 import fr.math.minecraft.client.gui.menus.ConnectionMenu;
@@ -9,13 +11,19 @@ import fr.math.minecraft.client.gui.menus.MainMenu;
 import fr.math.minecraft.client.gui.menus.Menu;
 import fr.math.minecraft.client.handler.PlayerMovementHandler;
 import fr.math.minecraft.client.manager.*;
-import fr.math.minecraft.client.entity.Player;
-import fr.math.minecraft.shared.world.*;
+import fr.math.minecraft.client.entity.player.Player;
+import fr.math.minecraft.shared.inventory.DroppedItem;
+import fr.math.minecraft.shared.inventory.ItemStack;
+import fr.math.minecraft.shared.world.Chunk;
+import fr.math.minecraft.shared.world.Coordinates;
+import fr.math.minecraft.shared.world.Material;
+import fr.math.minecraft.shared.world.World;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.network.PlayerInputData;
 import org.apache.log4j.Logger;
+import org.joml.Math;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 import org.lwjgl.BufferUtils;
@@ -62,6 +70,7 @@ public class Game {
     private int scaleFactor = 1;
     private String splash;
     private Renderer renderer;
+    private ItemRenderer itemRenderer;
     private MenuManager menuManager;
     private DoubleBuffer mouseXBuffer, mouseYBuffer;
     private boolean debugging, occlusion;
@@ -128,12 +137,14 @@ public class Game {
         this.updateTimer = 0.0f;
         this.camera = new Camera(GameConfiguration.WINDOW_WIDTH, GameConfiguration.WINDOW_HEIGHT);
         this.world = new World();
+        this.world.buildSpawn();
+        this.world.calculateSpawnPosition();
         this.state = GameState.MAIN_MENU;
         this.soundManager = new SoundManager();
         this.menuManager = new MenuManager(this);
         this.worldManager = new WorldManager();
-        this.gameConfiguration = new GameConfiguration();
         this.renderer = new Renderer();
+        this.itemRenderer = new ItemRenderer();
         this.mouseXBuffer = BufferUtils.createDoubleBuffer(1);
         this.mouseYBuffer = BufferUtils.createDoubleBuffer(1);
         this.debugging = false;
@@ -149,6 +160,7 @@ public class Game {
         this.playerMovementHandler = new PlayerMovementHandler();
         this.lastPingTime = 0;
         this.chunkUpdateQueue = new ArrayList<>();
+        this.gameConfiguration = GameConfiguration.getInstance();
 
         world.buildSpawnMesh();
 
@@ -156,12 +168,15 @@ public class Game {
 
         this.loadSplashText();
 
+
         for (Sounds sound : Sounds.values()) {
             soundManager.addSound(sound.getFilePath(), false);
         }
 
-        for (Sound sound : soundManager.getAllSounds()) {
-            // sound.load();
+        if (gameConfiguration.isMusicEnabled()) {
+            for (Sound sound : soundManager.getAllSounds()) {
+                sound.load();
+            }
         }
 
         Menu mainMenu = new MainMenu(this);
@@ -169,7 +184,6 @@ public class Game {
 
         menuManager.registerMenu(mainMenu);
         menuManager.registerMenu(connectionMenu);
-
     }
 
     private void loadSplashText() {
@@ -198,7 +212,9 @@ public class Game {
         double lastDeltaTime = glfwGetTime();
         double lastFramesTime = glfwGetTime();
 
-        //soundManager.getRandomMusic().play();
+        if (gameConfiguration.isMusicEnabled()) {
+            soundManager.getRandomMusic().play();
+        }
 
         menuManager.open(MainMenu.class);
 
@@ -303,6 +319,7 @@ public class Game {
         player.getAttackRay().update(camera.getPosition(), camera.getFront(), world, false);
         player.getBuildRay().update(camera.getPosition(), camera.getFront(), world, false);
         player.getBreakRay().update(camera.getPosition(), camera.getFront(), world, false);
+        player.getMiningAnimation().update(player);
 
         if (player.getBuildRay().getAimedChunk() != null && (player.getBuildRay().getAimedBlock() != Material.AIR.getId() || player.getBuildRay().getAimedBlock() != Material.WATER.getId())){
             player.getAimedPlacedBlocks().add(player.getBuildRay().getBlockWorldPosition());
@@ -366,6 +383,17 @@ public class Game {
             }
         }
 
+        synchronized (world.getDroppedItems()) {
+            for (DroppedItem droppedItem : world.getDroppedItems().values()) {
+                if (gameConfiguration.isEntityInterpolationEnabled()) {
+                    droppedItem.getPosition().x = Math.lerp(droppedItem.getPosition().x, droppedItem.getLastPosition().x, 0.01f);
+                    droppedItem.getPosition().y = Math.lerp(droppedItem.getPosition().y, droppedItem.getLastPosition().y, 0.01f);
+                    droppedItem.getPosition().z = Math.lerp(droppedItem.getPosition().z, droppedItem.getLastPosition().z, 0.01f);
+                }
+                renderer.renderDroppedItem(camera, droppedItem);
+            }
+        }
+
         synchronized (this.getPlayers()) {
             for (Player player : this.getPlayers().values()) {
                 if (!player.getNametagMesh().isInitiated()) {
@@ -375,10 +403,34 @@ public class Game {
             }
         }
 
+        ItemStack selectedItem = player.getHotbar().getItems()[player.getHotbar().getSelectedSlot()];
+        Ray ray = player.getBuildRay();
+
         renderer.renderAimedBlock(camera, player.getBuildRay());
+
+        if (player.getAction() == PlayerAction.MINING && ray.getAimedChunk() != null && ray.getAimedBlock() != Material.AIR.getId()) {
+            renderer.renderMining(camera, ray.getBlockWorldPosition().x, ray.getBlockWorldPosition().y, ray.getBlockWorldPosition().z, player.getSprite());
+        }
+
+        if (selectedItem == null) {
+            renderer.renderHand(camera, player.getHand());
+        } else {
+            if (selectedItem.getMaterial().isItem()) {
+                renderer.renderItemInHand(camera, player, selectedItem.getMaterial());
+            } else {
+                renderer.renderSelectedBlock(camera, player, selectedItem.getMaterial());
+            }
+        }
+
         renderer.renderDebugTools(camera, player, fps);
-        renderer.renderHand(camera, player.getHand());
+        renderer.renderHotbar(camera, player, player.getHotbar());
         renderer.renderCrosshair(camera);
+
+        if (player.getInventory().isOpen()) {
+            renderer.renderInventory(camera, player.getInventory());
+            renderer.renderInventory(camera, player.getCraftInventory());
+            renderer.renderInventory(camera, player.getHotbar());
+        }
     }
 
     public static Game getInstance() {
@@ -482,10 +534,6 @@ public class Game {
 
     public void setLastPingTime(double lastPingTime) {
         this.lastPingTime = lastPingTime;
-    }
-
-    public GameConfiguration getGameConfiguration() {
-        return gameConfiguration;
     }
 
     public List<Chunk> getChunkUpdateQueue() {

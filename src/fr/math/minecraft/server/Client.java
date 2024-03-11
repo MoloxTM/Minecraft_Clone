@@ -1,12 +1,15 @@
 package fr.math.minecraft.server;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.entity.Ray;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.shared.world.Chunk;
+import fr.math.minecraft.shared.PlayerAction;
+import fr.math.minecraft.shared.Sprite;
+import fr.math.minecraft.shared.inventory.DroppedItem;
+import fr.math.minecraft.shared.inventory.PlayerInventory;
 import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.server.payload.StatePayload;
@@ -58,7 +61,14 @@ public class Client {
     private List<Vector3i> aimedPLacedBlocks, aimedBreakedBlocks;
     private List<Byte> aimedPLacedBlocksIDs, aimedBreakedBlocksIDs;;
     private int breakBlockCooldown, placeBlockCoolDown;
+    private final Ray buildRay, attackRay;
+    private List<Vector3i> aimedBlocks;
+    private List<Byte> aimedBlocksIDs;
+    private int breakBlockCooldown;
+    private Sprite sprite;
+    private PlayerAction action;
     private final static Logger logger = LoggerUtility.getServerLogger(Client.class, LogType.TXT);
+    private final PlayerInventory inventory;
 
     public Client(String uuid, String name, InetAddress address, int port) {
         this.address = address;
@@ -93,6 +103,8 @@ public class Client {
         this.canBreakBlock = true;
         this.canPlaceBlock = true;
         this.active = false;
+        this.sprite = new Sprite();
+        this.action = PlayerAction.MINING;
         this.buildRay = new Ray(GameConfiguration.BUILDING_REACH);
         this.breakRay = new Ray(GameConfiguration.BUILDING_REACH);
         this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
@@ -100,43 +112,13 @@ public class Client {
         this.aimedPLacedBlocksIDs = new ArrayList<>();
         this.aimedBreakedBlocks = new ArrayList<>();
         this.aimedBreakedBlocksIDs = new ArrayList<>();
+        this.aimedBlocks = new ArrayList<>();
+        this.aimedBlocksIDs = new ArrayList<>();
+        this.inventory = new PlayerInventory();
     }
 
     public String getName() {
         return name;
-    }
-
-    public void handleInputs(JsonNode packetData) {
-        boolean movingLeft = packetData.get("left").asBoolean();
-        boolean movingRight = packetData.get("right").asBoolean();
-        boolean movingForward = packetData.get("forward").asBoolean();
-        boolean movingBackward = packetData.get("backward").asBoolean();
-        boolean flying = packetData.get("flying").asBoolean();
-        boolean sneaking = packetData.get("sneaking").asBoolean();
-
-        float yaw = packetData.get("yaw").floatValue();
-        float bodyYaw = packetData.get("bodyYaw").floatValue();
-        float pitch = packetData.get("pitch").floatValue();
-
-        int inputX = packetData.get("inputX").intValue();
-        int inputY = packetData.get("inputY").intValue();
-        int inputZ = packetData.get("inputZ").intValue();
-
-        this.yaw = yaw;
-        this.bodyYaw = bodyYaw;
-        this.pitch = pitch;
-
-        this.movingLeft = movingLeft;
-        this.movingRight = movingRight;
-        this.movingForward = movingForward;
-        this.movingBackward = movingBackward;
-
-        this.inputVector.x = inputX;
-        this.inputVector.y = inputY;
-        this.inputVector.z = inputZ;
-
-        this.flying = flying;
-        this.sneaking = sneaking;
     }
 
     public void handleCollisions(Vector3f velocity) {
@@ -286,22 +268,37 @@ public class Client {
             if (inputData.isBreakingBlock()) {
 
                 byte block = breakRay.getAimedBlock();
+                sprite.update(PlayerAction.MINING);
+
+                if (action == PlayerAction.MINING && sprite.getIndex() == action.getLength() - 1) {
+                    Vector3i rayPosition = breakRay.getBlockWorldPosition();
+                    Vector3i blockPositionLocal = Utils.worldToLocal(rayPosition);
+                    Material material = Material.getMaterialById(block);
+
+                    blocksPosition.add(rayPosition);
+                    blocksIDs.add(block);
+
+                    logger.info(name + " (" + uuid + ") a cassé un block de " + material + " en " + breakRay.getBlockWorldPosition());
+
+                    breakRay.getAimedChunk().setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, Material.AIR.getId());
+                    breakRay.reset();
+                    sprite.reset();
+
+                    Random random = new Random();
+                    DroppedItem droppedItem = new DroppedItem(new Vector3f(rayPosition), material);
+                    droppedItem.getVelocity().y = 0.8f;
+                    droppedItem.getVelocity().x = random.nextFloat(0.35f, 0.75f);
+                    droppedItem.getVelocity().z = random.nextFloat(0.3f, 0.85f);
+
+                    world.getDroppedItems().put(droppedItem.getUuid(), droppedItem);
+                }
 
                 if (this.canBreakBlock) {
                     if (breakRay.getAimedChunk() != null && block != Material.AIR.getId() && block != Material.WATER.getId()) {
-
-                        Vector3i rayPosition = breakRay.getBlockWorldPosition();
-                        Vector3i blockPositionLocal = Utils.worldToLocal(rayPosition);
-
-                        blocksPosition.add(rayPosition);
-                        blocksIDs.add(block);
-
-                        logger.info(name + " (" + uuid + ") a cassé un block de " + Material.getMaterialById(block) + " en " + breakRay.getBlockWorldPosition());
-
-                        breakRay.getAimedChunk().setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, Material.AIR.getId());
-                        breakRay.reset();
-                        this.canBreakBlock = false;
+                        action = PlayerAction.MINING;
+                        sprite.reset();
                     }
+                    this.canBreakBlock = false;
                 }
                 this.aimedBreakedBlocksIDs = blocksIDs;
                 this.aimedBreakedBlocks = blocksPosition;
@@ -395,10 +392,15 @@ public class Client {
         node.put("vx", this.velocity.x);
         node.put("vy", this.velocity.y);
         node.put("vz", this.velocity.z);
+        node.put("rx", this.buildRay.getBlockWorldPosition().x);
+        node.put("ry", this.buildRay.getBlockWorldPosition().y);
+        node.put("rz", this.buildRay.getBlockWorldPosition().z);
         node.put("movingLeft", movingLeft);
         node.put("movingRight", movingRight);
         node.put("movingForward", movingForward);
         node.put("movingBackward", movingBackward);
+        node.put("action", action == null ? "NONE" : action.toString());
+        node.put("spriteIndex", sprite.getIndex());
         node.put("yaw", this.yaw);
         node.put("pitch", this.pitch);
         node.put("bodyYaw", this.bodyYaw);
@@ -500,5 +502,9 @@ public class Client {
 
     public Ray getBreakRay() {
         return breakRay;
+    }
+    
+    public PlayerInventory getInventory() {
+        return inventory;
     }
 }

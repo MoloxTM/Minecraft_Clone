@@ -1,7 +1,6 @@
 package fr.math.minecraft.client.events;
 
-import fr.math.minecraft.client.entity.Player;
-import fr.math.minecraft.client.network.payload.StatePayload;
+import fr.math.minecraft.client.entity.player.Player;
 import org.joml.Vector3i;
 
 import java.util.Vector;

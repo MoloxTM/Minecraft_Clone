@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.MinecraftClient;
-import fr.math.minecraft.client.entity.Player;
+import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.client.events.*;
 import fr.math.minecraft.client.events.listeners.EventListener;
 import fr.math.minecraft.client.events.listeners.PacketEventListener;
@@ -15,8 +15,11 @@ import fr.math.minecraft.client.network.payload.StatePayload;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.shared.GameConfiguration;
+import fr.math.minecraft.shared.inventory.DroppedItem;
+import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.world.Material;
 import org.apache.log4j.Logger;
+import org.joml.Vector3f;
 import org.joml.Vector3i;
 
 import java.io.IOException;
@@ -74,7 +77,6 @@ public class PacketReceiver extends Thread {
         MinecraftClient client = Game.getInstance().getClient();
         ObjectMapper mapper = new ObjectMapper();
 
-
         try {
             String response = client.receive();
 
@@ -85,7 +87,6 @@ public class PacketReceiver extends Thread {
 
             switch (packetType) {
                 case "PLAYER_JOIN":
-                    // System.out.println(packetType);
                     this.notifyEvent(new PlayerJoinEvent(responseData));
                     break;
                 case "PLAYERS_LIST":
@@ -145,6 +146,31 @@ public class PacketReceiver extends Thread {
                         this.notifyEvent(new BlockPlaceEvent(playerPlace, blockPosition, Material.STONE));
                     }
                     break;
+                case "DROPPED_ITEM_LIST":
+                    this.notifyEvent(new DroppedItemEvent(game.getWorld(), (ArrayNode) responseData.get("droppedItems")));
+                    break;
+                case "DROPPED_ITEM_REMOVED":
+                    String uuid = responseData.get("droppedItemId").asText();
+                    System.out.println(responseData);
+
+                    synchronized (game.getWorld().getDroppedItems()) {
+                        System.out.println("Suppression " + uuid + " " + game.getWorld().getDroppedItems().containsKey(uuid));
+                        game.getWorld().getDroppedItems().remove(uuid);
+                    }
+                    break;
+                case "NEW_ITEM":
+                    byte materialId = (byte) responseData.get("materialId").intValue();
+                    String droppedItemId = responseData.get("droppedItemId").asText();
+                    DroppedItem droppedItem = game.getWorld().getDroppedItems().get(droppedItemId);
+                    Material material = Material.getMaterialById(materialId);
+
+                    if (material == null || material.getId() < 0 || droppedItem == null) {
+                        return;
+                    }
+
+                    ItemStack item = new ItemStack(material, 1);
+                    this.notifyEvent(new ItemGiveEvent(droppedItemId, item));
+                    break;
                 default:
                     logger.warn("Le packet " + packetType + " est inconnu et a été ignoré.");
             }
@@ -153,9 +179,21 @@ public class PacketReceiver extends Thread {
         }
     }
 
+    private void notifyEvent(ItemGiveEvent event) {
+        for (EventListener listener : eventListeners) {
+            listener.onItemGive(event);
+        }
+    }
+
     private void notifyEvent(PlayerStateEvent event) {
         for (PacketEventListener listener : packetListeners) {
             listener.onPlayerState(event);
+        }
+    }
+
+    private void notifyEvent(DroppedItemEvent event) {
+        for (PacketEventListener listener : packetListeners) {
+            listener.onDroppedItemState(event);
         }
     }
 

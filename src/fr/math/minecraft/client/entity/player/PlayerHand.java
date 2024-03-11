@@ -1,4 +1,4 @@
-package fr.math.minecraft.client.entity;
+package fr.math.minecraft.client.entity.player;
 
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.animations.PlayerHandAnimation;

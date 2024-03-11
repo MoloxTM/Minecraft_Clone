@@ -1,12 +1,9 @@
 package fr.math.minecraft.client.network;
 
 import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.entity.Player;
+import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.client.network.packet.ClientPacket;
-import fr.math.minecraft.client.network.packet.PingPacket;
 import fr.math.minecraft.shared.GameConfiguration;
-import org.joml.Vector3f;
-import org.joml.Vector3i;
 
 import java.util.LinkedList;
 import java.util.Queue;

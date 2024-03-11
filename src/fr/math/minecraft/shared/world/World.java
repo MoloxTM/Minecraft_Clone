@@ -7,6 +7,8 @@ import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.server.RandomSeed;
 import fr.math.minecraft.shared.GameConfiguration;
+import fr.math.minecraft.shared.inventory.DroppedItem;
+import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.world.generator.OverworldGenerator;
 import fr.math.minecraft.shared.world.generator.TerrainGenerator;
 import org.apache.log4j.Logger;
@@ -19,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class World {
 
     private final HashMap<Coordinates, Chunk> chunks;
+    private final Map<Vector3i, Byte> cavesBlocks;
     private final ConcurrentHashMap<Coordinates, Chunk> pendingChunks;
     private final Set<Coordinates> loadingChunks;
     private final ArrayList<Byte> transparents;
@@ -26,13 +29,16 @@ public class World {
     private final Map<Vector3i, Chunk> cachedChunks;
     private final Map<Coordinates, Region> regions;
     private final Vector3f spawnPosition;
+    private final Map<String, DroppedItem> droppedItems;
     private final static Logger logger = LoggerUtility.getServerLogger(World.class, LogType.TXT);
 
     private TerrainGenerator terrainGenerator;
+    private final int SPAWN_SIZE = 2;
 
     public World() {
         this.chunks = new HashMap<>();
         this.regions = new HashMap<>();
+        this.cavesBlocks = new HashMap<>();
         this.pendingChunks = new ConcurrentHashMap<>();
         this.loadingChunks = new HashSet<>();
         this.solidBlocks = new HashSet<>();
@@ -40,8 +46,7 @@ public class World {
         this.terrainGenerator = new OverworldGenerator();
         this.cachedChunks = new HashMap<>();
         this.buildSpawn();
-        this.spawnPosition = this.calculateSpawnPosition();
-
+        this.droppedItems = new HashMap<>();
         logger.info("Point de spawn calculé en " + spawnPosition);
 
         for (Material material : Material.values()) {
@@ -54,36 +59,38 @@ public class World {
     public Vector3f calculateSpawnPosition() {
         int spawnX = 0;
         int spawnZ = 0;
-        for (int chunkY = 0; chunkY < 10; chunkY++) {
+        for (int chunkY = 3; chunkY < 10; chunkY++) {
             for (int y = 0; y < Chunk.SIZE; y++) {
                 int worldY = chunkY * Chunk.SIZE + y;
                 byte block = this.getBlockAt(spawnX, worldY, spawnZ);
                 if (block == Material.AIR.getId()) {
-                    return new Vector3f(spawnX, worldY + 5, spawnZ);
+                    return new Vector3f(spawnX, worldY + 20, spawnZ);
                 }
             }
         }
         return new Vector3f(0, 300.0f, 0);
     }
 
+
     public void buildSpawn() {
         logger.info("Construction du spawn...");
-        for (int x = -2; x < 2; x++) {
+        for (int x = -SPAWN_SIZE; x < SPAWN_SIZE; x++) {
             for (int y = 0; y < 10; y++) {
-                for (int z = -2; z < 2; z++) {
+                for (int z = -SPAWN_SIZE; z < SPAWN_SIZE; z++) {
                     Chunk chunk = new Chunk(x, y, z);
                     chunk.generate(this, terrainGenerator);
                     this.addChunk(chunk);
                 }
             }
         }
+
         logger.info("Spawn construit avec succès !");
     }
 
     public void buildSpawnMesh() {
-        for (int x = -2; x < 2; x++) {
+        for (int x = -SPAWN_SIZE; x < SPAWN_SIZE; x++) {
             for (int y = 0; y < 10; y++) {
-                for (int z = -2; z < 2; z++) {
+                for (int z = -SPAWN_SIZE; z < SPAWN_SIZE; z++) {
                     Chunk chunk = this.getChunk(x, y, z);
 
                     if (chunk.isEmpty()) {
@@ -127,18 +134,14 @@ public class World {
         return chunks.get(coordinates);
     }
 
+    public Chunk getChunkAt(Vector3i position) {
+        return this.getChunkAt(position.x, position.y, position.z);
+    }
+
     public Chunk getChunkAt(int worldX, int worldY, int  worldZ) {
         int chunkX = (int) Math.floor(worldX / (double) Chunk.SIZE);
         int chunkY = (int) Math.floor(worldY / (double) Chunk.SIZE);
         int chunkZ = (int) Math.floor(worldZ / (double) Chunk.SIZE);
-
-        return this.getChunk(chunkX, chunkY, chunkZ);
-    }
-
-    public Chunk getChunkAt(Vector3i worldPosition) {
-        int chunkX = (int) Math.floor(worldPosition.x / (double) Chunk.SIZE);
-        int chunkY = (int) Math.floor(worldPosition.y / (double) Chunk.SIZE);
-        int chunkZ = (int) Math.floor(worldPosition.z / (double) Chunk.SIZE);
 
         return this.getChunk(chunkX, chunkY, chunkZ);
     }
@@ -266,5 +269,21 @@ public class World {
 
     public Map<Vector3i, Chunk> getCachedChunks() {
         return cachedChunks;
+    }
+
+    public void setBlock(Vector3i position, byte block) {
+        this.setBlock(position.x, position.y, position.z, block);
+    }
+
+    public void setBlock(int worldX, int worldY, int worldZ, byte block) {
+
+    }
+
+    public Map<Vector3i, Byte> getCavesBlocks() {
+        return cavesBlocks;
+    }
+
+    public Map<String, DroppedItem> getDroppedItems() {
+        return droppedItems;
     }
 }

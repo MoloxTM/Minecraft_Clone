@@ -10,6 +10,8 @@ import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.server.Client;
 import fr.math.minecraft.server.MinecraftServer;
+import fr.math.minecraft.shared.inventory.DroppedItem;
+import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.world.World;
 import org.apache.log4j.Logger;
 import org.joml.Vector3f;
@@ -51,11 +53,69 @@ public class StatePayload {
 
         Vector3f newPosition = new Vector3f(client.getPosition());
         Vector3f newVelocity = new Vector3f(client.getVelocity());
+        MinecraftServer server = MinecraftServer.getInstance();
+        ObjectMapper mapper = new ObjectMapper();
 
         this.aimedPlacedBlocks = new ArrayList<>(client.getAimedPLacedBlocks());
         this.aimedPLacedBlocksIDs = new ArrayList<>(client.getAimedPLacedBlocksIDs());
         this.aimedBreakedBlocks = new ArrayList<>(client.getAimedBreakedBlocks());
         this.aimedBreakedBlocksIDs = new ArrayList<>(client.getAimedBreakedBlocksIDs());
+
+        synchronized (world.getDroppedItems()) {
+            List<String> collectedItems = new ArrayList<>();
+            for (DroppedItem droppedItem : world.getDroppedItems().values()) {
+                if (newPosition.distance(droppedItem.getPosition()) < 1.5f) {
+                    ItemStack itemStack = new ItemStack(droppedItem.getMaterial(), 1);
+                    client.getInventory().addItem(new ItemStack(droppedItem.getMaterial(), 1));
+
+                    ObjectNode node = mapper.createObjectNode();
+
+                    node.put("type", "NEW_ITEM");
+                    node.put("droppedItemId", droppedItem.getUuid());
+                    node.put("materialId", itemStack.getMaterial().getId());
+                    node.put("amount", itemStack.getAmount());
+
+                    try {
+                        byte[] buffer = mapper.writeValueAsBytes(node);
+                        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, client.getAddress(), client.getPort());
+
+                        collectedItems.add(droppedItem.getUuid());
+                        server.sendPacket(packet);
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            for (String droppedItemId : collectedItems) {
+                world.getDroppedItems().remove(droppedItemId);
+            }
+
+            for (String droppedItemId : collectedItems) {
+                ObjectNode removedEventNode = mapper.createObjectNode();
+
+                removedEventNode.put("type", "DROPPED_ITEM_REMOVED");
+                removedEventNode.put("droppedItemId", droppedItemId);
+                try {
+                    byte[] buffer = mapper.writeValueAsBytes(removedEventNode);
+                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+
+                    for (Client onlineClient : server.getClients().values()) {
+
+                        if (onlineClient.getUuid().equalsIgnoreCase(client.getUuid())) {
+                            continue;
+                        }
+
+                        packet.setAddress(onlineClient.getAddress());
+                        packet.setPort(onlineClient.getPort());
+
+                        server.sendPacket(packet);
+                    }
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
         /*
         if (client.getLastChunkPosition().distance(position.x, position.y, position.z) >= ServerChunk.SIZE) {
@@ -64,7 +124,6 @@ public class StatePayload {
             clientManager.fillNearChunksQueue(client);
             client.setLastChunkPosition(newPosition);
         }
-
          */
         this.yaw = client.getYaw();
         this.pitch = client.getPitch();
@@ -138,8 +197,6 @@ public class StatePayload {
                 e.printStackTrace();
             }
         }
-
-
     }
 
     public ObjectNode toJSONEventBreak() {

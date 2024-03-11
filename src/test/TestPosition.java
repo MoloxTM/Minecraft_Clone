@@ -4,10 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.Camera;
-import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.entity.Player;
-import fr.math.minecraft.client.network.packet.PlayerMovePacket;
 import fr.math.minecraft.client.network.payload.StatePayload;
+import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.server.Client;
 import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.shared.GameConfiguration;
@@ -46,7 +44,7 @@ public class TestPosition {
         player.setYaw(yaw);
         player.setPitch(pitch);
 
-        PlayerInputData inputData = new PlayerInputData(false, false, true, false, false, false, false, yaw, pitch, false, false, false);
+        PlayerInputData inputData = new PlayerInputData(false, false, true, false, false, false, false, yaw, pitch, false, false, false, false);
         List<PlayerInputData> inputs = new ArrayList<>();
         inputs.add(inputData);
 

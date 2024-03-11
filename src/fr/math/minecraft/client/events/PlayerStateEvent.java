@@ -1,6 +1,6 @@
 package fr.math.minecraft.client.events;
 
-import fr.math.minecraft.client.entity.Player;
+import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.client.network.payload.StatePayload;
 
 public class PlayerStateEvent {

@@ -3,7 +3,7 @@ package fr.math.minecraft.client.visitor;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.GameState;
 import fr.math.minecraft.client.audio.Sounds;
-import fr.math.minecraft.client.entity.Player;
+import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.client.gui.buttons.BackToTitleButton;
 import fr.math.minecraft.client.gui.buttons.PlayButton;
 import fr.math.minecraft.client.gui.menus.ConnectionMenu;

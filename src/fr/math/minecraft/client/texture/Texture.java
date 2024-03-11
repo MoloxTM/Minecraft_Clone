@@ -113,6 +113,10 @@ public class Texture {
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
+    public void activeSlot() {
+        glActiveTexture(GL_TEXTURE0 + slot);
+    }
+
     public void delete() {
         glDeleteTextures(id);
     }

@@ -3,10 +3,11 @@ package fr.math.minecraft.shared.world;
 import fr.math.minecraft.client.meshs.WaterMesh;
 import fr.math.minecraft.server.world.biome.AbstractBiome;
 import fr.math.minecraft.shared.GameConfiguration;
-import fr.math.minecraft.client.entity.Player;
+import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.shared.world.generator.OverworldGenerator;
 import fr.math.minecraft.shared.world.generator.TerrainGenerator;
+import org.joml.Vector2i;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
@@ -77,8 +78,20 @@ public class Chunk {
         return blocks;
     }
 
+    public void setBlockWithWorldPos(int worldX, int worldY, int worldZ, byte block) {
+        int blockX = worldX % Chunk.SIZE;
+        int blockY = worldY % Chunk.SIZE;
+        int blockZ = worldZ % Chunk.SIZE;
+
+        blockX = blockX < 0 ? blockX + Chunk.SIZE : blockX;
+        blockY = blockY < 0 ? blockY + Chunk.SIZE : blockY;
+        blockZ = blockZ < 0 ? blockZ + Chunk.SIZE : blockZ;
+
+        this.setBlock(blockX, blockY, blockZ, block);
+    }
+
     public void setBlock(int x, int y, int z, byte block) {
-        if (block != Material.AIR.getId() && empty) {
+        if (empty && block != Material.AIR.getId()) {
             empty = false;
         }
         blocks[x + y * AREA + z * SIZE] = block;
@@ -179,5 +192,9 @@ public class Chunk {
 
     public Map<Coordinates, Boolean> getEmptyMap() {
         return emptyMap;
+    }
+
+    public Map<Vector2i, Integer> getHeightMap() {
+        return new OverworldGenerator().fillHeightMap(position.x, position.z, 0, Chunk.SIZE - 1, 0, Chunk.SIZE - 1);
     }
 }
