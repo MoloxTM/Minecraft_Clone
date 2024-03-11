@@ -14,12 +14,10 @@ import fr.math.minecraft.client.manager.FontManager;
 import fr.math.minecraft.client.meshs.*;
 import fr.math.minecraft.client.meshs.model.ItemModelData;
 import fr.math.minecraft.client.texture.CubemapTexture;
+import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.shared.Sprite;
 import fr.math.minecraft.client.texture.Texture;
-import fr.math.minecraft.shared.inventory.Hotbar;
-import fr.math.minecraft.shared.inventory.Inventory;
-import fr.math.minecraft.shared.inventory.ItemStack;
-import fr.math.minecraft.shared.inventory.PlayerInventory;
+import fr.math.minecraft.shared.inventory.*;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.server.manager.BiomeManager;
 import fr.math.minecraft.shared.GameConfiguration;
@@ -196,6 +194,10 @@ public class Renderer {
         skinTexture.unbind();
 
         this.renderNametag(camera, player);
+        Ray ray = player.getBuildRay();
+        if (player.getAction() != null && player.getAction() == PlayerAction.MINING) {
+            this.renderMining(camera, ray.getBlockWorldPosition().x, ray.getBlockWorldPosition().y, ray.getBlockWorldPosition().z, player.getSprite());
+        }
     }
 
     public void renderNametag(Camera camera, Player player) {
@@ -826,5 +828,20 @@ public class Renderer {
 
     public Map<String, Texture> getSkinsMap() {
         return skinsMap;
+    }
+
+    public void renderDroppedItem(Camera camera, DroppedItem droppedItem) {
+
+        handBlockShader.enable();
+        handBlockShader.sendInt("uTexture", terrainTexture.getSlot());
+
+        glActiveTexture(GL_TEXTURE0 + terrainTexture.getSlot());
+        terrainTexture.bind();
+
+        handBlockMesh.update(handBlockShader, droppedItem.getMaterial());
+        camera.matrixInWorld(handBlockShader, droppedItem.getPosition(), 0.2f, 0.0f, new Vector3f());
+        handBlockMesh.draw();
+
+        terrainTexture.unbind();
     }
 }

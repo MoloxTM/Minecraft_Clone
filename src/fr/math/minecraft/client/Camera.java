@@ -124,6 +124,10 @@ public class Camera {
     }
 
     public void matrixInWorld(Shader shader, Vector3f position) {
+        this.matrixInWorld(shader, position, 1.0f, 0.0f, new Vector3f(0.0f, 0.0f, 0.0f));
+    }
+
+    public void matrixInWorld(Shader shader, Vector3f position, float scale, float rotationAngle, Vector3f rotation) {
         this.calculateFront(front);
 
         projection.identity();
@@ -135,7 +139,12 @@ public class Camera {
 
         projection.perspective(Math.toRadians(fov), width / height, nearPlane ,farPlane);
         this.updateView();
+
+        model.rotate(Math.toRadians(rotationAngle), new Vector3f(rotation.x, 0, 0));
+        model.rotate(Math.toRadians(rotationAngle), new Vector3f(0, rotation.y, 0));
+        model.rotate(Math.toRadians(rotationAngle), new Vector3f(0, 0, rotation.z));
         model.translate(position.x, position.y, position.z);
+        model.scale(scale);
 
         shader.sendMatrix("projection", projection, projectionBuffer);
         shader.sendMatrix("view", view, viewBuffer);

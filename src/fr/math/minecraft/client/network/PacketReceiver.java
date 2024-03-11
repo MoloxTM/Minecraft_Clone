@@ -14,7 +14,9 @@ import fr.math.minecraft.client.events.listeners.PlayerListener;
 import fr.math.minecraft.client.network.payload.StatePayload;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
+import fr.math.minecraft.shared.world.Material;
 import org.apache.log4j.Logger;
+import org.joml.Vector3f;
 import org.joml.Vector3i;
 
 import java.io.IOException;
@@ -80,11 +82,8 @@ public class PacketReceiver extends Thread {
             JsonNode responseData = mapper.readTree(response);
             String packetType = responseData.get("type").asText();
 
-            System.out.println(packetType);
-
             switch (packetType) {
                 case "PLAYER_JOIN":
-                    // System.out.println(packetType);
                     this.notifyEvent(new PlayerJoinEvent(responseData));
                     break;
                 case "PLAYERS_LIST":
@@ -134,6 +133,16 @@ public class PacketReceiver extends Thread {
                         this.notifyEvent(new BlockBreakEvent(player, blockPosition));
                     }
                     break;
+                case "DROPPED_ITEM_STATE":
+                    String uuid = responseData.get("uuid").asText();
+                    float itemX = responseData.get("x").floatValue();
+                    float itemY = responseData.get("y").floatValue();
+                    float itemZ = responseData.get("z").floatValue();
+                    byte materialID = (byte) responseData.get("materialID").asInt();
+                    Material material = Material.getMaterialById(materialID);
+
+                    this.notifyEvent(new DroppedItemEvent(game.getWorld(), uuid, material, new Vector3f(itemX, itemY, itemZ)));
+                    break;
                 default:
                     logger.warn("Le packet " + packetType + " est inconnu et a été ignoré.");
             }
@@ -145,6 +154,12 @@ public class PacketReceiver extends Thread {
     private void notifyEvent(PlayerStateEvent event) {
         for (PacketEventListener listener : packetListeners) {
             listener.onPlayerState(event);
+        }
+    }
+
+    private void notifyEvent(DroppedItemEvent event) {
+        for (PacketEventListener listener : packetListeners) {
+            listener.onDroppedItemState(event);
         }
     }
 

@@ -1,11 +1,12 @@
 package fr.math.minecraft.shared;
 
 public enum PlayerAction {
-    MINING(0, 0, 10);
+    MINING(0, 0, 0, 10);
 
-    private final int spriteX, spriteY, length;
+    private final int id, spriteX, spriteY, length;
 
-    PlayerAction(int spriteX, int spriteY, int length) {
+    PlayerAction(int id, int spriteX, int spriteY, int length) {
+        this.id = id;
         this.spriteX = spriteX;
         this.spriteY = spriteY;
         this.length = length;
@@ -21,5 +22,9 @@ public enum PlayerAction {
 
     public int getLength() {
         return length;
+    }
+
+    public int getId() {
+        return id;
     }
 }

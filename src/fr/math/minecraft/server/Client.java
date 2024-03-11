@@ -7,6 +7,7 @@ import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.shared.Sprite;
+import fr.math.minecraft.shared.inventory.DroppedItem;
 import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.server.payload.StatePayload;
@@ -256,15 +257,21 @@ public class Client {
                 if (action == PlayerAction.MINING && sprite.getIndex() == action.getLength() - 1) {
                     Vector3i rayPosition = buildRay.getBlockWorldPosition();
                     Vector3i blockPositionLocal = Utils.worldToLocal(rayPosition);
+                    Material material = Material.getMaterialById(block);
 
                     blocksPosition.add(rayPosition);
                     blocksIDs.add(block);
 
-                    logger.info(name + " (" + uuid + ") a cassé un block de " + Material.getMaterialById(block) + " en " + buildRay.getBlockWorldPosition());
+                    logger.info(name + " (" + uuid + ") a cassé un block de " + material + " en " + buildRay.getBlockWorldPosition());
 
                     buildRay.getAimedChunk().setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, Material.AIR.getId());
                     buildRay.reset();
                     sprite.reset();
+
+                    DroppedItem droppedItem = new DroppedItem(new Vector3f(rayPosition), material);
+                    droppedItem.getVelocity().y = .8f;
+
+                    world.getDroppedItems().put(droppedItem.getUuid(), droppedItem);
                 }
 
                 if (this.canBreakBlock) {
@@ -327,10 +334,15 @@ public class Client {
         node.put("vx", this.velocity.x);
         node.put("vy", this.velocity.y);
         node.put("vz", this.velocity.z);
+        node.put("rx", this.buildRay.getBlockWorldPosition().x);
+        node.put("ry", this.buildRay.getBlockWorldPosition().y);
+        node.put("rz", this.buildRay.getBlockWorldPosition().z);
         node.put("movingLeft", movingLeft);
         node.put("movingRight", movingRight);
         node.put("movingForward", movingForward);
         node.put("movingBackward", movingBackward);
+        node.put("action", action == null ? "NONE" : action.toString());
+        node.put("spriteIndex", sprite.getIndex());
         node.put("yaw", this.yaw);
         node.put("pitch", this.pitch);
         node.put("bodyYaw", this.bodyYaw);

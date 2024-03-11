@@ -829,4 +829,5 @@ public class Player {
     public void setLastInventory(Inventory lastInventory) {
         this.lastInventory = lastInventory;
     }
+
 }

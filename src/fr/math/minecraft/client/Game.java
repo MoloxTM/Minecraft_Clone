@@ -12,6 +12,7 @@ import fr.math.minecraft.client.gui.menus.Menu;
 import fr.math.minecraft.client.handler.PlayerMovementHandler;
 import fr.math.minecraft.client.manager.*;
 import fr.math.minecraft.client.entity.player.Player;
+import fr.math.minecraft.shared.inventory.DroppedItem;
 import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.world.Coordinates;
@@ -22,6 +23,7 @@ import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.network.PlayerInputData;
 import org.apache.log4j.Logger;
+import org.joml.Math;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 import org.lwjgl.BufferUtils;
@@ -372,6 +374,17 @@ public class Game {
                 }
 
                 renderer.renderWater(camera, chunk);
+            }
+        }
+
+        synchronized (world.getDroppedItems()) {
+            for (DroppedItem droppedItem : world.getDroppedItems().values()) {
+                if (gameConfiguration.isEntityInterpolationEnabled()) {
+                    droppedItem.getPosition().x = Math.lerp(droppedItem.getPosition().x, droppedItem.getLastPosition().x, 0.1f);
+                    droppedItem.getPosition().y = Math.lerp(droppedItem.getPosition().y, droppedItem.getLastPosition().y, 0.1f);
+                    droppedItem.getPosition().z = Math.lerp(droppedItem.getPosition().z, droppedItem.getLastPosition().z, 0.1f);
+                }
+                renderer.renderDroppedItem(camera, droppedItem);
             }
         }
 

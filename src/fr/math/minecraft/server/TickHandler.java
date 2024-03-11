@@ -1,12 +1,15 @@
 package fr.math.minecraft.server;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.server.payload.StatePayload;
 import fr.math.minecraft.shared.GameConfiguration;
+import fr.math.minecraft.shared.inventory.DroppedItem;
+import fr.math.minecraft.shared.world.World;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -124,6 +127,38 @@ public class TickHandler extends Thread {
             }
         }
         this.sendPlayers();
+        this.sendWorld();
         tick++;
+    }
+
+    private void sendWorld() {
+        MinecraftServer server = MinecraftServer.getInstance();
+        World world = server.getWorld();
+        ObjectMapper mapper = new ObjectMapper();
+        for (DroppedItem droppedItem : world.getDroppedItems().values()) {
+
+            droppedItem.update();
+            JsonNode node = droppedItem.toJSON();
+            try {
+                byte[] buffer = mapper.writeValueAsBytes(node);
+                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+
+                synchronized (server.getClients()) {
+                    for (Client client : server.getClients().values()) {
+
+                        if (!client.isActive()) {
+                            continue;
+                        }
+
+                        packet.setAddress(client.getAddress());
+                        packet.setPort(client.getPort());
+
+                        server.sendPacket(packet);
+                    }
+                }
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

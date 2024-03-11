@@ -14,8 +14,11 @@ import fr.math.minecraft.client.network.packet.SkinRequestPacket;
 import fr.math.minecraft.client.network.payload.StatePayload;
 import fr.math.minecraft.client.texture.Texture;
 import fr.math.minecraft.shared.GameConfiguration;
+import fr.math.minecraft.shared.PlayerAction;
+import fr.math.minecraft.shared.inventory.DroppedItem;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.world.Coordinates;
+import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.shared.world.World;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
@@ -75,6 +78,10 @@ public class PacketListener implements PacketEventListener {
             float playerY = playerNode.get("y").floatValue();
             float playerZ = playerNode.get("z").floatValue();
 
+            int rayX = playerNode.get("rx").intValue();
+            int rayY = playerNode.get("ry").intValue();
+            int rayZ = playerNode.get("rz").intValue();
+
             boolean movingLeft = playerNode.get("movingLeft").asBoolean();
             boolean movingRight = playerNode.get("movingRight").asBoolean();
             boolean movingForward = playerNode.get("movingForward").asBoolean();
@@ -83,6 +90,14 @@ public class PacketListener implements PacketEventListener {
             float pitch = playerNode.get("pitch").floatValue();
             float yaw = playerNode.get("yaw").floatValue();
             float bodyYaw = playerNode.get("bodyYaw").floatValue();
+
+            String actionId = playerNode.get("action").asText();
+            int spriteIndex = playerNode.get("spriteIndex").asInt();
+
+            PlayerAction action = null;
+            if (!actionId.equalsIgnoreCase("NONE")) {
+                action = PlayerAction.valueOf(actionId);
+            }
 
             GameConfiguration gameConfiguration = GameConfiguration.getInstance();
 
@@ -103,6 +118,13 @@ public class PacketListener implements PacketEventListener {
             player.setYaw(yaw);
             player.setBodyYaw(bodyYaw);
             player.setPitch(pitch);
+
+            player.getBuildRay().getBlockWorldPosition().x = rayX;
+            player.getBuildRay().getBlockWorldPosition().y = rayY;
+            player.getBuildRay().getBlockWorldPosition().z = rayZ;
+
+            player.setAction(action);
+            player.getSprite().setIndex(spriteIndex);
         }
     }
 
@@ -171,4 +193,26 @@ public class PacketListener implements PacketEventListener {
 
     }
 
+    @Override
+    public void onDroppedItemState(DroppedItemEvent event) {
+
+        String itemUuid = event.getItemUuid();
+        World world = event.getWorld();
+        Material material = event.getMaterial();
+        Vector3f position = event.getPosition();
+
+        synchronized (world.getDroppedItems()) {
+            DroppedItem droppedItem = world.getDroppedItems().get(itemUuid);
+
+            if (droppedItem == null) {
+                droppedItem = new DroppedItem(itemUuid, position, material);
+                world.getDroppedItems().put(itemUuid, droppedItem);
+            } else {
+                droppedItem.getLastPosition().x = position.x;
+                droppedItem.getLastPosition().y = position.y;
+                droppedItem.getLastPosition().z = position.z;
+            }
+        }
+
+    }
 }
