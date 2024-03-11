@@ -408,7 +408,7 @@ public class Game {
             }
         }
 
-        ItemStack selectedItem = player.getHotbar().getSelectedItem();
+        ItemStack selectedItem = player.getHotbar().getItems()[player.getHotbar().getSelectedSlot()];
         Ray ray = player.getBuildRay();
 
         renderer.renderAimedBlock(camera, player.getBuildRay());
@@ -430,8 +430,11 @@ public class Game {
         renderer.renderDebugTools(camera, player, fps);
         renderer.renderHotbar(camera, player, player.getHotbar());
         renderer.renderCrosshair(camera);
+
         if (player.getInventory().isOpen()) {
             renderer.renderInventory(camera, player.getInventory());
+            renderer.renderInventory(camera, player.getCraftInventory());
+            renderer.renderInventory(camera, player.getHotbar());
         }
     }
 

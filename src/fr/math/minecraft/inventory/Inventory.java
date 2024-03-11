@@ -106,4 +106,8 @@ public abstract class Inventory {
     public void setHoldedSlot(int holdedSlot) {
         this.holdedSlot = holdedSlot;
     }
+
+    public abstract float getItemX(int slot);
+    public abstract float getItemY(int slot);
+
 }

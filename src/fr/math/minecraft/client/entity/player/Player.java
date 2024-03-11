@@ -11,6 +11,8 @@ import fr.math.minecraft.client.manager.ChunkManager;
 import fr.math.minecraft.client.meshs.NametagMesh;
 import fr.math.minecraft.client.texture.Sprite;
 import fr.math.minecraft.inventory.Hotbar;
+import fr.math.minecraft.inventory.Inventory;
+import fr.math.minecraft.inventory.PlayerCraftInventory;
 import fr.math.minecraft.inventory.PlayerInventory;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.world.Coordinates;
@@ -78,10 +80,12 @@ public class Player {
     private Ray attackRay, buildRay;
     private ArrayList<Vector3i> aimedBlocks;
     private final PlayerInventory inventory;
+    private Inventory lastInventory;
     private final float health;
     private final float maxHealth;
     private PlayerAction action;
     private Sprite sprite;
+    private final PlayerCraftInventory craftInventory;
 
     public Player(String name) {
         this.position = new Vector3f(0.0f, 100.0f, 0.0f);
@@ -142,6 +146,8 @@ public class Player {
         this.skin = null;
         this.skinPath = "res/textures/skin.png";
         this.gameMode = GameMode.SURVIVAL;
+        this.craftInventory = new PlayerCraftInventory();
+        this.lastInventory = inventory;
         this.initAnimations();
     }
 
@@ -174,6 +180,8 @@ public class Player {
         if (inventory.isOpen()) {
             InventoryInputsHandler handler = new InventoryInputsHandler();
             handler.handleInputs(window, this, inventory, (float) mouseX.get(0), (float) mouseY.get(0));
+            handler.handleInputs(window, this, craftInventory, (float) mouseX.get(0), (float) mouseY.get(0));
+            handler.handleInputs(window, this, hotbar, (float) mouseX.get(0), (float) mouseY.get(0));
             return;
         }
 
@@ -267,39 +275,39 @@ public class Player {
         }
 
         if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
-            hotbar.setCurrentSlot(0);
+            hotbar.setSelectedSlot(0);
         }
 
         if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
-            hotbar.setCurrentSlot(1);
+            hotbar.setSelectedSlot(1);
         }
 
         if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
-            hotbar.setCurrentSlot(2);
+            hotbar.setSelectedSlot(2);
         }
 
         if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
-            hotbar.setCurrentSlot(3);
+            hotbar.setSelectedSlot(3);
         }
 
         if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) {
-            hotbar.setCurrentSlot(4);
+            hotbar.setSelectedSlot(4);
         }
 
         if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS) {
-            hotbar.setCurrentSlot(5);
+            hotbar.setSelectedSlot(5);
         }
 
         if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS) {
-            hotbar.setCurrentSlot(6);
+            hotbar.setSelectedSlot(6);
         }
 
         if (glfwGetKey(window, GLFW_KEY_8) == GLFW_PRESS) {
-            hotbar.setCurrentSlot(7);
+            hotbar.setSelectedSlot(7);
         }
 
         if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS) {
-            hotbar.setCurrentSlot(8);
+            hotbar.setSelectedSlot(8);
         }
 
         if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_RELEASE) {
@@ -786,5 +794,17 @@ public class Player {
 
     public void setCanHoldItem(boolean canHoldItem) {
         this.canHoldItem = canHoldItem;
+    }
+
+    public PlayerCraftInventory getCraftInventory() {
+        return craftInventory;
+    }
+
+    public Inventory getLastInventory() {
+        return lastInventory;
+    }
+
+    public void setLastInventory(Inventory lastInventory) {
+        this.lastInventory = lastInventory;
     }
 }

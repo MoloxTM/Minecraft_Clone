@@ -1,6 +1,7 @@
 package fr.math.minecraft.inventory;
 
 import fr.math.minecraft.shared.world.Material;
+import org.joml.Math;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ public class ItemStack {
     }
 
     public void setAmount(int amount) {
-        this.amount = amount;
+        this.amount = (int) Math.min(amount, 64.0f);
     }
 
     public Material getMaterial() {
