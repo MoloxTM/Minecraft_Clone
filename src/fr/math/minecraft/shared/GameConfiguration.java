@@ -42,7 +42,7 @@ public class GameConfiguration {
         this.entityInterpolation = true;
         this.occlusionEnabled = true;
         this.debugging = true;
-        this.musicEnabled = false;
+        this.musicEnabled = true;
         this.guiScale = 1.0f;
     }
 

@@ -1,16 +1,15 @@
 package fr.math.minecraft.client.builder;
 
 import fr.math.minecraft.client.Game;
-import fr.math.minecraft.client.meshs.HandMesh;
 import fr.math.minecraft.client.meshs.model.CactusModel;
 import fr.math.minecraft.client.meshs.model.HandModel;
 import fr.math.minecraft.client.meshs.model.NatureModel;
+import fr.math.minecraft.client.vertex.BlockVertex;
 import fr.math.minecraft.client.vertex.HandVertex;
 import fr.math.minecraft.client.vertex.Vertex;
 import fr.math.minecraft.client.meshs.model.BlockModel;
 import fr.math.minecraft.client.world.BlockFace;
 import fr.math.minecraft.shared.world.Chunk;
-import fr.math.minecraft.shared.world.Coordinates;
 import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.shared.world.World;
 import org.joml.Vector2f;
@@ -174,7 +173,7 @@ public class MeshBuilder {
 
                         Vector2f[] textureCoords;
                         if (px) {
-                            if (material.isFaces()) {
+                            if (material.isSymetric()) {
                                 textureCoords = calculateTexCoords(material.getPx().x, material.getPx().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
@@ -189,7 +188,7 @@ public class MeshBuilder {
                         }
 
                         if (nx) {
-                            if (material.isFaces()) {
+                            if (material.isSymetric()) {
                                 textureCoords = calculateTexCoords(material.getNx().x, material.getNx().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
@@ -206,7 +205,7 @@ public class MeshBuilder {
                         }
 
                         if (py) {
-                            if (material.isFaces()) {
+                            if (material.isSymetric()) {
                                 textureCoords = calculateTexCoords(material.getPy().x, material.getPy().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
@@ -222,7 +221,7 @@ public class MeshBuilder {
                         }
 
                         if (ny) {
-                            if (material.isFaces()) {
+                            if (material.isSymetric()) {
                                 textureCoords = calculateTexCoords(material.getNy().x, material.getNy().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
@@ -238,7 +237,7 @@ public class MeshBuilder {
                         }
 
                         if (pz) {
-                            if(material.isFaces()) {
+                            if(material.isSymetric()) {
                                 textureCoords = calculateTexCoords(material.getPz().x, material.getPz().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
@@ -253,7 +252,7 @@ public class MeshBuilder {
                         }
 
                         if (nz) {
-                            if (material.isFaces()) {
+                            if (material.isSymetric()) {
                                 textureCoords = calculateTexCoords(material.getNz().x, material.getNz().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
@@ -322,7 +321,7 @@ public class MeshBuilder {
                     } else if (material == Material.CACTUS) {
                         if (px) {
 
-                            if (material.isFaces()) {
+                            if (material.isSymetric()) {
                                 textureCoords = calculateTexCoords(material.getPx().x, material.getPx().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
@@ -341,7 +340,7 @@ public class MeshBuilder {
                         }
 
                         if (nx) {
-                            if (material.isFaces()) {
+                            if (material.isSymetric()) {
                                 textureCoords = calculateTexCoords(material.getNx().x, material.getNx().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
@@ -360,7 +359,7 @@ public class MeshBuilder {
                         }
 
                         if (py) {
-                            if (material.isFaces()) {
+                            if (material.isSymetric()) {
                                 textureCoords = calculateTexCoords(material.getPy().x, material.getPy().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
@@ -379,7 +378,7 @@ public class MeshBuilder {
                         }
 
                         if (ny) {
-                            if (material.isFaces()) {
+                            if (material.isSymetric()) {
                                 textureCoords = calculateTexCoords(material.getNy().x, material.getNy().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
@@ -399,7 +398,7 @@ public class MeshBuilder {
                         }
 
                         if (pz) {
-                            if (material.isFaces()) {
+                            if (material.isSymetric()) {
                                 textureCoords = calculateTexCoords(material.getPz().x, material.getPz().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
@@ -418,7 +417,7 @@ public class MeshBuilder {
                         }
 
                         if (nz) {
-                            if (material.isFaces()) {
+                            if (material.isSymetric()) {
                                 textureCoords = calculateTexCoords(material.getNz().x, material.getNz().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
@@ -436,7 +435,7 @@ public class MeshBuilder {
                         }
                     } else {
                         if (px) {
-                            if (material.isFaces()) {
+                            if (material.isSymetric()) {
                                 textureCoords = calculateTexCoords(material.getPx().x, material.getPx().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
@@ -454,7 +453,7 @@ public class MeshBuilder {
                         }
 
                         if (nx) {
-                            if (material.isFaces()) {
+                            if (material.isSymetric()) {
                                 textureCoords = calculateTexCoords(material.getNx().x, material.getNx().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
@@ -472,7 +471,7 @@ public class MeshBuilder {
                         }
 
                         if (py) {
-                            if (material.isFaces()) {
+                            if (material.isSymetric()) {
                                 textureCoords = calculateTexCoords(material.getPy().x, material.getPy().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
@@ -490,7 +489,7 @@ public class MeshBuilder {
                         }
 
                         if (ny) {
-                            if (material.isFaces()) {
+                            if (material.isSymetric()) {
                                 textureCoords = calculateTexCoords(material.getNy().x, material.getNy().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
@@ -508,7 +507,7 @@ public class MeshBuilder {
                         }
 
                         if (pz) {
-                            if (material.isFaces()) {
+                            if (material.isSymetric()) {
                                 textureCoords = calculateTexCoords(material.getPz().x, material.getPz().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
@@ -526,7 +525,7 @@ public class MeshBuilder {
                         }
 
                         if (nz) {
-                            if (material.isFaces()) {
+                            if (material.isSymetric()) {
                                 textureCoords = calculateTexCoords(material.getNz().x, material.getNz().y, 16.0f);
                             } else {
                                 textureCoords = calculateTexCoords(material.getX(), material.getY(), 16.0f);
@@ -640,6 +639,89 @@ public class MeshBuilder {
         Collections.addAll(vertices, HandModel.HAND_VERTICES);
 
         return vertices.toArray(new HandVertex[0]);
+    }
+
+    public BlockVertex[] buildBlockMesh(Material material) {
+
+        int pxX;
+        int nxX;
+        int pyX;
+        int nyX;
+        int pzX;
+        int nzX;
+
+        int pxY;
+        int nxY;
+        int pyY;
+        int nyY;
+        int pzY;
+        int nzY;
+
+        if (!material.isSymetric()) {
+            pxX = nxX = pyX = nyX = pzX = nzX = material.getX();
+            pxY = nxY = pyY = nyY = pzY = nzY = material.getY();
+        } else {
+            pxX = material.getPx().x;
+            nxX = material.getNx().x;
+            pyX = material.getPy().x;
+            nyX = material.getNy().x;
+            pzX = material.getPz().x;
+            nzX = material.getNz().x;
+
+            pxY = material.getPx().y;
+            nxY = material.getNx().y;
+            pyY = material.getPy().y;
+            nyY = material.getNy().y;
+            pzY = material.getPz().y;
+            nzY = material.getNz().y;
+        }
+
+        Vector2f[] texCoordsPx = MeshBuilder.calculateTexCoords(pxX, pxY, 16.0f);
+        Vector2f[] texCoordsNx = MeshBuilder.calculateTexCoords(nxX, nxY, 16.0f);
+        Vector2f[] texCoordsPy = MeshBuilder.calculateTexCoords(pyX, pyY, 16.0f);
+        Vector2f[] texCoordsNy = MeshBuilder.calculateTexCoords(nyX, nyY, 16.0f);
+        Vector2f[] texCoordsPz = MeshBuilder.calculateTexCoords(pzX, pzY, 16.0f);
+        Vector2f[] texCoordsNz = MeshBuilder.calculateTexCoords(nzX, nzY, 16.0f);
+
+        BlockVertex[] vertices = new BlockVertex[] {
+            // Face avant
+            new BlockVertex(new Vector3f(-0.5f, -0.5f, 0.5f), texCoordsPz[0], 0, BlockFace.PZ_FACE.ordinal()),
+            new BlockVertex(new Vector3f(-0.5f, 0.5f, 0.5f), texCoordsPz[1], 1, BlockFace.PZ_FACE.ordinal()),
+            new BlockVertex(new Vector3f(0.5f, 0.5f, 0.5f), texCoordsPz[2], 2, BlockFace.PZ_FACE.ordinal()),
+            new BlockVertex(new Vector3f(0.5f, -0.5f, 0.5f), texCoordsPz[3], 3, BlockFace.PZ_FACE.ordinal()),
+
+            // Face arrière
+            new BlockVertex(new Vector3f(-0.5f, -0.5f, -0.5f), texCoordsNz[0], 0, BlockFace.NZ_FACE.ordinal()),
+            new BlockVertex(new Vector3f(-0.5f, 0.5f, -0.5f), texCoordsNz[1], 1, BlockFace.NZ_FACE.ordinal()),
+            new BlockVertex(new Vector3f(0.5f, 0.5f, -0.5f), texCoordsNz[2], 2, BlockFace.NZ_FACE.ordinal()),
+            new BlockVertex(new Vector3f(0.5f, -0.5f, -0.5f), texCoordsNz[3], 3, BlockFace.NZ_FACE.ordinal()),
+
+            // Face gauche
+            new BlockVertex(new Vector3f(-0.5f, -0.5f, -0.5f), texCoordsNx[0], 0, BlockFace.NX_FACE.ordinal()),
+            new BlockVertex(new Vector3f(-0.5f, 0.5f, -0.5f), texCoordsNx[1], 1, BlockFace.NX_FACE.ordinal()),
+            new BlockVertex(new Vector3f(-0.5f, 0.5f, 0.5f), texCoordsNx[2], 2, BlockFace.NX_FACE.ordinal()),
+            new BlockVertex(new Vector3f(-0.5f, -0.5f, 0.5f), texCoordsNx[3], 3, BlockFace.NX_FACE.ordinal()),
+
+            // Face droite
+            new BlockVertex(new Vector3f(0.5f, -0.5f, 0.5f), texCoordsPx[0], 0, BlockFace.PX_FACE.ordinal()),
+            new BlockVertex(new Vector3f(0.5f, 0.5f, 0.5f), texCoordsPx[1], 1, BlockFace.PX_FACE.ordinal()),
+            new BlockVertex(new Vector3f(0.5f, 0.5f, -0.5f), texCoordsPx[2], 2, BlockFace.PX_FACE.ordinal()),
+            new BlockVertex(new Vector3f(0.5f, -0.5f, -0.5f), texCoordsPx[3], 3, BlockFace.PX_FACE.ordinal()),
+
+            // Face supérieure
+            new BlockVertex(new Vector3f(-0.5f, 0.5f, 0.5f), texCoordsPy[0], 0, BlockFace.PY_FACE.ordinal()),
+            new BlockVertex(new Vector3f(-0.5f, 0.5f, -0.5f), texCoordsPy[1], 1, BlockFace.PY_FACE.ordinal()),
+            new BlockVertex(new Vector3f(0.5f, 0.5f, -0.5f), texCoordsPy[2], 2, BlockFace.PY_FACE.ordinal()),
+            new BlockVertex(new Vector3f(0.5f, 0.5f, 0.5f), texCoordsPy[3], 3, BlockFace.PY_FACE.ordinal()),
+
+            // Face inférieure
+            new BlockVertex(new Vector3f(-0.5f, -0.5f, 0.5f), texCoordsNy[0], 0, BlockFace.NY_FACE.ordinal()),
+            new BlockVertex(new Vector3f(-0.5f, -0.5f, -0.5f), texCoordsNy[1], 1, BlockFace.NY_FACE.ordinal()),
+            new BlockVertex(new Vector3f(0.5f, -0.5f, -0.5f), texCoordsNy[2], 2, BlockFace.NY_FACE.ordinal()),
+            new BlockVertex(new Vector3f(0.5f, -0.5f, 0.5f), texCoordsNy[3], 3, BlockFace.NY_FACE.ordinal())
+        };
+
+        return vertices;
     }
 
 }

@@ -140,11 +140,20 @@ public class Camera {
         projection.perspective(Math.toRadians(fov), width / height, nearPlane ,farPlane);
         this.updateView();
 
-        model.rotate(Math.toRadians(rotationAngle), new Vector3f(rotation.x, 0, 0));
-        model.rotate(Math.toRadians(rotationAngle), new Vector3f(0, rotation.y, 0));
-        model.rotate(Math.toRadians(rotationAngle), new Vector3f(0, 0, rotation.z));
         model.translate(position.x, position.y, position.z);
         model.scale(scale);
+
+        if (rotation.x != 0.0f) {
+            model.rotate(Math.toRadians(rotationAngle), new Vector3f(rotation.x, 0, 0), model);
+        }
+
+        if (rotation.y != 0.0f) {
+            model.rotate(Math.toRadians(rotationAngle), new Vector3f(0, rotation.y, 0), model);
+        }
+
+        if (rotation.z != 0.0f) {
+            model.rotate(Math.toRadians(rotationAngle), new Vector3f(0, 0, rotation.z), model);
+        }
 
         shader.sendMatrix("projection", projection, projectionBuffer);
         shader.sendMatrix("view", view, viewBuffer);

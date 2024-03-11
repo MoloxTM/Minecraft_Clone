@@ -50,6 +50,10 @@ public abstract class Inventory {
         for (int i = 0; i < currentSize; i++) {
             ItemStack item = items[i];
 
+            if (item == null) {
+                continue;
+            }
+
             if (item.getMaterial().getId() == material.getId()) {
                 return i;
             }

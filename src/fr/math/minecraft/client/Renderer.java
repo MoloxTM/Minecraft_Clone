@@ -18,6 +18,7 @@ import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.shared.Sprite;
 import fr.math.minecraft.client.texture.Texture;
 import fr.math.minecraft.shared.inventory.*;
+import fr.math.minecraft.shared.network.Hitbox;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.server.manager.BiomeManager;
 import fr.math.minecraft.shared.GameConfiguration;
@@ -58,6 +59,7 @@ public class Renderer {
     private final Shader colorShader;
     private final Shader itemShader;
     private final Shader selectedBlockShader;
+    private final Shader hitboxShader;
     private final Texture terrainTexture;
     private final Texture skinTexture;
     private final Texture defaultSkinTexture;
@@ -92,7 +94,7 @@ public class Renderer {
         this.skyboxMesh = new SkyboxMesh();
         this.crosshairMesh = new CrosshairMesh();
         this.blockMesh = new BlockMesh();
-        this.selectedBlockMesh = new BlockMesh(0, 0);
+        this.selectedBlockMesh = new BlockMesh(Material.BREAKING_ANIMATION);
         this.handMesh = new HandMesh();
         this.handBlockMesh = new BlockMesh(Material.STONE);
         this.loadedSkins = new HashSet<>();
@@ -131,6 +133,7 @@ public class Renderer {
         this.handBlockShader = new Shader("res/shaders/handblock.vert", "res/shaders/handblock.frag");
         this.itemShader = new Shader("res/shaders/item.vert", "res/shaders/item.frag");
         this.colorShader = new Shader("res/shaders/color.vert", "res/shaders/color.frag");
+        this.hitboxShader = new Shader("res/shaders/hitbox.vert", "res/shaders/hitbox.frag");
 
         this.terrainTexture = new Texture("res/textures/terrain.png", 1);
         this.defaultSkinTexture = new Texture("res/textures/skin.png", 2);
@@ -839,7 +842,7 @@ public class Renderer {
         terrainTexture.bind();
 
         handBlockMesh.update(handBlockShader, droppedItem.getMaterial());
-        camera.matrixInWorld(handBlockShader, droppedItem.getPosition(), 0.2f, 0.0f, new Vector3f());
+        camera.matrixInWorld(handBlockShader, new Vector3f(droppedItem.getPosition()).sub(0, 0.35f, 0), 0.2f, droppedItem.getRotationAngle(), new Vector3f(0, 1, 0));
         handBlockMesh.draw();
 
         terrainTexture.unbind();

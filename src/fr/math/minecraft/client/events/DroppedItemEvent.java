@@ -1,37 +1,25 @@
 package fr.math.minecraft.client.events;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.shared.world.World;
 import org.joml.Vector3f;
 
 public class DroppedItemEvent {
 
-    private final String itemUuid;
-    private final Material material;
-
-    private final Vector3f position;
     private final World world;
+    private final ArrayNode itemsData;
 
-    public DroppedItemEvent(World world, String itemUuid, Material material, Vector3f position) {
-        this.itemUuid = itemUuid;
-        this.material = material;
-        this.position = position;
+    public DroppedItemEvent(World world, ArrayNode itemsData) {
         this.world = world;
-    }
-
-    public String getItemUuid() {
-        return itemUuid;
-    }
-
-    public Material getMaterial() {
-        return material;
-    }
-
-    public Vector3f getPosition() {
-        return position;
+        this.itemsData = itemsData;
     }
 
     public World getWorld() {
         return world;
+    }
+
+    public ArrayNode getItemsData() {
+        return itemsData;
     }
 }

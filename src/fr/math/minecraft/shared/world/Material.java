@@ -21,7 +21,8 @@ public enum Material {
     BIRCH_LEAVES("Oak leaves", 12, 4, 7, 0, 0),
     APPLE("Apple", 13, -1, -1, 21, 1, false, true),
     DIAMOND_SWORD("Diamond Sword", 14, -1, -1, 4, 2, false, true),
-    DIAMOND_AXE("Diamond Axe", 15, -1, -1, 27, 3, false, true);
+    DIAMOND_AXE("Diamond Axe", 15, -1, -1, 27, 3, false, true),
+    BREAKING_ANIMATION("", -3, 0, 0, 0, 0);
 
     private final int blockIconX, x;
     private final int blockIconY, y;
@@ -89,7 +90,7 @@ public enum Material {
         return y;
     }
 
-    public boolean isFaces() {
+    public boolean isSymetric() {
         return faces;
     }
 

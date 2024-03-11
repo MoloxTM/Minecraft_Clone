@@ -15,6 +15,7 @@ import java.util.UUID;
 
 public class DroppedItem {
 
+    private final Vector3f acceleration;
     private final Vector3f velocity;
     private final Vector3f position, lastPosition;
     private final Material material;
@@ -22,16 +23,19 @@ public class DroppedItem {
     private final Hitbox hitbox;
     private float time;
     private boolean onFloor;
+    private float rotationAngle;
 
     public DroppedItem(String uuid, Vector3f position, Material material) {
         this.uuid = uuid;
         this.position = position;
         this.velocity = new Vector3f();
+        this.acceleration = new Vector3f();
         this.lastPosition = new Vector3f(position);
         this.material = material;
         this.time = 0.0f;
         this.onFloor = false;
-        this.hitbox = new Hitbox(new Vector3f(), new Vector3f(0.015f, 0.015f, 0.015f));
+        this.hitbox = new Hitbox(new Vector3f(), new Vector3f(0.025f, 0.025f, 0.025f));
+        this.rotationAngle = 0.0f;
     }
 
     public DroppedItem(Vector3f position, Material material) {
@@ -89,10 +93,16 @@ public class DroppedItem {
 
         Vector3f acceleration = new Vector3f();
 
+        velocity.add(new Vector3f(0, -0.0125f, 0));
 
-        if (onFloor) {
-            acceleration.y = Math.sin(time * 0.2f) * 0.001f;
-        }
+        position.x += velocity.x;
+        handleCollisions(new Vector3f(velocity.x, 0, 0));
+
+        position.z += velocity.z;
+        handleCollisions(new Vector3f(0, 0, velocity.z));
+
+        position.y += velocity.y;
+        handleCollisions(new Vector3f(0, velocity.y, 0));
 
         velocity.add(acceleration);
 
@@ -100,23 +110,14 @@ public class DroppedItem {
             velocity.normalize().mul(0.2f);
         }
 
-        if (onFloor) {
-            position.add(velocity);
-        } else {
-            velocity.add(new Vector3f(0, -0.0125f, 0));
-            position.x += velocity.x;
-            handleCollisions(new Vector3f(velocity.x, 0, 0));
+        time += 1.0f;
+        rotationAngle += 1.0f;
 
-            position.z += velocity.z;
-            handleCollisions(new Vector3f(0, 0, velocity.z));
-
-            position.y += velocity.y;
-            handleCollisions(new Vector3f(0, velocity.y, 0));
+        if (rotationAngle > 360.0f) {
+            rotationAngle = 0.0f;
         }
 
-        time += 1.0f;
         velocity.mul(0.95f);
-
     }
 
     public Vector3f getPosition() {
@@ -143,6 +144,7 @@ public class DroppedItem {
         node.put("x", position.x);
         node.put("y", position.y);
         node.put("z", position.z);
+        node.put("rotationAngle", rotationAngle);
         node.put("materialID", material.getId());
 
         return node;
@@ -150,5 +152,13 @@ public class DroppedItem {
 
     public String getUuid() {
         return uuid;
+    }
+
+    public float getRotationAngle() {
+        return rotationAngle;
+    }
+
+    public void setRotationAngle(float rotationAngle) {
+        this.rotationAngle = rotationAngle;
     }
 }

@@ -15,88 +15,38 @@ import static org.lwjgl.opengl.GL33.*;
 
 public class BlockMesh extends Mesh {
 
-    private final BlockVertex[] vertices;
+    private BlockVertex[] vertices;
 
     public BlockMesh(Material material) {
-        this(material.getX(), material.getY());
-    }
-
-    public BlockMesh(int x, int y) {
-        super();
-
-        Vector2f[] texCoords = MeshBuilder.calculateTexCoords(x, y, 16.0f);
-
-        Vector2f texCoordsBottomLeft = texCoords[0];
-        Vector2f texCoordsUpLeft = texCoords[1];
-        Vector2f texCoordsUpRight = texCoords[2];
-        Vector2f texCoordsBottomRight = texCoords[3];
-
-        this.vertices = new BlockVertex[] {
-                // Face avant
-                new BlockVertex(new Vector3f(-0.5f, -0.5f, 0.5f), texCoordsBottomLeft, 0),
-                new BlockVertex(new Vector3f(-0.5f, 0.5f, 0.5f), texCoordsUpLeft, 1),
-                new BlockVertex(new Vector3f(0.5f, 0.5f, 0.5f), texCoordsUpRight, 2),
-                new BlockVertex(new Vector3f(0.5f, -0.5f, 0.5f), texCoordsBottomRight, 3),
-
-                // Face arrière
-                new BlockVertex(new Vector3f(-0.5f, -0.5f, -0.5f), texCoordsBottomLeft, 0),
-                new BlockVertex(new Vector3f(-0.5f, 0.5f, -0.5f), texCoordsUpLeft, 1),
-                new BlockVertex(new Vector3f(0.5f, 0.5f, -0.5f), texCoordsUpRight, 2),
-                new BlockVertex(new Vector3f(0.5f, -0.5f, -0.5f), texCoordsBottomRight, 3),
-
-                // Face gauche
-                new BlockVertex(new Vector3f(-0.5f, -0.5f, -0.5f), texCoordsBottomLeft, 0),
-                new BlockVertex(new Vector3f(-0.5f, 0.5f, -0.5f), texCoordsUpLeft, 1),
-                new BlockVertex(new Vector3f(-0.5f, 0.5f, 0.5f), texCoordsUpRight, 2),
-                new BlockVertex(new Vector3f(-0.5f, -0.5f, 0.5f), texCoordsBottomRight, 3),
-
-                // Face droite
-                new BlockVertex(new Vector3f(0.5f, -0.5f, 0.5f), texCoordsBottomLeft, 0),
-                new BlockVertex(new Vector3f(0.5f, 0.5f, 0.5f), texCoordsUpLeft, 1),
-                new BlockVertex(new Vector3f(0.5f, 0.5f, -0.5f), texCoordsUpRight, 2),
-                new BlockVertex(new Vector3f(0.5f, -0.5f, -0.5f), texCoordsBottomRight, 3),
-
-                // Face supérieure
-                new BlockVertex(new Vector3f(-0.5f, 0.5f, 0.5f), texCoordsBottomLeft, 0),
-                new BlockVertex(new Vector3f(-0.5f, 0.5f, -0.5f), texCoordsUpLeft, 1),
-                new BlockVertex(new Vector3f(0.5f, 0.5f, -0.5f), texCoordsUpRight, 2),
-                new BlockVertex(new Vector3f(0.5f, 0.5f, 0.5f), texCoordsBottomRight, 3),
-
-                // Face inférieure
-                new BlockVertex(new Vector3f(-0.5f, 0.5f, 0.5f), texCoordsBottomLeft, 0),
-                new BlockVertex(new Vector3f(0.5f, 0.5f, -0.5f), texCoordsUpLeft, 1),
-                new BlockVertex(new Vector3f(0.5f, 0.5f, -0.5f), texCoordsUpRight, 2),
-                new BlockVertex(new Vector3f(-0.5f, 0.5f, 0.5f), texCoordsBottomRight, 3)
-        };
-
+        this.vertices = new MeshBuilder().buildBlockMesh(material);
         this.indices = new int[] {
-                // Face avant
-                0, 1, 2,
-                2, 3, 0,
+            // Face avant
+            0, 1, 2,
+            2, 3, 0,
 
-                // Face arrière
-                4, 5, 6,
-                6, 7, 4,
+            // Face arrière
+            4, 5, 6,
+            6, 7, 4,
 
-                // Face gauche
-                8, 9, 10,
-                10, 11, 8,
+            // Face gauche
+            8, 9, 10,
+            10, 11, 8,
 
-                // Face droite
-                12, 13, 14,
-                14, 15, 12,
+            // Face droite
+            12, 13, 14,
+            14, 15, 12,
 
-                // Face supérieure
-                16, 17, 18,
-                18, 19, 16,
+            // Face supérieure
+            16, 17, 18,
+            18, 19, 16,
 
-                // Face inférieure
-                20, 21, 22,
-                22, 23, 20
+            // Face inférieure
+            20, 21, 22,
+            22, 23, 20
         };
+
         this.init();
     }
-
 
     public BlockMesh() {
         super();
@@ -107,68 +57,69 @@ public class BlockMesh extends Mesh {
         Vector2f texCoordsBottomRight = new Vector2f(1.0f, 0.0f);
 
         this.vertices = new BlockVertex[] {
-                // Face avant
-                new BlockVertex(new Vector3f(-0.5f, -0.5f, 0.5f), texCoordsBottomLeft),
-                new BlockVertex(new Vector3f(0.5f, -0.5f, 0.5f), texCoordsUpLeft),
-                new BlockVertex(new Vector3f(0.5f, 0.5f, 0.5f), texCoordsUpRight),
-                new BlockVertex(new Vector3f(-0.5f, 0.5f, 0.5f), texCoordsBottomRight),
+            // Face avant
+            new BlockVertex(new Vector3f(-0.5f, -0.5f, 0.5f), texCoordsBottomLeft),
+            new BlockVertex(new Vector3f(0.5f, -0.5f, 0.5f), texCoordsUpLeft),
+            new BlockVertex(new Vector3f(0.5f, 0.5f, 0.5f), texCoordsUpRight),
+            new BlockVertex(new Vector3f(-0.5f, 0.5f, 0.5f), texCoordsBottomRight),
 
-                // Face arrière
-                new BlockVertex(new Vector3f(-0.5f, -0.5f, -0.5f), texCoordsBottomLeft),
-                new BlockVertex(new Vector3f(0.5f, -0.5f, -0.5f), texCoordsUpLeft),
-                new BlockVertex(new Vector3f(0.5f, 0.5f, -0.5f), texCoordsUpRight),
-                new BlockVertex(new Vector3f(-0.5f, 0.5f, -0.5f), texCoordsBottomRight),
+            // Face arrière
+            new BlockVertex(new Vector3f(-0.5f, -0.5f, -0.5f), texCoordsBottomLeft),
+            new BlockVertex(new Vector3f(0.5f, -0.5f, -0.5f), texCoordsUpLeft),
+            new BlockVertex(new Vector3f(0.5f, 0.5f, -0.5f), texCoordsUpRight),
+            new BlockVertex(new Vector3f(-0.5f, 0.5f, -0.5f), texCoordsBottomRight),
 
-                // Face gauche
-                new BlockVertex(new Vector3f(-0.5f, 0.5f, 0.5f), texCoordsBottomLeft),
-                new BlockVertex(new Vector3f(-0.5f, 0.5f, -0.5f), texCoordsUpLeft),
-                new BlockVertex(new Vector3f(-0.5f, -0.5f, -0.5f), texCoordsUpRight),
-                new BlockVertex(new Vector3f(-0.5f, -0.5f, 0.5f), texCoordsBottomRight),
+            // Face gauche
+            new BlockVertex(new Vector3f(-0.5f, 0.5f, 0.5f), texCoordsBottomLeft),
+            new BlockVertex(new Vector3f(-0.5f, 0.5f, -0.5f), texCoordsUpLeft),
+            new BlockVertex(new Vector3f(-0.5f, -0.5f, -0.5f), texCoordsUpRight),
+            new BlockVertex(new Vector3f(-0.5f, -0.5f, 0.5f), texCoordsBottomRight),
 
-                // Face droite
-                new BlockVertex(new Vector3f(0.5f, 0.5f, 0.5f), texCoordsBottomLeft),
-                new BlockVertex(new Vector3f(0.5f, 0.5f, -0.5f), texCoordsUpLeft),
-                new BlockVertex(new Vector3f(0.5f, -0.5f, -0.5f), texCoordsUpRight),
-                new BlockVertex(new Vector3f(0.5f, -0.5f, 0.5f), texCoordsBottomRight),
+            // Face droite
+            new BlockVertex(new Vector3f(0.5f, 0.5f, 0.5f), texCoordsBottomLeft),
+            new BlockVertex(new Vector3f(0.5f, 0.5f, -0.5f), texCoordsUpLeft),
+            new BlockVertex(new Vector3f(0.5f, -0.5f, -0.5f), texCoordsUpRight),
+            new BlockVertex(new Vector3f(0.5f, -0.5f, 0.5f), texCoordsBottomRight),
 
-                // Face supérieure
-                new BlockVertex(new Vector3f(-0.5f, 0.5f, 0.5f), texCoordsBottomLeft),
-                new BlockVertex(new Vector3f(0.5f, 0.5f, 0.5f), texCoordsUpLeft),
-                new BlockVertex(new Vector3f(0.5f, 0.5f, -0.5f), texCoordsUpRight),
-                new BlockVertex(new Vector3f(-0.5f, 0.5f, -0.5f), texCoordsBottomRight),
+            // Face supérieure
+            new BlockVertex(new Vector3f(-0.5f, 0.5f, 0.5f), texCoordsBottomLeft),
+            new BlockVertex(new Vector3f(0.5f, 0.5f, 0.5f), texCoordsUpLeft),
+            new BlockVertex(new Vector3f(0.5f, 0.5f, -0.5f), texCoordsUpRight),
+            new BlockVertex(new Vector3f(-0.5f, 0.5f, -0.5f), texCoordsBottomRight),
 
-                // Face inférieure
-                new BlockVertex(new Vector3f(-0.5f, -0.5f, 0.5f), texCoordsBottomLeft),
-                new BlockVertex(new Vector3f(0.5f, -0.5f, 0.5f), texCoordsUpLeft),
-                new BlockVertex(new Vector3f(0.5f, -0.5f, -0.5f), texCoordsUpRight),
-                new BlockVertex(new Vector3f(-0.5f, -0.5f, -0.5f), texCoordsBottomRight)
+            // Face inférieure
+            new BlockVertex(new Vector3f(-0.5f, -0.5f, 0.5f), texCoordsBottomLeft),
+            new BlockVertex(new Vector3f(0.5f, -0.5f, 0.5f), texCoordsUpLeft),
+            new BlockVertex(new Vector3f(0.5f, -0.5f, -0.5f), texCoordsUpRight),
+            new BlockVertex(new Vector3f(-0.5f, -0.5f, -0.5f), texCoordsBottomRight)
         };
 
         this.indices = new int[] {
-                // Face avant
-                0, 1, 2,
-                2, 3, 0,
+            // Face avant
+            0, 1, 2,
+            2, 3, 0,
 
-                // Face arrière
-                4, 5, 6,
-                6, 7, 4,
+            // Face arrière
+            4, 5, 6,
+            6, 7, 4,
 
-                // Face gauche
-                8, 9, 10,
-                10, 11, 8,
+            // Face gauche
+            8, 9, 10,
+            10, 11, 8,
 
-                // Face droite
-                12, 13, 14,
-                14, 15, 12,
+            // Face droite
+            12, 13, 14,
+            14, 15, 12,
 
-                // Face supérieure
-                16, 17, 18,
-                18, 19, 16,
+            // Face supérieure
+            16, 17, 18,
+            18, 19, 16,
 
-                // Face inférieure
-                20, 21, 22,
-                22, 23, 20
+            // Face inférieure
+            20, 21, 22,
+            22, 23, 20
         };
+
         this.init();
     }
 
@@ -180,9 +131,10 @@ public class BlockMesh extends Mesh {
         vbo = new VBO(vertices);
         ebo = new EBO(indices);
 
-        vao.linkAttrib(vbo, 0, 3, GL_FLOAT, 6 * Float.BYTES, 0);
-        vao.linkAttrib(vbo, 1, 2, GL_FLOAT, 6 * Float.BYTES, 3 * Float.BYTES);
-        vao.linkAttrib(vbo, 2, 1, GL_FLOAT, 6 * Float.BYTES, 5 * Float.BYTES);
+        vao.linkAttrib(vbo, 0, 3, GL_FLOAT, 7 * Float.BYTES, 0);
+        vao.linkAttrib(vbo, 1, 2, GL_FLOAT, 7 * Float.BYTES, 3 * Float.BYTES);
+        vao.linkAttrib(vbo, 2, 1, GL_FLOAT, 7 * Float.BYTES, 5 * Float.BYTES);
+        vao.linkAttrib(vbo, 3, 1, GL_FLOAT, 7 * Float.BYTES, 6 * Float.BYTES);
 
         vao.unbind();
         vbo.unbind();
@@ -198,19 +150,74 @@ public class BlockMesh extends Mesh {
 
     public void update(Shader shader, Material material) {
 
-        int x = material.getX();
-        int y = material.getY();
+        int pxX;
+        int nxX;
+        int pyX;
+        int nyX;
+        int pzX;
+        int nzX;
 
-        if (material.getPx() != null) {
-            x = material.getPx().x;
-            y = material.getPx().y;
+        int pxY;
+        int nxY;
+        int pyY;
+        int nyY;
+        int pzY;
+        int nzY;
+
+        if (!material.isSymetric()) {
+            pxX = nxX = pyX = nyX = pzX = nzX = material.getX();
+            pxY = nxY = pyY = nyY = pzY = nzY = material.getY();
+        } else {
+            pxX = material.getPx().x;
+            nxX = material.getNx().x;
+            pyX = material.getPy().x;
+            nyX = material.getNy().x;
+            pzX = material.getPz().x;
+            nzX = material.getNz().x;
+
+            pxY = material.getPx().y;
+            nxY = material.getNx().y;
+            pyY = material.getPy().y;
+            nyY = material.getNy().y;
+            pzY = material.getPz().y;
+            nzY = material.getNz().y;
         }
 
-        Vector2f[] textureCoords = MeshBuilder.calculateTexCoords(x, y, 16.0f);
+        Vector2f[] texCoordsPx = MeshBuilder.calculateTexCoords(pxX, pxY, 16.0f);
+        Vector2f[] texCoordsNx = MeshBuilder.calculateTexCoords(nxX, nxY, 16.0f);
+        Vector2f[] texCoordsPy = MeshBuilder.calculateTexCoords(pyX, pyY, 16.0f);
+        Vector2f[] texCoordsNy = MeshBuilder.calculateTexCoords(nyX, nyY, 16.0f);
+        Vector2f[] texCoordsPz = MeshBuilder.calculateTexCoords(pzX, pzY, 16.0f);
+        Vector2f[] texCoordsNz = MeshBuilder.calculateTexCoords(nzX, nzY, 16.0f);
 
-        shader.sendVector2f("tex0", textureCoords[0]);
-        shader.sendVector2f("tex1", textureCoords[1]);
-        shader.sendVector2f("tex2", textureCoords[2]);
-        shader.sendVector2f("tex3", textureCoords[3]);
+        shader.sendVector2f("texPx0", texCoordsPx[0]);
+        shader.sendVector2f("texPx1", texCoordsPx[1]);
+        shader.sendVector2f("texPx2", texCoordsPx[2]);
+        shader.sendVector2f("texPx3", texCoordsPx[3]);
+
+        shader.sendVector2f("texNx0", texCoordsNx[0]);
+        shader.sendVector2f("texNx1", texCoordsNx[1]);
+        shader.sendVector2f("texNx2", texCoordsNx[2]);
+        shader.sendVector2f("texNx3", texCoordsNx[3]);
+
+        shader.sendVector2f("texPy0", texCoordsPy[0]);
+        shader.sendVector2f("texPy1", texCoordsPy[1]);
+        shader.sendVector2f("texPy2", texCoordsPy[2]);
+        shader.sendVector2f("texPy3", texCoordsPy[3]);
+
+        shader.sendVector2f("texNy0", texCoordsNy[0]);
+        shader.sendVector2f("texNy1", texCoordsNy[1]);
+        shader.sendVector2f("texNy2", texCoordsNy[2]);
+        shader.sendVector2f("texNy3", texCoordsNy[3]);
+
+        shader.sendVector2f("texPz0", texCoordsPz[0]);
+        shader.sendVector2f("texPz1", texCoordsPz[1]);
+        shader.sendVector2f("texPz2", texCoordsPz[2]);
+        shader.sendVector2f("texPz3", texCoordsPz[3]);
+
+        shader.sendVector2f("texNz0", texCoordsNz[0]);
+        shader.sendVector2f("texNz1", texCoordsNz[1]);
+        shader.sendVector2f("texNz2", texCoordsNz[2]);
+        shader.sendVector2f("texNz3", texCoordsNz[3]);
     }
 }

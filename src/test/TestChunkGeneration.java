@@ -30,7 +30,6 @@ public class TestChunkGeneration {
         }
 
         Assert.assertEquals(Chunk.VOLUME, i);
-
     }
 
     @Test

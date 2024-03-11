@@ -196,23 +196,37 @@ public class PacketListener implements PacketEventListener {
     @Override
     public void onDroppedItemState(DroppedItemEvent event) {
 
-        String itemUuid = event.getItemUuid();
         World world = event.getWorld();
-        Material material = event.getMaterial();
-        Vector3f position = event.getPosition();
-
+        ArrayNode itemsData = event.getItemsData();
         synchronized (world.getDroppedItems()) {
-            DroppedItem droppedItem = world.getDroppedItems().get(itemUuid);
+            for (int i = 0; i < itemsData.size(); i++) {
 
-            if (droppedItem == null) {
-                droppedItem = new DroppedItem(itemUuid, position, material);
-                world.getDroppedItems().put(itemUuid, droppedItem);
-            } else {
-                droppedItem.getLastPosition().x = position.x;
-                droppedItem.getLastPosition().y = position.y;
-                droppedItem.getLastPosition().z = position.z;
+                JsonNode itemNode = itemsData.get(i);
+
+                String uuid = itemNode.get("uuid").asText();
+                float itemX = itemNode.get("x").floatValue();
+                float itemY = itemNode.get("y").floatValue();
+                float itemZ = itemNode.get("z").floatValue();
+                byte materialID = (byte) itemNode.get("materialID").asInt();
+                Material material = Material.getMaterialById(materialID);
+                float rotationAngle = itemNode.get("rotationAngle").floatValue();
+
+                DroppedItem droppedItem = world.getDroppedItems().get(uuid);
+                Vector3f position = new Vector3f(itemX, itemY, itemZ);
+
+                if (droppedItem == null) {
+                    droppedItem = new DroppedItem(uuid, position, material);
+                    System.out.println("Ajout " + uuid);
+
+                    world.getDroppedItems().put(uuid, droppedItem);
+                } else {
+                    droppedItem.setRotationAngle(rotationAngle);
+                    droppedItem.getLastPosition().x = position.x;
+                    droppedItem.getLastPosition().y = position.y;
+                    droppedItem.getLastPosition().z = position.z;
+                }
+
             }
         }
-
     }
 }

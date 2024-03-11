@@ -380,9 +380,9 @@ public class Game {
         synchronized (world.getDroppedItems()) {
             for (DroppedItem droppedItem : world.getDroppedItems().values()) {
                 if (gameConfiguration.isEntityInterpolationEnabled()) {
-                    droppedItem.getPosition().x = Math.lerp(droppedItem.getPosition().x, droppedItem.getLastPosition().x, 0.1f);
-                    droppedItem.getPosition().y = Math.lerp(droppedItem.getPosition().y, droppedItem.getLastPosition().y, 0.1f);
-                    droppedItem.getPosition().z = Math.lerp(droppedItem.getPosition().z, droppedItem.getLastPosition().z, 0.1f);
+                    droppedItem.getPosition().x = Math.lerp(droppedItem.getPosition().x, droppedItem.getLastPosition().x, 0.01f);
+                    droppedItem.getPosition().y = Math.lerp(droppedItem.getPosition().y, droppedItem.getLastPosition().y, 0.01f);
+                    droppedItem.getPosition().z = Math.lerp(droppedItem.getPosition().z, droppedItem.getLastPosition().z, 0.01f);
                 }
                 renderer.renderDroppedItem(camera, droppedItem);
             }

@@ -135,10 +135,21 @@ public class TickHandler extends Thread {
         MinecraftServer server = MinecraftServer.getInstance();
         World world = server.getWorld();
         ObjectMapper mapper = new ObjectMapper();
-        for (DroppedItem droppedItem : world.getDroppedItems().values()) {
+        synchronized (world.getDroppedItems()) {
+            ObjectNode node = mapper.createObjectNode();
+            ArrayNode droppedItemArray = mapper.createArrayNode();
 
-            droppedItem.update();
-            JsonNode node = droppedItem.toJSON();
+            for (DroppedItem droppedItem : world.getDroppedItems().values()) {
+
+                droppedItem.update();
+                JsonNode droppedItemNode = droppedItem.toJSON();
+
+                droppedItemArray.add(droppedItemNode);
+            }
+
+            node.put("type", "DROPPED_ITEM_LIST");
+            node.set("droppedItems", droppedItemArray);
+
             try {
                 byte[] buffer = mapper.writeValueAsBytes(node);
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);

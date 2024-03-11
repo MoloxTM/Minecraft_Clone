@@ -8,6 +8,7 @@ import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.shared.Sprite;
 import fr.math.minecraft.shared.inventory.DroppedItem;
+import fr.math.minecraft.shared.inventory.PlayerInventory;
 import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.server.payload.StatePayload;
@@ -62,6 +63,7 @@ public class Client {
     private Sprite sprite;
     private PlayerAction action;
     private final static Logger logger = LoggerUtility.getServerLogger(Client.class, LogType.TXT);
+    private final PlayerInventory inventory;
 
     public Client(String uuid, String name, InetAddress address, int port) {
         this.address = address;
@@ -100,6 +102,7 @@ public class Client {
         this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
         this.aimedBlocks = new ArrayList<>();
         this.aimedBlocksIDs = new ArrayList<>();
+        this.inventory = new PlayerInventory();
     }
 
     public String getName() {
@@ -268,8 +271,11 @@ public class Client {
                     buildRay.reset();
                     sprite.reset();
 
+                    Random random = new Random();
                     DroppedItem droppedItem = new DroppedItem(new Vector3f(rayPosition), material);
-                    droppedItem.getVelocity().y = .8f;
+                    droppedItem.getVelocity().y = 0.8f;
+                    droppedItem.getVelocity().x = random.nextFloat(0.35f, 0.75f);
+                    droppedItem.getVelocity().z = random.nextFloat(0.3f, 0.85f);
 
                     world.getDroppedItems().put(droppedItem.getUuid(), droppedItem);
                 }
@@ -434,4 +440,7 @@ public class Client {
         return buildRay;
     }
 
+    public PlayerInventory getInventory() {
+        return inventory;
+    }
 }

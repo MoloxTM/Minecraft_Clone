@@ -14,6 +14,8 @@ import fr.math.minecraft.client.events.listeners.PlayerListener;
 import fr.math.minecraft.client.network.payload.StatePayload;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
+import fr.math.minecraft.shared.inventory.DroppedItem;
+import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.world.Material;
 import org.apache.log4j.Logger;
 import org.joml.Vector3f;
@@ -73,7 +75,6 @@ public class PacketReceiver extends Thread {
     private void handlePacket() {
         MinecraftClient client = Game.getInstance().getClient();
         ObjectMapper mapper = new ObjectMapper();
-
         try {
             String response = client.receive();
 
@@ -133,21 +134,42 @@ public class PacketReceiver extends Thread {
                         this.notifyEvent(new BlockBreakEvent(player, blockPosition));
                     }
                     break;
-                case "DROPPED_ITEM_STATE":
-                    String uuid = responseData.get("uuid").asText();
-                    float itemX = responseData.get("x").floatValue();
-                    float itemY = responseData.get("y").floatValue();
-                    float itemZ = responseData.get("z").floatValue();
-                    byte materialID = (byte) responseData.get("materialID").asInt();
-                    Material material = Material.getMaterialById(materialID);
+                case "DROPPED_ITEM_LIST":
+                    this.notifyEvent(new DroppedItemEvent(game.getWorld(), (ArrayNode) responseData.get("droppedItems")));
+                    break;
+                case "DROPPED_ITEM_REMOVED":
+                    String uuid = responseData.get("droppedItemId").asText();
+                    System.out.println(responseData);
 
-                    this.notifyEvent(new DroppedItemEvent(game.getWorld(), uuid, material, new Vector3f(itemX, itemY, itemZ)));
+                    synchronized (game.getWorld().getDroppedItems()) {
+                        System.out.println("Suppression " + uuid + " " + game.getWorld().getDroppedItems().containsKey(uuid));
+                        game.getWorld().getDroppedItems().remove(uuid);
+                    }
+                    break;
+                case "NEW_ITEM":
+                    byte materialId = (byte) responseData.get("materialId").intValue();
+                    String droppedItemId = responseData.get("droppedItemId").asText();
+                    DroppedItem droppedItem = game.getWorld().getDroppedItems().get(droppedItemId);
+                    Material material = Material.getMaterialById(materialId);
+
+                    if (material == null || material.getId() < 0 || droppedItem == null) {
+                        return;
+                    }
+
+                    ItemStack item = new ItemStack(material, 1);
+                    this.notifyEvent(new ItemGiveEvent(droppedItemId, item));
                     break;
                 default:
                     logger.warn("Le packet " + packetType + " est inconnu et a été ignoré.");
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void notifyEvent(ItemGiveEvent event) {
+        for (EventListener listener : eventListeners) {
+            listener.onItemGive(event);
         }
     }
 
