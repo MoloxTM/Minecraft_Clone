@@ -1,12 +1,12 @@
-package fr.math.minecraft.inventory;
+package fr.math.minecraft.shared.inventory;
 
 import fr.math.minecraft.shared.GameConfiguration;
 
-public class PlayerInventory extends Inventory {
+public class PlayerCraftInventory extends Inventory {
 
-    public PlayerInventory() {
+    public PlayerCraftInventory() {
         super();
-        this.items = new ItemStack[GameConfiguration.PLAYER_INVENTORY_SIZE];
+        this.items = new ItemStack[4];
     }
 
     @Override
@@ -16,7 +16,7 @@ public class PlayerInventory extends Inventory {
         float slotScaleX = inventoryWidth / 177.0f;
         float slotWidth = 18.0f * slotScaleX;
         float inventoryX = (GameConfiguration.WINDOW_WIDTH - inventoryWidth) / 2;
-        return 8.0f * slotScaleX + inventoryX + (slot % 9) * slotWidth;
+        return 87.0f * slotScaleX + inventoryX + (slot % 2) * slotWidth;
     }
 
     @Override
@@ -26,7 +26,7 @@ public class PlayerInventory extends Inventory {
         float slotScaleY = inventoryHeight / 166.0f;
         float slotHeight = 18.0f * slotScaleY;
         float inventoryY = (GameConfiguration.WINDOW_HEIGHT - inventoryHeight) / 2;
-        return inventoryY + 12.0f * slotScaleY + (3 - (int) (slot / 9.0f)) * slotHeight;
+        return inventoryY + 12.0f * slotScaleY + 3 * slotHeight + 22.0f * slotScaleY + (2 - (int) (slot / 2.0f)) * slotHeight;
     }
 
 }

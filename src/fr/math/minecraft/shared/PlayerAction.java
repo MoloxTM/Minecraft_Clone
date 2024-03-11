@@ -1,4 +1,4 @@
-package fr.math.minecraft.client.entity.player;
+package fr.math.minecraft.shared;
 
 public enum PlayerAction {
     MINING(0, 0, 10);

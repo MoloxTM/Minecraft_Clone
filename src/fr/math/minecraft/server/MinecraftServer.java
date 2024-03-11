@@ -70,7 +70,6 @@ public class MinecraftServer {
                 continue;
 
             String packetType = packetData.get("type").asText();
-            //logger.info("Un client a envoyé " + packetType);
             byte[] buffer;
             switch (packetType) {
                 case "CONNECTION_INIT_ACK":

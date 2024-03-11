@@ -1,10 +1,8 @@
 package fr.math.minecraft.client;
 
-import fr.math.minecraft.client.animations.HotbarAnimation;
 import fr.math.minecraft.client.builder.TextureBuilder;
 import fr.math.minecraft.client.entity.Ray;
 import fr.math.minecraft.client.entity.player.Player;
-import fr.math.minecraft.client.entity.player.PlayerAction;
 import fr.math.minecraft.client.entity.player.PlayerHand;
 import fr.math.minecraft.client.fonts.CFont;
 import fr.math.minecraft.client.gui.buttons.BlockButton;
@@ -16,9 +14,12 @@ import fr.math.minecraft.client.manager.FontManager;
 import fr.math.minecraft.client.meshs.*;
 import fr.math.minecraft.client.meshs.model.ItemModelData;
 import fr.math.minecraft.client.texture.CubemapTexture;
-import fr.math.minecraft.client.texture.Sprite;
+import fr.math.minecraft.shared.Sprite;
 import fr.math.minecraft.client.texture.Texture;
-import fr.math.minecraft.inventory.*;
+import fr.math.minecraft.shared.inventory.Hotbar;
+import fr.math.minecraft.shared.inventory.Inventory;
+import fr.math.minecraft.shared.inventory.ItemStack;
+import fr.math.minecraft.shared.inventory.PlayerInventory;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.server.manager.BiomeManager;
 import fr.math.minecraft.shared.GameConfiguration;

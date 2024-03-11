@@ -1,4 +1,4 @@
-package fr.math.minecraft.inventory;
+package fr.math.minecraft.shared.inventory;
 
 import fr.math.minecraft.shared.world.Material;
 import org.joml.Math;

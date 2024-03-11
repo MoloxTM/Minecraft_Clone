@@ -4,6 +4,7 @@ import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.meshs.WaterMesh;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
+import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.world.generator.OverworldGenerator;
 import fr.math.minecraft.shared.world.generator.TerrainGenerator;
 import org.apache.log4j.Logger;
@@ -24,6 +25,7 @@ public class World {
     private final Map<Vector3i, Chunk> cachedChunks;
     private final Map<Coordinates, Region> regions;
     private final Vector3f spawnPosition;
+    private final List<ItemStack> droppedItems;
     private final static Logger logger = LoggerUtility.getServerLogger(World.class, LogType.TXT);
 
     private TerrainGenerator terrainGenerator;
@@ -39,6 +41,7 @@ public class World {
         this.transparents = initTransparents();
         this.terrainGenerator = new OverworldGenerator();
         this.cachedChunks = new HashMap<>();
+        this.droppedItems = new ArrayList<>();
         Region region = new Region(0, 0, 0);
         region.generateStructure(this);
         this.addRegion(region);
@@ -61,7 +64,7 @@ public class World {
                 int worldY = chunkY * Chunk.SIZE + y;
                 byte block = this.getBlockAt(spawnX, worldY, spawnZ);
                 if (block == Material.AIR.getId()) {
-                    return new Vector3f(spawnX, worldY + 5, spawnZ);
+                    return new Vector3f(spawnX, worldY + 20, spawnZ);
                 }
             }
         }
@@ -260,5 +263,9 @@ public class World {
 
     public Map<Vector3i, Byte> getCavesBlocks() {
         return cavesBlocks;
+    }
+
+    public List<ItemStack> getDroppedItems() {
+        return droppedItems;
     }
 }

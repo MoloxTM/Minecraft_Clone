@@ -1,7 +1,6 @@
-package fr.math.minecraft.client.texture;
+package fr.math.minecraft.shared;
 
 import fr.math.minecraft.client.entity.player.Player;
-import fr.math.minecraft.client.entity.player.PlayerAction;
 
 public class Sprite {
 
@@ -14,14 +13,12 @@ public class Sprite {
         this.tick = 0;
     }
 
-    public void update(Player player) {
+    public void update(PlayerAction action) {
         tick++;
-        PlayerAction action = player.getAction();
         if (tick >= ANIMATION_SPEED) {
             if (action != null && index < action.getLength()) {
                 index++;
                 if (index == action.getLength()) {
-                    System.out.println("?");
                     index = 0;
                 }
             }

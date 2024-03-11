@@ -2,7 +2,7 @@ package fr.math.minecraft.client.animations;
 
 import fr.math.minecraft.client.Shader;
 import fr.math.minecraft.client.entity.player.Player;
-import fr.math.minecraft.client.entity.player.PlayerAction;
+import fr.math.minecraft.shared.PlayerAction;
 
 public class MiningAnimation extends Animation {
 

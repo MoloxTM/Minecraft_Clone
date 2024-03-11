@@ -1,10 +1,9 @@
 package fr.math.minecraft.client;
 
-import fr.math.minecraft.client.animations.HotbarAnimation;
 import fr.math.minecraft.client.audio.Sound;
 import fr.math.minecraft.client.audio.Sounds;
 import fr.math.minecraft.client.entity.Ray;
-import fr.math.minecraft.client.entity.player.PlayerAction;
+import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.client.events.listeners.PlayerListener;
 import fr.math.minecraft.client.gui.buttons.BlockButton;
 import fr.math.minecraft.client.gui.menus.ConnectionMenu;
@@ -13,7 +12,7 @@ import fr.math.minecraft.client.gui.menus.Menu;
 import fr.math.minecraft.client.handler.PlayerMovementHandler;
 import fr.math.minecraft.client.manager.*;
 import fr.math.minecraft.client.entity.player.Player;
-import fr.math.minecraft.inventory.ItemStack;
+import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.world.Coordinates;
 import fr.math.minecraft.shared.world.Material;
@@ -217,25 +216,6 @@ public class Game {
 
         menuManager.open(MainMenu.class);
 
-        ItemStack sword = new ItemStack(Material.DIAMOND_SWORD, 1);
-        sword.getLore().add("S'il te plait Amelia");
-        sword.getLore().add("Laisse moi l'opportunité");
-        sword.getLore().add("de te DM pitié. Avant");
-        sword.getLore().add("que tu me recales parce que");
-        sword.getLore().add("j'ai été trop audacieux");
-
-        player.getHotbar().addItem(new ItemStack(Material.STONE, 1));
-        player.getHotbar().addItem(new ItemStack(Material.DIRT, 1));
-        player.getHotbar().addItem(new ItemStack(Material.SAND, 1));
-        player.getHotbar().addItem(new ItemStack(Material.GRASS, 1));
-        player.getHotbar().addItem(new ItemStack(Material.DIAMOND_SWORD, 1));
-        player.getHotbar().addItem(new ItemStack(Material.APPLE, 1));
-        player.getHotbar().addItem(sword);
-
-        player.getInventory().addItem(sword);
-        player.getInventory().addItem(new ItemStack(Material.APPLE, 1));
-        player.getInventory().addItem(new ItemStack(Material.DIAMOND_AXE, 1));
-
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.58f, 0.83f, 0.99f, 1);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -335,10 +315,6 @@ public class Game {
         player.getAttackRay().update(camera.getPosition(), camera.getFront(), world, false);
         player.getBuildRay().update(camera.getPosition(), camera.getFront(), world, false);
         player.getMiningAnimation().update(player);
-
-        if (player.getSprite() != null) {
-            player.getSprite().update(player);
-        }
 
         if (player.getBuildRay().getAimedChunk() != null && (player.getBuildRay().getAimedBlock() != Material.AIR.getId() || player.getBuildRay().getAimedBlock() != Material.WATER.getId())){
             player.getAimedBlocks().add(player.getBuildRay().getBlockWorldPosition());

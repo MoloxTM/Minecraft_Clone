@@ -9,12 +9,14 @@ import fr.math.minecraft.client.events.PlayerMoveEvent;
 import fr.math.minecraft.client.handler.InventoryInputsHandler;
 import fr.math.minecraft.client.manager.ChunkManager;
 import fr.math.minecraft.client.meshs.NametagMesh;
-import fr.math.minecraft.client.texture.Sprite;
-import fr.math.minecraft.inventory.Hotbar;
-import fr.math.minecraft.inventory.Inventory;
-import fr.math.minecraft.inventory.PlayerCraftInventory;
-import fr.math.minecraft.inventory.PlayerInventory;
+import fr.math.minecraft.shared.Sprite;
+import fr.math.minecraft.shared.PlayerAction;
+import fr.math.minecraft.shared.inventory.Hotbar;
+import fr.math.minecraft.shared.inventory.Inventory;
+import fr.math.minecraft.shared.inventory.PlayerCraftInventory;
+import fr.math.minecraft.shared.inventory.PlayerInventory;
 import fr.math.minecraft.shared.GameConfiguration;
+import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.world.Coordinates;
 import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.shared.world.World;
@@ -51,6 +53,7 @@ public class Player {
     private boolean movingLeft, movingRight, movingForward, movingBackward;
     private boolean flying, sneaking, canJump, canBreakBlock, jumping, sprinting;
     private boolean movingMouse;
+    private boolean droppingItem;
     private boolean placingBlock, breakingBlock;
     private boolean canHoldItem, canPlaceHoldedItem;
     private boolean debugKeyPressed, occlusionKeyPressed, interpolationKeyPressed, inventoryKeyPressed;
@@ -128,6 +131,7 @@ public class Player {
         this.movingRight = false;
         this.movingForward = false;
         this.movingBackward = false;
+        this.droppingItem = false;
         this.debugKeyPressed = false;
         this.occlusionKeyPressed = false;
         this.interpolationKeyPressed = false;
@@ -226,6 +230,10 @@ public class Player {
 
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
             movingRight = true;
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+            droppingItem = true;
         }
 
         if(glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
@@ -349,6 +357,7 @@ public class Player {
         sneaking = false;
         jumping = false;
         movingMouse = false;
+        droppingItem = false;
         //breakingBlock = false;
         //placingBlock = false;
     }
@@ -481,6 +490,7 @@ public class Player {
         }
 
         if (breakingBlock) {
+            sprite.update(PlayerAction.MINING);
 
             if (action == PlayerAction.MINING && sprite.getIndex() == action.getLength() - 1) {
                 ChunkManager chunkManager = new ChunkManager();
@@ -491,7 +501,6 @@ public class Player {
             if (canBreakBlock) {
                 if (buildRay.getAimedChunk() != null && (buildRay.getAimedBlock() != Material.AIR.getId() || buildRay.getAimedBlock() != Material.WATER.getId())) {
                     action = PlayerAction.MINING;
-                    sprite.reset();
                 }
                 canBreakBlock = false;
                 breakBlockCooldown = (int) GameConfiguration.UPS / 3;
@@ -509,6 +518,19 @@ public class Player {
             hand.setAnimation(PlayerHandAnimation.MOVING);
         } else {
             hand.setAnimation(PlayerHandAnimation.IDLE);
+        }
+
+        if (droppingItem) {
+            ItemStack item = hotbar.getItems()[hotbar.getSelectedSlot()];
+            if (item != null) {
+                /*
+                item.setAmount(item.getAmount() - 1);
+                if (item.getAmount() == 0) {
+                    hotbar.setItem(null, hotbar.getSelectedSlot());
+                }
+                world.getDroppedItems().add(new ItemStack(item.getMaterial(), 1));
+                 */
+            }
         }
 
         velocity.add(acceleration.mul(speed));
@@ -537,7 +559,7 @@ public class Player {
 
         velocity.mul(0.95f);
 
-        PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, jumping, yaw, pitch, sprinting, placingBlock, breakingBlock);
+        PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, jumping, yaw, pitch, sprinting, placingBlock, breakingBlock, droppingItem);
         inputs.add(inputData);
     }
 

@@ -1,10 +1,8 @@
 package fr.math.minecraft.client.handler;
 
 import fr.math.minecraft.client.entity.player.Player;
-import fr.math.minecraft.inventory.Hotbar;
-import fr.math.minecraft.inventory.Inventory;
-import fr.math.minecraft.inventory.ItemStack;
-import fr.math.minecraft.inventory.PlayerCraftInventory;
+import fr.math.minecraft.shared.inventory.Inventory;
+import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.GameConfiguration;
 
 import static org.lwjgl.glfw.GLFW.*;

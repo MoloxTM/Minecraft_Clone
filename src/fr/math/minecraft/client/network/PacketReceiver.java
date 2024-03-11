@@ -80,6 +80,8 @@ public class PacketReceiver extends Thread {
             JsonNode responseData = mapper.readTree(response);
             String packetType = responseData.get("type").asText();
 
+            System.out.println(packetType);
+
             switch (packetType) {
                 case "PLAYER_JOIN":
                     // System.out.println(packetType);

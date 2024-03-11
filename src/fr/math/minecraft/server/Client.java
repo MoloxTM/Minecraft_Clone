@@ -1,11 +1,12 @@
 package fr.math.minecraft.server;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.entity.Ray;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
+import fr.math.minecraft.shared.PlayerAction;
+import fr.math.minecraft.shared.Sprite;
 import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.server.payload.StatePayload;
@@ -57,6 +58,8 @@ public class Client {
     private List<Vector3i> aimedBlocks;
     private List<Byte> aimedBlocksIDs;
     private int breakBlockCooldown;
+    private Sprite sprite;
+    private PlayerAction action;
     private final static Logger logger = LoggerUtility.getServerLogger(Client.class, LogType.TXT);
 
     public Client(String uuid, String name, InetAddress address, int port) {
@@ -90,6 +93,8 @@ public class Client {
         this.canJump = true;
         this.canBreakBlock = true;
         this.active = false;
+        this.sprite = new Sprite();
+        this.action = PlayerAction.MINING;
         this.buildRay = new Ray(GameConfiguration.BUILDING_REACH);
         this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
         this.aimedBlocks = new ArrayList<>();
@@ -98,39 +103,6 @@ public class Client {
 
     public String getName() {
         return name;
-    }
-
-    public void handleInputs(JsonNode packetData) {
-        boolean movingLeft = packetData.get("left").asBoolean();
-        boolean movingRight = packetData.get("right").asBoolean();
-        boolean movingForward = packetData.get("forward").asBoolean();
-        boolean movingBackward = packetData.get("backward").asBoolean();
-        boolean flying = packetData.get("flying").asBoolean();
-        boolean sneaking = packetData.get("sneaking").asBoolean();
-
-        float yaw = packetData.get("yaw").floatValue();
-        float bodyYaw = packetData.get("bodyYaw").floatValue();
-        float pitch = packetData.get("pitch").floatValue();
-
-        int inputX = packetData.get("inputX").intValue();
-        int inputY = packetData.get("inputY").intValue();
-        int inputZ = packetData.get("inputZ").intValue();
-
-        this.yaw = yaw;
-        this.bodyYaw = bodyYaw;
-        this.pitch = pitch;
-
-        this.movingLeft = movingLeft;
-        this.movingRight = movingRight;
-        this.movingForward = movingForward;
-        this.movingBackward = movingBackward;
-
-        this.inputVector.x = inputX;
-        this.inputVector.y = inputY;
-        this.inputVector.z = inputZ;
-
-        this.flying = flying;
-        this.sneaking = sneaking;
     }
 
     public void handleCollisions(Vector3f velocity) {
@@ -279,22 +251,27 @@ public class Client {
             if (inputData.isBreakingBlock()) {
 
                 byte block = buildRay.getAimedBlock();
+                sprite.update(PlayerAction.MINING);
+
+                if (action == PlayerAction.MINING && sprite.getIndex() == action.getLength() - 1) {
+                    Vector3i rayPosition = buildRay.getBlockWorldPosition();
+                    Vector3i blockPositionLocal = Utils.worldToLocal(rayPosition);
+
+                    blocksPosition.add(rayPosition);
+                    blocksIDs.add(block);
+
+                    logger.info(name + " (" + uuid + ") a cassé un block de " + Material.getMaterialById(block) + " en " + buildRay.getBlockWorldPosition());
+
+                    buildRay.getAimedChunk().setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, Material.AIR.getId());
+                    buildRay.reset();
+                    sprite.reset();
+                }
 
                 if (this.canBreakBlock) {
                     if (buildRay.getAimedChunk() != null && block != Material.AIR.getId() && block != Material.WATER.getId()) {
-
-                        Vector3i rayPosition = buildRay.getBlockWorldPosition();
-                        Vector3i blockPositionLocal = Utils.worldToLocal(rayPosition);
-
-                        blocksPosition.add(rayPosition);
-                        blocksIDs.add(block);
-
-                        logger.info(name + " (" + uuid + ") a cassé un block de " + Material.getMaterialById(block) + " en " + buildRay.getBlockWorldPosition());
-
-                        buildRay.getAimedChunk().setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, Material.AIR.getId());
-                        buildRay.reset();
-                        this.canBreakBlock = false;
+                        action = PlayerAction.MINING;
                     }
+                    this.canBreakBlock = false;
                 }
             }
 
