@@ -1,54 +1,46 @@
-package fr.math.minecraft.client.entity.player;
+package fr.math.minecraft.client.entity.mob;
 
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.animations.*;
 import fr.math.minecraft.client.entity.Ray;
+import fr.math.minecraft.client.entity.player.PlayerHand;
+import fr.math.minecraft.client.events.PlayerMoveEvent;
 import fr.math.minecraft.client.events.listeners.EntityUpdate;
 import fr.math.minecraft.client.events.listeners.EventListener;
-import fr.math.minecraft.client.events.PlayerMoveEvent;
-import fr.math.minecraft.client.handler.InventoryInputsHandler;
 import fr.math.minecraft.client.manager.ChunkManager;
 import fr.math.minecraft.client.meshs.NametagMesh;
+import fr.math.minecraft.logger.LogType;
+import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.server.Utils;
 import fr.math.minecraft.shared.GameConfiguration;
-import fr.math.minecraft.shared.world.*;
-import fr.math.minecraft.shared.Sprite;
 import fr.math.minecraft.shared.PlayerAction;
-import fr.math.minecraft.shared.inventory.Hotbar;
-import fr.math.minecraft.shared.inventory.Inventory;
-import fr.math.minecraft.shared.inventory.PlayerCraftInventory;
-import fr.math.minecraft.shared.inventory.PlayerInventory;
-import fr.math.minecraft.shared.inventory.ItemStack;
+import fr.math.minecraft.shared.Sprite;
+import fr.math.minecraft.shared.inventory.*;
 import fr.math.minecraft.shared.network.GameMode;
 import fr.math.minecraft.shared.network.Hitbox;
 import fr.math.minecraft.shared.network.PlayerInputData;
-import fr.math.minecraft.logger.LogType;
-import fr.math.minecraft.logger.LoggerUtility;
+import fr.math.minecraft.shared.world.*;
 import org.apache.log4j.Logger;
 import org.joml.Math;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
-import org.lwjgl.BufferUtils;
 
 import java.awt.image.BufferedImage;
-import java.nio.DoubleBuffer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import static org.lwjgl.glfw.GLFW.*;
-
-public class Player {
-
+public class Zombie {
     public final static float WIDTH = .75f;
     public final static float HEIGHT = 1.75f;
     public final static float DEPTH = WIDTH;
     private Vector3f position;
-    private final Hotbar hotbar;
     private float yaw;
     private float lastYaw;
     private float bodyYaw;
     private float pitch;
     private float speed;
-    private boolean firstMouse;
     private boolean movingLeft, movingRight, movingForward, movingBackward;
     private boolean flying, sneaking, canJump, canBreakBlock, canPlaceBlock, jumping, sprinting;
     private boolean movingMouse;
@@ -61,27 +53,21 @@ public class Player {
     private String uuid;
     private final ArrayList<Animation> animations;
     private final MiningAnimation miningAnimation;
-    private NametagMesh nametagMesh;
     private BufferedImage skin;
-    private float sensitivity;
-    private final static Logger logger = LoggerUtility.getClientLogger(Player.class, LogType.TXT);
+    private final static Logger logger = LoggerUtility.getClientLogger(Zombie.class, LogType.TXT);
     private final List<EventListener> eventListeners;
     private final Vector3f velocity;
     private final Vector3f gravity;
     private float maxSpeed, maxFall;
-    private int ping;
     private final List<PlayerInputData> inputs;
-    private final Set<Coordinates> receivedChunks;
     private final Hitbox hitbox;
-    private GameMode gameMode;
     private Vector3f lastPosition;
     private String skinPath;
-    private final PlayerHand hand;
     private EntityUpdate lastUpdate;
     private int breakBlockCooldown, placeBlockCooldown;
     private Ray attackRay, buildRay, breakRay;
     private ArrayList<Vector3i> aimedPlacedBlocks;
-    private ArrayList<BreakedBlock> breakedBlocks;
+    private ArrayList<Vector3i> aimedBreakedBlocks;
     private ArrayList<Vector3i> aimedBlocks;
     private final PlayerInventory inventory;
     private Inventory lastInventory;
@@ -89,21 +75,16 @@ public class Player {
     private final float maxHealth;
     private PlayerAction action;
     private Sprite sprite;
-    private final PlayerCraftInventory craftInventory;
 
-    public Player(String name) {
+    public Zombie(String name) {
         this.position = new Vector3f(0.0f, 100.0f, 0.0f);
         this.lastPosition = new Vector3f(0, 0, 0);
         this.gravity = new Vector3f(0, -0.0025f, 0);
         this.velocity = new Vector3f();
-        this.receivedChunks = new HashSet<>();
         this.inputs = new ArrayList<>();
-        this.hand = new PlayerHand();
         this.inventory = new PlayerInventory();
         this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 1.0f, 0.25f));
         this.animations = new ArrayList<>();
-        this.nametagMesh = new NametagMesh(name);
-        this.hotbar = new Hotbar();
         this.lastUpdate = new EntityUpdate(new Vector3f(position), yaw, pitch, bodyYaw);
         this.aimedBlocks = new ArrayList<>();
         this.eventListeners = new ArrayList<>();
@@ -114,7 +95,6 @@ public class Player {
         this.lastYaw = 0.0f;
         this.bodyYaw = 0.0f;
         this.pitch = 0.0f;
-        this.firstMouse = true;
         this.lastMouseX = 0.0f;
         this.lastMouseY = 0.0f;
         this.speed = GameConfiguration.DEFAULT_SPEED;
@@ -122,8 +102,6 @@ public class Player {
         this.maxFall = 0.03f;
         this.health = 20.0f;
         this.maxHealth = 20.0f;
-        this.ping = 0;
-        this.sensitivity = 0.1f;
         this.name = name;
         this.uuid = null;
         this.movingLeft = false;
@@ -148,208 +126,17 @@ public class Player {
         this.placingBlock = false;
         this.breakingBlock = false;
         this.skin = null;
-        this.skinPath = "res/textures/skin.png";
-        this.gameMode = GameMode.SURVIVAL;
+        this.skinPath = "res/textures/zombie.png";
         this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
         this.buildRay = new Ray(GameConfiguration.BUILDING_REACH * 3);
         this.breakRay = new Ray(GameConfiguration.BUILDING_REACH * 3);
         this.aimedPlacedBlocks = new ArrayList<>();
-        this.breakedBlocks = new ArrayList<>();
-        this.craftInventory = new PlayerCraftInventory();
         this.lastInventory = inventory;
         this.initAnimations();
     }
 
     private void initAnimations() {
-        animations.add(new PlayerWalkAnimation(this));
-    }
-
-    public void handleInputs(long window) {
-
-        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-            if (!inventoryKeyPressed) {
-                if (!inventory.isOpen()) {
-                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-                } else {
-                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-                }
-                inventory.setOpen(!inventory.isOpen());
-                inventoryKeyPressed = true;
-            }
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE) {
-            inventoryKeyPressed = false;
-        }
-
-        DoubleBuffer mouseX = BufferUtils.createDoubleBuffer(1);
-        DoubleBuffer mouseY = BufferUtils.createDoubleBuffer(1);
-        glfwGetCursorPos(window, mouseX, mouseY);
-
-        if (inventory.isOpen()) {
-            InventoryInputsHandler handler = new InventoryInputsHandler();
-            handler.handleInputs(window, this, inventory, (float) mouseX.get(0), (float) mouseY.get(0));
-            handler.handleInputs(window, this, craftInventory, (float) mouseX.get(0), (float) mouseY.get(0));
-            handler.handleInputs(window, this, hotbar, (float) mouseX.get(0), (float) mouseY.get(0));
-            return;
-        }
-
-        if (firstMouse) {
-            lastMouseX = (float) mouseX.get(0);
-            lastMouseY = (float) mouseY.get(0);
-            firstMouse = false;
-        }
-
-        double mouseOffsetX = mouseX.get(0) - lastMouseX;
-        double mouseOffsetY = mouseY.get(0) - lastMouseY;
-
-        yaw += (float) mouseOffsetX * sensitivity;
-        if (yaw > 360.0f || yaw < -360.0f){
-            yaw = 0.0f;
-        }
-
-        pitch -= (float) mouseOffsetY * sensitivity;
-        if (pitch > 90.0f){
-            pitch = 89.0f;
-        } else if (pitch < -90.0f){
-            pitch = -89.0f;
-        }
-
-        this.resetMoving();
-
-        if (mouseOffsetX != 0 || mouseOffsetY != 0) {
-            movingMouse = true;
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-            movingForward = true;
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-            movingLeft = true;
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-            movingBackward = true;
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-            movingRight = true;
-        }
-
-
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-            switch (gameMode) {
-                case CREATIVE :
-                    flying = true;
-                    break;
-                case SURVIVAL :
-                    jumping = true;
-                    break;
-            }
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-            sneaking = true;
-        }
-
-        GameConfiguration gameConfiguration = GameConfiguration.getInstance();
-
-        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
-            if (!occlusionKeyPressed) {
-                gameConfiguration.setOcclusionEnabled(!gameConfiguration.isOcclusionEnabled());
-                occlusionKeyPressed = true;
-            }
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
-            if (!interpolationKeyPressed) {
-                gameConfiguration.setEntityInterpolation(!gameConfiguration.isEntityInterpolationEnabled());
-                interpolationKeyPressed = true;
-            }
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_PRESS) {
-            if (!debugKeyPressed) {
-                gameConfiguration.setDebugging(!gameConfiguration.isDebugging());
-                debugKeyPressed = true;
-            }
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
-            hotbar.setSelectedSlot(0);
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
-            hotbar.setSelectedSlot(1);
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
-            hotbar.setSelectedSlot(2);
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
-            hotbar.setSelectedSlot(3);
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) {
-            hotbar.setSelectedSlot(4);
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS) {
-            hotbar.setSelectedSlot(5);
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS) {
-            hotbar.setSelectedSlot(6);
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_8) == GLFW_PRESS) {
-            hotbar.setSelectedSlot(7);
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS) {
-            hotbar.setSelectedSlot(8);
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_RELEASE) {
-            debugKeyPressed = false;
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_RELEASE) {
-            occlusionKeyPressed = false;
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_RELEASE) {
-            interpolationKeyPressed = false;
-        }
-
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-            breakingBlock = true;
-        }
-
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
-            breakingBlock = false;
-            canBreakBlock = true;
-            action = null;
-        }
-
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
-            placingBlock = true;
-        }
-
-
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
-            placingBlock = false;
-            canPlaceBlock = true;
-        }
-
-        if (movingLeft || movingRight || movingForward || movingBackward || sneaking || flying) {
-            this.notifyEvent(new PlayerMoveEvent(this));
-        }
-
-        lastMouseX = (float) mouseX.get(0);
-        lastMouseY = (float) mouseY.get(0);
+        animations.add(new ZombieWalkAnimation(this));
     }
 
     public void resetMoving() {
@@ -385,12 +172,6 @@ public class Player {
         }
     }
 
-    private void handleJump() {
-        if (canJump) {
-            maxFall = 0.5f;
-            canJump = false;
-        }
-    }
 
     public void handleCollisions(World world, Vector3f velocity) {
 
@@ -452,12 +233,6 @@ public class Player {
 
         velocity.add(gravity);
 
-        if (sprinting) {
-            this.setSpeed(GameConfiguration.SPRINT_SPEED);
-        } else {
-            this.setSpeed(GameConfiguration.DEFAULT_SPEED);
-        }
-
         if (movingForward) {
             acceleration.add(front);
         }
@@ -488,82 +263,6 @@ public class Player {
                 maxFall = 0.5f;
                 acceleration.y += 10.0f;
                 canJump = false;
-            }
-        }
-
-        if (breakingBlock) {
-            sprite.update(PlayerAction.MINING);
-
-            if (action == PlayerAction.MINING && sprite.getIndex() == action.getLength() - 1) {
-                ChunkManager chunkManager = new ChunkManager();
-                if (breakRay.getAimedChunk() != null && (breakRay.getAimedBlock() != Material.AIR.getId() || breakRay.getAimedBlock() != Material.WATER.getId())) {
-                    BreakedBlock breakedBlock = new BreakedBlock(new Vector3i(breakRay.getBlockWorldPosition()), breakRay.getAimedBlock());
-                    chunkManager.removeBlock(breakRay.getAimedChunk(), breakRay.getBlockChunkPositionLocal(), Game.getInstance().getWorld());
-                    breakedBlocks.add(breakedBlock);
-                    sprite.reset();
-                }
-            }
-
-            if (canBreakBlock) {
-                if (breakRay.getAimedChunk() != null && (breakRay.getAimedBlock() != Material.AIR.getId() || breakRay.getAimedBlock() != Material.WATER.getId())) {
-                    action = PlayerAction.MINING;
-                }
-                canBreakBlock = false;
-                breakBlockCooldown = (int) GameConfiguration.UPS / 3;
-            }
-        } else {
-            sprite.reset();
-        }
-
-        if (gameMode == GameMode.CREATIVE && breakBlockCooldown > 0) {
-            breakBlockCooldown--;
-            if (breakBlockCooldown == 0) {
-                canBreakBlock = true;
-            }
-        }
-
-        if (placingBlock) {
-            ItemStack hotbarItem = hotbar.getItems()[hotbar.getSelectedSlot()];
-            if (canPlaceBlock && hotbarItem != null && hotbarItem.getMaterial() != Material.AIR) {
-                ChunkManager chunkManager = new ChunkManager();
-                if (buildRay.getAimedChunk() != null && (buildRay.getAimedBlock() != Material.AIR.getId() || buildRay.getAimedBlock() != Material.WATER.getId())) {
-                    Vector3i rayPosition = buildRay.getBlockWorldPosition();
-                    Vector3i placedBlock = buildRay.getBlockPlacedPosition(rayPosition);
-
-                    Vector3i blockPositionLocal = Utils.worldToLocal(placedBlock);
-                    Chunk aimedChunk = world.getChunkAt(placedBlock);
-
-                    chunkManager.placeBlock(aimedChunk, blockPositionLocal, Game.getInstance().getWorld(), hotbarItem.getMaterial());
-                    this.getAimedPlacedBlocks().add(placedBlock);
-                }
-                canPlaceBlock = false;
-                placeBlockCooldown = (int) GameConfiguration.UPS / 3;
-            }
-        }
-
-        if (placeBlockCooldown > 0) {
-            placeBlockCooldown--;
-            if (placeBlockCooldown == 0) {
-                canPlaceBlock = true;
-            }
-        }
-
-        if (movingBackward || movingForward || movingLeft || movingRight) {
-            hand.setAnimation(PlayerHandAnimation.MOVING);
-        } else {
-            hand.setAnimation(PlayerHandAnimation.IDLE);
-        }
-
-        if (droppingItem) {
-            ItemStack item = hotbar.getItems()[hotbar.getSelectedSlot()];
-            if (item != null) {
-                /*
-                item.setAmount(item.getAmount() - 1);
-                if (item.getAmount() == 0) {
-                    hotbar.setItem(null, hotbar.getSelectedSlot());
-                }
-                world.getDroppedItems().add(new ItemStack(item.getMaterial(), 1));
-                 */
             }
         }
 
@@ -669,10 +368,6 @@ public class Player {
         return animations;
     }
 
-    public NametagMesh getNametagMesh() {
-        return nametagMesh;
-    }
-
     public BufferedImage getSkin() {
         return skin;
     }
@@ -711,15 +406,6 @@ public class Player {
         return sneaking;
     }
 
-    public int getPing() {
-        return ping;
-    }
-
-    public void setPing(int ping) {
-        this.ping = ping;
-    }
-
-
     public List<PlayerInputData> getInputs() {
         return inputs;
     }
@@ -730,10 +416,6 @@ public class Player {
 
     public Vector3f getGravity() {
         return gravity;
-    }
-
-    public Set<Coordinates> getReceivedChunks() {
-        return receivedChunks;
     }
 
     public Vector3f getLastPosition() {
@@ -750,10 +432,6 @@ public class Player {
 
     public void setSkinPath(String skinPath) {
         this.skinPath = skinPath;
-    }
-
-    public PlayerHand getHand() {
-        return hand;
     }
 
     public EntityUpdate getLastUpdate() {
@@ -800,20 +478,12 @@ public class Player {
         return aimedPlacedBlocks;
     }
 
-    public ArrayList<BreakedBlock> getBreakedBlocks() {
-        return breakedBlocks;
-    }
-
     public void setAimedPlacedBlocks(ArrayList<Vector3i> aimedPlacedBlocks) {
         this.aimedPlacedBlocks = aimedPlacedBlocks;
     }
-    
+
     public PlayerInventory getInventory() {
         return inventory;
-    }
-
-    public Hotbar getHotbar() {
-        return hotbar;
     }
 
     public float getHealth() {
@@ -860,10 +530,6 @@ public class Player {
         this.canHoldItem = canHoldItem;
     }
 
-    public PlayerCraftInventory getCraftInventory() {
-        return craftInventory;
-    }
-
     public Inventory getLastInventory() {
         return lastInventory;
     }
@@ -871,5 +537,4 @@ public class Player {
     public void setLastInventory(Inventory lastInventory) {
         this.lastInventory = lastInventory;
     }
-
 }
