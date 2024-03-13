@@ -62,7 +62,7 @@ public class ForestBiome extends AbstractBiome{
     public void buildWeeds(int worldX, int worldY, int worldZ, Structure structure, World world) {
         RandomSeed randomSeed = RandomSeed.getInstance();
         float dropRate = randomSeed.nextFloat() * 100.0f;
-        if(dropRate > 99.0f) {
+        if (dropRate > 99.0f) {
             StructureBuilder.buildWeed(structure, worldX, worldY, worldZ);
         }
     }

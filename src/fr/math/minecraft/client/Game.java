@@ -14,10 +14,7 @@ import fr.math.minecraft.client.manager.*;
 import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.shared.inventory.DroppedItem;
 import fr.math.minecraft.shared.inventory.ItemStack;
-import fr.math.minecraft.shared.world.Chunk;
-import fr.math.minecraft.shared.world.Coordinates;
-import fr.math.minecraft.shared.world.Material;
-import fr.math.minecraft.shared.world.World;
+import fr.math.minecraft.shared.world.*;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.shared.GameConfiguration;
@@ -290,14 +287,14 @@ public class Game {
         tick++;
         if (tick % 10 == 0) {
             List<PlayerInputData> inputData = new ArrayList<>(player.getInputs());
+            List<BreakedBlock> breakedBlockData = new ArrayList<>(player.getBreakedBlocks());
             List<Vector3i> aimedPlacedBlockData = new ArrayList<>(player.getAimedPlacedBlocks());
-            List<Vector3i> aimedBreakedBlockData = new ArrayList<>(player.getAimedBreakedBlocks());
 
-            playerMovementHandler.handle(world, player, new Vector3f(player.getPosition()), inputData, aimedPlacedBlockData, aimedBreakedBlockData);
+            playerMovementHandler.handle(world, player, new Vector3f(player.getPosition()), inputData, aimedPlacedBlockData, breakedBlockData);
 
             player.getInputs().clear();
             player.getAimedPlacedBlocks().clear();
-            player.getAimedBreakedBlocks().clear();
+            player.getBreakedBlocks().clear();
         }
 
         player.handleInputs(window);
@@ -321,12 +318,20 @@ public class Game {
         player.getBreakRay().update(camera.getPosition(), camera.getFront(), world, false);
         player.getMiningAnimation().update(player);
 
+        if (!player.getBreakRay().isAimingBlock()) {
+            player.getSprite().reset();
+            player.getBreakRay().reset();
+            player.setAction(null);
+        }
+
         if (player.getBuildRay().getAimedChunk() != null && (player.getBuildRay().getAimedBlock() != Material.AIR.getId() || player.getBuildRay().getAimedBlock() != Material.WATER.getId())){
             player.getAimedPlacedBlocks().add(player.getBuildRay().getBlockWorldPosition());
         }
+        /*
         if (player.getBreakRay().getAimedChunk() != null && (player.getBreakRay().getAimedBlock() != Material.AIR.getId() || player.getBreakRay().getAimedBlock() != Material.WATER.getId())){
             player.getAimedBreakedBlocks().add(player.getBreakRay().getBlockWorldPosition());
         }
+         */
     }
 
     private void render(Renderer renderer) {

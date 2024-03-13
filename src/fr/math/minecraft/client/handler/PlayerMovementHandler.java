@@ -6,10 +6,12 @@ import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.shared.network.PlayerInputData;
 import fr.math.minecraft.client.network.payload.InputPayload;
 import fr.math.minecraft.client.network.payload.StatePayload;
+import fr.math.minecraft.shared.world.BreakedBlock;
 import fr.math.minecraft.shared.world.World;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class PlayerMovementHandler {
@@ -27,7 +29,7 @@ public class PlayerMovementHandler {
         this.stateBuffer = new StatePayload[BUFFER_SIZE];
     }
 
-    public void handle(World world, Player player, Vector3f playerPosition, List<PlayerInputData> inputData, List<Vector3i> aimedPlacedBlockData, List<Vector3i> aimedBreakedBlockData) {
+    public void handle(World world, Player player, Vector3f playerPosition, List<PlayerInputData> inputData, List<Vector3i> aimedPlacedBlockData, List<BreakedBlock> breakedBlockData) {
 
         int bufferIndex = currentTick % BUFFER_SIZE;
 
@@ -37,7 +39,7 @@ public class PlayerMovementHandler {
         StatePayload statePayload = new StatePayload(inputPayload);
         // statePayload.predictMovement(player, playerPosition);
         statePayload.setPosition(playerPosition);
-        statePayload.setAimedBreakedBlockData(aimedBreakedBlockData);
+        statePayload.setBreakedBlockData(breakedBlockData);
         statePayload.setAimedPlacedBlockData(aimedPlacedBlockData);
         statePayload.send(player);
 
@@ -62,9 +64,9 @@ public class PlayerMovementHandler {
         StatePayload payload = stateBuffer[serverTick % BUFFER_SIZE];
 
         float positionError = serverPosition.distance(payload.getPosition());
-        boolean placedBlockError = lastServerState.verifyAimedPlacedBlocks(payload.getAimedPlacedBlockData());
-        boolean breakedBlockError = lastServerState.verifyAimedBreakedBlocks(payload.getAimedBreakedBlockData());
 
+        lastServerState.verifyAimedPlacedBlocks(payload.getAimedPlacedBlockData());
+        lastServerState.verifyAimedBreakedBlocks(world, payload.getBreakedBlockData());
 
         if (positionError > 0.001f) {
             Camera camera = Game.getInstance().getCamera();
@@ -100,14 +102,6 @@ public class PlayerMovementHandler {
 
                 tickToProcess++;
             }
-        }
-
-        if(placedBlockError) {
-            System.out.println("Y'a un problème avec les blocks placés");
-        }
-
-        if(breakedBlockError) {
-            System.out.println("Y'a un problème avec les blocks cassés");
         }
     }
 

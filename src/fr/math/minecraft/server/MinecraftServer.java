@@ -47,6 +47,8 @@ public class MinecraftServer {
         this.packetQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(4);
         this.tickHandler = new TickHandler();
         this.chunkManager = new ChunkManager();
+
+        logger.info("Point de spawn calculé en " + world.getSpawnPosition());
     }
 
     public void start() throws IOException {

@@ -46,4 +46,12 @@ public class MathUtils {
     public static float fra1(float x) {
         return (float) (1 - x + Math.floor(x));
     }
+
+    public static int mod(int a, int b) {
+        int modulo = a % b;
+        if (modulo < 0) {
+            modulo += b;
+        }
+        return modulo;
+    }
 }

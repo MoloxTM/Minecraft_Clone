@@ -63,6 +63,7 @@ public class World {
                 byte block = this.getBlockAt(spawnX, worldY, spawnZ);
                 if (block == Material.AIR.getId()) {
                     spawnPosition = new Vector3f(spawnX, worldY + 20, spawnZ);
+                    return;
                 }
             }
         }
@@ -233,7 +234,7 @@ public class World {
 
     public void generateRegion(Vector3i regionPosition) {
         Coordinates coordinates = new Coordinates(regionPosition);
-        if(!regions.containsKey(coordinates)) {
+        if (!regions.containsKey(coordinates)) {
             Region region = new Region(regionPosition);
             region.generateStructure(this);
             this.addRegion(region, coordinates);

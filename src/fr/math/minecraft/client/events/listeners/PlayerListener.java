@@ -80,7 +80,8 @@ public class PlayerListener implements EventListener {
     public void onBlockPlace(BlockPlaceEvent event) {
         ChunkManager chunkManager = new ChunkManager();
         Vector3i blockPosition = Utils.worldToLocal(event.getPosition());
-        chunkManager.placeBlock(Game.getInstance().getWorld().getChunkAt(event.getPosition()), blockPosition, Game.getInstance().getWorld(), event.getMaterial());
+        World world = game.getWorld();
+        chunkManager.placeBlock(world.getChunkAt(event.getPosition()), blockPosition, Game.getInstance().getWorld(), event.getMaterial());
         logger.info("Le joueur :" + event.getPlayer().getName() + " a placé un bloc en :" + event.getPosition());
     }
 

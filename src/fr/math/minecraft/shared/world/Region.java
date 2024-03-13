@@ -19,7 +19,7 @@ public class Region {
 
     private final Vector3i position;
     private final Map<Coordinates, Byte> structureMap;
-    public final static int SIZE = 16;
+    public final static int SIZE = 8;
     private final Structure structure;
     private final static Logger logger = LoggerUtility.getServerLogger(Region.class, LogType.TXT);
     public Region(Vector3i position) {
@@ -48,8 +48,8 @@ public class Region {
 
                 int worldHeight = generator.getHeight(worldX, worldZ);
                 if (SIZE / 2 < x && x < Chunk.SIZE * SIZE - SIZE / 2 && SIZE / 2 < z && z < Chunk.SIZE * SIZE - SIZE / 2) {
-                    currentBiome.buildTree(worldX, worldHeight, worldZ, structure, world);
-                    currentBiome.buildWeeds(worldX, worldHeight, worldZ, structure, world);
+                    //currentBiome.buildTree(worldX, worldHeight, worldZ, structure, world);
+                    //currentBiome.buildWeeds(worldX, worldHeight, worldZ, structure, world);
                 }
             }
         }

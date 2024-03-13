@@ -137,7 +137,6 @@ public class PacketReceiver extends Thread {
                     }
                     break;
                 case "PLAYER_PLACE_EVENT":
-                    System.out.println(responseData);
                     ArrayNode blocksDataPlace = (ArrayNode) responseData.get("aimedPlacedBlocks");
                     Player playerPlace = game.getPlayers().get(responseData.get("uuid").asText());
                     for (int i = 0; i < blocksDataPlace.size(); i++) {
@@ -151,10 +150,7 @@ public class PacketReceiver extends Thread {
                     break;
                 case "DROPPED_ITEM_REMOVED":
                     String uuid = responseData.get("droppedItemId").asText();
-                    System.out.println(responseData);
-
                     synchronized (game.getWorld().getDroppedItems()) {
-                        System.out.println("Suppression " + uuid + " " + game.getWorld().getDroppedItems().containsKey(uuid));
                         game.getWorld().getDroppedItems().remove(uuid);
                     }
                     break;

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.entity.Ray;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
+import fr.math.minecraft.shared.world.BreakedBlock;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.shared.Sprite;
@@ -58,7 +59,8 @@ public class Client {
     private final StatePayload[] stateBuffer;
     private boolean canJump;
     private final Ray buildRay, attackRay, breakRay;
-    private List<Vector3i> aimedPLacedBlocks, aimedBreakedBlocks;
+    private List<Vector3i> aimedPLacedBlocks;
+    private List<BreakedBlock> breakedBlocks;
     private List<Byte> aimedPLacedBlocksIDs, aimedBreakedBlocksIDs;;
     private int breakBlockCooldown, placeBlockCoolDown;
     private List<Vector3i> aimedBlocks;
@@ -108,7 +110,7 @@ public class Client {
         this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
         this.aimedPLacedBlocks = new ArrayList<>();
         this.aimedPLacedBlocksIDs = new ArrayList<>();
-        this.aimedBreakedBlocks = new ArrayList<>();
+        this.breakedBlocks = new ArrayList<>();
         this.aimedBreakedBlocksIDs = new ArrayList<>();
         this.aimedBlocks = new ArrayList<>();
         this.aimedBlocksIDs = new ArrayList<>();
@@ -169,6 +171,7 @@ public class Client {
 
     public void update(World world, InputPayload payload) {
 
+        breakedBlocks = new ArrayList<>();
         List<Vector3i> blocksPosition = new ArrayList<>();
         List<Byte> blocksIDs = new ArrayList<>();
 
@@ -259,6 +262,12 @@ public class Client {
             buildRay.update(position, cameraFront, world, true);
             breakRay.update(position, cameraFront, world, true);
 
+            if (!breakRay.isAimingBlock()) {
+                sprite.reset();
+                breakRay.reset();
+                action = null;
+            }
+
             if (!inputData.isBreakingBlock()) {
                 canBreakBlock = true;
             }
@@ -268,13 +277,13 @@ public class Client {
                 byte block = breakRay.getAimedBlock();
                 sprite.update(PlayerAction.MINING);
 
-                if (action == PlayerAction.MINING && sprite.getIndex() == action.getLength() - 1) {
+                if (action == PlayerAction.MINING && breakRay.isAimingBlock() && sprite.getIndex() == action.getLength() - 1) {
                     Vector3i rayPosition = breakRay.getBlockWorldPosition();
                     Vector3i blockPositionLocal = Utils.worldToLocal(rayPosition);
                     Material material = Material.getMaterialById(block);
 
-                    blocksPosition.add(rayPosition);
-                    blocksIDs.add(block);
+                    BreakedBlock breakedBlock = new BreakedBlock(rayPosition, block);
+                    breakedBlocks.add(breakedBlock);
 
                     logger.info(name + " (" + uuid + ") a cassé un block de " + material + " en " + breakRay.getBlockWorldPosition());
 
@@ -292,14 +301,14 @@ public class Client {
                 }
 
                 if (this.canBreakBlock) {
-                    if (breakRay.getAimedChunk() != null && block != Material.AIR.getId() && block != Material.WATER.getId()) {
+                    if (breakRay.isAimingBlock()) {
                         action = PlayerAction.MINING;
                         sprite.reset();
                     }
                     this.canBreakBlock = false;
                 }
-                this.aimedBreakedBlocksIDs = blocksIDs;
-                this.aimedBreakedBlocks = blocksPosition;
+            } else {
+                sprite.reset();
             }
 
 
@@ -312,7 +321,7 @@ public class Client {
                 byte block = buildRay.getAimedBlock();
 
                 if (this.canPlaceBlock) {
-                    if (buildRay.getAimedChunk() != null && block != Material.AIR.getId() && block != Material.WATER.getId()) {
+                    if (buildRay.isAimingBlock()) {
 
                         Vector3i rayPosition = buildRay.getBlockWorldPosition();
                         Vector3i placedBlock = buildRay.getBlockPlacedPosition(rayPosition);
@@ -478,8 +487,8 @@ public class Client {
         return aimedBreakedBlocksIDs;
     }
 
-    public List<Vector3i> getAimedBreakedBlocks() {
-        return aimedBreakedBlocks;
+    public List<BreakedBlock> getBreakedBlocks() {
+        return breakedBlocks;
     }
 
     public Vector3f getFront() {

@@ -5,15 +5,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import fr.math.minecraft.client.events.listeners.PacketListener;
-import fr.math.minecraft.logger.LogType;
-import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.server.Client;
 import fr.math.minecraft.server.MinecraftServer;
 import fr.math.minecraft.shared.inventory.DroppedItem;
 import fr.math.minecraft.shared.inventory.ItemStack;
+import fr.math.minecraft.shared.world.BreakedBlock;
 import fr.math.minecraft.shared.world.World;
-import org.apache.log4j.Logger;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
@@ -31,9 +28,8 @@ public class StatePayload {
     private float yaw;
     private float pitch;
     private List<Byte> aimedPLacedBlocksIDs, aimedBreakedBlocksIDs;
-    private List<Vector3i> aimedPlacedBlocks, aimedBreakedBlocks;
-
-
+    private List<Vector3i> aimedPlacedBlocks;
+    private List<BreakedBlock> breakedBlocks;
 
     public StatePayload(InputPayload payload) {
         this.payload = payload;
@@ -41,7 +37,7 @@ public class StatePayload {
         this.velocity = new Vector3f();
         this.aimedPlacedBlocks = new ArrayList<>();
         this.aimedPLacedBlocksIDs = new ArrayList<>();
-        this.aimedBreakedBlocks = new ArrayList<>();
+        this.breakedBlocks = new ArrayList<>();
         this.aimedBreakedBlocksIDs = new ArrayList<>();
         this.data = null;
         this.yaw = 0.0f;
@@ -58,8 +54,7 @@ public class StatePayload {
 
         this.aimedPlacedBlocks = new ArrayList<>(client.getAimedPLacedBlocks());
         this.aimedPLacedBlocksIDs = new ArrayList<>(client.getAimedPLacedBlocksIDs());
-        this.aimedBreakedBlocks = new ArrayList<>(client.getAimedBreakedBlocks());
-        this.aimedBreakedBlocksIDs = new ArrayList<>(client.getAimedBreakedBlocksIDs());
+        this.breakedBlocks = new ArrayList<>(client.getBreakedBlocks());
 
         synchronized (world.getDroppedItems()) {
             List<String> collectedItems = new ArrayList<>();
@@ -117,14 +112,6 @@ public class StatePayload {
             }
         }
 
-        /*
-        if (client.getLastChunkPosition().distance(position.x, position.y, position.z) >= ServerChunk.SIZE) {
-            ClientManager clientManager = new ClientManager();
-            client.getNearChunks().clear();
-            clientManager.fillNearChunksQueue(client);
-            client.setLastChunkPosition(newPosition);
-        }
-         */
         this.yaw = client.getYaw();
         this.pitch = client.getPitch();
         this.position = newPosition;
@@ -159,11 +146,9 @@ public class StatePayload {
                 byte[] buffer = payloadEventData.getBytes(StandardCharsets.UTF_8);
                 DatagramPacket packetEvent = new DatagramPacket(buffer, buffer.length);
 
-                System.out.println(payloadEventData);
-
                 synchronized (server.getClients()) {
                     for (Client onlineClient : server.getClients().values()) {
-                        if(!onlineClient.getUuid().equalsIgnoreCase(payload.getClientUuid())) {
+                        if (!onlineClient.getUuid().equalsIgnoreCase(payload.getClientUuid())) {
                             packetEvent.setAddress(onlineClient.getAddress());
                             packetEvent.setPort(onlineClient.getPort());
                             server.sendPacket(packetEvent);
@@ -186,7 +171,7 @@ public class StatePayload {
 
                 synchronized (server.getClients()) {
                     for (Client onlineClient : server.getClients().values()) {
-                        if(!onlineClient.getUuid().equalsIgnoreCase(payload.getClientUuid())) {
+                        if (!onlineClient.getUuid().equalsIgnoreCase(payload.getClientUuid())) {
                             packetEvent.setAddress(onlineClient.getAddress());
                             packetEvent.setPort(onlineClient.getPort());
                             server.sendPacket(packetEvent);
@@ -201,7 +186,7 @@ public class StatePayload {
 
     public ObjectNode toJSONEventBreak() {
 
-        if (aimedBreakedBlocks.isEmpty()) {
+        if (breakedBlocks.isEmpty()) {
             return null;
         }
 
@@ -211,10 +196,11 @@ public class StatePayload {
 
         payloadNode.put("type", "PLAYER_BREAK_EVENT");
         payloadNode.put("uuid", payload.getClientUuid());
-        
-        for (int i = 0; i < aimedBreakedBlocks.size(); i++) {
-            Vector3i blockPosition = aimedBreakedBlocks.get(i);
-            byte block = aimedBreakedBlocksIDs.get(i);
+
+        for (BreakedBlock breakedBlock : breakedBlocks) {
+            Vector3i blockPosition = breakedBlock.getPosition();
+            byte block = breakedBlock.getBlock();
+
             ObjectNode blockNode = mapper.createObjectNode();
 
             blockNode.put("x", blockPosition.x);
@@ -264,7 +250,7 @@ public class StatePayload {
     public ObjectNode toJSON() {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode payloadNode = mapper.createObjectNode();
-        ArrayNode blocksArray = mapper.createArrayNode();
+        ArrayNode breakedBlocksArray = mapper.createArrayNode();
 
         payloadNode.put("tick", payload.getTick());
         payloadNode.put("type", "STATE_PAYLOAD");
@@ -290,11 +276,12 @@ public class StatePayload {
 
         }
 
-        payloadNode.set("aimedPlacedBlocks", blocksArray);
+        //payloadNode.set("aimedPlacedBlocks", blocksArray);
 
-        for (int i = 0; i < aimedBreakedBlocks.size(); i++) {
-            Vector3i blockPosition = aimedBreakedBlocks.get(i);
-            byte block = aimedBreakedBlocksIDs.get(i);
+        for (BreakedBlock breakedBlock : breakedBlocks) {
+
+            Vector3i blockPosition = breakedBlock.getPosition();
+            byte block = breakedBlock.getBlock();
             ObjectNode blockNode = mapper.createObjectNode();
 
             blockNode.put("x", blockPosition.x);
@@ -302,9 +289,11 @@ public class StatePayload {
             blockNode.put("z", blockPosition.z);
             blockNode.put("block", block);
 
+            breakedBlocksArray.add(blockNode);
+
         }
 
-        payloadNode.set("aimedBreakedBlocks", blocksArray);
+        payloadNode.set("aimedBreakedBlocks", breakedBlocksArray);
 
         return payloadNode;
     }

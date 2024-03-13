@@ -36,7 +36,6 @@ public class Ray {
     public void update(Vector3f position, Vector3f front, World world, boolean isServer) {
 
         int direction = 0;
-
         this.aimedChunk = null;
         this.aimedBlock = Material.AIR.getId();
 
@@ -202,5 +201,9 @@ public class Ray {
         this.aimedBlock = Material.AIR.getId();
         this.blockChunkPosition = new Vector3i();
         this.blockWorldPosition = new Vector3i();
+    }
+
+    public boolean isAimingBlock() {
+        return aimedChunk != null && aimedBlock != Material.AIR.getId() && aimedBlock != Material.WATER.getId();
     }
 }

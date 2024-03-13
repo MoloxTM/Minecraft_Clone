@@ -11,18 +11,14 @@ import fr.math.minecraft.client.manager.ChunkManager;
 import fr.math.minecraft.client.meshs.NametagMesh;
 import fr.math.minecraft.server.Utils;
 import fr.math.minecraft.shared.GameConfiguration;
-import fr.math.minecraft.shared.world.Chunk;
+import fr.math.minecraft.shared.world.*;
 import fr.math.minecraft.shared.Sprite;
 import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.shared.inventory.Hotbar;
 import fr.math.minecraft.shared.inventory.Inventory;
 import fr.math.minecraft.shared.inventory.PlayerCraftInventory;
 import fr.math.minecraft.shared.inventory.PlayerInventory;
-import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.inventory.ItemStack;
-import fr.math.minecraft.shared.world.Coordinates;
-import fr.math.minecraft.shared.world.Material;
-import fr.math.minecraft.shared.world.World;
 import fr.math.minecraft.shared.network.GameMode;
 import fr.math.minecraft.shared.network.Hitbox;
 import fr.math.minecraft.shared.network.PlayerInputData;
@@ -85,7 +81,7 @@ public class Player {
     private int breakBlockCooldown, placeBlockCooldown;
     private Ray attackRay, buildRay, breakRay;
     private ArrayList<Vector3i> aimedPlacedBlocks;
-    private ArrayList<Vector3i> aimedBreakedBlocks;
+    private ArrayList<BreakedBlock> breakedBlocks;
     private ArrayList<Vector3i> aimedBlocks;
     private final PlayerInventory inventory;
     private Inventory lastInventory;
@@ -109,8 +105,6 @@ public class Player {
         this.nametagMesh = new NametagMesh(name);
         this.hotbar = new Hotbar();
         this.lastUpdate = new EntityUpdate(new Vector3f(position), yaw, pitch, bodyYaw);
-        this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
-        this.buildRay = new Ray(GameConfiguration.BUILDING_REACH);
         this.aimedBlocks = new ArrayList<>();
         this.eventListeners = new ArrayList<>();
         this.sprite = new Sprite();
@@ -157,10 +151,10 @@ public class Player {
         this.skinPath = "res/textures/skin.png";
         this.gameMode = GameMode.SURVIVAL;
         this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
-        this.buildRay = new Ray(GameConfiguration.BUILDING_REACH);
-        this.breakRay = new Ray(GameConfiguration.BUILDING_REACH);
+        this.buildRay = new Ray(GameConfiguration.BUILDING_REACH * 3);
+        this.breakRay = new Ray(GameConfiguration.BUILDING_REACH * 3);
         this.aimedPlacedBlocks = new ArrayList<>();
-        this.aimedBreakedBlocks = new ArrayList<>();
+        this.breakedBlocks = new ArrayList<>();
         this.craftInventory = new PlayerCraftInventory();
         this.lastInventory = inventory;
         this.initAnimations();
@@ -505,8 +499,9 @@ public class Player {
             if (action == PlayerAction.MINING && sprite.getIndex() == action.getLength() - 1) {
                 ChunkManager chunkManager = new ChunkManager();
                 if (breakRay.getAimedChunk() != null && (breakRay.getAimedBlock() != Material.AIR.getId() || breakRay.getAimedBlock() != Material.WATER.getId())) {
+                    BreakedBlock breakedBlock = new BreakedBlock(new Vector3i(breakRay.getBlockWorldPosition()), breakRay.getAimedBlock());
                     chunkManager.removeBlock(breakRay.getAimedChunk(), breakRay.getBlockChunkPositionLocal(), Game.getInstance().getWorld());
-                    this.getAimedBreakedBlocks().add(breakRay.getBlockWorldPosition());
+                    breakedBlocks.add(breakedBlock);
                     sprite.reset();
                 }
             }
@@ -518,6 +513,8 @@ public class Player {
                 canBreakBlock = false;
                 breakBlockCooldown = (int) GameConfiguration.UPS / 3;
             }
+        } else {
+            sprite.reset();
         }
 
         if (gameMode == GameMode.CREATIVE && breakBlockCooldown > 0) {
@@ -528,18 +525,17 @@ public class Player {
         }
 
         if (placingBlock) {
-            if (canPlaceBlock) {
+            ItemStack hotbarItem = hotbar.getItems()[hotbar.getSelectedSlot()];
+            if (canPlaceBlock && hotbarItem != null && hotbarItem.getMaterial() != Material.AIR) {
                 ChunkManager chunkManager = new ChunkManager();
                 if (buildRay.getAimedChunk() != null && (buildRay.getAimedBlock() != Material.AIR.getId() || buildRay.getAimedBlock() != Material.WATER.getId())) {
                     Vector3i rayPosition = buildRay.getBlockWorldPosition();
                     Vector3i placedBlock = buildRay.getBlockPlacedPosition(rayPosition);
 
                     Vector3i blockPositionLocal = Utils.worldToLocal(placedBlock);
-
-
                     Chunk aimedChunk = world.getChunkAt(placedBlock);
 
-                    chunkManager.placeBlock(aimedChunk, blockPositionLocal, Game.getInstance().getWorld(), Material.STONE);
+                    chunkManager.placeBlock(aimedChunk, blockPositionLocal, Game.getInstance().getWorld(), hotbarItem.getMaterial());
                     this.getAimedPlacedBlocks().add(placedBlock);
                 }
                 canPlaceBlock = false;
@@ -806,16 +802,12 @@ public class Player {
         return aimedPlacedBlocks;
     }
 
-    public ArrayList<Vector3i> getAimedBreakedBlocks() {
-        return aimedBreakedBlocks;
+    public ArrayList<BreakedBlock> getBreakedBlocks() {
+        return breakedBlocks;
     }
 
     public void setAimedPlacedBlocks(ArrayList<Vector3i> aimedPlacedBlocks) {
         this.aimedPlacedBlocks = aimedPlacedBlocks;
-    }
-
-    public void setAimedBreakedBlocks(ArrayList<Vector3i> aimedBreakedBlocks) {
-        this.aimedBreakedBlocks = aimedBreakedBlocks;
     }
     
     public PlayerInventory getInventory() {

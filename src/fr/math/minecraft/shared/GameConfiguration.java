@@ -6,7 +6,7 @@ public class GameConfiguration {
     public final static float TICK_PER_SECONDS = 20.0f;
     public final static float TICK_RATE = 1.0f / TICK_PER_SECONDS;
     public final static float UPDATE_TICK = 1.0f / UPS;
-    public final static float WINDOW_WIDTH = 720.0f;
+    public final static float WINDOW_WIDTH = 854.0f;
     public final static float WINDOW_HEIGHT = 480.0f;
     public final static float WINDOW_CENTER_X = WINDOW_WIDTH / 2.0f;
     public final static float WINDOW_CENTER_Y = WINDOW_HEIGHT / 2.0f;
@@ -41,7 +41,7 @@ public class GameConfiguration {
         this.entityInterpolation = true;
         this.occlusionEnabled = true;
         this.debugging = true;
-        this.musicEnabled = true;
+        this.musicEnabled = false;
         this.guiScale = 1.0f;
     }
 
