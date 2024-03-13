@@ -147,21 +147,7 @@ public class Ray {
     public Vector3i getBlockPlacedPosition(Vector3i blockWorldPosition) {
         Vector3i block = new Vector3i(blockWorldPosition);
 
-        if(this.faceAimed == Face.UP) {
-            block.add(Face.UP.getNormal());
-        } else if (this.faceAimed == Face.DOWN){
-            block.add(Face.DOWN.getNormal());
-        } else if (this.faceAimed == Face.NORTH){
-            block.add(Face.NORTH.getNormal());
-        } else if (this.faceAimed == Face.SOUTH){
-            block.add(Face.SOUTH.getNormal());
-        } else if (this.faceAimed == Face.EST){
-            block.add(Face.EST.getNormal());
-        } else if (this.faceAimed == Face.WEST){
-            block.add(Face.WEST.getNormal());
-        }
-
-        return block;
+        return block.add(faceAimed.getNormal());
     }
 
     public Vector3i getBlockChunkPositionLocal() {

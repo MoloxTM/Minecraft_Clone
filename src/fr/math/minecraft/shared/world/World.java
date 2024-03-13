@@ -1,14 +1,9 @@
 package fr.math.minecraft.shared.world;
 
-import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.meshs.WaterMesh;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
-import fr.math.minecraft.server.RandomSeed;
-import fr.math.minecraft.shared.GameConfiguration;
-import fr.math.minecraft.shared.inventory.DroppedItem;
-import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.world.generator.OverworldGenerator;
 import fr.math.minecraft.shared.world.generator.TerrainGenerator;
 import org.apache.log4j.Logger;

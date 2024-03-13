@@ -7,6 +7,7 @@ import fr.math.minecraft.shared.network.PlayerInputData;
 import fr.math.minecraft.client.network.payload.InputPayload;
 import fr.math.minecraft.client.network.payload.StatePayload;
 import fr.math.minecraft.shared.world.BreakedBlock;
+import fr.math.minecraft.shared.world.PlacedBlock;
 import fr.math.minecraft.shared.world.World;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
@@ -29,7 +30,7 @@ public class PlayerMovementHandler {
         this.stateBuffer = new StatePayload[BUFFER_SIZE];
     }
 
-    public void handle(World world, Player player, Vector3f playerPosition, List<PlayerInputData> inputData, List<Vector3i> aimedPlacedBlockData, List<BreakedBlock> breakedBlockData) {
+    public void handle(World world, Player player, Vector3f playerPosition, List<PlayerInputData> inputData, List<PlacedBlock> placedBlocks, List<BreakedBlock> brokenBlockData) {
 
         int bufferIndex = currentTick % BUFFER_SIZE;
 
@@ -39,8 +40,8 @@ public class PlayerMovementHandler {
         StatePayload statePayload = new StatePayload(inputPayload);
         // statePayload.predictMovement(player, playerPosition);
         statePayload.setPosition(playerPosition);
-        statePayload.setBreakedBlockData(breakedBlockData);
-        statePayload.setAimedPlacedBlockData(aimedPlacedBlockData);
+        statePayload.setBreakedBlocksData(brokenBlockData);
+        statePayload.setPlacedBlocksData(placedBlocks);
         statePayload.send(player);
 
         player.setLastPosition(new Vector3f(playerPosition));
@@ -65,8 +66,8 @@ public class PlayerMovementHandler {
 
         float positionError = serverPosition.distance(payload.getPosition());
 
-        lastServerState.verifyAimedPlacedBlocks(payload.getAimedPlacedBlockData());
-        lastServerState.verifyAimedBreakedBlocks(world, payload.getBreakedBlockData());
+        lastServerState.verifyPlacedBlocks(world, payload.getPlacedBlocks());
+        lastServerState.verifyBrokenBlocks(world, payload.getBreakedBlockData());
 
         if (positionError > 0.001f) {
             Camera camera = Game.getInstance().getCamera();

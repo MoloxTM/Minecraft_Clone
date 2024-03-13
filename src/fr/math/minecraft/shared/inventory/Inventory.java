@@ -1,5 +1,9 @@
 package fr.math.minecraft.shared.inventory;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.world.Material;
 
@@ -112,7 +116,37 @@ public abstract class Inventory {
         this.holdedSlot = holdedSlot;
     }
 
+    public boolean isFull() {
+        return currentSize >= this.getSize();
+    }
+
     public abstract float getItemX(int slot);
     public abstract float getItemY(int slot);
+
+    public ArrayNode toJSONArray() {
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayNode arrayNode = mapper.createArrayNode();
+        for (int slot = 0; slot < items.length; slot++) {
+            ItemStack item = items[slot];
+            ObjectNode itemNode = mapper.createObjectNode();
+
+            Material material = Material.AIR;
+            int amount = 0;
+
+            if (item != null) {
+                material = item.getMaterial();
+                amount = item.getAmount();
+            }
+
+            itemNode.put("slot", slot);
+            itemNode.put("block", material.getId());
+            itemNode.put("amount", amount);
+
+            arrayNode.add(itemNode);
+
+        }
+
+        return arrayNode;
+    }
 
 }

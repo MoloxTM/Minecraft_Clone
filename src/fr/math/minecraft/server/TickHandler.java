@@ -8,12 +8,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.server.payload.StatePayload;
 import fr.math.minecraft.shared.GameConfiguration;
-import fr.math.minecraft.shared.inventory.DroppedItem;
+import fr.math.minecraft.shared.world.DroppedItem;
 import fr.math.minecraft.shared.world.World;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.nio.charset.StandardCharsets;
 
 public class TickHandler extends Thread {
 

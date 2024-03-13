@@ -8,18 +8,18 @@ import fr.math.minecraft.client.network.FixedPacketSender;
 import fr.math.minecraft.client.network.packet.PlayerMovePacket;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
+import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.MathUtils;
+import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.network.PlayerInputData;
-import fr.math.minecraft.shared.world.BreakedBlock;
-import fr.math.minecraft.shared.world.Chunk;
-import fr.math.minecraft.shared.world.Material;
-import fr.math.minecraft.shared.world.World;
+import fr.math.minecraft.shared.world.*;
 import org.apache.log4j.Logger;
 import org.joml.Math;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class StatePayload {
@@ -29,7 +29,7 @@ public class StatePayload {
     private Vector3f position;
     private Vector3f velocity;
     private List<BreakedBlock> breakedBlockData;
-    private List<Vector3i> aimedPlacedBlockData;
+    private List<PlacedBlock> placedBlocks;
     private List<Byte> materialAimedPlacedBlockData;
     private float yaw, pitch;
 
@@ -41,7 +41,7 @@ public class StatePayload {
         this.position = new Vector3f();
         this.velocity = new Vector3f();
         this.breakedBlockData = new ArrayList<>();
-        this.aimedPlacedBlockData = new ArrayList<>();
+        this.placedBlocks = new ArrayList<>();
         this.data = null;
     }
 
@@ -50,10 +50,12 @@ public class StatePayload {
         this.velocity = new Vector3f();
         this.payload = new InputPayload(stateData.get("tick").asInt());
         this.breakedBlockData = new ArrayList<>();
-        this.aimedPlacedBlockData = new ArrayList<>();
+        this.placedBlocks = new ArrayList<>();
         this.materialAimedPlacedBlockData = new ArrayList<>();
+
         this.extractBrokenBlocks(stateData);
-        //extractAimedPlacedBlockData(stateData);
+        this.extractPlacedBlocks(stateData);
+
         position.x = stateData.get("x").floatValue();
         position.y = stateData.get("y").floatValue();
         position.z = stateData.get("z").floatValue();
@@ -150,25 +152,42 @@ public class StatePayload {
         this.position = new Vector3f(player.getPosition());
     }
 
-    public boolean verifyAimedPlacedBlocks(List<Vector3i> clientAimedPlacedBlockData) {
-        if(clientAimedPlacedBlockData.isEmpty()) {
-            return false;
-        }
-        for (int i = 0; i < aimedPlacedBlockData.size(); i++) {
-            if(!clientAimedPlacedBlockData.get(i).equals(this.aimedPlacedBlockData.get(i))) {
-                //logger.warn("Y'a problème avec :" + clientAimedPlacedBlockData.get(i));
-                return true;
+    public void verifyPlacedBlocks(World world, List<PlacedBlock> clientPlacedBlocks) {
+        for (PlacedBlock placedBlock : clientPlacedBlocks) {
+            if (!placedBlocks.contains(placedBlock)) {
+                ChunkManager chunkManager = new ChunkManager();
+                Vector3i blockWorldPosition = placedBlock.getWorldPosition();
+                Chunk chunk = world.getChunkAt(blockWorldPosition);
+                Vector3i blockLocalPositon = placedBlock.getLocalPosition();
+                byte oldBlock = chunk.getBlock(blockLocalPositon.x, blockLocalPositon.y, blockLocalPositon.z);
+
+                chunkManager.removeBlock(chunk, blockLocalPositon, world);
+                logger.info("[Reconciliation] Le block de " + Material.getMaterialById(oldBlock) + " en " + blockWorldPosition + " a été détruit.");
             }
         }
+        for (PlacedBlock placedBlock : placedBlocks) {
+            Vector3i blockWorldPosition = placedBlock.getWorldPosition();
+            Chunk chunk = world.getChunkAt(blockWorldPosition);
+            Vector3i blockLocalPositon = placedBlock.getLocalPosition();
+            byte block = chunk.getBlock(blockLocalPositon.x, blockLocalPositon.y, blockLocalPositon.z);
 
-        return false;
+            if (block != placedBlock.getBlock()) {
+                ChunkManager chunkManager = new ChunkManager();
+                Material material = Material.getMaterialById(placedBlock.getBlock());
+                chunkManager.placeBlock(chunk, blockLocalPositon, world, material);
+                logger.info("[Reconciliation] Un block de " + material + " en " + blockWorldPosition + " a été placé suite à une réconciliation.");
+            }
+        }
     }
 
-    public void verifyAimedBreakedBlocks(World world, List<BreakedBlock> clientBreakedBlocks) {
-        for (BreakedBlock breakedBlock : clientBreakedBlocks) {
+    public void verifyBrokenBlocks(World world, List<BreakedBlock> clientBrokenBlocks) {
+        for (BreakedBlock breakedBlock : clientBrokenBlocks) {
             if (!breakedBlockData.contains(breakedBlock)) {
                 breakedBlock.restore(world);
                 logger.info("[Reconciliation] Le block de " + Material.getMaterialById(breakedBlock.getBlock()) + " en " + breakedBlock.getPosition() + " a été restoré.");
+            } else {
+                logger.info(Material.getMaterialById(breakedBlock.getBlock()) + " validé par le serveur !");
+                System.out.println(Arrays.toString(breakedBlockData.toArray()));
             }
         }
         for (BreakedBlock breakedBlock : breakedBlockData) {
@@ -195,7 +214,7 @@ public class StatePayload {
     }
 
     public void extractBrokenBlocks(JsonNode data) {
-        ArrayNode positionNode = (ArrayNode) data.get("aimedBreakedBlocks");
+        ArrayNode positionNode = (ArrayNode) data.get("brokenBlocks");
         for (int i = 0; i < positionNode.size(); i++) {
             JsonNode node = positionNode.get(i);
             Vector3i position = new Vector3i(node.get("x").asInt(), node.get("y").asInt(), node.get("z").asInt());
@@ -206,13 +225,16 @@ public class StatePayload {
 
     }
 
-    public void extractAimedPlacedBlockData(JsonNode data) {
+    public void extractPlacedBlocks(JsonNode data) {
         ArrayNode positionNode = (ArrayNode) data.get("aimedPlacedBlocks");
+
         for (int i = 0; i < positionNode.size(); i++) {
             JsonNode node = positionNode.get(i);
-            Vector3i position = new Vector3i(node.get("x").asInt(), node.get("y").asInt(), node.get("z").asInt());
-            this.aimedPlacedBlockData.add(position);
-            this.materialAimedPlacedBlockData.add(((byte)node.get("block").asInt()));
+            Vector3i worldPosition = new Vector3i(node.get("wx").asInt(), node.get("wy").asInt(), node.get("wz").asInt());
+            Vector3i localPosition = new Vector3i(node.get("lx").asInt(), node.get("ly").asInt(), node.get("lz").asInt());
+            byte block = (byte) node.get("block").asInt();
+            PlacedBlock placedBlock = new PlacedBlock(worldPosition, localPosition, block);
+            this.placedBlocks.add(placedBlock);
         }
 
     }
@@ -249,7 +271,7 @@ public class StatePayload {
         return velocity;
     }
 
-    public void setBreakedBlockData(List<BreakedBlock> breakedBlockData) {
+    public void setBreakedBlocksData(List<BreakedBlock> breakedBlockData) {
         this.breakedBlockData = breakedBlockData;
     }
 
@@ -257,11 +279,11 @@ public class StatePayload {
         return breakedBlockData;
     }
 
-    public void setAimedPlacedBlockData(List<Vector3i> aimedPlacedBlockData) {
-        this.aimedPlacedBlockData = aimedPlacedBlockData;
+    public void setPlacedBlocksData(List<PlacedBlock> placedBlocks) {
+        this.placedBlocks = placedBlocks;
     }
 
-    public List<Vector3i> getAimedPlacedBlockData() {
-        return aimedPlacedBlockData;
+    public List<PlacedBlock> getPlacedBlocks() {
+        return placedBlocks;
     }
 }

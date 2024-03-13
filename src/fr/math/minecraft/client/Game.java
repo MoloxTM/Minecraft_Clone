@@ -12,7 +12,7 @@ import fr.math.minecraft.client.gui.menus.Menu;
 import fr.math.minecraft.client.handler.PlayerMovementHandler;
 import fr.math.minecraft.client.manager.*;
 import fr.math.minecraft.client.entity.player.Player;
-import fr.math.minecraft.shared.inventory.DroppedItem;
+import fr.math.minecraft.shared.world.DroppedItem;
 import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.world.*;
 import fr.math.minecraft.logger.LogType;
@@ -22,7 +22,6 @@ import fr.math.minecraft.shared.network.PlayerInputData;
 import org.apache.log4j.Logger;
 import org.joml.Math;
 import org.joml.Vector3f;
-import org.joml.Vector3i;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.ALC;
@@ -287,13 +286,13 @@ public class Game {
         tick++;
         if (tick % 10 == 0) {
             List<PlayerInputData> inputData = new ArrayList<>(player.getInputs());
-            List<BreakedBlock> breakedBlockData = new ArrayList<>(player.getBreakedBlocks());
-            List<Vector3i> aimedPlacedBlockData = new ArrayList<>(player.getAimedPlacedBlocks());
+            List<BreakedBlock> brokenBlocksData = new ArrayList<>(player.getBreakedBlocks());
+            List<PlacedBlock> placedBlocksData = new ArrayList<>(player.getPlacedBlocks());
 
-            playerMovementHandler.handle(world, player, new Vector3f(player.getPosition()), inputData, aimedPlacedBlockData, breakedBlockData);
+            playerMovementHandler.handle(world, player, new Vector3f(player.getPosition()), inputData, placedBlocksData, brokenBlocksData);
 
             player.getInputs().clear();
-            player.getAimedPlacedBlocks().clear();
+            player.getPlacedBlocks().clear();
             player.getBreakedBlocks().clear();
         }
 
@@ -322,10 +321,6 @@ public class Game {
             player.getSprite().reset();
             player.getBreakRay().reset();
             player.setAction(null);
-        }
-
-        if (player.getBuildRay().getAimedChunk() != null && (player.getBuildRay().getAimedBlock() != Material.AIR.getId() || player.getBuildRay().getAimedBlock() != Material.WATER.getId())){
-            player.getAimedPlacedBlocks().add(player.getBuildRay().getBlockWorldPosition());
         }
         /*
         if (player.getBreakRay().getAimedChunk() != null && (player.getBreakRay().getAimedBlock() != Material.AIR.getId() || player.getBreakRay().getAimedBlock() != Material.WATER.getId())){

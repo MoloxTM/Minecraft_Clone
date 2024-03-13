@@ -34,8 +34,9 @@ public class InputPayload {
             boolean breakingBlock = inputNode.get("breakingBlock").asBoolean();
             boolean placingBlock = inputNode.get("placingBlock").asBoolean();
             boolean droppingItem = inputNode.get("droppingItem").asBoolean();
+            int hotbarSlot = inputNode.get("hotbarSlot").asInt();
 
-            PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, jumping, yaw, pitch, sprinting, placingBlock, breakingBlock, droppingItem);
+            PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, jumping, yaw, pitch, sprinting, placingBlock, breakingBlock, droppingItem, hotbarSlot);
 
             inputsData.add(inputData);
         }

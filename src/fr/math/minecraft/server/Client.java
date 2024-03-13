@@ -5,19 +5,18 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.entity.Ray;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
-import fr.math.minecraft.shared.world.BreakedBlock;
-import fr.math.minecraft.shared.world.Chunk;
+import fr.math.minecraft.shared.inventory.Hotbar;
+import fr.math.minecraft.shared.inventory.ItemStack;
+import fr.math.minecraft.shared.world.*;
 import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.shared.Sprite;
-import fr.math.minecraft.shared.inventory.DroppedItem;
+import fr.math.minecraft.shared.world.DroppedItem;
 import fr.math.minecraft.shared.inventory.PlayerInventory;
-import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.server.payload.StatePayload;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.network.Hitbox;
 import fr.math.minecraft.shared.network.PlayerInputData;
-import fr.math.minecraft.shared.world.World;
 import org.apache.log4j.Logger;
 import org.joml.Math;
 import org.joml.Vector3f;
@@ -61,6 +60,7 @@ public class Client {
     private final Ray buildRay, attackRay, breakRay;
     private List<Vector3i> aimedPLacedBlocks;
     private List<BreakedBlock> breakedBlocks;
+    private List<PlacedBlock> placedBlocks;
     private List<Byte> aimedPLacedBlocksIDs, aimedBreakedBlocksIDs;;
     private int breakBlockCooldown, placeBlockCoolDown;
     private List<Vector3i> aimedBlocks;
@@ -69,6 +69,7 @@ public class Client {
     private PlayerAction action;
     private final static Logger logger = LoggerUtility.getServerLogger(Client.class, LogType.TXT);
     private final PlayerInventory inventory;
+    private final Hotbar hotbar;
 
     public Client(String uuid, String name, InetAddress address, int port) {
         this.address = address;
@@ -111,10 +112,12 @@ public class Client {
         this.aimedPLacedBlocks = new ArrayList<>();
         this.aimedPLacedBlocksIDs = new ArrayList<>();
         this.breakedBlocks = new ArrayList<>();
+        this.placedBlocks = new ArrayList<>();
         this.aimedBreakedBlocksIDs = new ArrayList<>();
         this.aimedBlocks = new ArrayList<>();
         this.aimedBlocksIDs = new ArrayList<>();
         this.inventory = new PlayerInventory();
+        this.hotbar = new Hotbar();
     }
 
     public String getName() {
@@ -171,9 +174,8 @@ public class Client {
 
     public void update(World world, InputPayload payload) {
 
-        breakedBlocks = new ArrayList<>();
-        List<Vector3i> blocksPosition = new ArrayList<>();
-        List<Byte> blocksIDs = new ArrayList<>();
+        breakedBlocks.clear();
+        placedBlocks.clear();
 
         for (PlayerInputData inputData : payload.getInputsData()) {
             float yaw = inputData.getYaw();
@@ -197,6 +199,8 @@ public class Client {
             this.resetMoving();
 
             velocity.add(gravity);
+
+            hotbar.setSelectedSlot(inputData.getHotbarSlot());
 
             if (inputData.isMovingForward()) {
                 acceleration.add(front);
@@ -317,25 +321,23 @@ public class Client {
             }
 
             if (inputData.isPlacingBlock()) {
-
                 byte block = buildRay.getAimedBlock();
+                ItemStack hotbarItem = hotbar.getItems()[hotbar.getSelectedSlot()];
 
-                if (this.canPlaceBlock) {
+                if (canPlaceBlock && hotbarItem != null && hotbarItem.getMaterial() != Material.AIR) {
                     if (buildRay.isAimingBlock()) {
 
                         Vector3i rayPosition = buildRay.getBlockWorldPosition();
-                        Vector3i placedBlock = buildRay.getBlockPlacedPosition(rayPosition);
-
-                        Vector3i blockPositionLocal = Utils.worldToLocal(placedBlock);
-
-                        blocksPosition.add(placedBlock);
+                        Vector3i placedBlockWorldPosition = buildRay.getBlockPlacedPosition(rayPosition);
+                        Vector3i blockPositionLocal = Utils.worldToLocal(placedBlockWorldPosition);
+                        PlacedBlock placedBlock = new PlacedBlock(placedBlockWorldPosition, blockPositionLocal, hotbarItem.getMaterial().getId());
+                        Material material = Material.getMaterialById(block);
+                        placedBlocks.add(placedBlock);
 
                         /*On détermine le chunk où le */
-                        Chunk aimedChunk = world.getChunkAt(placedBlock);
-                        System.out.println("Blocks IDS:" + blocksIDs);
-                        blocksIDs.add(aimedChunk.getBlock(blockPositionLocal));
+                        Chunk aimedChunk = world.getChunkAt(placedBlockWorldPosition);
 
-                        aimedChunk.setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, Material.STONE.getId());
+                        aimedChunk.setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, material.getId());
 
                         logger.info(name + " (" + uuid + ") a placé un block de " + Material.getMaterialById(block) + " en " + buildRay.getBlockWorldPosition());
 
@@ -343,14 +345,10 @@ public class Client {
                         this.canPlaceBlock = false;
                     }
                 }
-                this.aimedPLacedBlocks = blocksPosition;
-                this.aimedPLacedBlocksIDs = blocksIDs;
             }
 
             velocity.mul(0.95f);
         }
-
-
 
         // System.out.println("Tick " + payload.getTick() + " InputVector: " + payload.getInputVector() + " Calculated position : " + position);
     }
@@ -491,6 +489,10 @@ public class Client {
         return breakedBlocks;
     }
 
+    public List<PlacedBlock> getPlacedBlocks() {
+        return placedBlocks;
+    }
+
     public Vector3f getFront() {
         return front;
     }
@@ -513,5 +515,20 @@ public class Client {
     
     public PlayerInventory getInventory() {
         return inventory;
+    }
+
+    public Hotbar getHotbar() {
+        return hotbar;
+    }
+
+    public void addItem(ItemStack item) {
+        if (hotbar.getCurrentSize() < hotbar.getSize()) {
+            hotbar.addItem(item);
+        } else {
+            if (inventory.getCurrentSize() >= inventory.getSize()) {
+                return;
+            }
+            inventory.addItem(item);
+        }
     }
 }

@@ -1,6 +1,5 @@
 package fr.math.minecraft.client.events;
 
-import fr.math.minecraft.shared.inventory.DroppedItem;
 import fr.math.minecraft.shared.inventory.ItemStack;
 
 public class ItemGiveEvent {

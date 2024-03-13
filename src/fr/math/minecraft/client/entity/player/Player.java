@@ -80,7 +80,7 @@ public class Player {
     private EntityUpdate lastUpdate;
     private int breakBlockCooldown, placeBlockCooldown;
     private Ray attackRay, buildRay, breakRay;
-    private ArrayList<Vector3i> aimedPlacedBlocks;
+    private List<PlacedBlock> placedBlocks;
     private ArrayList<BreakedBlock> breakedBlocks;
     private ArrayList<Vector3i> aimedBlocks;
     private final PlayerInventory inventory;
@@ -153,7 +153,7 @@ public class Player {
         this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
         this.buildRay = new Ray(GameConfiguration.BUILDING_REACH * 3);
         this.breakRay = new Ray(GameConfiguration.BUILDING_REACH * 3);
-        this.aimedPlacedBlocks = new ArrayList<>();
+        this.placedBlocks = new ArrayList<>();
         this.breakedBlocks = new ArrayList<>();
         this.craftInventory = new PlayerCraftInventory();
         this.lastInventory = inventory;
@@ -175,6 +175,7 @@ public class Player {
                 }
                 inventory.setOpen(!inventory.isOpen());
                 inventoryKeyPressed = true;
+                this.resetMoving();
             }
         }
 
@@ -528,15 +529,16 @@ public class Player {
             ItemStack hotbarItem = hotbar.getItems()[hotbar.getSelectedSlot()];
             if (canPlaceBlock && hotbarItem != null && hotbarItem.getMaterial() != Material.AIR) {
                 ChunkManager chunkManager = new ChunkManager();
-                if (buildRay.getAimedChunk() != null && (buildRay.getAimedBlock() != Material.AIR.getId() || buildRay.getAimedBlock() != Material.WATER.getId())) {
+                if (buildRay.isAimingBlock()) {
                     Vector3i rayPosition = buildRay.getBlockWorldPosition();
-                    Vector3i placedBlock = buildRay.getBlockPlacedPosition(rayPosition);
+                    Vector3i placedBlockWorldPosition = buildRay.getBlockPlacedPosition(rayPosition);
+                    Vector3i blockPositionLocal = Utils.worldToLocal(placedBlockWorldPosition);
+                    PlacedBlock placedBlock = new PlacedBlock(placedBlockWorldPosition, blockPositionLocal, hotbarItem.getMaterial().getId());
 
-                    Vector3i blockPositionLocal = Utils.worldToLocal(placedBlock);
-                    Chunk aimedChunk = world.getChunkAt(placedBlock);
+                    placedBlocks.add(placedBlock);
+                    Chunk aimedChunk = world.getChunkAt(placedBlockWorldPosition);
 
                     chunkManager.placeBlock(aimedChunk, blockPositionLocal, Game.getInstance().getWorld(), hotbarItem.getMaterial());
-                    this.getAimedPlacedBlocks().add(placedBlock);
                 }
                 canPlaceBlock = false;
                 placeBlockCooldown = (int) GameConfiguration.UPS / 3;
@@ -595,12 +597,23 @@ public class Player {
 
         velocity.mul(0.95f);
 
-        PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, jumping, yaw, pitch, sprinting, placingBlock, breakingBlock, droppingItem);
+        PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, jumping, yaw, pitch, sprinting, placingBlock, breakingBlock, droppingItem, hotbar.getSelectedSlot());
         inputs.add(inputData);
     }
 
     public boolean isMoving() {
         return movingLeft || movingRight || movingForward || movingBackward || sneaking || flying || jumping;
+    }
+
+    public void addItem(ItemStack item) {
+        if (hotbar.getCurrentSize() < hotbar.getSize()) {
+            hotbar.addItem(item);
+        } else {
+            if (inventory.getCurrentSize() >= inventory.getSize()) {
+                return;
+            }
+            inventory.addItem(item);
+        }
     }
 
     public float getSpeed() {
@@ -798,18 +811,14 @@ public class Player {
         this.speed = speed;
     }
 
-    public ArrayList<Vector3i> getAimedPlacedBlocks() {
-        return aimedPlacedBlocks;
+    public List<PlacedBlock> getPlacedBlocks() {
+        return placedBlocks;
     }
 
     public ArrayList<BreakedBlock> getBreakedBlocks() {
         return breakedBlocks;
     }
 
-    public void setAimedPlacedBlocks(ArrayList<Vector3i> aimedPlacedBlocks) {
-        this.aimedPlacedBlocks = aimedPlacedBlocks;
-    }
-    
     public PlayerInventory getInventory() {
         return inventory;
     }

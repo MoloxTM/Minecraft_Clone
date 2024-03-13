@@ -97,7 +97,7 @@ public class PlayerListener implements EventListener {
             world.getDroppedItems().remove(event.getDroppedItemId());
         }
 
-        player.getInventory().addItem(event.getItem());
+        player.addItem(event.getItem());
     }
 
 }

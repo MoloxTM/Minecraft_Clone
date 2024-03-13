@@ -1,4 +1,4 @@
-package fr.math.minecraft.shared.inventory;
+package fr.math.minecraft.shared.world;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

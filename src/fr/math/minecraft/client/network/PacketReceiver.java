@@ -14,12 +14,10 @@ import fr.math.minecraft.client.events.listeners.PlayerListener;
 import fr.math.minecraft.client.network.payload.StatePayload;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
-import fr.math.minecraft.shared.GameConfiguration;
-import fr.math.minecraft.shared.inventory.DroppedItem;
+import fr.math.minecraft.shared.world.DroppedItem;
 import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.world.Material;
 import org.apache.log4j.Logger;
-import org.joml.Vector3f;
 import org.joml.Vector3i;
 
 import java.io.IOException;
@@ -127,8 +125,7 @@ public class PacketReceiver extends Thread {
                     this.ping = (int) (currentTime - sentTime);
                     break;
                 case "PLAYER_BREAK_EVENT":
-                    System.out.println(responseData);
-                    ArrayNode blocksData = (ArrayNode) responseData.get("aimedBreakedBlocks");
+                    ArrayNode blocksData = (ArrayNode) responseData.get("brokenBlocks");
                     Player player = game.getPlayers().get(responseData.get("uuid").asText());
                     for (int i = 0; i < blocksData.size(); i++) {
                         JsonNode node = blocksData.get(i);
@@ -142,7 +139,9 @@ public class PacketReceiver extends Thread {
                     for (int i = 0; i < blocksDataPlace.size(); i++) {
                         JsonNode node = blocksDataPlace.get(i);
                         Vector3i blockPosition = new Vector3i(node.get("x").asInt(), node.get("y").asInt(), node.get("z").asInt());
-                        this.notifyEvent(new BlockPlaceEvent(playerPlace, blockPosition, Material.STONE));
+                        byte block = (byte) responseData.get("block").asInt();
+                        Material material = Material.getMaterialById(block);
+                        this.notifyEvent(new BlockPlaceEvent(playerPlace, blockPosition, material));
                     }
                     break;
                 case "DROPPED_ITEM_LIST":

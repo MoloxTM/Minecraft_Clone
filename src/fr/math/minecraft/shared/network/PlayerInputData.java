@@ -13,9 +13,10 @@ public class PlayerInputData {
     private final boolean movingLeft, movingRight, movingForward, movingBackward;
     private final boolean flying, sneaking, jumping, sprinting;
     private final boolean placingBlock, breakingBlock, droppingItem;
+    private final int hotbarSlot;
 
 
-    public PlayerInputData(boolean movingLeft, boolean movingRight, boolean movingForward, boolean movingBackward, boolean flying, boolean sneaking, boolean jumping, float yaw, float pitch, boolean sprinting, boolean placingBlock, boolean breakingBlock, boolean droppingItem) {
+    public PlayerInputData(boolean movingLeft, boolean movingRight, boolean movingForward, boolean movingBackward, boolean flying, boolean sneaking, boolean jumping, float yaw, float pitch, boolean sprinting, boolean placingBlock, boolean breakingBlock, boolean droppingItem, int hotbarSlot) {
         this.movingLeft = movingLeft;
         this.movingRight = movingRight;
         this.movingForward = movingForward;
@@ -29,6 +30,7 @@ public class PlayerInputData {
         this.breakingBlock = breakingBlock;
         this.placingBlock = placingBlock;
         this.droppingItem = droppingItem;
+        this.hotbarSlot = hotbarSlot;
     }
 
     public ObjectNode toJSON() {
@@ -48,6 +50,7 @@ public class PlayerInputData {
         node.put("placingBlock", placingBlock);
         node.put("breakingBlock", breakingBlock);
         node.put("droppingItem", droppingItem);
+        node.put("hotbarSlot", hotbarSlot);
 
         return node;
     }
@@ -98,5 +101,9 @@ public class PlayerInputData {
 
     public boolean isDroppingItem() {
         return droppingItem;
+    }
+
+    public int getHotbarSlot() {
+        return hotbarSlot;
     }
 }

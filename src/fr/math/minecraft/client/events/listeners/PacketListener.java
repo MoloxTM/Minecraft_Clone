@@ -15,7 +15,7 @@ import fr.math.minecraft.client.network.payload.StatePayload;
 import fr.math.minecraft.client.texture.Texture;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.PlayerAction;
-import fr.math.minecraft.shared.inventory.DroppedItem;
+import fr.math.minecraft.shared.world.DroppedItem;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.world.Coordinates;
 import fr.math.minecraft.shared.world.Material;
