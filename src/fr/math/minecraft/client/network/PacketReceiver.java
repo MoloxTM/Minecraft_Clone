@@ -139,7 +139,7 @@ public class PacketReceiver extends Thread {
                     for (int i = 0; i < blocksDataPlace.size(); i++) {
                         JsonNode node = blocksDataPlace.get(i);
                         Vector3i blockPosition = new Vector3i(node.get("x").asInt(), node.get("y").asInt(), node.get("z").asInt());
-                        byte block = (byte) responseData.get("block").asInt();
+                        byte block = (byte) node.get("block").asInt();
                         Material material = Material.getMaterialById(block);
                         this.notifyEvent(new BlockPlaceEvent(playerPlace, blockPosition, material));
                     }
