@@ -14,6 +14,7 @@ import fr.math.minecraft.client.network.packet.SkinRequestPacket;
 import fr.math.minecraft.client.network.payload.StatePayload;
 import fr.math.minecraft.client.texture.Texture;
 import fr.math.minecraft.shared.GameConfiguration;
+import fr.math.minecraft.shared.MathUtils;
 import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.shared.world.*;
 import fr.math.minecraft.logger.LogType;
@@ -213,8 +214,6 @@ public class PacketListener implements PacketEventListener {
 
                 if (droppedItem == null) {
                     droppedItem = new DroppedItem(uuid, position, material);
-                    System.out.println("Ajout " + uuid);
-
                     world.getDroppedItems().put(uuid, droppedItem);
                 } else {
                     droppedItem.setRotationAngle(rotationAngle);
@@ -249,5 +248,31 @@ public class PacketListener implements PacketEventListener {
             chunkManager.placeBlock(chunk, localPosition, world, Material.getMaterialById(block));
         }
 
+    }
+
+    @Override
+    public void onBrokenBlockState(BrokenBlockStateEvent event) {
+        BreakedBlock breakedBlock = event.getBreakedBlock();
+        World world = event.getWorld();
+
+        Vector3i worldPosition = breakedBlock.getPosition();
+        int blockX = MathUtils.mod(worldPosition.x, Chunk.SIZE);
+        int blockY = MathUtils.mod(worldPosition.y, Chunk.SIZE);
+        int blockZ = MathUtils.mod(worldPosition.z, Chunk.SIZE);
+        Vector3i localPosition = new Vector3i(blockX, blockY, blockZ);
+
+        Chunk chunk = world.getChunkAt(worldPosition);
+        ChunkManager chunkManager = new ChunkManager();
+
+        if (chunk == null) {
+            world.getBrokenBlocks().put(worldPosition, breakedBlock);
+            return;
+        }
+
+        byte chunkBlock = chunk.getBlock(localPosition.x, localPosition.y, localPosition.z);
+
+        if (chunkBlock != Material.AIR.getId()) {
+            chunkManager.removeBlock(chunk, localPosition, world);
+        }
     }
 }

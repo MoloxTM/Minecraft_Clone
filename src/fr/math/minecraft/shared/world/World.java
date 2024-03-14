@@ -3,6 +3,10 @@ package fr.math.minecraft.shared.world;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.math.minecraft.client.Game;
+import fr.math.minecraft.client.gui.menus.ConnectionMenu;
+import fr.math.minecraft.client.gui.menus.Menu;
+import fr.math.minecraft.client.manager.MenuManager;
 import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.meshs.WaterMesh;
 import fr.math.minecraft.logger.LogType;
@@ -31,7 +35,7 @@ public class World {
     private final static Logger logger = LoggerUtility.getServerLogger(World.class, LogType.TXT);
     private final Map<Vector3i, BreakedBlock> brokenBlocks;
     private final Map<Vector3i, PlacedBlock> placedBlocks;
-
+    private Set<Coordinates> loadedRegions;
     private TerrainGenerator terrainGenerator;
     private final int SPAWN_SIZE = 2;
 
@@ -48,6 +52,7 @@ public class World {
         this.droppedItems = new HashMap<>();
         this.brokenBlocks = new HashMap<>();
         this.placedBlocks = new HashMap<>();
+        this.loadedRegions = new HashSet<>();
 
         for (Material material : Material.values()) {
             if (material.isSolid()) {
@@ -84,7 +89,6 @@ public class World {
                 }
             }
         }
-
         logger.info("Spawn construit avec succès !");
     }
 
@@ -104,6 +108,7 @@ public class World {
                     chunk.setMesh(chunkMesh);
                     chunk.setWaterMesh(waterMesh);
                     chunk.setLoaded(true);
+
                 }
             }
         }
@@ -236,7 +241,8 @@ public class World {
 
     public void generateRegion(Vector3i regionPosition) {
         Coordinates coordinates = new Coordinates(regionPosition);
-        if (!regions.containsKey(coordinates)) {
+        if (!loadedRegions.contains(coordinates)) {
+            loadedRegions.add(coordinates);
             Region region = new Region(regionPosition);
             region.generateStructure(this);
             this.addRegion(region, coordinates);
@@ -319,4 +325,5 @@ public class World {
 
         return worldNode;
     }
+
 }

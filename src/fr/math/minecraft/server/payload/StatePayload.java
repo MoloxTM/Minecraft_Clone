@@ -152,6 +152,8 @@ public class StatePayload {
         ObjectNode payloadNode = mapper.createObjectNode();
         ArrayNode brokenBlocksArray = mapper.createArrayNode();
         ArrayNode placedBlocksArray = mapper.createArrayNode();
+        ArrayNode inventoryArray = mapper.createArrayNode();
+        ArrayNode hotbarArray = mapper.createArrayNode();
 
         payloadNode.put("tick", payload.getTick());
         payloadNode.put("type", "STATE_PAYLOAD");
@@ -197,8 +199,30 @@ public class StatePayload {
 
         }
 
+        ObjectNode airNode = mapper.createObjectNode();
+        airNode.put("block", -1);
+        airNode.put("amount", 0);
+
+        for (ItemStack item : inventory.getItems()) {
+            if (item == null) {
+                inventoryArray.add(airNode);
+                continue;
+            }
+            inventoryArray.add(item.toJSONObject());
+        }
+
+        for (ItemStack item : hotbar.getItems()) {
+            if (item == null) {
+                hotbarArray.add(airNode);
+                continue;
+            }
+            hotbarArray.add(item.toJSONObject());
+        }
+
         payloadNode.set("aimedPlacedBlocks", placedBlocksArray);
         payloadNode.set("brokenBlocks", brokenBlocksArray);
+        payloadNode.set("inventory", inventoryArray);
+        payloadNode.set("hotbar", hotbarArray);
 
         return payloadNode;
     }

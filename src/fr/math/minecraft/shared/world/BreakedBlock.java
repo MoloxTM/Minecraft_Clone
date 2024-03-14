@@ -1,5 +1,6 @@
 package fr.math.minecraft.shared.world;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.manager.ChunkManager;
@@ -15,6 +16,15 @@ public class BreakedBlock {
 
     public BreakedBlock(Vector3i position, byte block) {
         this.position = position;
+        this.block = block;
+    }
+
+    public BreakedBlock(JsonNode data) {
+        int worldX = data.get("wx").asInt();
+        int worldY = data.get("wy").asInt();
+        int worldZ = data.get("wz").asInt();
+        byte block = (byte) data.get("block").asInt();
+        this.position = new Vector3i(worldX, worldY, worldZ);
         this.block = block;
     }
 

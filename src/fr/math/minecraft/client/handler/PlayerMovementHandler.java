@@ -69,6 +69,7 @@ public class PlayerMovementHandler {
 
         lastServerState.verifyPlacedBlocks(world, payload.getPlacedBlocks());
         lastServerState.verifyBrokenBlocks(world, payload.getBreakedBlockData());
+        lastServerState.reconcileInventory(player);
 
         if (positionError > 0.001f) {
             Camera camera = Game.getInstance().getCamera();

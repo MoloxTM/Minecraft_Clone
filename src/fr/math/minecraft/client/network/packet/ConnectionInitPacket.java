@@ -109,6 +109,14 @@ public class ConnectionInitPacket extends ClientPacket implements Runnable {
             worldLoader.load(world, worldData);
             logger.info("Données du monde fournies par le serveur chargées avec succès !");
 
+            MenuManager menuManager = Game.getInstance().getMenuManager();
+            Menu menu = menuManager.getOpenedMenu();
+
+            if (menu instanceof ConnectionMenu) {
+                ConnectionMenu connectionMenu = (ConnectionMenu) menu;
+                connectionMenu.getTitle().setText("Construction du monde...");
+            }
+
             world.buildSpawn();
             world.buildSpawnMesh();
 

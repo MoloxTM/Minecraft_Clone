@@ -14,6 +14,7 @@ import fr.math.minecraft.client.events.listeners.PlayerListener;
 import fr.math.minecraft.client.network.payload.StatePayload;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
+import fr.math.minecraft.shared.world.BreakedBlock;
 import fr.math.minecraft.shared.world.DroppedItem;
 import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.world.Material;
@@ -92,6 +93,10 @@ public class PacketReceiver extends Thread {
                 case "PLACED_BLOCK_STATE":
                     PlacedBlock placedBlock = new PlacedBlock(responseData);
                     this.notifyEvent(new PlacedBlockStateEvent(game.getWorld(), placedBlock));
+                    break;
+                case "BROKEN_BLOCK_STATE":
+                    BreakedBlock breakedBlock = new BreakedBlock(responseData);
+                    this.notifyEvent(new BrokenBlockStateEvent(game.getWorld(), breakedBlock));
                     break;
                 case "PLAYER_JOIN":
                     this.notifyEvent(new PlayerJoinEvent(responseData));
@@ -180,6 +185,12 @@ public class PacketReceiver extends Thread {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void notifyEvent(BrokenBlockStateEvent event) {
+        for (PacketEventListener listener : packetListeners) {
+            listener.onBrokenBlockState(event);
         }
     }
 

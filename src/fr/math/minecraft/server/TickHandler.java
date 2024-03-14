@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.math.minecraft.server.payload.BrokenBlockPayload;
 import fr.math.minecraft.server.payload.InputPayload;
+import fr.math.minecraft.server.payload.PlacedBlockPayload;
 import fr.math.minecraft.server.payload.StatePayload;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.world.BreakedBlock;
@@ -174,28 +176,35 @@ public class TickHandler extends Thread {
                 e.printStackTrace();
             }
         }
+
         synchronized (world.getPlacedBlocks()) {
             for (PlacedBlock placedBlock : world.getPlacedBlocks().values()) {
-                try {
-                    ObjectNode blockNode = placedBlock.toJSONObject();
-                    blockNode.put("type", "PLACED_BLOCK_STATE");
-                    byte[] buffer = mapper.writeValueAsBytes(blockNode);
-                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-                    synchronized (server.getClients()) {
-                        for (Client client : server.getClients().values()) {
-                            if (!client.isActive()) {
-                                continue;
-                            }
+                PlacedBlockPayload payload = new PlacedBlockPayload(placedBlock);
+                synchronized (server.getClients()) {
+                    for (Client client : server.getClients().values()) {
 
-                            packet.setAddress(client.getAddress());
-                            packet.setPort(client.getPort());
-
-                            server.sendPacket(packet);
-
+                        if (!client.isActive()) {
+                            continue;
                         }
+
+                        payload.send(client);
                     }
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
+                }
+            }
+        }
+
+        synchronized (world.getBrokenBlocks()) {
+            for (BreakedBlock breakedBlock : world.getBrokenBlocks().values()) {
+                BrokenBlockPayload payload = new BrokenBlockPayload(breakedBlock);
+                synchronized (server.getClients()) {
+                    for (Client client : server.getClients().values()) {
+
+                        if (!client.isActive()) {
+                            continue;
+                        }
+
+                        payload.send(client);
+                    }
                 }
             }
         }

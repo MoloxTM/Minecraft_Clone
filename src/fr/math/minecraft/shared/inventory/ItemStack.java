@@ -1,5 +1,8 @@
 package fr.math.minecraft.shared.inventory;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.shared.world.Material;
 import org.joml.Math;
 import org.joml.Vector2f;
@@ -17,6 +20,12 @@ public class ItemStack {
     public ItemStack(Material material, int amount) {
         this.amount = amount;
         this.material = material;
+        this.lore = new ArrayList<>();
+    }
+
+    public ItemStack(JsonNode itemNode) {
+        this.amount = itemNode.get("amount").asInt();
+        this.material = Material.getMaterialById((byte) itemNode.get("block").asInt());
         this.lore = new ArrayList<>();
     }
 
@@ -44,17 +53,14 @@ public class ItemStack {
         this.hovered = hovered;
     }
 
-    public Vector2f[] calculateTexCoords() {
+    public ObjectNode toJSONObject() {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode itemNode = mapper.createObjectNode();
 
-        float blocksIconsImageWidth = 256.0f;
-        float blocksIconsSize = 48.0f;
+        itemNode.put("block", material.getId());
+        itemNode.put("amount", amount);
 
-        return new Vector2f[] {
-            new Vector2f(material.getBlockIconX() / blocksIconsImageWidth, material.getBlockIconY() / blocksIconsImageWidth),
-            new Vector2f(material.getBlockIconX() / blocksIconsImageWidth, (material.getBlockIconY() + blocksIconsSize) / blocksIconsImageWidth),
-            new Vector2f((material.getBlockIconX() + blocksIconsSize) / blocksIconsImageWidth, (material.getBlockIconY() + blocksIconsSize) / blocksIconsImageWidth),
-            new Vector2f((material.getBlockIconX() + blocksIconsSize) / blocksIconsImageWidth, material.getBlockIconY() / blocksIconsImageWidth),
-        };
+        return itemNode;
     }
 
 }

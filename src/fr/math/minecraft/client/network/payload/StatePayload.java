@@ -10,6 +10,7 @@ import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.MathUtils;
+import fr.math.minecraft.shared.inventory.Inventory;
 import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.network.PlayerInputData;
 import fr.math.minecraft.shared.world.*;
@@ -30,9 +31,8 @@ public class StatePayload {
     private Vector3f velocity;
     private List<BreakedBlock> breakedBlockData;
     private List<PlacedBlock> placedBlocks;
-    private List<Byte> materialAimedPlacedBlockData;
     private float yaw, pitch;
-
+    private ArrayNode inventoryItems, hotbarItems;
     private final static Logger logger = LoggerUtility.getClientLogger(StatePayload.class, LogType.TXT);
 
 
@@ -51,7 +51,8 @@ public class StatePayload {
         this.payload = new InputPayload(stateData.get("tick").asInt());
         this.breakedBlockData = new ArrayList<>();
         this.placedBlocks = new ArrayList<>();
-        this.materialAimedPlacedBlockData = new ArrayList<>();
+        this.inventoryItems = (ArrayNode) stateData.get("inventory");
+        this.hotbarItems = (ArrayNode) stateData.get("hotbar");
 
         this.extractBrokenBlocks(stateData);
         this.extractPlacedBlocks(stateData);
@@ -208,6 +209,31 @@ public class StatePayload {
         }
     }
 
+    public void reconcileInventory(Player player) {
+        Inventory inventory = player.getInventory();
+        Inventory hotbar = player.getHotbar();
+
+        for (int slot = 0; slot < inventoryItems.size(); slot++) {
+            JsonNode itemNode = inventoryItems.get(slot);
+            ItemStack item = new ItemStack(itemNode);
+            if (item.getMaterial() == Material.AIR) {
+                inventory.setItem(null, slot);
+            } else {
+                inventory.setItem(item, slot);
+            }
+        }
+
+        for (int slot = 0; slot < hotbarItems.size(); slot++) {
+            JsonNode itemNode = hotbarItems.get(slot);
+            ItemStack item = new ItemStack(itemNode);
+            if (item.getMaterial() == Material.AIR) {
+                hotbar.setItem(null, slot);
+            } else {
+                hotbar.setItem(item, slot);
+            }
+        }
+    }
+
     public void send(Player player) {
         PlayerMovePacket packet = new PlayerMovePacket(player, this, payload);
         FixedPacketSender.getInstance().enqueue(packet);
@@ -286,5 +312,13 @@ public class StatePayload {
 
     public List<PlacedBlock> getPlacedBlocks() {
         return placedBlocks;
+    }
+
+    public ArrayNode getHotbarItems() {
+        return hotbarItems;
+    }
+
+    public ArrayNode getInventoryItems() {
+        return inventoryItems;
     }
 }

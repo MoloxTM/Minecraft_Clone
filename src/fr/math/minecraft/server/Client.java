@@ -281,7 +281,16 @@ public class Client {
 
                     logger.info(name + " (" + uuid + ") a cassé un block de " + material + " en " + breakRay.getBlockWorldPosition());
 
-                    world.getBrokenBlocks().put(breakedBlock.getPosition(), breakedBlock);
+                    synchronized (world.getPlacedBlocks()) {
+                        PlacedBlock placedBlock = world.getPlacedBlocks().get(breakedBlock.getPosition());
+                        if (placedBlock != null) {
+                            world.getPlacedBlocks().remove(breakedBlock.getPosition());
+                        }
+                    }
+
+                    synchronized (world.getBrokenBlocks()) {
+                        world.getBrokenBlocks().put(breakedBlock.getPosition(), breakedBlock);
+                    }
 
                     breakRay.getAimedChunk().setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, Material.AIR.getId());
                     breakRay.reset();
@@ -323,17 +332,31 @@ public class Client {
                         Vector3i placedBlockWorldPosition = buildRay.getBlockPlacedPosition(rayPosition);
                         Vector3i blockPositionLocal = Utils.worldToLocal(placedBlockWorldPosition);
                         PlacedBlock placedBlock = new PlacedBlock(uuid, placedBlockWorldPosition, blockPositionLocal, hotbarItem.getMaterial().getId());
-                        Material material = Material.getMaterialById(block);
+                        Material material = hotbarItem.getMaterial();
                         placedBlocks.add(placedBlock);
 
-                        world.getPlacedBlocks().put(placedBlock.getWorldPosition(), placedBlock);
+                        synchronized (world.getBrokenBlocks()) {
+                            BreakedBlock breakedBlock = world.getBrokenBlocks().get(placedBlock.getWorldPosition());
+                            if (breakedBlock != null) {
+                                world.getBrokenBlocks().remove(placedBlock.getWorldPosition());
+                            }
+                        }
+
+                        synchronized (world.getPlacedBlocks()) {
+                            world.getPlacedBlocks().put(placedBlock.getWorldPosition(), placedBlock);
+                        }
 
                         /*On détermine le chunk où le */
                         Chunk aimedChunk = world.getChunkAt(placedBlockWorldPosition);
 
                         aimedChunk.setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, material.getId());
+                        hotbarItem.setAmount(hotbarItem.getAmount() - 1);
 
-                        logger.info(name + " (" + uuid + ") a placé un block de " + Material.getMaterialById(block) + " en " + buildRay.getBlockWorldPosition());
+                        if (hotbarItem.getAmount() == 0) {
+                            hotbar.getItems()[hotbar.getSelectedSlot()] = null;
+                        }
+
+                        logger.info(name + " (" + uuid + ") a placé un block de " + hotbarItem.getMaterial() + " en " + buildRay.getBlockWorldPosition());
 
                         buildRay.reset();
                         this.canPlaceBlock = false;

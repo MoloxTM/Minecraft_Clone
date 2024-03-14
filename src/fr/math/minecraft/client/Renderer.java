@@ -611,7 +611,7 @@ public class Renderer {
             imageMesh.draw();
 
             if (item.getAmount() > 1) {
-                this.renderText(camera, item.getAmount() + "", itemX + slotSize * 1.4f / 2.0f, itemY, -10, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
+                this.renderText(camera, item.getAmount() + "", itemX + slotSize * 1.4f / 1.5f, itemY, -10, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
             }
         }
 
@@ -716,7 +716,6 @@ public class Renderer {
         imageMesh.draw();
 
         widgetsTexture.unbind();
-        guiBlocksTexture.bind();
 
         for (int i = 0; i < hotbar.getSize(); i++) {
             ItemStack item = hotbar.getItems()[i];
@@ -724,6 +723,10 @@ public class Renderer {
             if (item == null) {
                 continue;
             }
+
+            glActiveTexture(GL_TEXTURE0 + guiBlocksTexture.getSlot());
+            guiBlocksTexture.bind();
+            imageShader.sendInt("uTexture", guiBlocksTexture.getSlot());
 
             Material material = item.getMaterial();
             float size = material.isItem() ? 16.0f : 48.0f;
@@ -744,14 +747,18 @@ public class Renderer {
             camera.matrixOrtho(imageShader, 0, 0);
 
             imageMesh.draw();
+
+            if (item.getAmount() > 1) {
+                this.renderText(camera, item.getAmount() + "", itemX + 22 * scale * .7f / 1.5f, itemY, -8, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
+            }
         }
 
         int filledHearts = (int) player.getHealth() / 2;
         float missingHearts = player.getMaxHealth() - player.getHealth();
 
+        imageShader.enable();
         glActiveTexture(GL_TEXTURE0 + iconsTexture.getSlot());
         iconsTexture.bind();
-
         imageShader.sendInt("uTexture", iconsTexture.getSlot());
 
         int iconSize = 9;
