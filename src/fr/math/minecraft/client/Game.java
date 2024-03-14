@@ -3,6 +3,7 @@ package fr.math.minecraft.client;
 import fr.math.minecraft.client.audio.Sound;
 import fr.math.minecraft.client.audio.Sounds;
 import fr.math.minecraft.client.entity.Ray;
+import fr.math.minecraft.client.entity.mob.Mob;
 import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.client.events.listeners.PlayerListener;
 import fr.math.minecraft.client.gui.buttons.BlockButton;
@@ -50,6 +51,7 @@ public class Game {
     private static Game instance = null;
     private MinecraftClient client;
     private Map<String, Player> players;
+    private Map<String, Mob> mobs;
     private Map<String, Sound> sounds;
     private Map<Class<? extends Menu>, Menu> menus;
     private Player player;
@@ -130,6 +132,7 @@ public class Game {
         this.client = new MinecraftClient(50000);
         this.sounds = new HashMap<>();
         this.players = new HashMap<>();
+        this.mobs = new HashMap<>();
         this.menus = new HashMap<>();
         this.updateTimer = 0.0f;
         this.camera = new Camera(GameConfiguration.WINDOW_WIDTH, GameConfiguration.WINDOW_HEIGHT);
@@ -452,6 +455,10 @@ public class Game {
 
     public Map<String, Player> getPlayers() {
         return players;
+    }
+
+    public Map<String, Mob> getMobs() {
+        return mobs;
     }
 
     public Player getPlayer() {
