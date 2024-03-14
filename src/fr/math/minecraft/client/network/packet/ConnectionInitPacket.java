@@ -90,11 +90,16 @@ public class ConnectionInitPacket extends ClientPacket implements Runnable {
             return;
 
         try {
+            logger.info("Tentative de connexion...");
             String data = client.sendString(message);
+
+            if (data.equalsIgnoreCase("TIMEOUT_REACHED")) {
+                throw new RuntimeException("Impossible d'envoyer le packet, le serveur a mis trop de temps à répondre ! (timeout)");
+            }
 
             JsonNode serverData = mapper.readTree(data);
 
-            System.out.println(serverData);
+            logger.info("Connexion initié, Réponse : " + serverData);
 
             String uuid = serverData.get("uuid").asText();
 
@@ -124,10 +129,6 @@ public class ConnectionInitPacket extends ClientPacket implements Runnable {
                 throw new RuntimeException("Le joueur " + player.getName() + " est déjà connecté !");
             }
 
-            if (uuid.equalsIgnoreCase("TIMEOUT_REACHED")) {
-                throw new RuntimeException("Impossible d'envoyer le packet, le serveur a mis trop de temps à répondre ! (timeout)");
-            }
-
             player.setUuid(uuid.substring(0, 36));
 
             player.getPosition().x = spawnX;
@@ -148,6 +149,7 @@ public class ConnectionInitPacket extends ClientPacket implements Runnable {
             client.sendMessage(mapper.writeValueAsString(node));
         } catch (IOException e) {
             logger.error(e.getMessage());
+            throw new RuntimeException("Une erreur inattendue s'est produite.");
         }
     }
 
@@ -167,6 +169,7 @@ public class ConnectionInitPacket extends ClientPacket implements Runnable {
             baos.close();
             return mapper.writeValueAsString(node);
         } catch (IOException e) {
+            e.printStackTrace();
             return null;
         }
     }
