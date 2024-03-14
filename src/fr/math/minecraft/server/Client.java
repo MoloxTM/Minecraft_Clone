@@ -7,6 +7,7 @@ import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.shared.inventory.Hotbar;
 import fr.math.minecraft.shared.inventory.ItemStack;
+import fr.math.minecraft.shared.network.GameMode;
 import fr.math.minecraft.shared.world.*;
 import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.shared.Sprite;
@@ -46,30 +47,25 @@ public class Client {
     private boolean flying, sneaking;
     private boolean canBreakBlock, canPlaceBlock;
     private boolean active;
-    private final Vector3i inputVector;
     private final Vector3f velocity;
     private final Vector3f gravity;
-    private final Vector3f acceleration;
+    private GameMode gameMode;
     private float maxSpeed;
-    private float maxFallSpeed;
     private final Hitbox hitbox;
-    private Vector3f lastChunkPosition;
     private final Queue<InputPayload> inputQueue;
     private final StatePayload[] stateBuffer;
     private boolean canJump;
     private final Ray buildRay, attackRay, breakRay;
-    private List<Vector3i> aimedPLacedBlocks;
     private List<BreakedBlock> breakedBlocks;
     private List<PlacedBlock> placedBlocks;
-    private List<Byte> aimedPLacedBlocksIDs, aimedBreakedBlocksIDs;;
     private int breakBlockCooldown, placeBlockCoolDown;
-    private List<Vector3i> aimedBlocks;
-    private List<Byte> aimedBlocksIDs;
     private Sprite sprite;
     private PlayerAction action;
     private final static Logger logger = LoggerUtility.getServerLogger(Client.class, LogType.TXT);
     private final PlayerInventory inventory;
     private final Hotbar hotbar;
+    private final static float JUMP_VELOCITY = .125f;
+
 
     public Client(String uuid, String name, InetAddress address, int port) {
         this.address = address;
@@ -79,18 +75,15 @@ public class Client {
         this.velocity = new Vector3f();
         this.inputQueue = new LinkedList<>();
         this.gravity = new Vector3f(0, -0.0025f, 0);
-        this.acceleration = new Vector3f();
         this.front = new Vector3f(0.0f, 0.0f, 0.0f);
         this.position = new Vector3f(0.0f, 300.0f, 0.0f);
-        this.lastChunkPosition = new Vector3f(0, 0, 0);
-        this.inputVector = new Vector3i(0, 0, 0);
         this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 1.0f, 0.25f));
         this.stateBuffer = new StatePayload[GameConfiguration.BUFFER_SIZE];
+        this.gameMode = GameMode.SURVIVAL;
         this.yaw = 0.0f;
         this.pitch = 0.0f;
         this.speed = GameConfiguration.DEFAULT_SPEED;
         this.maxSpeed = 0.03f;
-        this.maxFallSpeed = 0.03f;
         this.breakBlockCooldown = GameConfiguration.BLOCK_BREAK_COOLDOWN;
         this.placeBlockCoolDown= GameConfiguration.BLOCK_BREAK_COOLDOWN;
         this.skin = null;
@@ -109,13 +102,8 @@ public class Client {
         this.buildRay = new Ray(GameConfiguration.BUILDING_REACH);
         this.breakRay = new Ray(GameConfiguration.BUILDING_REACH);
         this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
-        this.aimedPLacedBlocks = new ArrayList<>();
-        this.aimedPLacedBlocksIDs = new ArrayList<>();
         this.breakedBlocks = new ArrayList<>();
         this.placedBlocks = new ArrayList<>();
-        this.aimedBreakedBlocksIDs = new ArrayList<>();
-        this.aimedBlocks = new ArrayList<>();
-        this.aimedBlocksIDs = new ArrayList<>();
         this.inventory = new PlayerInventory();
         this.hotbar = new Hotbar();
     }
@@ -156,7 +144,6 @@ public class Client {
                         position.y = worldY - hitbox.getHeight();
                         this.velocity.y = 0;
                     } else if (velocity.y < 0) {
-                        maxFallSpeed = 0.03f;
                         canJump = true;
                         position.y = worldY + hitbox.getHeight() + 1;
                         this.velocity.y = 0;
@@ -198,7 +185,9 @@ public class Client {
 
             this.resetMoving();
 
-            velocity.add(gravity);
+            if (gameMode == GameMode.SURVIVAL) {
+                velocity.add(gravity);
+            }
 
             hotbar.setSelectedSlot(inputData.getHotbarSlot());
 
@@ -233,8 +222,7 @@ public class Client {
             if (inputData.isJumping()) {
                 // this.handleJump();
                 if (canJump) {
-                    maxFallSpeed = 0.5f;
-                    acceleration.y += 10.0f;
+                    velocity.y = JUMP_VELOCITY;
                     canJump = false;
                 }
             }
@@ -248,11 +236,13 @@ public class Client {
                 velocity.z = velocityNorm.z;
             }
 
+            /*
             if (new Vector3f(0, velocity.y, 0).length() > maxFallSpeed) {
                 Vector3f velocityNorm = new Vector3f(velocity.x, velocity.y, velocity.z);
                 velocityNorm.normalize().mul(maxFallSpeed);
                 velocity.y = velocityNorm.y;
             }
+             */
 
             position.x += velocity.x;
             handleCollisions(new Vector3f(velocity.x, 0, 0));
@@ -359,7 +349,6 @@ public class Client {
         if (canJump) {
             velocity.y += gravity.y * (2.5f - 1) * 1.0f / GameConfiguration.UPS;
             canJump = false;
-            maxFallSpeed = 1f;
         }
     }
 
@@ -473,18 +462,6 @@ public class Client {
 
     public StatePayload[] getStateBuffer() {
         return stateBuffer;
-    }
-
-    public List<Byte> getAimedPLacedBlocksIDs() {
-        return aimedPLacedBlocksIDs;
-    }
-
-    public List<Vector3i> getAimedPLacedBlocks() {
-        return aimedPLacedBlocks;
-    }
-
-    public List<Byte> getAimedBreakedBlocksIDs() {
-        return aimedBreakedBlocksIDs;
     }
 
     public List<BreakedBlock> getBreakedBlocks() {

@@ -198,6 +198,7 @@ public class PacketListener implements PacketEventListener {
 
         World world = event.getWorld();
         ArrayNode itemsData = event.getItemsData();
+
         synchronized (world.getDroppedItems()) {
             for (int i = 0; i < itemsData.size(); i++) {
 

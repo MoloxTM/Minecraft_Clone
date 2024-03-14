@@ -54,7 +54,7 @@ public class WorldManager {
         int endZ = (int) (Math.floor(player.getPosition().z / (double) Chunk.SIZE) + GameConfiguration.CHUNK_RENDER_DISTANCE);
 
         for (int x = startX; x <= endX; x++) {
-            for (int y = -3; y <= 10; y++) {
+            for (int y = 0; y <= 10; y++) {
                 for (int z = startZ; z <= endZ; z++) {
 
                     Coordinates coordinates = new Coordinates(x, y, z);
@@ -88,13 +88,12 @@ public class WorldManager {
 
     public Vector3i[] getNeighboors(Chunk chunk) {
         Vector3i[] neighboors = new Vector3i[] {
-
-                new Vector3i(chunk.getPosition().x + 1, chunk.getPosition().y, chunk.getPosition().z),
-                new Vector3i(chunk.getPosition().x - 1, chunk.getPosition().y, chunk.getPosition().z),
-                new Vector3i(chunk.getPosition().x, chunk.getPosition().y + 1, chunk.getPosition().z),
-                new Vector3i(chunk.getPosition().x, chunk.getPosition().y - 1, chunk.getPosition().z),
-                new Vector3i(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z + 1),
-                new Vector3i(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z - 1)
+            new Vector3i(chunk.getPosition().x + 1, chunk.getPosition().y, chunk.getPosition().z),
+            new Vector3i(chunk.getPosition().x - 1, chunk.getPosition().y, chunk.getPosition().z),
+            new Vector3i(chunk.getPosition().x, chunk.getPosition().y + 1, chunk.getPosition().z),
+            new Vector3i(chunk.getPosition().x, chunk.getPosition().y - 1, chunk.getPosition().z),
+            new Vector3i(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z + 1),
+            new Vector3i(chunk.getPosition().x, chunk.getPosition().y, chunk.getPosition().z - 1)
         };
         return neighboors;
     }

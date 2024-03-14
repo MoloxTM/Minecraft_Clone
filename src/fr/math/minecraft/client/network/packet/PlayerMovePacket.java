@@ -64,6 +64,7 @@ public class PlayerMovePacket extends ClientPacket {
         try {
             return mapper.writeValueAsString(messageNode);
         } catch (JsonProcessingException e) {
+            e.printStackTrace();
             return null;
         }
     }

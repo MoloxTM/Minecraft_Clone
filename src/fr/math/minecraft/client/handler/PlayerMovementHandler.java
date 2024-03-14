@@ -50,7 +50,7 @@ public class PlayerMovementHandler {
         stateBuffer[bufferIndex] = statePayload;
 
         if (lastServerState != null) {
-            //this.reconcile(world, player);
+            this.reconcile(world, player);
         }
 
         currentTick++;
@@ -59,6 +59,7 @@ public class PlayerMovementHandler {
     public void reconcile(World world, Player player) {
 
         int serverTick = lastServerState.getInputPayload().getTick();
+
         Vector3f serverPosition = lastServerState.getPosition();
         Vector3f serverVelocity = lastServerState.getVelocity();
 

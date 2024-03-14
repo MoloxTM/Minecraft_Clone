@@ -81,6 +81,10 @@ public class PacketReceiver extends Thread {
             if (response == null) return;
 
             JsonNode responseData = mapper.readTree(response);
+            if (responseData.get("type") == null) {
+                logger.error("Packet inconnu : " + responseData);
+                return;
+            }
             String packetType = responseData.get("type").asText();
 
             switch (packetType) {

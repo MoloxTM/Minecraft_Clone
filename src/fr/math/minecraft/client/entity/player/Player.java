@@ -90,17 +90,12 @@ public class Player {
     private PlayerAction action;
     private Sprite sprite;
     private final PlayerCraftInventory craftInventory;
-    private final static float JUMP_HEIGHT = .208f;
-    private final static float JUMP_TIME_TO_PEAK = 0.6f;
-    private final static float JUMP_TIME_TO_DESCENT = 0.4f;
-    private final static float JUMP_VELOCITY = (2.0f * JUMP_HEIGHT) / JUMP_TIME_TO_PEAK;
-    private final static float JUMP_GRAVITY = (-2.0f * JUMP_HEIGHT) / (JUMP_TIME_TO_PEAK * JUMP_TIME_TO_PEAK);
-    private final static float FALL_GRAVITY = (-2.0f * JUMP_HEIGHT) / (JUMP_TIME_TO_DESCENT * JUMP_TIME_TO_DESCENT);
+    private final static float JUMP_VELOCITY = .125f;
 
     public Player(String name) {
         this.position = new Vector3f(0.0f, 100.0f, 0.0f);
         this.lastPosition = new Vector3f(0, 0, 0);
-        this.gravity = new Vector3f();
+        this.gravity = new Vector3f(0, -0.0025f, 0);
         this.velocity = new Vector3f();
         this.receivedChunks = new HashSet<>();
         this.inputs = new ArrayList<>();
@@ -157,8 +152,8 @@ public class Player {
         this.skin = null;
         this.skinPath = "res/textures/skin.png";
         this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
-        this.buildRay = new Ray(GameConfiguration.BUILDING_REACH * 3);
-        this.breakRay = new Ray(GameConfiguration.BUILDING_REACH * 3);
+        this.buildRay = new Ray(GameConfiguration.BUILDING_REACH);
+        this.breakRay = new Ray(GameConfiguration.BUILDING_REACH);
         this.placedBlocks = new ArrayList<>();
         this.breakedBlocks = new ArrayList<>();
         this.craftInventory = new PlayerCraftInventory();
@@ -459,6 +454,10 @@ public class Player {
         Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
         Vector3f acceleration = new Vector3f(0, 0, 0);
 
+        if (gameMode == GameMode.SURVIVAL) {
+            velocity.add(gravity);
+        }
+
         if (sprinting) {
             this.setSpeed(GameConfiguration.SPRINT_SPEED);
         } else {
@@ -573,11 +572,6 @@ public class Player {
                 world.getDroppedItems().add(new ItemStack(item.getMaterial(), 1));
                  */
             }
-        }
-
-        if (gameMode == GameMode.SURVIVAL) {
-            gravity.y = velocity.y < 0 ? JUMP_GRAVITY : FALL_GRAVITY;
-            acceleration.add(gravity);
         }
 
         velocity.add(acceleration.mul(speed));

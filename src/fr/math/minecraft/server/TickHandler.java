@@ -146,6 +146,7 @@ public class TickHandler extends Thread {
                 droppedItemArray.add(droppedItemNode);
             }
 
+
             node.put("type", "DROPPED_ITEM_LIST");
             node.set("droppedItems", droppedItemArray);
 
