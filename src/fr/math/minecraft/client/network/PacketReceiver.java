@@ -17,6 +17,7 @@ import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.shared.world.DroppedItem;
 import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.world.Material;
+import fr.math.minecraft.shared.world.PlacedBlock;
 import org.apache.log4j.Logger;
 import org.joml.Vector3i;
 
@@ -88,6 +89,10 @@ public class PacketReceiver extends Thread {
             String packetType = responseData.get("type").asText();
 
             switch (packetType) {
+                case "PLACED_BLOCK_STATE":
+                    PlacedBlock placedBlock = new PlacedBlock(responseData);
+                    this.notifyEvent(new PlacedBlockStateEvent(game.getWorld(), placedBlock));
+                    break;
                 case "PLAYER_JOIN":
                     this.notifyEvent(new PlayerJoinEvent(responseData));
                     break;
@@ -175,6 +180,12 @@ public class PacketReceiver extends Thread {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void notifyEvent(PlacedBlockStateEvent event) {
+        for (PacketEventListener listener : packetListeners) {
+            listener.onPlacedBlockState(event);
         }
     }
 

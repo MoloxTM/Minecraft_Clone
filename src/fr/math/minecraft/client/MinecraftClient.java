@@ -24,7 +24,7 @@ public class MinecraftClient {
         this.connect();
     }
 
-    public void connect()  {
+    public void connect() {
         try {
             this.socket = new DatagramSocket();
             this.socket.setSoTimeout(10000);

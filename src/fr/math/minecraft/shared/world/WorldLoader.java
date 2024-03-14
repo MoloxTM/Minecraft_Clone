@@ -38,10 +38,11 @@ public class WorldLoader {
             int localZ = placedBlockNode.get("lz").asInt();
 
             byte block = (byte) placedBlockNode.get("block").asInt();
+            String playerUuid = placedBlockNode.get("playerUuid").asText();
             Vector3i worldPosition = new Vector3i(worldX, worldY, worldZ);
             Vector3i localPosition = new Vector3i(localX, localY, localZ);
 
-            PlacedBlock placedBlock = new PlacedBlock(worldPosition, localPosition, block);
+            PlacedBlock placedBlock = new PlacedBlock(playerUuid, worldPosition, localPosition, block);
 
             world.getPlacedBlocks().put(worldPosition, placedBlock);
 

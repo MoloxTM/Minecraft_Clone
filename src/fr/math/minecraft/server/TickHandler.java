@@ -8,8 +8,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.server.payload.StatePayload;
 import fr.math.minecraft.shared.GameConfiguration;
+import fr.math.minecraft.shared.world.BreakedBlock;
 import fr.math.minecraft.shared.world.DroppedItem;
+import fr.math.minecraft.shared.world.PlacedBlock;
 import fr.math.minecraft.shared.world.World;
+import org.joml.Vector3i;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -169,6 +172,31 @@ public class TickHandler extends Thread {
                 }
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
+            }
+        }
+        synchronized (world.getPlacedBlocks()) {
+            for (PlacedBlock placedBlock : world.getPlacedBlocks().values()) {
+                try {
+                    ObjectNode blockNode = placedBlock.toJSONObject();
+                    blockNode.put("type", "PLACED_BLOCK_STATE");
+                    byte[] buffer = mapper.writeValueAsBytes(blockNode);
+                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+                    synchronized (server.getClients()) {
+                        for (Client client : server.getClients().values()) {
+                            if (!client.isActive()) {
+                                continue;
+                            }
+
+                            packet.setAddress(client.getAddress());
+                            packet.setPort(client.getPort());
+
+                            server.sendPacket(packet);
+
+                        }
+                    }
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

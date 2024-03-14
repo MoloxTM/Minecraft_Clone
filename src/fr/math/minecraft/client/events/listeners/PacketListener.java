@@ -15,11 +15,7 @@ import fr.math.minecraft.client.network.payload.StatePayload;
 import fr.math.minecraft.client.texture.Texture;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.PlayerAction;
-import fr.math.minecraft.shared.world.DroppedItem;
-import fr.math.minecraft.shared.world.Chunk;
-import fr.math.minecraft.shared.world.Coordinates;
-import fr.math.minecraft.shared.world.Material;
-import fr.math.minecraft.shared.world.World;
+import fr.math.minecraft.shared.world.*;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
@@ -229,5 +225,29 @@ public class PacketListener implements PacketEventListener {
 
             }
         }
+    }
+
+    @Override
+    public void onPlacedBlockState(PlacedBlockStateEvent event) {
+        PlacedBlock placedBlock = event.getPlacedBlock();
+        World world = event.getWorld();
+
+        Vector3i worldPosition = placedBlock.getWorldPosition();
+        Vector3i localPosition = placedBlock.getLocalPosition();
+        byte block = placedBlock.getBlock();
+        Chunk chunk = world.getChunkAt(worldPosition);
+
+        if (chunk == null) {
+            world.getPlacedBlocks().put(worldPosition, placedBlock);
+            return;
+        }
+
+        ChunkManager chunkManager = new ChunkManager();
+        byte chunkBlock = chunk.getBlock(localPosition.x, localPosition.y, localPosition.z);
+
+        if (chunkBlock != block) {
+            chunkManager.placeBlock(chunk, localPosition, world, Material.getMaterialById(block));
+        }
+
     }
 }

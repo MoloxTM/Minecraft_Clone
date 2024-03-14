@@ -322,7 +322,7 @@ public class Client {
                         Vector3i rayPosition = buildRay.getBlockWorldPosition();
                         Vector3i placedBlockWorldPosition = buildRay.getBlockPlacedPosition(rayPosition);
                         Vector3i blockPositionLocal = Utils.worldToLocal(placedBlockWorldPosition);
-                        PlacedBlock placedBlock = new PlacedBlock(placedBlockWorldPosition, blockPositionLocal, hotbarItem.getMaterial().getId());
+                        PlacedBlock placedBlock = new PlacedBlock(uuid, placedBlockWorldPosition, blockPositionLocal, hotbarItem.getMaterial().getId());
                         Material material = Material.getMaterialById(block);
                         placedBlocks.add(placedBlock);
 

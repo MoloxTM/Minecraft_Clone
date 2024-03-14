@@ -135,8 +135,6 @@ public class StatePayload {
         }
 
         ObjectNode payloadNode = this.toJSON();
-        ObjectNode payloadEventBreakNode = this.toJSONEventBreak();
-        ObjectNode payloadEventPlaceNode = this.toJSONEventPlace();
         ObjectMapper mapper = new ObjectMapper();
 
         try {
@@ -147,112 +145,6 @@ public class StatePayload {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-
-        if (payloadEventBreakNode != null) {
-            try {
-                String payloadEventData = mapper.writeValueAsString(payloadEventBreakNode);
-                byte[] buffer = payloadEventData.getBytes(StandardCharsets.UTF_8);
-                DatagramPacket packetEvent = new DatagramPacket(buffer, buffer.length);
-
-                synchronized (server.getClients()) {
-                    for (Client onlineClient : server.getClients().values()) {
-                        if (!onlineClient.getUuid().equalsIgnoreCase(payload.getClientUuid())) {
-                            packetEvent.setAddress(onlineClient.getAddress());
-                            packetEvent.setPort(onlineClient.getPort());
-                            server.sendPacket(packetEvent);
-                        }
-                    }
-                }
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-        }
-
-
-        if (payloadEventPlaceNode != null) {
-            try {
-                String payloadEventData = mapper.writeValueAsString(payloadEventPlaceNode);
-                byte[] buffer = payloadEventData.getBytes(StandardCharsets.UTF_8);
-                DatagramPacket packetEvent = new DatagramPacket(buffer, buffer.length);
-
-                System.out.println(payloadEventData);
-
-                synchronized (server.getClients()) {
-                    for (Client onlineClient : server.getClients().values()) {
-                        if (!onlineClient.getUuid().equalsIgnoreCase(payload.getClientUuid())) {
-                            packetEvent.setAddress(onlineClient.getAddress());
-                            packetEvent.setPort(onlineClient.getPort());
-                            server.sendPacket(packetEvent);
-                        }
-                    }
-                }
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public ObjectNode toJSONEventBreak() {
-
-        if (brokenBlocks.isEmpty()) {
-            return null;
-        }
-
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode payloadNode = mapper.createObjectNode();
-        ArrayNode blocksArray = mapper.createArrayNode();
-
-        payloadNode.put("type", "PLAYER_BREAK_EVENT");
-        payloadNode.put("uuid", payload.getClientUuid());
-
-        for (BreakedBlock breakedBlock : brokenBlocks) {
-            Vector3i blockPosition = breakedBlock.getPosition();
-            byte block = breakedBlock.getBlock();
-
-            ObjectNode blockNode = mapper.createObjectNode();
-
-            blockNode.put("x", blockPosition.x);
-            blockNode.put("y", blockPosition.y);
-            blockNode.put("z", blockPosition.z);
-            blockNode.put("block", block);
-
-            blocksArray.add(blockNode);
-        }
-
-        payloadNode.set("brokenBlocks", blocksArray);
-
-        return payloadNode;
-    }
-
-    public ObjectNode toJSONEventPlace() {
-
-        if (placedBlocks.isEmpty()) {
-            return null;
-        }
-
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode payloadNode = mapper.createObjectNode();
-        ArrayNode blocksArray = mapper.createArrayNode();
-
-        payloadNode.put("type", "PLAYER_PLACE_EVENT");
-        payloadNode.put("uuid", payload.getClientUuid());
-
-        for (PlacedBlock placedBlock : placedBlocks) {
-            Vector3i blockPosition = placedBlock.getWorldPosition();
-            byte block = placedBlock.getBlock();
-            ObjectNode blockNode = mapper.createObjectNode();
-
-            blockNode.put("x", blockPosition.x);
-            blockNode.put("y", blockPosition.y);
-            blockNode.put("z", blockPosition.z);
-            blockNode.put("block", block);
-
-            blocksArray.add(blockNode);
-        }
-
-        payloadNode.set("aimedPlacedBlocks", blocksArray);
-
-        return payloadNode;
     }
 
     public ObjectNode toJSON() {

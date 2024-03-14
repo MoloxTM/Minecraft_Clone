@@ -233,7 +233,8 @@ public class StatePayload {
             Vector3i worldPosition = new Vector3i(node.get("wx").asInt(), node.get("wy").asInt(), node.get("wz").asInt());
             Vector3i localPosition = new Vector3i(node.get("lx").asInt(), node.get("ly").asInt(), node.get("lz").asInt());
             byte block = (byte) node.get("block").asInt();
-            PlacedBlock placedBlock = new PlacedBlock(worldPosition, localPosition, block);
+            String playerUuid = node.get("playerUuid").asText();
+            PlacedBlock placedBlock = new PlacedBlock(playerUuid, worldPosition, localPosition, block);
             this.placedBlocks.add(placedBlock);
         }
 
