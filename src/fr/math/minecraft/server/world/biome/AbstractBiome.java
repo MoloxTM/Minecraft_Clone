@@ -7,7 +7,7 @@ import fr.math.minecraft.shared.world.generator.NoiseGenerator;
 
 public abstract class AbstractBiome {
 
-    protected NoiseGenerator noise;
+    protected NoiseGenerator noise, treeNoise, weedNoise;
     protected String biomeName;
     protected int biomeID;
     

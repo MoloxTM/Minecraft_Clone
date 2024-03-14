@@ -133,8 +133,6 @@ public class Game {
         this.updateTimer = 0.0f;
         this.camera = new Camera(GameConfiguration.WINDOW_WIDTH, GameConfiguration.WINDOW_HEIGHT);
         this.world = new World();
-        this.world.buildSpawn();
-        this.world.calculateSpawnPosition();
         this.state = GameState.MAIN_MENU;
         this.soundManager = new SoundManager();
         this.menuManager = new MenuManager(this);
@@ -157,8 +155,6 @@ public class Game {
         this.lastPingTime = 0;
         this.chunkUpdateQueue = new ArrayList<>();
         this.gameConfiguration = GameConfiguration.getInstance();
-
-        world.buildSpawnMesh();
 
         player.addEventListener(new PlayerListener(this));
 

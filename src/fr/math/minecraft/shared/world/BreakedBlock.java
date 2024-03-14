@@ -1,5 +1,7 @@
 package fr.math.minecraft.shared.world;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.manager.ChunkManager;
 import fr.math.minecraft.shared.MathUtils;
 import org.joml.Vector3i;
@@ -62,4 +64,17 @@ public class BreakedBlock {
                 ", block=" + block +
                 '}';
     }
+
+    public ObjectNode toJSONObject() {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode blockNode = mapper.createObjectNode();
+
+        blockNode.put("wx", position.x);
+        blockNode.put("wy", position.y);
+        blockNode.put("wz", position.z);
+        blockNode.put("block", block);
+
+        return blockNode;
+    }
+
 }

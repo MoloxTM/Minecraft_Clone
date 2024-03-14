@@ -291,6 +291,8 @@ public class Client {
 
                     logger.info(name + " (" + uuid + ") a cassé un block de " + material + " en " + breakRay.getBlockWorldPosition());
 
+                    world.getBrokenBlocks().put(breakedBlock.getPosition(), breakedBlock);
+
                     breakRay.getAimedChunk().setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, Material.AIR.getId());
                     breakRay.reset();
                     sprite.reset();
@@ -334,6 +336,8 @@ public class Client {
                         Material material = Material.getMaterialById(block);
                         placedBlocks.add(placedBlock);
 
+                        world.getPlacedBlocks().put(placedBlock.getWorldPosition(), placedBlock);
+
                         /*On détermine le chunk où le */
                         Chunk aimedChunk = world.getChunkAt(placedBlockWorldPosition);
 
@@ -349,8 +353,6 @@ public class Client {
 
             velocity.mul(0.95f);
         }
-
-        // System.out.println("Tick " + payload.getTick() + " InputVector: " + payload.getInputVector() + " Calculated position : " + position);
     }
 
     private void handleJump() {

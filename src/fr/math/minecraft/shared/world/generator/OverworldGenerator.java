@@ -16,6 +16,7 @@ import java.util.Map;
 public class OverworldGenerator implements TerrainGenerator {
 
     private final CavesGenerator cavesGenerator;
+    public final static int WATER_LEVEL = 43;
 
     public OverworldGenerator() {
         this.cavesGenerator = new OverworldCavesGenerator();
@@ -105,6 +106,18 @@ public class OverworldGenerator implements TerrainGenerator {
 
                     Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
                     Vector3i blockWorldPosition = new Vector3i(worldX, worldY, worldZ);
+                    BreakedBlock breakedBlock = world.getBrokenBlocks().get(blockWorldPosition);
+                    PlacedBlock placedBlock = world.getPlacedBlocks().get(blockWorldPosition);
+
+                    if (breakedBlock != null) {
+                        chunk.setBlock(x, y, z, Material.AIR.getId());
+                        continue;
+                    }
+
+                    if (placedBlock != null) {
+                        chunk.setBlock(x, y, z, placedBlock.getBlock());
+                        continue;
+                    }
 
                     if (block == Material.OAK_LEAVES.getId() || block == Material.OAK_LOG.getId()) {
                         continue;
@@ -132,7 +145,7 @@ public class OverworldGenerator implements TerrainGenerator {
                     } else if (worldY == worldHeight) {
                         material = currentBiome.getUpperBlock();
                     } else {
-                        if (worldY <= 43) {
+                        if (worldY <= WATER_LEVEL) {
                             material = Material.WATER;
                         }
                     }

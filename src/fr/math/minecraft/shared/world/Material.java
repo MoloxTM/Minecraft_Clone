@@ -19,9 +19,12 @@ public enum Material {
     DEAD_BUSH("Dead bush", 10, 7, 12, -1, -1),
     BIRCH_LOG("Birch log", 11, new Vector2i(5, 8), new Vector2i(5, 8), new Vector2i(5, 8), new Vector2i(5, 8), new Vector2i(10, 7), new Vector2i(10, 7), 8, 7),
     BIRCH_LEAVES("Oak leaves", 12, 4, 7, 0, 0),
-    APPLE("Apple", 13, -1, -1, 21, 1, false, true),
-    DIAMOND_SWORD("Diamond Sword", 14, -1, -1, 4, 2, false, true),
-    DIAMOND_AXE("Diamond Axe", 15, -1, -1, 27, 3, false, true),
+    SPRUCE_WOOD("Spruce Wood", 13, 4, 8, 0, 0),
+    SPRUCE_LEAVES("Spruce leaves", 14, 5, 7, 0, 0),
+    APPLE("Apple", 15, -1, -1, 21, 1, false, true),
+    SNOW("Snow", 16, 2, 11, -1, -1, true, false),
+    DIAMOND_SWORD("Diamond Sword", 17, -1, -1, 4, 2, false, true),
+    DIAMOND_AXE("Diamond Axe", 18, -1, -1, 27, 3, false, true),
     BREAKING_ANIMATION("", -3, 0, 0, 0, 0);
 
     private final int blockIconX, x;

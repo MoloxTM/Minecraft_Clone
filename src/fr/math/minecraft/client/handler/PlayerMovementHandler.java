@@ -50,7 +50,7 @@ public class PlayerMovementHandler {
         stateBuffer[bufferIndex] = statePayload;
 
         if (lastServerState != null) {
-            this.reconcile(world, player);
+            //this.reconcile(world, player);
         }
 
         currentTick++;

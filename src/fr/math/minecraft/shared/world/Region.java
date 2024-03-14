@@ -47,9 +47,9 @@ public class Region {
                 AbstractBiome currentBiome = biomeManager.getBiome(worldX, worldZ);
 
                 int worldHeight = generator.getHeight(worldX, worldZ);
-                if (SIZE / 2 < x && x < Chunk.SIZE * SIZE - SIZE / 2 && SIZE / 2 < z && z < Chunk.SIZE * SIZE - SIZE / 2) {
-                    //currentBiome.buildTree(worldX, worldHeight, worldZ, structure, world);
-                    //currentBiome.buildWeeds(worldX, worldHeight, worldZ, structure, world);
+                if (SIZE / 4 < x && x < Chunk.SIZE * SIZE - SIZE / 4 && SIZE / 4 < z && z < Chunk.SIZE * SIZE - SIZE / 4) {
+                    currentBiome.buildTree(worldX, worldHeight, worldZ, structure, world);
+                    currentBiome.buildWeeds(worldX, worldHeight, worldZ, structure, world);
                 }
             }
         }

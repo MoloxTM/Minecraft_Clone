@@ -1,5 +1,8 @@
 package fr.math.minecraft.shared.world;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.meshs.WaterMesh;
 import fr.math.minecraft.logger.LogType;
@@ -26,6 +29,8 @@ public class World {
     private Vector3f spawnPosition;
     private final Map<String, DroppedItem> droppedItems;
     private final static Logger logger = LoggerUtility.getServerLogger(World.class, LogType.TXT);
+    private final Map<Vector3i, BreakedBlock> brokenBlocks;
+    private final Map<Vector3i, PlacedBlock> placedBlocks;
 
     private TerrainGenerator terrainGenerator;
     private final int SPAWN_SIZE = 2;
@@ -41,6 +46,8 @@ public class World {
         this.terrainGenerator = new OverworldGenerator();
         this.cachedChunks = new HashMap<>();
         this.droppedItems = new HashMap<>();
+        this.brokenBlocks = new HashMap<>();
+        this.placedBlocks = new HashMap<>();
 
         for (Material material : Material.values()) {
             if (material.isSolid()) {
@@ -52,7 +59,7 @@ public class World {
     public void calculateSpawnPosition() {
         int spawnX = 0;
         int spawnZ = 0;
-        for (int chunkY = 3; chunkY < 10; chunkY++) {
+        for (int chunkY = 5; chunkY < 10; chunkY++) {
             for (int y = 0; y < Chunk.SIZE; y++) {
                 int worldY = chunkY * Chunk.SIZE + y;
                 byte block = this.getBlockAt(spawnX, worldY, spawnZ);
@@ -283,5 +290,33 @@ public class World {
 
     public void setSpawnPosition(Vector3f spawnPosition) {
         this.spawnPosition = spawnPosition;
+    }
+
+    public Map<Vector3i, BreakedBlock> getBrokenBlocks() {
+        return brokenBlocks;
+    }
+
+    public Map<Vector3i, PlacedBlock> getPlacedBlocks() {
+        return placedBlocks;
+    }
+
+    public ObjectNode toJSONObject() {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode worldNode = mapper.createObjectNode();
+        ArrayNode brokenBlocksArray = mapper.createArrayNode();
+        ArrayNode placedBlocksArray = mapper.createArrayNode();
+
+        for (BreakedBlock breakedBlock : brokenBlocks.values()) {
+            brokenBlocksArray.add(breakedBlock.toJSONObject());
+        }
+
+        for (PlacedBlock placedBlock : placedBlocks.values()) {
+            placedBlocksArray.add(placedBlock.toJSONObject());
+        }
+
+        worldNode.set("brokenBlocks", brokenBlocksArray);
+        worldNode.set("placedBlocks", placedBlocksArray);
+
+        return worldNode;
     }
 }

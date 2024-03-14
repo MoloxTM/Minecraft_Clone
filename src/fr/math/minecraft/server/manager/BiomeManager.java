@@ -1,9 +1,6 @@
 package fr.math.minecraft.server.manager;
 
-import fr.math.minecraft.server.world.biome.AbstractBiome;
-import fr.math.minecraft.server.world.biome.DesertBiome;
-import fr.math.minecraft.server.world.biome.ForestBiome;
-import fr.math.minecraft.server.world.biome.PlainBiome;
+import fr.math.minecraft.server.world.biome.*;
 import fr.math.minecraft.shared.world.generator.NoiseGenerator;
 
 public class BiomeManager {
@@ -11,21 +8,25 @@ public class BiomeManager {
     private final AbstractBiome desertBiome;
     private final AbstractBiome forestBiome;
     private final AbstractBiome plainBiome;
+    private final AbstractBiome montainsBiome;
 
     public BiomeManager() {
         this.noise = new NoiseGenerator(9, 30, 1500.0f, .25f, 25);
         this.desertBiome= new DesertBiome();
         this.forestBiome = new ForestBiome();
         this.plainBiome = new PlainBiome();
+        this.montainsBiome = new MountainsBiome();
     }
 
     public AbstractBiome getBiome(int x, int z){
-        float res = this.noise.getNoise(x,z);
-        if(res<0.3){
+        float res = noise.getNoise(x, z);
+        if (res < 0.23f){
             return this.desertBiome;
-        } else if (res<0.6) {
+        } else if (res < 0.42f) {
             return this.forestBiome;
-        } else{
+        } else if (res < 0.62f) {
+            return this.montainsBiome;
+        } else {
             return this.plainBiome;
         }
     }

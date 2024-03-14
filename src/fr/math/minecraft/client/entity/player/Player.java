@@ -90,11 +90,17 @@ public class Player {
     private PlayerAction action;
     private Sprite sprite;
     private final PlayerCraftInventory craftInventory;
+    private final static float JUMP_HEIGHT = .208f;
+    private final static float JUMP_TIME_TO_PEAK = 0.6f;
+    private final static float JUMP_TIME_TO_DESCENT = 0.4f;
+    private final static float JUMP_VELOCITY = (2.0f * JUMP_HEIGHT) / JUMP_TIME_TO_PEAK;
+    private final static float JUMP_GRAVITY = (-2.0f * JUMP_HEIGHT) / (JUMP_TIME_TO_PEAK * JUMP_TIME_TO_PEAK);
+    private final static float FALL_GRAVITY = (-2.0f * JUMP_HEIGHT) / (JUMP_TIME_TO_DESCENT * JUMP_TIME_TO_DESCENT);
 
     public Player(String name) {
         this.position = new Vector3f(0.0f, 100.0f, 0.0f);
         this.lastPosition = new Vector3f(0, 0, 0);
-        this.gravity = new Vector3f(0, -0.0025f, 0);
+        this.gravity = new Vector3f();
         this.velocity = new Vector3f();
         this.receivedChunks = new HashSet<>();
         this.inputs = new ArrayList<>();
@@ -110,6 +116,7 @@ public class Player {
         this.sprite = new Sprite();
         this.miningAnimation = new MiningAnimation();
         this.action = PlayerAction.MINING;
+        this.gameMode = GameMode.SURVIVAL;
         this.yaw = 0.0f;
         this.lastYaw = 0.0f;
         this.bodyYaw = 0.0f;
@@ -117,9 +124,9 @@ public class Player {
         this.firstMouse = true;
         this.lastMouseX = 0.0f;
         this.lastMouseY = 0.0f;
-        this.speed = GameConfiguration.DEFAULT_SPEED;
-        this.maxSpeed = 0.03f;
-        this.maxFall = 0.03f;
+        this.speed = gameMode == GameMode.SURVIVAL ? GameConfiguration.DEFAULT_SPEED : 0.1f;
+        this.maxSpeed = gameMode == GameMode.SURVIVAL ? 0.03f : 0.1f;
+        this.maxFall = 0;
         this.health = 20.0f;
         this.maxHealth = 20.0f;
         this.ping = 0;
@@ -149,7 +156,6 @@ public class Player {
         this.breakingBlock = false;
         this.skin = null;
         this.skinPath = "res/textures/skin.png";
-        this.gameMode = GameMode.SURVIVAL;
         this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
         this.buildRay = new Ray(GameConfiguration.BUILDING_REACH * 3);
         this.breakRay = new Ray(GameConfiguration.BUILDING_REACH * 3);
@@ -425,7 +431,7 @@ public class Player {
                         position.y = worldY - hitbox.getHeight();
                         this.velocity.y = 0;
                     } else if (velocity.y < 0) {
-                        maxFall = 0.03f;
+                        //maxFall = MAX_FALL_SPEED;
                         canJump = true;
                         position.y = worldY + hitbox.getHeight() + 1;
                         this.velocity.y = 0;
@@ -452,8 +458,6 @@ public class Player {
 
         Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
         Vector3f acceleration = new Vector3f(0, 0, 0);
-
-        velocity.add(gravity);
 
         if (sprinting) {
             this.setSpeed(GameConfiguration.SPRINT_SPEED);
@@ -488,8 +492,8 @@ public class Player {
         if (jumping) {
             // handleJump();
             if (canJump) {
-                maxFall = 0.5f;
-                acceleration.y += 10.0f;
+                //maxFall = MAX_JUMP_FALL_SPEED;
+                velocity.y = JUMP_VELOCITY;
                 canJump = false;
             }
         }
@@ -571,6 +575,11 @@ public class Player {
             }
         }
 
+        if (gameMode == GameMode.SURVIVAL) {
+            gravity.y = velocity.y < 0 ? JUMP_GRAVITY : FALL_GRAVITY;
+            acceleration.add(gravity);
+        }
+
         velocity.add(acceleration.mul(speed));
 
         if (new Vector3f(velocity.x, 0, velocity.z).length() > maxSpeed) {
@@ -578,12 +587,6 @@ public class Player {
             velocityNorm.normalize().mul(maxSpeed);
             velocity.x = velocityNorm.x;
             velocity.z = velocityNorm.z;
-        }
-
-        if (new Vector3f(0, velocity.y, 0).length() > maxFall) {
-            Vector3f velocityNorm = new Vector3f(velocity.x, velocity.y, velocity.z);
-            velocityNorm.normalize().mul(maxFall);
-            velocity.y = velocityNorm.y;
         }
 
         position.x += velocity.x;

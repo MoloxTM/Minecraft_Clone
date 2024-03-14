@@ -1,5 +1,7 @@
 package fr.math.minecraft.shared.world;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.joml.Vector3i;
 
 import java.util.Objects;
@@ -48,5 +50,20 @@ public class PlacedBlock {
                 ", localPosition=" + localPosition +
                 ", block=" + block +
                 '}';
+    }
+
+    public ObjectNode toJSONObject() {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode blockNode = mapper.createObjectNode();
+
+        blockNode.put("wx", worldPosition.x);
+        blockNode.put("wy", worldPosition.y);
+        blockNode.put("wz", worldPosition.z);
+        blockNode.put("lx", localPosition.x);
+        blockNode.put("ly", localPosition.y);
+        blockNode.put("lz", localPosition.z);
+        blockNode.put("block", block);
+
+        return blockNode;
     }
 }
