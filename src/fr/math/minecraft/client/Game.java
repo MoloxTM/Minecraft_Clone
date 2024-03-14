@@ -3,7 +3,7 @@ package fr.math.minecraft.client;
 import fr.math.minecraft.client.audio.Sound;
 import fr.math.minecraft.client.audio.Sounds;
 import fr.math.minecraft.client.entity.Ray;
-import fr.math.minecraft.client.entity.mob.Mob;
+import fr.math.minecraft.shared.entity.mob.Mob;
 import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.client.events.listeners.PlayerListener;
 import fr.math.minecraft.client.gui.buttons.BlockButton;
@@ -307,6 +307,11 @@ public class Game {
         synchronized (this.getPlayers()) {
             for (Player player : this.getPlayers().values()) {
                 player.update();
+            }
+        }
+        synchronized (this.getMobs()) {
+            for (Mob mob : this.getMobs().values()){
+                mob.update();
             }
         }
     }

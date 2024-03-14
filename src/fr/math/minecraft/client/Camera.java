@@ -10,6 +10,7 @@ import fr.math.minecraft.client.math.FrustrumCulling;
 import fr.math.minecraft.client.math.ViewBobbing;
 import fr.math.minecraft.client.meshs.FontMesh;
 import fr.math.minecraft.client.meshs.model.ItemModelData;
+import fr.math.minecraft.shared.entity.mob.Mob;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.GameConfiguration;
 import org.joml.Math;
@@ -59,6 +60,12 @@ public class Camera {
         position = player.getPosition();
         yaw = player.getYaw();
         pitch = player.getPitch();
+    }
+
+    public void update(Mob mob) {
+        position = mob.getPosition();
+        yaw = mob.getYaw();
+        pitch = mob.getPitch();
     }
 
     private void calculateFront(Vector3f front) {

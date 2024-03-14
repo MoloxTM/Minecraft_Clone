@@ -2,7 +2,7 @@ package fr.math.minecraft.client.animations;
 
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.Shader;
-import fr.math.minecraft.client.entity.mob.Zombie;
+import fr.math.minecraft.shared.entity.mob.Zombie;
 import org.joml.Math;
 
 
