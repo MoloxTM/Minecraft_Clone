@@ -192,7 +192,7 @@ public class Game {
         //Mob test
         zombie = new Zombie("Maria");
         String zombieUUID = UUID.randomUUID().toString();
-        zombie.setPosition(new Vector3f(4, 64, 19));
+        zombie.setPosition(new Vector3f(0, 64, 0));
         mobs.put(zombieUUID, zombie);
     }
 
@@ -311,7 +311,7 @@ public class Game {
 
         player.handleInputs(window);
         this.update(player);
-
+        this.update(zombie);
         time += 0.01f;
 
         synchronized (this.getPlayers()) {
@@ -321,7 +321,7 @@ public class Game {
         }
         synchronized (this.getMobs()) {
             for (Mob mob : this.getMobs().values()){
-                mob.update();
+                mob.update(world);
             }
         }
     }
@@ -353,9 +353,8 @@ public class Game {
     }
 
     public void update(Mob mob) {
-        mob.updatePosition(world);
-        mob.updateAnimations();
-        camera.update(mob);
+
+        //camera.update(mob);
     }
 
     private void render(Renderer renderer) {

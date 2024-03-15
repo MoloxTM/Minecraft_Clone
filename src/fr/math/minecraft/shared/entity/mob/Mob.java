@@ -155,18 +155,10 @@ public abstract class Mob {
         // hotbar.getAnimation().update();
     }
 
-    public void update() {
-        this.updateAnimations();
+    public void update(World world) {
         GameConfiguration gameConfiguration = GameConfiguration.getInstance();
-
-        if (gameConfiguration.isEntityInterpolationEnabled()) {
-            position.x = Math.lerp(position.x, lastUpdate.getPosition().x, 0.1f);
-            position.y = Math.lerp(position.y, lastUpdate.getPosition().y, 0.1f);
-            position.z = Math.lerp(position.z, lastUpdate.getPosition().z, 0.1f);
-            yaw = Math.lerp(yaw, lastUpdate.getYaw(), 0.1f);
-            pitch = Math.lerp(pitch, lastUpdate.getPitch(), 0.1f);
-            bodyYaw = Math.lerp(bodyYaw, lastUpdate.getBodyYaw(), 0.1f);
-        }
+        this.updatePosition(world);
+        this.updateAnimations();
     }
 
     public void updatePosition(World world) {
@@ -242,8 +234,6 @@ public abstract class Mob {
 
         velocity.mul(0.95f);
 
-        PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, jumping, yaw, pitch, sprinting, placingBlock, breakingBlock, droppingItem);
-        inputs.add(inputData);
     }
 
 

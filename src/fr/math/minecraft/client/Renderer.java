@@ -73,6 +73,7 @@ public class Renderer {
     private final Texture invetoryTexture;
     private final Texture iconsTexture;
     private final Texture guiBlocksTexture;
+    private final Texture zombieTexture;
     private final CrosshairMesh crosshairMesh;
     private final ImageMesh imageMesh;
     private final ImageMesh screenMesh;
@@ -149,6 +150,7 @@ public class Renderer {
         this.invetoryTexture = new Texture("res/textures/gui/inventory.png", 9);
         this.iconsTexture = new Texture("res/textures/gui/icons.png", 10);
         this.guiBlocksTexture = new Texture("res/textures/gui/gui_blocks.png", 11);
+        this.zombieTexture = new Texture("res/textures/zombie.png", 12);
 
         this.dirtTexture = new TextureBuilder().buildDirtBackgroundTexture();
 
@@ -167,6 +169,7 @@ public class Renderer {
         this.invetoryTexture.load();
         this.iconsTexture.load();
         this.guiBlocksTexture.load();
+        this.zombieTexture.load();
     }
 
     public void render(Camera camera, Player player) {
@@ -208,34 +211,18 @@ public class Renderer {
     }
 
     public void render(Camera camera, Mob mob) {
-        Texture mobTexture;
-
-        if(mobTextureMap.containsKey(mob.getMobType())) {
-            mobTexture = mobTextureMap.get(mob.getMobType());
-            if(!mobTexture.isLoaded()) {
-                mobTexture.load();
-            }
-        } else {
-            BufferedImage mobSkin = mob.getSkin();
-            if(mobSkin == null) {
-                return;
-            }
-            mobTexture = new Texture(mobSkin, 2);
-            mobTexture.load();
-            mobTextureMap.put(mob.getMobType(), mobTexture);
-        }
 
         playerShader.enable();
-        playerShader.sendInt("uTexture", mobTexture.getSlot());
+        playerShader.sendInt("uTexture", zombieTexture.getSlot());
 
-        glActiveTexture(GL_TEXTURE0 + mobTexture.getSlot());
-        mobTexture.bind();
+        glActiveTexture(GL_TEXTURE0 + zombieTexture.getSlot());
+        zombieTexture.bind();
 
         camera.matrix(playerShader, mob);
 
         playerMesh.draw();
 
-        mobTexture.unbind();
+        zombieTexture.unbind();
         this.renderNametag(camera, mob);
     }
 

@@ -204,8 +204,6 @@ public class Camera {
     public void matrix(Shader shader, Mob mob) {
         this.calculateFront(front);
 
-        this.calculateFront(front);
-
         projection.identity();
         view.identity();
         model.identity();
