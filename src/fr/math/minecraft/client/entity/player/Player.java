@@ -311,7 +311,7 @@ public class Player {
 
         GameConfiguration gameConfiguration = GameConfiguration.getInstance();
 
-        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+        if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
             if (!occlusionKeyPressed) {
                 gameConfiguration.setOcclusionEnabled(!gameConfiguration.isOcclusionEnabled());
                 occlusionKeyPressed = true;
@@ -330,6 +330,10 @@ public class Player {
                 gameConfiguration.setDebugging(!gameConfiguration.isDebugging());
                 debugKeyPressed = true;
             }
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+            droppingItem = true;
         }
 
         if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
@@ -372,7 +376,7 @@ public class Player {
             debugKeyPressed = false;
         }
 
-        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_RELEASE) {
+        if (glfwGetKey(window, GLFW_KEY_O) == GLFW_RELEASE) {
             occlusionKeyPressed = false;
         }
 
@@ -613,19 +617,6 @@ public class Player {
             hand.setAnimation(PlayerHandAnimation.MOVING);
         } else {
             hand.setAnimation(PlayerHandAnimation.IDLE);
-        }
-
-        if (droppingItem) {
-            ItemStack item = hotbar.getItems()[hotbar.getSelectedSlot()];
-            if (item != null) {
-                /*
-                item.setAmount(item.getAmount() - 1);
-                if (item.getAmount() == 0) {
-                    hotbar.setItem(null, hotbar.getSelectedSlot());
-                }
-                world.getDroppedItems().add(new ItemStack(item.getMaterial(), 1));
-                 */
-            }
         }
 
         velocity.add(acceleration.mul(speed));

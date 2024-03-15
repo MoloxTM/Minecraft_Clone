@@ -163,7 +163,6 @@ public class Game {
 
         this.loadSplashText();
 
-
         for (Sounds sound : Sounds.values()) {
             soundManager.addSound(sound.getFilePath(), false);
         }
@@ -199,7 +198,6 @@ public class Game {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     public void run() {
@@ -299,6 +297,7 @@ public class Game {
         this.update(player);
 
         time += 0.01f;
+
         synchronized (this.getPlayers()) {
             for (Player player : this.getPlayers().values()) {
                 player.update();

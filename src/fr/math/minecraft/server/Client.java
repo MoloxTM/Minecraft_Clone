@@ -191,6 +191,29 @@ public class Client {
 
             hotbar.setSelectedSlot(inputData.getHotbarSlot());
 
+            if (inputData.isDroppingItem()) {
+                ItemStack hotbarItem = hotbar.getItems()[hotbar.getSelectedSlot()];
+                if (hotbarItem != null) {
+                    int itemAmount = hotbarItem.getAmount();
+
+                    Random random = new Random();
+                    DroppedItem droppedItem = new DroppedItem(new Vector3f(position), hotbarItem.getMaterial());
+                    droppedItem.getVelocity().y = 0.8f;
+                    droppedItem.getVelocity().x = cameraFront.x * 0.7f;
+                    droppedItem.getVelocity().z = cameraFront.z * 0.7f;
+
+                    world.getDroppedItems().put(droppedItem.getUuid(), droppedItem);
+                    logger.info(name + "(" + uuid + ") " + " a drop un item de " + hotbarItem.getMaterial());
+                    hotbarItem.setAmount(itemAmount - 1);
+                    if (hotbarItem.getAmount() == 0) {
+                        logger.info("je met " + hotbarItem.getMaterial() + " a la case " + hotbar.getSelectedSlot());
+                        hotbar.setItem(null, hotbar.getSelectedSlot());
+                        //hotbar.setItem(new ItemStack(Material.DIRT, 1), 0);
+                    }
+                    return;
+                }
+            }
+
             if (inputData.isMovingForward()) {
                 acceleration.add(front);
                 movingForward = true;

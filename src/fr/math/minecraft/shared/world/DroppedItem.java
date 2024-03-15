@@ -161,4 +161,8 @@ public class DroppedItem {
     public void setRotationAngle(float rotationAngle) {
         this.rotationAngle = rotationAngle;
     }
+
+    public boolean isOnFloor() {
+        return onFloor;
+    }
 }

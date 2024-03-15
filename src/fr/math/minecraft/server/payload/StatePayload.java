@@ -58,7 +58,7 @@ public class StatePayload {
         synchronized (world.getDroppedItems()) {
             List<String> collectedItems = new ArrayList<>();
             for (DroppedItem droppedItem : world.getDroppedItems().values()) {
-                if (newPosition.distance(droppedItem.getPosition()) < 1.5f) {
+                if (droppedItem.isOnFloor() && newPosition.distance(droppedItem.getPosition()) < 1.5f) {
                     ItemStack item = new ItemStack(droppedItem.getMaterial(), 1);
                     Hotbar hotbar = client.getHotbar();
                     Inventory inventory = client.getInventory();

@@ -15,7 +15,6 @@ public class PlayerInputData {
     private final boolean placingBlock, breakingBlock, droppingItem;
     private final int hotbarSlot;
 
-
     public PlayerInputData(boolean movingLeft, boolean movingRight, boolean movingForward, boolean movingBackward, boolean flying, boolean sneaking, boolean jumping, float yaw, float pitch, boolean sprinting, boolean placingBlock, boolean breakingBlock, boolean droppingItem, int hotbarSlot) {
         this.movingLeft = movingLeft;
         this.movingRight = movingRight;
