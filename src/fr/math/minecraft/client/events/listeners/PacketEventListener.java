@@ -12,5 +12,6 @@ public interface PacketEventListener {
     void onDroppedItemState(DroppedItemEvent event);
     void onPlacedBlockState(PlacedBlockStateEvent event);
     void onBrokenBlockState(BrokenBlockStateEvent event);
+    void onChatState(ChatPayloadStateEvent event);
 
 }

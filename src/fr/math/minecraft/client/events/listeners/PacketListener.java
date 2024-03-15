@@ -13,6 +13,7 @@ import fr.math.minecraft.client.network.packet.ChunkACKPacket;
 import fr.math.minecraft.client.network.packet.SkinRequestPacket;
 import fr.math.minecraft.client.network.payload.StatePayload;
 import fr.math.minecraft.client.texture.Texture;
+import fr.math.minecraft.shared.ChatMessage;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.MathUtils;
 import fr.math.minecraft.shared.PlayerAction;
@@ -28,6 +29,8 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Base64;
+import java.util.List;
+import java.util.Map;
 
 public class PacketListener implements PacketEventListener {
 
@@ -273,6 +276,28 @@ public class PacketListener implements PacketEventListener {
 
         if (chunkBlock != Material.AIR.getId()) {
             chunkManager.removeBlock(chunk, localPosition, world);
+        }
+    }
+
+    @Override
+    public void onChatState(ChatPayloadStateEvent event) {
+        Map<String, ChatMessage> chatMessages = game.getChatMessages();
+        ArrayNode chatData = event.getChatData();
+
+        for (int i = 0; i < chatData.size(); i++) {
+            JsonNode chatNode = chatData.get(i);
+            String messageId = chatNode.get("id").asText();
+            String senderUuid = chatNode.get("uuid").asText();
+            String senderName = chatNode.get("name").asText();
+            String message = chatNode.get("message").asText();
+            long timestamp = chatNode.get("timestamp").asLong();
+
+            ChatMessage chatMessage = chatMessages.get(messageId);
+
+            if (chatMessage == null) {
+                chatMessage = new ChatMessage(messageId, timestamp, senderUuid, senderName, message);
+                chatMessages.put(chatMessage.getId(), chatMessage);
+            }
         }
     }
 }

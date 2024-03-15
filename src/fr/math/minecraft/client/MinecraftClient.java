@@ -29,13 +29,12 @@ public class MinecraftClient {
             this.socket = new DatagramSocket();
             this.socket.setSoTimeout(10000);
             this.address = InetAddress.getByName(IP_SERVER);
-
         } catch (UnknownHostException | SocketException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public  void sendMessage(String message) throws IOException {
+    public void sendMessage(String message) throws IOException {
         byte[] buffer = message.getBytes(StandardCharsets.UTF_8);
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, this.address, this.serverPort);
         this.getSocket().send(packet);

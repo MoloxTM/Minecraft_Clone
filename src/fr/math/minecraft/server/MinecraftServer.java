@@ -5,14 +5,16 @@ import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.server.handler.*;
 import fr.math.minecraft.server.manager.ChunkManager;
-import fr.math.minecraft.shared.world.Region;
+import fr.math.minecraft.shared.ChatMessage;
 import fr.math.minecraft.shared.world.World;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -33,6 +35,7 @@ public class MinecraftServer {
     private final ThreadPoolExecutor packetQueue;
     private final TickHandler tickHandler;
     private final ChunkManager chunkManager;
+    private final List<ChatMessage> chatMessages;
 
     private MinecraftServer(int port) {
         this.running = false;
@@ -47,6 +50,7 @@ public class MinecraftServer {
         this.packetQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(4);
         this.tickHandler = new TickHandler();
         this.chunkManager = new ChunkManager();
+        this.chatMessages = new ArrayList<>();
 
         logger.info("Point de spawn calculé en " + world.getSpawnPosition());
     }
@@ -106,6 +110,10 @@ public class MinecraftServer {
                 case "PLAYERS_LIST_REQUEST":
                     PlayersListHandler playersListHandler = new PlayersListHandler(packetData, address, clientPort);
                     playersListHandler.run();
+                    break;
+                case "CHAT_MSG":
+                    ChatMessageHandler chatMessageHandler = new ChatMessageHandler(packetData, address, clientPort);
+                    chatMessageHandler.run();
                     break;
                 default:
                     String message = "UNAUTHORIZED_PACKET";
@@ -168,5 +176,9 @@ public class MinecraftServer {
 
     public ChunkManager getChunkManager() {
         return chunkManager;
+    }
+
+    public List<ChatMessage> getChatMessages() {
+        return chatMessages;
     }
 }

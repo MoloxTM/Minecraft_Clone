@@ -1,11 +1,13 @@
 package fr.math.minecraft.client.entity.player;
 
+import fr.math.minecraft.client.network.payload.ChatPayload;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.animations.*;
 import fr.math.minecraft.client.entity.Ray;
 import fr.math.minecraft.client.events.listeners.EntityUpdate;
 import fr.math.minecraft.client.events.listeners.EventListener;
 import fr.math.minecraft.client.events.PlayerMoveEvent;
+import fr.math.minecraft.client.handler.ChatInputsHandler;
 import fr.math.minecraft.client.handler.InventoryInputsHandler;
 import fr.math.minecraft.client.manager.ChunkManager;
 import fr.math.minecraft.client.meshs.NametagMesh;
@@ -55,7 +57,7 @@ public class Player {
     private boolean droppingItem;
     private boolean placingBlock, breakingBlock;
     private boolean canHoldItem, canPlaceHoldedItem;
-    private boolean debugKeyPressed, occlusionKeyPressed, interpolationKeyPressed, inventoryKeyPressed;
+    private boolean debugKeyPressed, occlusionKeyPressed, interpolationKeyPressed, inventoryKeyPressed, chatKeyPressed;
     private float lastMouseX, lastMouseY;
     private String name;
     private String uuid;
@@ -91,6 +93,7 @@ public class Player {
     private Sprite sprite;
     private final PlayerCraftInventory craftInventory;
     private final static float JUMP_VELOCITY = .125f;
+    private final ChatPayload chatPayload;
 
     public Player(String name) {
         this.position = new Vector3f(0.0f, 100.0f, 0.0f);
@@ -112,6 +115,7 @@ public class Player {
         this.miningAnimation = new MiningAnimation();
         this.action = PlayerAction.MINING;
         this.gameMode = GameMode.SURVIVAL;
+        this.chatPayload = new ChatPayload(this);
         this.yaw = 0.0f;
         this.lastYaw = 0.0f;
         this.bodyYaw = 0.0f;
@@ -133,6 +137,7 @@ public class Player {
         this.movingForward = false;
         this.movingBackward = false;
         this.droppingItem = false;
+        this.chatKeyPressed = false;
         this.debugKeyPressed = false;
         this.occlusionKeyPressed = false;
         this.interpolationKeyPressed = false;
@@ -167,21 +172,70 @@ public class Player {
 
     public void handleInputs(long window) {
 
-        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-            if (!inventoryKeyPressed) {
-                if (!inventory.isOpen()) {
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+            if (chatPayload.isOpen()) {
+                chatPayload.setOpen(false);
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                glfwFocusWindow(window);
+            }
+            return;
+        }
+
+        if (chatPayload.isOpen()) {
+            if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
+                chatPayload.send();
+                chatPayload.getMessage().delete(0, chatPayload.getMessage().length());
+                return;
+            }
+            if (glfwGetKey(window, GLFW_KEY_BACKSPACE) == GLFW_PRESS) {
+                if (!chatPayload.getMessage().isEmpty()) {
+                    chatPayload.getMessage().deleteCharAt(chatPayload.getMessage().length() - 1);
+                }
+                return;
+            }
+
+            ChatInputsHandler handler = new ChatInputsHandler();
+            handler.handleInputs(window, chatPayload);
+            return;
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {
+            if (!chatKeyPressed) {
+                if (!chatPayload.isOpen() && !inventory.isOpen()) {
+                    chatPayload.getMessage().delete(0, chatPayload.getMessage().length());
                     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
                 } else {
                     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
                 }
-                inventory.setOpen(!inventory.isOpen());
-                inventoryKeyPressed = true;
-                this.resetMoving();
+                if (!inventory.isOpen()) {
+                    chatPayload.setOpen(!chatPayload.isOpen());
+                    chatKeyPressed = true;
+                    this.resetMoving();
+                }
+            }
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+            if (!inventoryKeyPressed) {
+                if (!inventory.isOpen() && !chatPayload.isOpen()) {
+                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                } else {
+                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                }
+                if (!chatPayload.isOpen()) {
+                    inventory.setOpen(!inventory.isOpen());
+                    inventoryKeyPressed = true;
+                    this.resetMoving();
+                }
             }
         }
 
         if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE) {
             inventoryKeyPressed = false;
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_T) == GLFW_RELEASE) {
+            chatKeyPressed = false;
         }
 
         DoubleBuffer mouseX = BufferUtils.createDoubleBuffer(1);
@@ -880,4 +934,7 @@ public class Player {
         this.lastInventory = lastInventory;
     }
 
+    public ChatPayload getChatPayload() {
+        return chatPayload;
+    }
 }

@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import fr.math.minecraft.server.payload.BrokenBlockPayload;
-import fr.math.minecraft.server.payload.InputPayload;
-import fr.math.minecraft.server.payload.PlacedBlockPayload;
-import fr.math.minecraft.server.payload.StatePayload;
+import fr.math.minecraft.server.payload.*;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.world.BreakedBlock;
 import fr.math.minecraft.shared.world.DroppedItem;
@@ -132,7 +129,25 @@ public class TickHandler extends Thread {
         }
         this.sendPlayers();
         this.sendWorld();
+        this.sendChat();
         tick++;
+    }
+
+    private void sendChat() {
+        MinecraftServer server = MinecraftServer.getInstance();
+        synchronized (server.getChatMessages()) {
+            ChatStatePayload payload = new ChatStatePayload(server.getChatMessages());
+            synchronized (server.getClients()) {
+                for (Client client : server.getClients().values()) {
+
+                    if (!client.isActive()) {
+                        continue;
+                    }
+
+                    payload.send(client);
+                }
+            }
+        }
     }
 
     private void sendWorld() {

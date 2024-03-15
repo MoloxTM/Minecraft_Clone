@@ -3,6 +3,7 @@ package fr.math.minecraft.client;
 import fr.math.minecraft.client.audio.Sound;
 import fr.math.minecraft.client.audio.Sounds;
 import fr.math.minecraft.client.entity.Ray;
+import fr.math.minecraft.shared.ChatMessage;
 import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.client.events.listeners.PlayerListener;
 import fr.math.minecraft.client.gui.buttons.BlockButton;
@@ -80,6 +81,7 @@ public class Game {
     private int tick;
     private GameConfiguration gameConfiguration;
     private List<Chunk> chunkUpdateQueue;
+    private Map<String, ChatMessage> chatMessages;
 
     private Game() {
         this.initWindow();
@@ -151,6 +153,7 @@ public class Game {
         this.loadingChunks = new HashMap<>();
         this.fontManager = new FontManager();
         this.pendingMeshs = new LinkedList<>();
+        this.chatMessages = new HashMap<>();
         this.playerMovementHandler = new PlayerMovementHandler();
         this.lastPingTime = 0;
         this.chunkUpdateQueue = new ArrayList<>();
@@ -427,6 +430,11 @@ public class Game {
             renderer.renderInventory(camera, player.getCraftInventory());
             renderer.renderInventory(camera, player.getHotbar());
         }
+
+        if (player.getChatPayload().isOpen()) {
+            renderer.renderChatPayload(camera, player.getChatPayload());
+        }
+        renderer.renderChat(camera, chatMessages);
     }
 
     public static Game getInstance() {
@@ -534,5 +542,9 @@ public class Game {
 
     public List<Chunk> getChunkUpdateQueue() {
         return chunkUpdateQueue;
+    }
+
+    public Map<String, ChatMessage> getChatMessages() {
+        return chatMessages;
     }
 }

@@ -13,7 +13,9 @@ import fr.math.minecraft.client.gui.menus.MenuBackgroundType;
 import fr.math.minecraft.client.manager.FontManager;
 import fr.math.minecraft.client.meshs.*;
 import fr.math.minecraft.client.meshs.model.ItemModelData;
+import fr.math.minecraft.client.network.payload.ChatPayload;
 import fr.math.minecraft.client.texture.CubemapTexture;
+import fr.math.minecraft.shared.ChatMessage;
 import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.shared.Sprite;
 import fr.math.minecraft.client.texture.Texture;
@@ -854,4 +856,47 @@ public class Renderer {
 
         terrainTexture.unbind();
     }
+
+    public void renderChatPayload(Camera camera, ChatPayload payload) {
+
+        int width = 500;
+        int height = 25;
+        int margin = 10;
+
+        this.renderRect(camera, margin, margin, width, height, 0x0, 0.45f, -12);
+        StringBuilder message = payload.getMessage();
+
+        this.renderText(camera, message.toString(), margin + 5, height / 2.0f, -11, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
+
+    }
+
+    public void renderChat(Camera camera, Map<String, ChatMessage> messages) {
+        int width = 500;
+        int height = Math.min(30 * 5, 30 * messages.size());
+        int margin = 10;
+
+        this.renderRect(camera, margin, margin + 50, width, height, 0x0, 0.45f, -11);
+        float messageX = margin;
+        float messageY = margin + 52;
+        List<ChatMessage> sortedMessages = new ArrayList<>(messages.values().stream().toList());
+        sortedMessages.sort(new ChatTimestampComparator());
+
+        int messageDisplayed = 0;
+
+        for (ChatMessage chatMessage : sortedMessages) {
+            this.renderText(camera, chatMessage.getSenderName() + ": " + chatMessage.getMessage(), messageX, messageY, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
+            messageY += 30;
+            messageDisplayed++;
+            if (messageDisplayed == 5) break;
+        }
+    }
+
+    private static class ChatTimestampComparator implements Comparator<ChatMessage> {
+
+        @Override
+        public int compare(ChatMessage o1, ChatMessage o2) {
+            return (int) (o2.getTimestamp() - o1.getTimestamp());
+        }
+    }
+
 }
