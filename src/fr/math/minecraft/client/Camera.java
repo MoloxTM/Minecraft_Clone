@@ -201,6 +201,41 @@ public class Camera {
         shader.sendMatrix("model", model, modelBuffer);
     }
 
+    public void matrix(Shader shader, Mob mob) {
+        this.calculateFront(front);
+
+        this.calculateFront(front);
+
+        projection.identity();
+        view.identity();
+        model.identity();
+
+        right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
+        up = new Vector3f(right).cross(front).normalize();
+
+        projection.perspective((float) Math.toRadians(fov), width / height, nearPlane ,farPlane);
+
+        Vector3f offset = new Vector3f(0, 0.25f, 0);
+        view.lookAt(new Vector3f(position).sub(offset), new Vector3f(position).sub(offset).add(front), up);
+
+        model.translate(mob.getPosition().x, mob.getPosition().y, mob.getPosition().z);
+        model.rotate((float) Math.toRadians(90.0f), new Vector3f(0.0f, 1.0f, 0.0f), model);
+
+        shader.sendFloat("bodyYaw", (float) Math.toRadians(mob.getBodyYaw()));
+        shader.sendFloat("yaw", (float) Math.toRadians(mob.getYaw()));
+        shader.sendFloat("pitch", (float) Math.toRadians(mob.getPitch()));
+        shader.sendFloat("time", Game.getInstance().getTime());
+
+        for (Animation animation : mob.getAnimations()) {
+            animation.sendUniforms(shader);
+        }
+
+        shader.sendMatrix("projection", projection, projectionBuffer);
+        shader.sendMatrix("view", view, viewBuffer);
+        shader.sendMatrix("model", model, modelBuffer);
+
+    }
+
     public void matrixNametag(Shader shader, Player player) {
 
         this.calculateFront(front);
@@ -220,6 +255,31 @@ public class Camera {
         model.rotate((float) Math.toRadians(90.0f), new Vector3f(0.0f, 1.0f, 0.0f), model);
 
         shader.sendFloat("yaw", (float) Math.toRadians(player.getYaw()));
+
+        shader.sendMatrix("projection", projection, projectionBuffer);
+        shader.sendMatrix("view", view, viewBuffer);
+        shader.sendMatrix("model", model, modelBuffer);
+    }
+
+    public void matrixNametag(Shader shader, Mob mob) {
+
+        this.calculateFront(front);
+
+        projection.identity();
+        view.identity();
+        model.identity();
+
+        right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
+        up = new Vector3f(right).cross(front).normalize();
+
+        projection.perspective((float) Math.toRadians(fov), width / height, nearPlane ,farPlane);
+
+        Vector3f offset = new Vector3f(0, 0.25f, 0);
+        view.lookAt(new Vector3f(position).sub(offset), new Vector3f(position).sub(offset).add(front), up);
+        model.translate(mob.getPosition().x, mob.getPosition().y + 0.8f, mob.getPosition().z);
+        model.rotate((float) Math.toRadians(90.0f), new Vector3f(0.0f, 1.0f, 0.0f), model);
+
+        shader.sendFloat("yaw", (float) Math.toRadians(mob.getYaw()));
 
         shader.sendMatrix("projection", projection, projectionBuffer);
         shader.sendMatrix("view", view, viewBuffer);

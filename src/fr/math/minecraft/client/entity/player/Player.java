@@ -151,8 +151,8 @@ public class Player {
         this.skinPath = "res/textures/skin.png";
         this.gameMode = GameMode.SURVIVAL;
         this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
-        this.buildRay = new Ray(GameConfiguration.BUILDING_REACH * 3);
-        this.breakRay = new Ray(GameConfiguration.BUILDING_REACH * 3);
+        this.buildRay = new Ray(GameConfiguration.BUILDING_REACH);
+        this.breakRay = new Ray(GameConfiguration.BREAKING_REACH);
         this.aimedPlacedBlocks = new ArrayList<>();
         this.breakedBlocks = new ArrayList<>();
         this.craftInventory = new PlayerCraftInventory();

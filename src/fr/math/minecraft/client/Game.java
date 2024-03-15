@@ -13,6 +13,7 @@ import fr.math.minecraft.client.gui.menus.Menu;
 import fr.math.minecraft.client.handler.PlayerMovementHandler;
 import fr.math.minecraft.client.manager.*;
 import fr.math.minecraft.client.entity.player.Player;
+import fr.math.minecraft.shared.entity.mob.Zombie;
 import fr.math.minecraft.shared.inventory.DroppedItem;
 import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.world.*;
@@ -32,11 +33,13 @@ import org.lwjgl.openal.ALCapabilities;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryUtil;
 
+import java.awt.*;
 import java.io.*;
 import java.nio.DoubleBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -55,6 +58,7 @@ public class Game {
     private Map<String, Sound> sounds;
     private Map<Class<? extends Menu>, Menu> menus;
     private Player player;
+    private Zombie zombie;
     private World world;
     private Camera camera;
     private float updateTimer;
@@ -184,6 +188,12 @@ public class Game {
 
         menuManager.registerMenu(mainMenu);
         menuManager.registerMenu(connectionMenu);
+
+        //Mob test
+        zombie = new Zombie("Maria");
+        String zombieUUID = UUID.randomUUID().toString();
+        zombie.setPosition(new Vector3f(4, 64, 19));
+        mobs.put(zombieUUID, zombie);
     }
 
     private void loadSplashText() {
@@ -283,7 +293,6 @@ public class Game {
             for (Chunk chunk : chunkUpdateQueue) {
                 chunk.update();
             }
-
             chunkUpdateQueue.clear();
         }
 
@@ -304,6 +313,7 @@ public class Game {
         this.update(player);
 
         time += 0.01f;
+
         synchronized (this.getPlayers()) {
             for (Player player : this.getPlayers().values()) {
                 player.update();
@@ -340,6 +350,12 @@ public class Game {
             player.getAimedBreakedBlocks().add(player.getBreakRay().getBlockWorldPosition());
         }
          */
+    }
+
+    public void update(Mob mob) {
+        mob.updatePosition(world);
+        mob.updateAnimations();
+        camera.update(mob);
     }
 
     private void render(Renderer renderer) {
@@ -413,6 +429,15 @@ public class Game {
                     player.getNametagMesh().init();
                 }
                 renderer.render(camera, player);
+            }
+        }
+
+        synchronized (this.getMobs()) {
+            for (Mob mob : this.getMobs().values()) {
+                if(!mob.getNametagMesh().isInitiated()) {
+                    mob.getNametagMesh().init();
+                }
+                renderer.render(camera, mob);
             }
         }
 

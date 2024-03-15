@@ -17,6 +17,8 @@ import fr.math.minecraft.client.texture.CubemapTexture;
 import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.shared.Sprite;
 import fr.math.minecraft.client.texture.Texture;
+import fr.math.minecraft.shared.entity.mob.Mob;
+import fr.math.minecraft.shared.entity.mob.MobType;
 import fr.math.minecraft.shared.inventory.*;
 import fr.math.minecraft.shared.network.Hitbox;
 import fr.math.minecraft.shared.world.Chunk;
@@ -77,6 +79,7 @@ public class Renderer {
     private final FontManager fontManager;
     private final CFont font;
     private final Map<String, Texture> skinsMap;
+    private final Map<MobType,  Texture> mobTextureMap;
     private final CubemapTexture panoramaTexture;
     private String emptyText;
     private Set<String> loadedSkins;
@@ -150,6 +153,7 @@ public class Renderer {
         this.dirtTexture = new TextureBuilder().buildDirtBackgroundTexture();
 
         this.skinsMap = new HashMap<>();
+        this.mobTextureMap = new HashMap<>();
 
         this.terrainTexture.load();
         this.defaultSkinTexture.load();
@@ -203,6 +207,38 @@ public class Renderer {
         }
     }
 
+    public void render(Camera camera, Mob mob) {
+        Texture mobTexture;
+
+        if(mobTextureMap.containsKey(mob.getMobType())) {
+            mobTexture = mobTextureMap.get(mob.getMobType());
+            if(!mobTexture.isLoaded()) {
+                mobTexture.load();
+            }
+        } else {
+            BufferedImage mobSkin = mob.getSkin();
+            if(mobSkin == null) {
+                return;
+            }
+            mobTexture = new Texture(mobSkin, 2);
+            mobTexture.load();
+            mobTextureMap.put(mob.getMobType(), mobTexture);
+        }
+
+        playerShader.enable();
+        playerShader.sendInt("uTexture", mobTexture.getSlot());
+
+        glActiveTexture(GL_TEXTURE0 + mobTexture.getSlot());
+        mobTexture.bind();
+
+        camera.matrix(playerShader, mob);
+
+        playerMesh.draw();
+
+        mobTexture.unbind();
+        this.renderNametag(camera, mob);
+    }
+
     public void renderNametag(Camera camera, Player player) {
         this.renderNametagBar(camera, player);
         this.renderNametagText(camera, player);
@@ -232,6 +268,43 @@ public class Renderer {
         camera.matrixNametag(nametagTextShader, player);
 
         fontManager.addText(fontMesh, player.getName(), 0, 0, 0, 1.0f, 0xFFFFFF, true);
+
+        fontMesh.flush();
+
+        texture.unbind();
+    }
+
+    public void renderNametag(Camera camera, Mob mob) {
+        this.renderNametagBar(camera, mob);
+        this.renderNametagText(camera, mob);
+    }
+
+
+
+    private void renderNametagBar(Camera camera, Mob mob) {
+
+        NametagMesh nametagMesh = mob.getNametagMesh();
+
+        if (nametagMesh == null)
+            return;
+
+        nametagShader.enable();
+
+        camera.matrixNametag(nametagShader, mob);
+
+        nametagMesh.draw();
+    }
+
+    private void renderNametagText(Camera camera, Mob mob) {
+        Texture texture = font.getTexture();
+        nametagTextShader.enable();
+        nametagTextShader.sendInt("uTexture", texture.getSlot());
+
+        glActiveTexture(GL_TEXTURE0 + texture.getSlot());
+        texture.bind();
+        camera.matrixNametag(nametagTextShader, mob);
+
+        fontManager.addText(fontMesh, mob.getName(), 0, 0, 0, 1.0f, 0xFFFFFF, true);
 
         fontMesh.flush();
 

@@ -18,9 +18,10 @@ import java.util.ArrayList;
 public class Zombie extends Mob {
 
     public Zombie(String name) {
-        super();
+        super(name);
         this.skinPath = "res/textures/zombie.png";
         this.behavior = MobBehavior.HOSTILE;
+        this.mobType = MobType.ZOMBIE;
         this.initAnimations();
     }
 

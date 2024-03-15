@@ -6,6 +6,8 @@ import fr.math.minecraft.client.entity.Ray;
 import fr.math.minecraft.client.events.PlayerMoveEvent;
 import fr.math.minecraft.client.events.listeners.EntityUpdate;
 import fr.math.minecraft.client.events.listeners.EventListener;
+import fr.math.minecraft.client.meshs.NametagMesh;
+import fr.math.minecraft.client.texture.Texture;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.shared.GameConfiguration;
@@ -71,8 +73,11 @@ public abstract class Mob {
     protected PlayerAction action;
     protected Sprite sprite;
     protected MobBehavior behavior;
+    protected MobType mobType;
+    private NametagMesh nametagMesh;
 
-    public Mob() {
+
+    public Mob(String name) {
         this.position = new Vector3f(0.0f, 100.0f, 0.0f);
         this.lastPosition = new Vector3f(0, 0, 0);
         this.gravity = new Vector3f(0, -0.0025f, 0);
@@ -123,11 +128,12 @@ public abstract class Mob {
         this.breakingBlock = false;
         this.skin = null;
         this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
-        this.buildRay = new Ray(GameConfiguration.BUILDING_REACH * 3);
-        this.breakRay = new Ray(GameConfiguration.BUILDING_REACH * 3);
+        this.buildRay = new Ray(GameConfiguration.BUILDING_REACH);
+        this.breakRay = new Ray(GameConfiguration.BREAKING_REACH );
         this.aimedPlacedBlocks = new ArrayList<>();
         this.lastInventory = inventory;
-
+        this.mobType = null;
+        this.nametagMesh = new NametagMesh(name);
     }
 
     public void resetMoving() {
@@ -528,5 +534,13 @@ public abstract class Mob {
 
     public void setLastInventory(Inventory lastInventory) {
         this.lastInventory = lastInventory;
+    }
+
+    public MobType getMobType() {
+        return mobType;
+    }
+
+    public NametagMesh getNametagMesh() {
+        return nametagMesh;
     }
 }
