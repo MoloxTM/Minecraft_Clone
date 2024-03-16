@@ -1,5 +1,6 @@
 package fr.math.minecraft.server.world.biome;
 
+import fr.math.minecraft.client.Game;
 import fr.math.minecraft.server.Utils;
 import fr.math.minecraft.server.builder.StructureBuilder;
 import fr.math.minecraft.server.world.*;
@@ -79,11 +80,16 @@ public class PlainBiome extends AbstractBiome{
 
         for (int i = regionPosition.x; i < (Region.SIZE * Chunk.SIZE)+ regionPosition.x; i+=9) {
             for (int j = regionPosition.z; j < (Region.SIZE *Chunk.SIZE)+ regionPosition.z; j+=11) {
-                if(canBuildHouse(worldX+i,worldY,worldZ+j) && houseCount<=maxHousePerVillage){
-                    StructureBuilder.buildHouse(structure,worldX+i,worldY,worldZ+j);
-                    //StructureBuilder.buildStoneCube(structure,worldX+i,worldY,worldZ+j);
-                    houseCount++;
-                    region.setHasVillage(true);
+
+                int x = i - regionPosition.x;
+                int z = j - regionPosition.z;
+
+                if(Region.SIZE / 4 < x && x < Chunk.SIZE * Region.SIZE - Region.SIZE / 4 && Region.SIZE / 4 < z && z < Chunk.SIZE * Region.SIZE - Region.SIZE / 4) {
+                    if(canBuildHouse(worldX+i,worldY,worldZ+j) && houseCount<=maxHousePerVillage){
+                        StructureBuilder.buildBigHouse(structure,worldX+i,worldY,worldZ+j);
+                        houseCount++;
+                        region.setHasVillage(true);
+                    }
                 }
                 if(houseCount==5){return;}
             }
@@ -93,7 +99,12 @@ public class PlainBiome extends AbstractBiome{
     public boolean canBuildHouse(int worldX, int worldY, int worldZ){
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
+                /*
                 if((int)this.getHeight(worldX+i,worldZ+j)!=worldY){
+                    return false;
+                }
+                */
+                if((int)this.getHeight(worldX+i,worldZ+j)!=worldY) {
                     return false;
                 }
             }

@@ -326,12 +326,18 @@ public class  StructureBuilder {
         y=y+0;
         for(int i=0; i<9;i++){
             for(int j=0;j<6;j++){
-                structure.setBlock(x+i,y,z+j,Material.STONE.getId());
+                if(j == 0 || j == 5) {
+                    structure.setBlock(x+i,y,z+j,Material.COBBLE_STONE.getId());
+                } else if(i == 0 || i == 8) {
+                    structure.setBlock(x+i,y,z+j,Material.COBBLE_STONE.getId());
+                } else {
+                    structure.setBlock(x+i,y,z+j,Material.OAK_PLANK.getId());
+                }
             }
         }
         //etage 1
         y=y+1;
-        for(int j =0;j<2;j++) {
+        for(int j = 0; j < 2 ; j++) {
             for(int i = 0; i < 6; i++) {
                 structure.setBlock(x+i,y,z+j*9,Material.STONE.getId());
             }
@@ -405,14 +411,122 @@ public class  StructureBuilder {
                 structure.setBlock(x+j+2,y,z+i,Material.BIRCH_LOG.getId());
             }
         }
-        System.out.println("A house has been built");
     }
 
-    public static void buildStoneCube(Structure structure,int x, int y, int z){
-        for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < 10; j++) {
-                for (int k = 0; k < 10; k++) {
-                    structure.setBlock(x+i,y+j,z+k,Material.STONE.getId());
+    public static void buildBigHouse(Structure structure, int x, int worldY, int z){
+        //etage 0
+        int y = worldY;
+        y=y+0;
+        for(int i=0; i< 9 ;i++){
+            for(int j=0;j < 6;j++){
+                if(j == 0 || j == 5) {
+                    structure.setBlock(x+j,y,z+i,Material.COBBLE_STONE.getId());
+                } else if(i == 0 || i == 8) {
+                    structure.setBlock(x+j,y,z+i,Material.COBBLE_STONE.getId());
+                } else {
+                    structure.setBlock(x+j,y,z+i,Material.OAK_PLANK.getId());
+                }
+            }
+        }
+        //etage 1
+        y=y+1;
+        for(int i=0; i<9;i++){
+            for(int j=0;j<6;j++){
+                if(j == 0 || j == 5) {
+                    structure.setBlock(x+j,y,z+i,Material.COBBLE_STONE.getId());
+                } else if(i == 0 || i == 8) {
+                    structure.setBlock(x+j,y,z+i,Material.COBBLE_STONE.getId());
+                } else {
+                    structure.setBlock(x+j,y,z+i,Material.AIR.getId());
+                }
+
+                if(i == 2 && j == 0) {
+                    structure.setBlock(x+j,y,z+i,Material.AIR.getId());
+                }
+            }
+        }
+
+        //etage 2
+        y=y+1;
+        for(int i=0; i<9;i++){
+            for(int j=0;j<6;j++){
+                if(j == 0 || j == 5) {
+                    structure.setBlock(x+j,y,z+i,Material.COBBLE_STONE.getId());
+                } else if(i == 0 || i == 8) {
+                    structure.setBlock(x+j,y,z+i,Material.COBBLE_STONE.getId());
+                } else {
+                    structure.setBlock(x+j,y,z+i,Material.AIR.getId());
+                }
+
+                if(i == 2 && j == 0) {
+                    structure.setBlock(x+j,y,z+i,Material.AIR.getId());
+                }
+
+                if(j == 5) {
+                    if( i == 2 || i == 3 || i == 5 || i == 6) {
+                        structure.setBlock(x+j,y,z+i,Material.AIR.getId());
+                    }
+                }
+                if(i == 5 && j == 0) {
+                    structure.setBlock(x+j,y,z+i,Material.AIR.getId());
+                }
+            }
+        }
+
+        //etage 3
+        y=y+1;
+        for(int i=0; i<9;i++){
+            for(int j=0;j<6;j++){
+                if(j == 0 || j == 5) {
+                    structure.setBlock(x+j,y,z+i,Material.COBBLE_STONE.getId());
+                } else if(i == 0 || i == 8) {
+                    structure.setBlock(x+j,y,z+i,Material.COBBLE_STONE.getId());
+                } else {
+                    structure.setBlock(x+j,y,z+i,Material.AIR.getId());
+                }
+            }
+        }
+
+        y=y+1;
+        for(int i = 0;i<9;i++){
+            structure.setBlock(x,y,z+i,Material.OAK_PLANK.getId());
+            structure.setBlock(x+5,y,z+i,Material.OAK_PLANK.getId());
+        }
+        for (int i = 0; i < 6; i++) {
+            structure.setBlock(x+i,y,z,Material.OAK_PLANK.getId());
+            structure.setBlock(x+i,y,z+8,Material.OAK_PLANK.getId());
+        }
+
+        //etage 5
+        y=y+1;
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 4; j++) {
+                structure.setBlock(x+j+1,y,z+i,Material.OAK_PLANK.getId());
+            }
+        }
+
+        //etage 6
+        y=y+1;
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 2; j++) {
+                structure.setBlock(x+j+2,y,z+i,Material.OAK_PLANK.getId());
+            }
+        }
+
+        for (int k = 0; k < 4; k++) {
+            structure.setBlock(x,worldY + k,z,Material.OAK_LOG.getId());
+            structure.setBlock(x + 5,worldY + k,z,Material.OAK_LOG.getId());
+            structure.setBlock(x,worldY + k, z + 8, Material.OAK_LOG.getId());
+            structure.setBlock(x + 5,worldY + k, z + 8, Material.OAK_LOG.getId());
+        }
+    }
+
+
+    public static void buildCube(Structure structure,int x, int y, int z, int size1, int size2, Material material){
+        for (int i = 0; i < size1; i++) {
+            for (int j = 0; j < size2; j++) {
+                for (int k = 0; k < 5; k++) {
+                    structure.setBlock(x+i,y+k,z+j, material.getId());
                 }
             }
         }

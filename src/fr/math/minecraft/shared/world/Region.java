@@ -12,6 +12,7 @@ import fr.math.minecraft.shared.world.generator.OverworldGenerator;
 import org.apache.log4j.Logger;
 import org.joml.Vector3i;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,12 +23,14 @@ public class Region {
     public final static int SIZE = 8;
     private final Structure structure;
     private boolean hasVillage;
+    private ArrayList<Vector3i> villageArea;
     private final static Logger logger = LoggerUtility.getServerLogger(Region.class, LogType.TXT);
     public Region(Vector3i position) {
         this.position = position;
         this.structure = new Structure();
         this.structureMap = new HashMap<>();
         this.hasVillage=false;
+        this.villageArea = new ArrayList<>();
     }
 
     public Region(int x, int y, int z) {
@@ -49,16 +52,34 @@ public class Region {
                 AbstractBiome currentBiome = biomeManager.getBiome(worldX, worldZ);
 
                 int worldHeight = generator.getHeight(worldX, worldZ);
+                if(!this.hasVillage){
+                    currentBiome.buildVillage(worldX, worldHeight, worldZ, structure, world,this);
+                }
                 if (SIZE / 4 < x && x < Chunk.SIZE * SIZE - SIZE / 4 && SIZE / 4 < z && z < Chunk.SIZE * SIZE - SIZE / 4) {
-                    if(!this.hasVillage){currentBiome.buildVillage(worldX, worldHeight, worldZ, structure, world,this);}
-                    currentBiome.buildWeeds(worldX, worldHeight, worldZ, structure, world);
-                    currentBiome.buildTree(worldX, worldHeight, worldZ, structure, world);
 
+
+                    if(!inVillageArea(worldX, worldHeight, worldZ)) {
+                        currentBiome.buildWeeds(worldX, worldHeight, worldZ, structure, world);
+                        currentBiome.buildTree(worldX, worldHeight, worldZ, structure, world);
+                    }
                 }
             }
         }
 
         logger.info("Structure généré avec succès ! ");
+    }
+
+    private boolean inVillageArea(int x, int y, int z) {
+        if(villageArea.size() < 2) {
+            return false;
+        }
+        Vector3i firstCo = villageArea.get(0);
+        Vector3i lastCo = villageArea.get(1);
+        if((firstCo.x - 8) <= x && x <= (lastCo.x + 8) && (firstCo.z - 8) <= z && z <= (lastCo.z + 8)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public Map<Coordinates, Byte> getStructureMap() {
@@ -75,5 +96,9 @@ public class Region {
 
     public void setHasVillage(boolean hasVillage) {
         this.hasVillage = hasVillage;
+    }
+
+    public ArrayList<Vector3i> getVillageArea() {
+        return villageArea;
     }
 }

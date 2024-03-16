@@ -25,6 +25,8 @@ public enum Material {
     SNOW("Snow", 16, 2, 11, 8, 4, true, false),
     DIAMOND_SWORD("Diamond Sword", 17, -1, -1, 4, 2, false, true),
     DIAMOND_AXE("Diamond Axe", 18, -1, -1, 27, 3, false, true),
+    OAK_PLANK("Oak plank", 19, 4, 15, 5, 8),
+    COBBLE_STONE("Cobble stone", 20, 0, 14, 0, 8),
     BREAKING_ANIMATION("", -3, 0, 0, 0, 0);
 
     private final int blockIconX, x;
