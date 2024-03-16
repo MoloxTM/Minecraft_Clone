@@ -35,4 +35,16 @@ public class CraftController {
         }
         return null;
     }
+
+    public ItemStack getCraft(PlayerCraftingTableInventory playerCraftingTableInventory) {
+        for (CraftRecipes craftRecipes : recipes) {
+            for (int i = 0; i < craftRecipes.getCraftingTable().size(); i++) {
+                CraftData craftData = craftRecipes.getCraftingTable().get(i);
+                if (craftData.equals(playerCraftingTableInventory)) {
+                    return craftRecipes.getCraft();
+                }
+            }
+        }
+        return null;
+    }
 }
