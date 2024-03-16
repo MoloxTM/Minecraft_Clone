@@ -100,7 +100,7 @@ public class Client {
         this.sprite = new Sprite();
         this.action = PlayerAction.MINING;
         this.buildRay = new Ray(GameConfiguration.BUILDING_REACH);
-        this.breakRay = new Ray(GameConfiguration.BUILDING_REACH);
+        this.breakRay = new Ray(GameConfiguration.BREAKING_REACH);
         this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
         this.breakedBlocks = new ArrayList<>();
         this.placedBlocks = new ArrayList<>();

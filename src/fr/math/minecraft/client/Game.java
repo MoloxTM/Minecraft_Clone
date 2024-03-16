@@ -4,6 +4,7 @@ import fr.math.minecraft.client.audio.Sound;
 import fr.math.minecraft.client.audio.Sounds;
 import fr.math.minecraft.client.entity.Ray;
 import fr.math.minecraft.shared.ChatMessage;
+import fr.math.minecraft.shared.entity.mob.Mob;
 import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.client.events.listeners.PlayerListener;
 import fr.math.minecraft.client.gui.buttons.BlockButton;
@@ -14,6 +15,8 @@ import fr.math.minecraft.client.handler.PlayerMovementHandler;
 import fr.math.minecraft.client.manager.*;
 import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.shared.world.DroppedItem;
+import fr.math.minecraft.shared.entity.mob.Zombie;
+import fr.math.minecraft.shared.inventory.DroppedItem;
 import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.world.*;
 import fr.math.minecraft.logger.LogType;
@@ -31,11 +34,13 @@ import org.lwjgl.openal.ALCapabilities;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryUtil;
 
+import java.awt.*;
 import java.io.*;
 import java.nio.DoubleBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -50,9 +55,11 @@ public class Game {
     private static Game instance = null;
     private MinecraftClient client;
     private Map<String, Player> players;
+    private Map<String, Mob> mobs;
     private Map<String, Sound> sounds;
     private Map<Class<? extends Menu>, Menu> menus;
     private Player player;
+    private Zombie zombie;
     private World world;
     private Camera camera;
     private float updateTimer;
@@ -131,6 +138,7 @@ public class Game {
         this.client = new MinecraftClient(50000);
         this.sounds = new HashMap<>();
         this.players = new HashMap<>();
+        this.mobs = new HashMap<>();
         this.menus = new HashMap<>();
         this.updateTimer = 0.0f;
         this.camera = new Camera(GameConfiguration.WINDOW_WIDTH, GameConfiguration.WINDOW_HEIGHT);
@@ -277,7 +285,6 @@ public class Game {
             for (Chunk chunk : chunkUpdateQueue) {
                 chunk.update();
             }
-
             chunkUpdateQueue.clear();
         }
 
@@ -296,12 +303,17 @@ public class Game {
 
         player.handleInputs(window);
         this.update(player);
-
+        this.update(zombie);
         time += 0.01f;
 
         synchronized (this.getPlayers()) {
             for (Player player : this.getPlayers().values()) {
                 player.update();
+            }
+        }
+        synchronized (this.getMobs()) {
+            for (Mob mob : this.getMobs().values()){
+                mob.update(world);
             }
         }
     }
@@ -326,6 +338,11 @@ public class Game {
             player.getAimedBreakedBlocks().add(player.getBreakRay().getBlockWorldPosition());
         }
          */
+    }
+
+    public void update(Mob mob) {
+
+        //camera.update(mob);
     }
 
     private void render(Renderer renderer) {
@@ -402,6 +419,15 @@ public class Game {
             }
         }
 
+        synchronized (this.getMobs()) {
+            for (Mob mob : this.getMobs().values()) {
+                if(!mob.getNametagMesh().isInitiated()) {
+                    mob.getNametagMesh().init();
+                }
+                renderer.render(camera, mob);
+            }
+        }
+
         ItemStack selectedItem = player.getHotbar().getItems()[player.getHotbar().getSelectedSlot()];
         Ray ray = player.getBuildRay();
 
@@ -451,6 +477,10 @@ public class Game {
 
     public Map<String, Player> getPlayers() {
         return players;
+    }
+
+    public Map<String, Mob> getMobs() {
+        return mobs;
     }
 
     public Player getPlayer() {

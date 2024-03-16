@@ -19,6 +19,8 @@ import fr.math.minecraft.shared.ChatMessage;
 import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.shared.Sprite;
 import fr.math.minecraft.client.texture.Texture;
+import fr.math.minecraft.shared.entity.mob.Mob;
+import fr.math.minecraft.shared.entity.mob.MobType;
 import fr.math.minecraft.shared.inventory.*;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.server.manager.BiomeManager;
@@ -75,6 +77,7 @@ public class Renderer {
     private final Texture iconsTexture;
     private final Texture guiBlocksTexture;
     private final Texture villagerTexture;
+    private final Texture zombieTexture;
     private final CrosshairMesh crosshairMesh;
     private final ImageMesh imageMesh;
     private final ImageMesh screenMesh;
@@ -82,6 +85,7 @@ public class Renderer {
     private final VillagerMesh villagerMesh;
     private final CFont font;
     private final Map<String, Texture> skinsMap;
+    private final Map<MobType,  Texture> mobTextureMap;
     private final CubemapTexture panoramaTexture;
     private String emptyText;
     private Set<String> loadedSkins;
@@ -154,10 +158,12 @@ public class Renderer {
         this.iconsTexture = new Texture("res/textures/gui/icons.png", 10);
         this.guiBlocksTexture = new Texture("res/textures/gui/gui_blocks.png", 11);
         this.villagerTexture = new Texture("res/textures/entity/villager2.png", 13);
+        this.zombieTexture = new Texture("res/textures/zombie.png", 12);
 
         this.dirtTexture = new TextureBuilder().buildDirtBackgroundTexture();
 
         this.skinsMap = new HashMap<>();
+        this.mobTextureMap = new HashMap<>();
 
         this.terrainTexture.load();
         this.defaultSkinTexture.load();
@@ -172,6 +178,7 @@ public class Renderer {
         this.iconsTexture.load();
         this.guiBlocksTexture.load();
         this.villagerTexture.load();
+        this.zombieTexture.load();
     }
 
     public void render(Camera camera, Player player) {
@@ -213,6 +220,22 @@ public class Renderer {
         }
     }
 
+    public void render(Camera camera, Mob mob) {
+
+        playerShader.enable();
+        playerShader.sendInt("uTexture", zombieTexture.getSlot());
+
+        glActiveTexture(GL_TEXTURE0 + zombieTexture.getSlot());
+        zombieTexture.bind();
+
+        camera.matrix(playerShader, mob);
+
+        playerMesh.draw();
+
+        zombieTexture.unbind();
+        this.renderNametag(camera, mob);
+    }
+
     public void renderNametag(Camera camera, Player player) {
         this.renderNametagBar(camera, player);
         this.renderNametagText(camera, player);
@@ -242,6 +265,43 @@ public class Renderer {
         camera.matrixNametag(nametagTextShader, player);
 
         fontManager.addText(fontMesh, player.getName(), 0, 0, 0, 1.0f, 0xFFFFFF, true);
+
+        fontMesh.flush();
+
+        texture.unbind();
+    }
+
+    public void renderNametag(Camera camera, Mob mob) {
+        this.renderNametagBar(camera, mob);
+        this.renderNametagText(camera, mob);
+    }
+
+
+
+    private void renderNametagBar(Camera camera, Mob mob) {
+
+        NametagMesh nametagMesh = mob.getNametagMesh();
+
+        if (nametagMesh == null)
+            return;
+
+        nametagShader.enable();
+
+        camera.matrixNametag(nametagShader, mob);
+
+        nametagMesh.draw();
+    }
+
+    private void renderNametagText(Camera camera, Mob mob) {
+        Texture texture = font.getTexture();
+        nametagTextShader.enable();
+        nametagTextShader.sendInt("uTexture", texture.getSlot());
+
+        glActiveTexture(GL_TEXTURE0 + texture.getSlot());
+        texture.bind();
+        camera.matrixNametag(nametagTextShader, mob);
+
+        fontManager.addText(fontMesh, mob.getName(), 0, 0, 0, 1.0f, 0xFFFFFF, true);
 
         fontMesh.flush();
 

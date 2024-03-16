@@ -422,8 +422,6 @@ public class Player {
         jumping = false;
         movingMouse = false;
         droppingItem = false;
-        //breakingBlock = false;
-        //placingBlock = false;
     }
 
     public void updateAnimations() {
