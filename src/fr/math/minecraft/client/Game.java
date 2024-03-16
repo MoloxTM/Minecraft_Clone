@@ -10,7 +10,7 @@ import fr.math.minecraft.client.gui.menus.Menu;
 import fr.math.minecraft.client.handler.PlayerMovementHandler;
 import fr.math.minecraft.client.manager.*;
 import fr.math.minecraft.client.entity.player.Player;
-import fr.math.minecraft.inventory.ItemStack;
+import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.world.Coordinates;
 import fr.math.minecraft.shared.world.Material;

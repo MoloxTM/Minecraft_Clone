@@ -13,7 +13,7 @@ public class ChestCraft extends CraftRecipes {
     }
     @Override
     public void fillRecipe() {
-        CraftData dataCraftingTable = new CraftData(new int[]
+        CraftData dataCraftingTable = new CraftData(new byte[]
                 {
                         Material.OAK_PLANKS.getId(), Material.OAK_PLANKS.getId(), Material.OAK_PLANKS.getId(),
                         Material.OAK_PLANKS.getId(), Material.AIR.getId(), Material.OAK_PLANKS.getId(),

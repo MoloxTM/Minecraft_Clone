@@ -13,7 +13,7 @@ public class DiamondChessplateCraft extends CraftRecipes {
     }
     @Override
     public void fillRecipe() {
-        CraftData data1 = new CraftData(new int[]
+        CraftData data1 = new CraftData(new byte[]
                 {
                         Material.DIAMOND.getId(), Material.AIR.getId(), Material.DIAMOND.getId(),
                         Material.DIAMOND.getId(), Material.DIAMOND.getId(), Material.DIAMOND.getId(),

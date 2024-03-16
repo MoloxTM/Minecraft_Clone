@@ -14,7 +14,7 @@ public class FurnaceCraft extends CraftRecipes {
 
     @Override
     public void fillRecipe() {
-        CraftData dataCraftingTable = new CraftData(new int[]
+        CraftData dataCraftingTable = new CraftData(new byte[]
                 {
                         Material.COBBLESTONE.getId(), Material.COBBLESTONE.getId(), Material.COBBLESTONE.getId(),
                         Material.COBBLESTONE.getId(), Material.AIR.getId(), Material.COBBLESTONE.getId(),

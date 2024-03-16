@@ -13,7 +13,7 @@ public class StoneAxeCraft extends CraftRecipes {
     }
     @Override
     public void fillRecipe() {
-        CraftData data1 = new CraftData(new int[]
+        CraftData data1 = new CraftData(new byte[]
                 {
                         Material.COBBLESTONE.getId(), Material.COBBLESTONE.getId(), Material.AIR.getId(),
                         Material.COBBLESTONE.getId(), Material.STICK.getId(), Material.AIR.getId(),
@@ -21,7 +21,7 @@ public class StoneAxeCraft extends CraftRecipes {
                 }
         );
 
-        CraftData data2 = new CraftData(new int[]
+        CraftData data2 = new CraftData(new byte[]
                 {
                         Material.AIR.getId(), Material.COBBLESTONE.getId(), Material.COBBLESTONE.getId(),
                         Material.AIR.getId(), Material.STICK.getId(), Material.COBBLESTONE.getId(),

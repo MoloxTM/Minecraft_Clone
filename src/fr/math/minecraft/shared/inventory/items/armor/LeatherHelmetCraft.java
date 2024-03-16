@@ -13,7 +13,7 @@ public class LeatherHelmetCraft extends CraftRecipes {
     }
     @Override
     public void fillRecipe() {
-        CraftData data1 = new CraftData(new int[]
+        CraftData data1 = new CraftData(new byte[]
                 {
                         Material.LEATHER.getId(), Material.LEATHER.getId(), Material.LEATHER.getId(),
                         Material.LEATHER.getId(), Material.AIR.getId(), Material.LEATHER.getId(),
@@ -21,7 +21,7 @@ public class LeatherHelmetCraft extends CraftRecipes {
                 }
         );
 
-        CraftData data2 = new CraftData(new int[]
+        CraftData data2 = new CraftData(new byte[]
                 {
                         Material.AIR.getId(), Material.AIR.getId(), Material.AIR.getId(),
                         Material.LEATHER.getId(), Material.LEATHER.getId(), Material.LEATHER.getId(),

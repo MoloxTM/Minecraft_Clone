@@ -13,7 +13,7 @@ public class DiamondPickaxeCraft extends CraftRecipes {
     }
     @Override
     public void fillRecipe() {
-        CraftData data = new CraftData(new int[]
+        CraftData data = new CraftData(new byte[]
                 {
                         Material.DIAMOND.getId(), Material.DIAMOND.getId(), Material.DIAMOND.getId(),
                         Material.AIR.getId(), Material.STICK.getId(), Material.AIR.getId(),

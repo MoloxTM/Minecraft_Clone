@@ -13,7 +13,7 @@ public class WoodenAxeCraft extends CraftRecipes {
     }
     @Override
     public void fillRecipe() {
-        CraftData data1 = new CraftData(new int[]
+        CraftData data1 = new CraftData(new byte[]
                 {
                         Material.OAK_PLANKS.getId(), Material.OAK_PLANKS.getId(), Material.AIR.getId(),
                         Material.OAK_PLANKS.getId(), Material.STICK.getId(), Material.AIR.getId(),
@@ -21,7 +21,7 @@ public class WoodenAxeCraft extends CraftRecipes {
                 }
         );
 
-        CraftData data2 = new CraftData(new int[]
+        CraftData data2 = new CraftData(new byte[]
                 {
                         Material.AIR.getId(), Material.OAK_PLANKS.getId(), Material.OAK_PLANKS.getId(),
                         Material.AIR.getId(), Material.STICK.getId(), Material.OAK_PLANKS.getId(),

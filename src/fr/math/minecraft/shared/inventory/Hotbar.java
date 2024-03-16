@@ -1,4 +1,6 @@
-package fr.math.minecraft.inventory;
+package fr.math.minecraft.shared.inventory;
+
+import fr.math.minecraft.shared.inventory.ItemStack;
 
 public class Hotbar extends Inventory {
 

@@ -13,7 +13,7 @@ public class IronAxeCraft extends CraftRecipes {
     }
     @Override
     public void fillRecipe() {
-        CraftData data1 = new CraftData(new int[]
+        CraftData data1 = new CraftData(new byte[]
                 {
                         Material.IRON_INGOT.getId(), Material.IRON_INGOT.getId(), Material.AIR.getId(),
                         Material.IRON_INGOT.getId(), Material.STICK.getId(), Material.AIR.getId(),
@@ -21,7 +21,7 @@ public class IronAxeCraft extends CraftRecipes {
                 }
         );
 
-        CraftData data2 = new CraftData(new int[]
+        CraftData data2 = new CraftData(new byte[]
                 {
                         Material.AIR.getId(), Material.IRON_INGOT.getId(), Material.IRON_INGOT.getId(),
                         Material.AIR.getId(), Material.STICK.getId(), Material.IRON_INGOT.getId(),

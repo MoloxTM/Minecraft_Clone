@@ -15,7 +15,7 @@ public class CraftingTableCraft extends CraftRecipes {
     @Override
     public void fillRecipe() {
 
-        CraftData dataPlayerInventory_1 = new CraftData(new int[]
+        CraftData dataPlayerInventory_1 = new CraftData(new byte[]
             {
                 Material.OAK_PLANKS.getId(), Material.OAK_PLANKS.getId(),
                 Material.OAK_PLANKS.getId(), Material.OAK_PLANKS.getId()
@@ -24,7 +24,7 @@ public class CraftingTableCraft extends CraftRecipes {
 
         playerInventory.add(dataPlayerInventory_1);
 
-        CraftData dataCraftingTable_1 = new CraftData(new int[]
+        CraftData dataCraftingTable_1 = new CraftData(new byte[]
                 {
                         Material.OAK_PLANKS.getId(), Material.OAK_PLANKS.getId(), Material.AIR.getId(),
                         Material.OAK_PLANKS.getId(), Material.OAK_PLANKS.getId(), Material.AIR.getId(),
@@ -32,7 +32,7 @@ public class CraftingTableCraft extends CraftRecipes {
                 }
         );
 
-        CraftData dataCraftingTable_2 = new CraftData(new int[]
+        CraftData dataCraftingTable_2 = new CraftData(new byte[]
                 {
                         Material.AIR.getId(), Material.OAK_PLANKS.getId(), Material.OAK_PLANKS.getId(),
                         Material.AIR.getId(), Material.OAK_PLANKS.getId(), Material.OAK_PLANKS.getId(),
@@ -40,7 +40,7 @@ public class CraftingTableCraft extends CraftRecipes {
                 }
         );
 
-        CraftData dataCraftingTable_3 = new CraftData(new int[]
+        CraftData dataCraftingTable_3 = new CraftData(new byte[]
                 {
                         Material.AIR.getId(), Material.AIR.getId(), Material.AIR.getId(),
                         Material.AIR.getId(), Material.OAK_PLANKS.getId(), Material.OAK_PLANKS.getId(),
@@ -48,7 +48,7 @@ public class CraftingTableCraft extends CraftRecipes {
                 }
         );
 
-        CraftData dataCraftingTable_4 = new CraftData(new int[]
+        CraftData dataCraftingTable_4 = new CraftData(new byte[]
                 {
                         Material.AIR.getId(), Material.AIR.getId(), Material.AIR.getId(),
                         Material.OAK_PLANKS.getId(), Material.OAK_PLANKS.getId(), Material.AIR.getId(),

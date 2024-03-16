@@ -13,7 +13,7 @@ public class DiamondHelmetCraft extends CraftRecipes {
     }
     @Override
     public void fillRecipe() {
-        CraftData data1 = new CraftData(new int[]
+        CraftData data1 = new CraftData(new byte[]
                 {
                         Material.DIAMOND.getId(), Material.DIAMOND.getId(), Material.DIAMOND.getId(),
                         Material.DIAMOND.getId(), Material.AIR.getId(), Material.DIAMOND.getId(),
@@ -21,7 +21,7 @@ public class DiamondHelmetCraft extends CraftRecipes {
                 }
         );
 
-        CraftData data2 = new CraftData(new int[]
+        CraftData data2 = new CraftData(new byte[]
                 {
                         Material.AIR.getId(), Material.AIR.getId(), Material.AIR.getId(),
                         Material.DIAMOND.getId(), Material.DIAMOND.getId(), Material.DIAMOND.getId(),

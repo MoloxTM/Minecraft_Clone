@@ -1,4 +1,4 @@
-package fr.math.minecraft.inventory;
+package fr.math.minecraft.shared.inventory;
 
 import fr.math.minecraft.shared.world.Material;
 
@@ -87,5 +87,8 @@ public abstract class Inventory {
 
     public void setCurrentSize(int currentSize) {
         this.currentSize = currentSize;
+    }
+    public void setItem(ItemStack item, int slot) {
+        items[slot] = item;
     }
 }
