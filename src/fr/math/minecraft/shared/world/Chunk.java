@@ -61,7 +61,7 @@ public class Chunk {
     }
 
     public void update() {
-        if(!this.loaded) return;
+        if (!loaded) return;
         mesh.delete();
         mesh = new ChunkMesh(this);
 
@@ -70,7 +70,7 @@ public class Chunk {
     }
 
     public boolean isOnBorders(Vector3i position) {
-        if(position.x == 0 || position.y == 0 || position.z == 0 || position.x == Chunk.SIZE-1 || position.y == Chunk.SIZE-1 || position.z == Chunk.SIZE-1) return true;
+        if (position.x == 0 || position.y == 0 || position.z == 0 || position.x == Chunk.SIZE - 1 || position.y == Chunk.SIZE - 1 || position.z == Chunk.SIZE - 1) return true;
         return false;
     }
 
@@ -99,6 +99,10 @@ public class Chunk {
 
     public byte getBlock(int x, int y, int z) {
         return blocks[x + y * AREA + z * SIZE];
+    }
+
+    public byte getBlock(Vector3i position) {
+        return blocks[position.x + position.y * AREA + position.z * SIZE];
     }
 
     public Vector3i getPosition() {

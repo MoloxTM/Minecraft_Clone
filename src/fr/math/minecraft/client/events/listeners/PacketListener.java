@@ -14,9 +14,9 @@ import fr.math.minecraft.client.network.packet.SkinRequestPacket;
 import fr.math.minecraft.client.network.payload.StatePayload;
 import fr.math.minecraft.client.texture.Texture;
 import fr.math.minecraft.shared.GameConfiguration;
-import fr.math.minecraft.shared.world.Chunk;
-import fr.math.minecraft.shared.world.Coordinates;
-import fr.math.minecraft.shared.world.World;
+import fr.math.minecraft.shared.MathUtils;
+import fr.math.minecraft.shared.PlayerAction;
+import fr.math.minecraft.shared.world.*;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
@@ -75,6 +75,10 @@ public class PacketListener implements PacketEventListener {
             float playerY = playerNode.get("y").floatValue();
             float playerZ = playerNode.get("z").floatValue();
 
+            int rayX = playerNode.get("rx").intValue();
+            int rayY = playerNode.get("ry").intValue();
+            int rayZ = playerNode.get("rz").intValue();
+
             boolean movingLeft = playerNode.get("movingLeft").asBoolean();
             boolean movingRight = playerNode.get("movingRight").asBoolean();
             boolean movingForward = playerNode.get("movingForward").asBoolean();
@@ -84,7 +88,15 @@ public class PacketListener implements PacketEventListener {
             float yaw = playerNode.get("yaw").floatValue();
             float bodyYaw = playerNode.get("bodyYaw").floatValue();
 
-            GameConfiguration gameConfiguration = game.getGameConfiguration();
+            String actionId = playerNode.get("action").asText();
+            int spriteIndex = playerNode.get("spriteIndex").asInt();
+
+            PlayerAction action = null;
+            if (!actionId.equalsIgnoreCase("NONE")) {
+                action = PlayerAction.valueOf(actionId);
+            }
+
+            GameConfiguration gameConfiguration = GameConfiguration.getInstance();
 
             if (gameConfiguration.isEntityInterpolationEnabled()) {
                 EntityUpdate entityUpdate = new EntityUpdate(new Vector3f(playerX, playerY, playerZ), yaw, pitch, bodyYaw);
@@ -103,6 +115,13 @@ public class PacketListener implements PacketEventListener {
             player.setYaw(yaw);
             player.setBodyYaw(bodyYaw);
             player.setPitch(pitch);
+
+            player.getBuildRay().getBlockWorldPosition().x = rayX;
+            player.getBuildRay().getBlockWorldPosition().y = rayY;
+            player.getBuildRay().getBlockWorldPosition().z = rayZ;
+
+            player.setAction(action);
+            player.getSprite().setIndex(spriteIndex);
         }
     }
 
@@ -171,4 +190,89 @@ public class PacketListener implements PacketEventListener {
 
     }
 
+    @Override
+    public void onDroppedItemState(DroppedItemEvent event) {
+
+        World world = event.getWorld();
+        ArrayNode itemsData = event.getItemsData();
+
+        synchronized (world.getDroppedItems()) {
+            for (int i = 0; i < itemsData.size(); i++) {
+
+                JsonNode itemNode = itemsData.get(i);
+
+                String uuid = itemNode.get("uuid").asText();
+                float itemX = itemNode.get("x").floatValue();
+                float itemY = itemNode.get("y").floatValue();
+                float itemZ = itemNode.get("z").floatValue();
+                byte materialID = (byte) itemNode.get("materialID").asInt();
+                Material material = Material.getMaterialById(materialID);
+                float rotationAngle = itemNode.get("rotationAngle").floatValue();
+
+                DroppedItem droppedItem = world.getDroppedItems().get(uuid);
+                Vector3f position = new Vector3f(itemX, itemY, itemZ);
+
+                if (droppedItem == null) {
+                    droppedItem = new DroppedItem(uuid, position, material);
+                    world.getDroppedItems().put(uuid, droppedItem);
+                } else {
+                    droppedItem.setRotationAngle(rotationAngle);
+                    droppedItem.getLastPosition().x = position.x;
+                    droppedItem.getLastPosition().y = position.y;
+                    droppedItem.getLastPosition().z = position.z;
+                }
+
+            }
+        }
+    }
+
+    @Override
+    public void onPlacedBlockState(PlacedBlockStateEvent event) {
+        PlacedBlock placedBlock = event.getPlacedBlock();
+        World world = event.getWorld();
+
+        Vector3i worldPosition = placedBlock.getWorldPosition();
+        Vector3i localPosition = placedBlock.getLocalPosition();
+        byte block = placedBlock.getBlock();
+        Chunk chunk = world.getChunkAt(worldPosition);
+
+        if (chunk == null) {
+            world.getPlacedBlocks().put(worldPosition, placedBlock);
+            return;
+        }
+
+        ChunkManager chunkManager = new ChunkManager();
+        byte chunkBlock = chunk.getBlock(localPosition.x, localPosition.y, localPosition.z);
+
+        if (chunkBlock != block) {
+            chunkManager.placeBlock(chunk, localPosition, world, Material.getMaterialById(block));
+        }
+
+    }
+
+    @Override
+    public void onBrokenBlockState(BrokenBlockStateEvent event) {
+        BreakedBlock breakedBlock = event.getBreakedBlock();
+        World world = event.getWorld();
+
+        Vector3i worldPosition = breakedBlock.getPosition();
+        int blockX = MathUtils.mod(worldPosition.x, Chunk.SIZE);
+        int blockY = MathUtils.mod(worldPosition.y, Chunk.SIZE);
+        int blockZ = MathUtils.mod(worldPosition.z, Chunk.SIZE);
+        Vector3i localPosition = new Vector3i(blockX, blockY, blockZ);
+
+        Chunk chunk = world.getChunkAt(worldPosition);
+        ChunkManager chunkManager = new ChunkManager();
+
+        if (chunk == null) {
+            world.getBrokenBlocks().put(worldPosition, breakedBlock);
+            return;
+        }
+
+        byte chunkBlock = chunk.getBlock(localPosition.x, localPosition.y, localPosition.z);
+
+        if (chunkBlock != Material.AIR.getId()) {
+            chunkManager.removeBlock(chunk, localPosition, world);
+        }
+    }
 }

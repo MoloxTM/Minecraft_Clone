@@ -7,14 +7,17 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.server.Client;
 import fr.math.minecraft.server.MinecraftServer;
-import fr.math.minecraft.shared.world.World;
+import fr.math.minecraft.shared.inventory.Hotbar;
+import fr.math.minecraft.shared.inventory.Inventory;
+import fr.math.minecraft.shared.world.*;
+import fr.math.minecraft.shared.inventory.ItemStack;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
 import java.net.DatagramPacket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Arrays;
 import java.util.List;
 
 public class StatePayload {
@@ -25,15 +28,17 @@ public class StatePayload {
     private Vector3f velocity;
     private float yaw;
     private float pitch;
-    private List<Byte> aimedBlocksIDs;
-    private List<Vector3i> aimedBlocks;
+    private List<PlacedBlock> placedBlocks;
+    private List<BreakedBlock> brokenBlocks;
+    private Inventory inventory;
+    private Inventory hotbar;
 
     public StatePayload(InputPayload payload) {
         this.payload = payload;
         this.position = new Vector3f();
         this.velocity = new Vector3f();
-        this.aimedBlocks = new ArrayList<>();
-        this.aimedBlocksIDs = new ArrayList<>();
+        this.placedBlocks = new ArrayList<>();
+        this.brokenBlocks = new ArrayList<>();
         this.data = null;
         this.yaw = 0.0f;
         this.pitch = 0.0f;
@@ -44,19 +49,77 @@ public class StatePayload {
 
         Vector3f newPosition = new Vector3f(client.getPosition());
         Vector3f newVelocity = new Vector3f(client.getVelocity());
+        MinecraftServer server = MinecraftServer.getInstance();
+        ObjectMapper mapper = new ObjectMapper();
 
-        this.aimedBlocks = new ArrayList<>(client.getAimedBlocks());
-        this.aimedBlocksIDs = new ArrayList<>(client.getAimedBlocksIDs());
+        this.brokenBlocks = new ArrayList<>(client.getBreakedBlocks());
+        this.placedBlocks = new ArrayList<>(client.getPlacedBlocks());
 
-        /*
-        if (client.getLastChunkPosition().distance(position.x, position.y, position.z) >= ServerChunk.SIZE) {
-            ClientManager clientManager = new ClientManager();
-            client.getNearChunks().clear();
-            clientManager.fillNearChunksQueue(client);
-            client.setLastChunkPosition(newPosition);
+        synchronized (world.getDroppedItems()) {
+            List<String> collectedItems = new ArrayList<>();
+            for (DroppedItem droppedItem : world.getDroppedItems().values()) {
+                if (newPosition.distance(droppedItem.getPosition()) < 1.5f) {
+                    ItemStack item = new ItemStack(droppedItem.getMaterial(), 1);
+                    Hotbar hotbar = client.getHotbar();
+                    Inventory inventory = client.getInventory();
+
+                    if (hotbar.isFull() && inventory.isFull()) {
+                        continue;
+                    }
+
+                    client.addItem(item);
+
+                    ObjectNode node = mapper.createObjectNode();
+
+                    node.put("type", "NEW_ITEM");
+                    node.put("droppedItemId", droppedItem.getUuid());
+                    node.put("materialId", item.getMaterial().getId());
+                    node.put("amount", item.getAmount());
+
+                    try {
+                        byte[] buffer = mapper.writeValueAsBytes(node);
+                        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, client.getAddress(), client.getPort());
+
+                        collectedItems.add(droppedItem.getUuid());
+                        server.sendPacket(packet);
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            for (String droppedItemId : collectedItems) {
+                world.getDroppedItems().remove(droppedItemId);
+            }
+
+            for (String droppedItemId : collectedItems) {
+                ObjectNode removedEventNode = mapper.createObjectNode();
+
+                removedEventNode.put("type", "DROPPED_ITEM_REMOVED");
+                removedEventNode.put("droppedItemId", droppedItemId);
+                try {
+                    byte[] buffer = mapper.writeValueAsBytes(removedEventNode);
+                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+
+                    for (Client onlineClient : server.getClients().values()) {
+
+                        if (onlineClient.getUuid().equalsIgnoreCase(client.getUuid())) {
+                            continue;
+                        }
+
+                        packet.setAddress(onlineClient.getAddress());
+                        packet.setPort(onlineClient.getPort());
+
+                        server.sendPacket(packet);
+                    }
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
-         */
+        this.inventory = client.getInventory();
+        this.hotbar = client.getHotbar();
         this.yaw = client.getYaw();
         this.pitch = client.getPitch();
         this.position = newPosition;
@@ -72,7 +135,6 @@ public class StatePayload {
         }
 
         ObjectNode payloadNode = this.toJSON();
-        ObjectNode payloadEventNode = this.toJSONEvent();
         ObjectMapper mapper = new ObjectMapper();
 
         try {
@@ -83,69 +145,15 @@ public class StatePayload {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-
-        if (payloadEventNode == null) {
-            return;
-        }
-
-        try {
-            String payloadEventData = mapper.writeValueAsString(payloadEventNode);
-            byte[] buffer = payloadEventData.getBytes(StandardCharsets.UTF_8);
-            DatagramPacket packetEvent = new DatagramPacket(buffer, buffer.length);
-
-            System.out.println(payloadEventData);
-
-            synchronized (server.getClients()) {
-                for (Client onlineClient : server.getClients().values()) {
-                    if(!onlineClient.getUuid().equalsIgnoreCase(payload.getClientUuid())) {
-                        packetEvent.setAddress(onlineClient.getAddress());
-                        packetEvent.setPort(onlineClient.getPort());
-                        server.sendPacket(packetEvent);
-                    }
-                }
-            }
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
-
-    }
-
-    public ObjectNode toJSONEvent() {
-
-        if (aimedBlocks.isEmpty()) {
-            return null;
-        }
-
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode payloadNode = mapper.createObjectNode();
-        ArrayNode blocksArray = mapper.createArrayNode();
-
-        payloadNode.put("type", "PLAYER_BREAK_EVENT");
-        payloadNode.put("uuid", payload.getClientUuid());
-        
-        for (int i = 0; i < aimedBlocks.size(); i++) {
-            Vector3i blockPosition = aimedBlocks.get(i);
-            byte block = aimedBlocksIDs.get(i);
-            ObjectNode blockNode = mapper.createObjectNode();
-
-            blockNode.put("x", blockPosition.x);
-            blockNode.put("y", blockPosition.y);
-            blockNode.put("z", blockPosition.z);
-            blockNode.put("block", block);
-
-            blocksArray.add(blockNode);
-        }
-
-        payloadNode.set("aimedBlocks", blocksArray);
-
-        return payloadNode;
     }
 
     public ObjectNode toJSON() {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode payloadNode = mapper.createObjectNode();
-        ArrayNode blocksArray = mapper.createArrayNode();
+        ArrayNode brokenBlocksArray = mapper.createArrayNode();
+        ArrayNode placedBlocksArray = mapper.createArrayNode();
+        ArrayNode inventoryArray = mapper.createArrayNode();
+        ArrayNode hotbarArray = mapper.createArrayNode();
 
         payloadNode.put("tick", payload.getTick());
         payloadNode.put("type", "STATE_PAYLOAD");
@@ -159,9 +167,27 @@ public class StatePayload {
         payloadNode.put("pitch", pitch);
         payloadNode.put("uuid", payload.getClientUuid());
 
-        for (int i = 0; i < aimedBlocks.size(); i++) {
-            Vector3i blockPosition = aimedBlocks.get(i);
-            byte block = aimedBlocksIDs.get(i);
+        for (PlacedBlock placedBlock : placedBlocks) {
+            Vector3i blockPosition = placedBlock.getWorldPosition();
+            Vector3i localPosition = placedBlock.getLocalPosition();
+            byte block = placedBlock.getBlock();
+            ObjectNode blockNode = mapper.createObjectNode();
+
+            blockNode.put("wx", blockPosition.x);
+            blockNode.put("wy", blockPosition.y);
+            blockNode.put("wz", blockPosition.z);
+            blockNode.put("lx", localPosition.x);
+            blockNode.put("ly", localPosition.y);
+            blockNode.put("lz", localPosition.z);
+            blockNode.put("block", block);
+
+            placedBlocksArray.add(blockNode);
+        }
+
+        for (BreakedBlock breakedBlock : brokenBlocks) {
+
+            Vector3i blockPosition = breakedBlock.getPosition();
+            byte block = breakedBlock.getBlock();
             ObjectNode blockNode = mapper.createObjectNode();
 
             blockNode.put("x", blockPosition.x);
@@ -169,9 +195,34 @@ public class StatePayload {
             blockNode.put("z", blockPosition.z);
             blockNode.put("block", block);
 
+            brokenBlocksArray.add(blockNode);
+
         }
 
-        payloadNode.set("aimedBlocks", blocksArray);
+        ObjectNode airNode = mapper.createObjectNode();
+        airNode.put("block", -1);
+        airNode.put("amount", 0);
+
+        for (ItemStack item : inventory.getItems()) {
+            if (item == null) {
+                inventoryArray.add(airNode);
+                continue;
+            }
+            inventoryArray.add(item.toJSONObject());
+        }
+
+        for (ItemStack item : hotbar.getItems()) {
+            if (item == null) {
+                hotbarArray.add(airNode);
+                continue;
+            }
+            hotbarArray.add(item.toJSONObject());
+        }
+
+        payloadNode.set("aimedPlacedBlocks", placedBlocksArray);
+        payloadNode.set("brokenBlocks", brokenBlocksArray);
+        payloadNode.set("inventory", inventoryArray);
+        payloadNode.set("hotbar", hotbarArray);
 
         return payloadNode;
     }

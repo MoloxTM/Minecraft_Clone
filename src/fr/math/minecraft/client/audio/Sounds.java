@@ -18,7 +18,8 @@ public enum Sounds {
     MICE_ON_VENUS("res/sounds/music/mice_on_venus.ogg"),
     OXYGENE("res/sounds/music/oxygene.ogg"),
     WET_HANDS("res/sounds/music/wet_hands.ogg"),
-    CLICK("res/sounds/click.ogg");
+    CLICK("res/sounds/click.ogg"),
+    POP("res/sounds/pop.ogg");
 
     private final String filePath;
 

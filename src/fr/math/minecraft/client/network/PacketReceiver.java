@@ -14,6 +14,11 @@ import fr.math.minecraft.client.events.listeners.PlayerListener;
 import fr.math.minecraft.client.network.payload.StatePayload;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
+import fr.math.minecraft.shared.world.BreakedBlock;
+import fr.math.minecraft.shared.world.DroppedItem;
+import fr.math.minecraft.shared.inventory.ItemStack;
+import fr.math.minecraft.shared.world.Material;
+import fr.math.minecraft.shared.world.PlacedBlock;
 import org.apache.log4j.Logger;
 import org.joml.Vector3i;
 
@@ -78,11 +83,22 @@ public class PacketReceiver extends Thread {
             if (response == null) return;
 
             JsonNode responseData = mapper.readTree(response);
+            if (responseData.get("type") == null) {
+                logger.error("Packet inconnu : " + responseData);
+                return;
+            }
             String packetType = responseData.get("type").asText();
 
             switch (packetType) {
+                case "PLACED_BLOCK_STATE":
+                    PlacedBlock placedBlock = new PlacedBlock(responseData);
+                    this.notifyEvent(new PlacedBlockStateEvent(game.getWorld(), placedBlock));
+                    break;
+                case "BROKEN_BLOCK_STATE":
+                    BreakedBlock breakedBlock = new BreakedBlock(responseData);
+                    this.notifyEvent(new BrokenBlockStateEvent(game.getWorld(), breakedBlock));
+                    break;
                 case "PLAYER_JOIN":
-                    // System.out.println(packetType);
                     this.notifyEvent(new PlayerJoinEvent(responseData));
                     break;
                 case "PLAYERS_LIST":
@@ -123,14 +139,46 @@ public class PacketReceiver extends Thread {
                     this.ping = (int) (currentTime - sentTime);
                     break;
                 case "PLAYER_BREAK_EVENT":
-                    System.out.println(responseData);
-                    ArrayNode blocksData = (ArrayNode) responseData.get("aimedBlocks");
+                    ArrayNode blocksData = (ArrayNode) responseData.get("brokenBlocks");
                     Player player = game.getPlayers().get(responseData.get("uuid").asText());
                     for (int i = 0; i < blocksData.size(); i++) {
                         JsonNode node = blocksData.get(i);
                         Vector3i blockPosition = new Vector3i(node.get("x").asInt(), node.get("y").asInt(), node.get("z").asInt());
                         this.notifyEvent(new BlockBreakEvent(player, blockPosition));
                     }
+                    break;
+                case "PLAYER_PLACE_EVENT":
+                    ArrayNode blocksDataPlace = (ArrayNode) responseData.get("aimedPlacedBlocks");
+                    Player playerPlace = game.getPlayers().get(responseData.get("uuid").asText());
+                    for (int i = 0; i < blocksDataPlace.size(); i++) {
+                        JsonNode node = blocksDataPlace.get(i);
+                        Vector3i blockPosition = new Vector3i(node.get("x").asInt(), node.get("y").asInt(), node.get("z").asInt());
+                        byte block = (byte) node.get("block").asInt();
+                        Material material = Material.getMaterialById(block);
+                        this.notifyEvent(new BlockPlaceEvent(playerPlace, blockPosition, material));
+                    }
+                    break;
+                case "DROPPED_ITEM_LIST":
+                    this.notifyEvent(new DroppedItemEvent(game.getWorld(), (ArrayNode) responseData.get("droppedItems")));
+                    break;
+                case "DROPPED_ITEM_REMOVED":
+                    String uuid = responseData.get("droppedItemId").asText();
+                    synchronized (game.getWorld().getDroppedItems()) {
+                        game.getWorld().getDroppedItems().remove(uuid);
+                    }
+                    break;
+                case "NEW_ITEM":
+                    byte materialId = (byte) responseData.get("materialId").intValue();
+                    String droppedItemId = responseData.get("droppedItemId").asText();
+                    DroppedItem droppedItem = game.getWorld().getDroppedItems().get(droppedItemId);
+                    Material material = Material.getMaterialById(materialId);
+
+                    if (material == null || material.getId() < 0 || droppedItem == null) {
+                        return;
+                    }
+
+                    ItemStack item = new ItemStack(material, 1);
+                    this.notifyEvent(new ItemGiveEvent(droppedItemId, item));
                     break;
                 default:
                     logger.warn("Le packet " + packetType + " est inconnu et a été ignoré.");
@@ -140,9 +188,33 @@ public class PacketReceiver extends Thread {
         }
     }
 
+    private void notifyEvent(BrokenBlockStateEvent event) {
+        for (PacketEventListener listener : packetListeners) {
+            listener.onBrokenBlockState(event);
+        }
+    }
+
+    private void notifyEvent(PlacedBlockStateEvent event) {
+        for (PacketEventListener listener : packetListeners) {
+            listener.onPlacedBlockState(event);
+        }
+    }
+
+    private void notifyEvent(ItemGiveEvent event) {
+        for (EventListener listener : eventListeners) {
+            listener.onItemGive(event);
+        }
+    }
+
     private void notifyEvent(PlayerStateEvent event) {
         for (PacketEventListener listener : packetListeners) {
             listener.onPlayerState(event);
+        }
+    }
+
+    private void notifyEvent(DroppedItemEvent event) {
+        for (PacketEventListener listener : packetListeners) {
+            listener.onDroppedItemState(event);
         }
     }
 
@@ -179,6 +251,12 @@ public class PacketReceiver extends Thread {
     private void notifyEvent(BlockBreakEvent event) {
         for (EventListener listener : eventListeners) {
             listener.onBlockBreak(event);
+        }
+    }
+
+    private void notifyEvent(BlockPlaceEvent event) {
+        for (EventListener listener : eventListeners) {
+            listener.onBlockPlace(event);
         }
     }
 

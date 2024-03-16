@@ -17,6 +17,8 @@ import fr.math.minecraft.client.network.PacketReceiver;
 import fr.math.minecraft.client.world.loader.ChunkMeshLoader;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
+import fr.math.minecraft.shared.world.World;
+import fr.math.minecraft.shared.world.WorldLoader;
 import org.apache.log4j.Logger;
 
 import javax.imageio.ImageIO;
@@ -88,24 +90,43 @@ public class ConnectionInitPacket extends ClientPacket implements Runnable {
             return;
 
         try {
+            logger.info("Tentative de connexion...");
             String data = client.sendString(message);
 
-            JsonNode clientData = mapper.readTree(data);
+            if (data.equalsIgnoreCase("TIMEOUT_REACHED")) {
+                throw new RuntimeException("Impossible d'envoyer le packet, le serveur a mis trop de temps à répondre ! (timeout)");
+            }
 
-            System.out.println(clientData);
+            JsonNode serverData = mapper.readTree(data);
 
-            String uuid = clientData.get("uuid").asText();
+            logger.info("Connexion initié, Réponse : " + serverData);
 
-            float spawnX = clientData.get("spawnX").floatValue();
-            float spawnY = clientData.get("spawnY").floatValue();
-            float spawnZ = clientData.get("spawnZ").floatValue();
+            String uuid = serverData.get("uuid").asText();
+
+            float spawnX = serverData.get("spawnX").floatValue();
+            float spawnY = serverData.get("spawnY").floatValue();
+            float spawnZ = serverData.get("spawnZ").floatValue();
+            JsonNode worldData = serverData.get("worldData");
+
+            WorldLoader worldLoader = new WorldLoader();
+            World world = Game.getInstance().getWorld();
+
+            worldLoader.load(world, worldData);
+            logger.info("Données du monde fournies par le serveur chargées avec succès !");
+
+            MenuManager menuManager = Game.getInstance().getMenuManager();
+            Menu menu = menuManager.getOpenedMenu();
+
+            if (menu instanceof ConnectionMenu) {
+                ConnectionMenu connectionMenu = (ConnectionMenu) menu;
+                connectionMenu.getTitle().setText("Construction du monde...");
+            }
+
+            world.buildSpawn();
+            world.buildSpawnMesh();
 
             if (uuid.contains("USERNAME_NOT_AVAILABLE")) {
                 throw new RuntimeException("Le joueur " + player.getName() + " est déjà connecté !");
-            }
-
-            if (uuid.equalsIgnoreCase("TIMEOUT_REACHED")) {
-                throw new RuntimeException("Impossible d'envoyer le packet, le serveur a mis trop de temps à répondre ! (timeout)");
             }
 
             player.setUuid(uuid.substring(0, 36));
@@ -128,6 +149,7 @@ public class ConnectionInitPacket extends ClientPacket implements Runnable {
             client.sendMessage(mapper.writeValueAsString(node));
         } catch (IOException e) {
             logger.error(e.getMessage());
+            throw new RuntimeException("Une erreur inattendue s'est produite.");
         }
     }
 
@@ -147,6 +169,7 @@ public class ConnectionInitPacket extends ClientPacket implements Runnable {
             baos.close();
             return mapper.writeValueAsString(node);
         } catch (IOException e) {
+            e.printStackTrace();
             return null;
         }
     }

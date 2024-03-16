@@ -3,6 +3,7 @@ package fr.math.minecraft.shared.world;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.shared.MathUtils;
+import org.joml.Vector3i;
 
 import java.util.Objects;
 
@@ -14,6 +15,12 @@ public class Coordinates {
         this.x = x;
         this.y = y;
         this.z = z;
+    }
+
+    public Coordinates(Vector3i position) {
+        this.x = position.x;
+        this.y = position.y;
+        this.z = position.z;
     }
 
     @Override

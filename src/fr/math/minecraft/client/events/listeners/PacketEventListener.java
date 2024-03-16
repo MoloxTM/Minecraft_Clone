@@ -8,7 +8,9 @@ public interface PacketEventListener {
     void onPlayerListPacket(PlayerListPacketEvent event);
     void onSkinPacket(SkinPacketEvent event);
     void onChunkPacket(ChunkPacketEvent event);
-
     void onPlayerState(PlayerStateEvent event);
+    void onDroppedItemState(DroppedItemEvent event);
+    void onPlacedBlockState(PlacedBlockStateEvent event);
+    void onBrokenBlockState(BrokenBlockStateEvent event);
 
 }

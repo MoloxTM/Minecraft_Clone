@@ -24,18 +24,25 @@ public class GameConfiguration {
     public final static float BUILDING_REACH = 4.5f;
     public final static float DEFAULT_SPEED= 0.0125f;
     public final static float SPRINT_SPEED = DEFAULT_SPEED * 2f ;
-
     public final static int BLOCK_BREAK_COOLDOWN = (int) UPS / 3;
+    public final static int REGION_SIZE = 8;
+    public final static float INVENTORY_TEXTURE_WIDTH = 256.0f;
+    public final static float INVENTORY_TEXTURE_HEIGHT = 256.0f;
     public final static int PLAYER_INVENTORY_SIZE = 27;
 
     private boolean entityInterpolation;
     private boolean occlusionEnabled;
     private boolean debugging;
+    private boolean musicEnabled;
+    private float guiScale;
+    private static GameConfiguration instance = null;
 
-    public GameConfiguration() {
+    private GameConfiguration() {
         this.entityInterpolation = true;
         this.occlusionEnabled = true;
         this.debugging = true;
+        this.musicEnabled = false;
+        this.guiScale = 1.0f;
     }
 
     public boolean isOcclusionEnabled() {
@@ -60,5 +67,32 @@ public class GameConfiguration {
 
     public boolean isDebugging() {
         return debugging;
+    }
+
+    public boolean isMusicEnabled() {
+        return musicEnabled;
+    }
+
+    public void disableMusic() {
+        musicEnabled = false;
+    }
+
+    public void enableMusic() {
+        musicEnabled = true;
+    }
+
+    public float getGuiScale() {
+        return guiScale;
+    }
+
+    public void setGuiScale(float guiScale) {
+        this.guiScale = guiScale;
+    }
+
+    public static GameConfiguration getInstance() {
+        if (instance == null) {
+            instance = new GameConfiguration();
+        }
+        return instance;
     }
 }

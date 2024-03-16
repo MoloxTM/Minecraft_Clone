@@ -1,16 +1,23 @@
 package fr.math.minecraft.server;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.math.minecraft.server.payload.BrokenBlockPayload;
 import fr.math.minecraft.server.payload.InputPayload;
+import fr.math.minecraft.server.payload.PlacedBlockPayload;
 import fr.math.minecraft.server.payload.StatePayload;
 import fr.math.minecraft.shared.GameConfiguration;
+import fr.math.minecraft.shared.world.BreakedBlock;
+import fr.math.minecraft.shared.world.DroppedItem;
+import fr.math.minecraft.shared.world.PlacedBlock;
+import fr.math.minecraft.shared.world.World;
+import org.joml.Vector3i;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.nio.charset.StandardCharsets;
 
 public class TickHandler extends Thread {
 
@@ -124,6 +131,82 @@ public class TickHandler extends Thread {
             }
         }
         this.sendPlayers();
+        this.sendWorld();
         tick++;
+    }
+
+    private void sendWorld() {
+        MinecraftServer server = MinecraftServer.getInstance();
+        World world = server.getWorld();
+        ObjectMapper mapper = new ObjectMapper();
+        synchronized (world.getDroppedItems()) {
+            ObjectNode node = mapper.createObjectNode();
+            ArrayNode droppedItemArray = mapper.createArrayNode();
+
+            for (DroppedItem droppedItem : world.getDroppedItems().values()) {
+
+                droppedItem.update();
+                JsonNode droppedItemNode = droppedItem.toJSON();
+
+                droppedItemArray.add(droppedItemNode);
+            }
+
+
+            node.put("type", "DROPPED_ITEM_LIST");
+            node.set("droppedItems", droppedItemArray);
+
+            try {
+                byte[] buffer = mapper.writeValueAsBytes(node);
+                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+
+                synchronized (server.getClients()) {
+                    for (Client client : server.getClients().values()) {
+
+                        if (!client.isActive()) {
+                            continue;
+                        }
+
+                        packet.setAddress(client.getAddress());
+                        packet.setPort(client.getPort());
+
+                        server.sendPacket(packet);
+                    }
+                }
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+
+        synchronized (world.getPlacedBlocks()) {
+            for (PlacedBlock placedBlock : world.getPlacedBlocks().values()) {
+                PlacedBlockPayload payload = new PlacedBlockPayload(placedBlock);
+                synchronized (server.getClients()) {
+                    for (Client client : server.getClients().values()) {
+
+                        if (!client.isActive()) {
+                            continue;
+                        }
+
+                        payload.send(client);
+                    }
+                }
+            }
+        }
+
+        synchronized (world.getBrokenBlocks()) {
+            for (BreakedBlock breakedBlock : world.getBrokenBlocks().values()) {
+                BrokenBlockPayload payload = new BrokenBlockPayload(breakedBlock);
+                synchronized (server.getClients()) {
+                    for (Client client : server.getClients().values()) {
+
+                        if (!client.isActive()) {
+                            continue;
+                        }
+
+                        payload.send(client);
+                    }
+                }
+            }
+        }
     }
 }

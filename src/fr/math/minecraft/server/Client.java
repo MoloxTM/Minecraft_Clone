@@ -1,18 +1,23 @@
 package fr.math.minecraft.server;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.entity.Ray;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
-import fr.math.minecraft.shared.world.Material;
+import fr.math.minecraft.shared.inventory.Hotbar;
+import fr.math.minecraft.shared.inventory.ItemStack;
+import fr.math.minecraft.shared.network.GameMode;
+import fr.math.minecraft.shared.world.*;
+import fr.math.minecraft.shared.PlayerAction;
+import fr.math.minecraft.shared.Sprite;
+import fr.math.minecraft.shared.world.DroppedItem;
+import fr.math.minecraft.shared.inventory.PlayerInventory;
 import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.server.payload.StatePayload;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.network.Hitbox;
 import fr.math.minecraft.shared.network.PlayerInputData;
-import fr.math.minecraft.shared.world.World;
 import org.apache.log4j.Logger;
 import org.joml.Math;
 import org.joml.Vector3f;
@@ -40,24 +45,27 @@ public class Client {
     private BufferedImage skin;
     private boolean movingLeft, movingRight, movingForward, movingBackward;
     private boolean flying, sneaking;
-    private boolean canBreakBlock;
+    private boolean canBreakBlock, canPlaceBlock;
     private boolean active;
-    private final Vector3i inputVector;
     private final Vector3f velocity;
     private final Vector3f gravity;
-    private final Vector3f acceleration;
+    private GameMode gameMode;
     private float maxSpeed;
-    private float maxFallSpeed;
     private final Hitbox hitbox;
-    private Vector3f lastChunkPosition;
     private final Queue<InputPayload> inputQueue;
     private final StatePayload[] stateBuffer;
     private boolean canJump;
-    private final Ray buildRay, attackRay;
-    private List<Vector3i> aimedBlocks;
-    private List<Byte> aimedBlocksIDs;
-    private int breakBlockCooldown;
+    private final Ray buildRay, attackRay, breakRay;
+    private List<BreakedBlock> breakedBlocks;
+    private List<PlacedBlock> placedBlocks;
+    private int breakBlockCooldown, placeBlockCoolDown;
+    private Sprite sprite;
+    private PlayerAction action;
     private final static Logger logger = LoggerUtility.getServerLogger(Client.class, LogType.TXT);
+    private final PlayerInventory inventory;
+    private final Hotbar hotbar;
+    private final static float JUMP_VELOCITY = .125f;
+
 
     public Client(String uuid, String name, InetAddress address, int port) {
         this.address = address;
@@ -67,19 +75,17 @@ public class Client {
         this.velocity = new Vector3f();
         this.inputQueue = new LinkedList<>();
         this.gravity = new Vector3f(0, -0.0025f, 0);
-        this.acceleration = new Vector3f();
         this.front = new Vector3f(0.0f, 0.0f, 0.0f);
         this.position = new Vector3f(0.0f, 300.0f, 0.0f);
-        this.lastChunkPosition = new Vector3f(0, 0, 0);
-        this.inputVector = new Vector3i(0, 0, 0);
         this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 1.0f, 0.25f));
         this.stateBuffer = new StatePayload[GameConfiguration.BUFFER_SIZE];
+        this.gameMode = GameMode.SURVIVAL;
         this.yaw = 0.0f;
         this.pitch = 0.0f;
         this.speed = GameConfiguration.DEFAULT_SPEED;
         this.maxSpeed = 0.03f;
-        this.maxFallSpeed = 0.03f;
         this.breakBlockCooldown = GameConfiguration.BLOCK_BREAK_COOLDOWN;
+        this.placeBlockCoolDown= GameConfiguration.BLOCK_BREAK_COOLDOWN;
         this.skin = null;
         this.movingLeft = false;
         this.movingRight = false;
@@ -89,48 +95,21 @@ public class Client {
         this.sneaking = false;
         this.canJump = true;
         this.canBreakBlock = true;
+        this.canPlaceBlock = true;
         this.active = false;
+        this.sprite = new Sprite();
+        this.action = PlayerAction.MINING;
         this.buildRay = new Ray(GameConfiguration.BUILDING_REACH);
+        this.breakRay = new Ray(GameConfiguration.BUILDING_REACH);
         this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
-        this.aimedBlocks = new ArrayList<>();
-        this.aimedBlocksIDs = new ArrayList<>();
+        this.breakedBlocks = new ArrayList<>();
+        this.placedBlocks = new ArrayList<>();
+        this.inventory = new PlayerInventory();
+        this.hotbar = new Hotbar();
     }
 
     public String getName() {
         return name;
-    }
-
-    public void handleInputs(JsonNode packetData) {
-        boolean movingLeft = packetData.get("left").asBoolean();
-        boolean movingRight = packetData.get("right").asBoolean();
-        boolean movingForward = packetData.get("forward").asBoolean();
-        boolean movingBackward = packetData.get("backward").asBoolean();
-        boolean flying = packetData.get("flying").asBoolean();
-        boolean sneaking = packetData.get("sneaking").asBoolean();
-
-        float yaw = packetData.get("yaw").floatValue();
-        float bodyYaw = packetData.get("bodyYaw").floatValue();
-        float pitch = packetData.get("pitch").floatValue();
-
-        int inputX = packetData.get("inputX").intValue();
-        int inputY = packetData.get("inputY").intValue();
-        int inputZ = packetData.get("inputZ").intValue();
-
-        this.yaw = yaw;
-        this.bodyYaw = bodyYaw;
-        this.pitch = pitch;
-
-        this.movingLeft = movingLeft;
-        this.movingRight = movingRight;
-        this.movingForward = movingForward;
-        this.movingBackward = movingBackward;
-
-        this.inputVector.x = inputX;
-        this.inputVector.y = inputY;
-        this.inputVector.z = inputZ;
-
-        this.flying = flying;
-        this.sneaking = sneaking;
     }
 
     public void handleCollisions(Vector3f velocity) {
@@ -165,7 +144,6 @@ public class Client {
                         position.y = worldY - hitbox.getHeight();
                         this.velocity.y = 0;
                     } else if (velocity.y < 0) {
-                        maxFallSpeed = 0.03f;
                         canJump = true;
                         position.y = worldY + hitbox.getHeight() + 1;
                         this.velocity.y = 0;
@@ -183,8 +161,8 @@ public class Client {
 
     public void update(World world, InputPayload payload) {
 
-        List<Vector3i> blocksPosition = new ArrayList<>();
-        List<Byte> blocksIDs = new ArrayList<>();
+        breakedBlocks.clear();
+        placedBlocks.clear();
 
         for (PlayerInputData inputData : payload.getInputsData()) {
             float yaw = inputData.getYaw();
@@ -207,7 +185,11 @@ public class Client {
 
             this.resetMoving();
 
-            velocity.add(gravity);
+            if (gameMode == GameMode.SURVIVAL) {
+                velocity.add(gravity);
+            }
+
+            hotbar.setSelectedSlot(inputData.getHotbarSlot());
 
             if (inputData.isMovingForward()) {
                 acceleration.add(front);
@@ -240,8 +222,7 @@ public class Client {
             if (inputData.isJumping()) {
                 // this.handleJump();
                 if (canJump) {
-                    maxFallSpeed = 0.5f;
-                    acceleration.y += 10.0f;
+                    velocity.y = JUMP_VELOCITY;
                     canJump = false;
                 }
             }
@@ -255,11 +236,13 @@ public class Client {
                 velocity.z = velocityNorm.z;
             }
 
+            /*
             if (new Vector3f(0, velocity.y, 0).length() > maxFallSpeed) {
                 Vector3f velocityNorm = new Vector3f(velocity.x, velocity.y, velocity.z);
                 velocityNorm.normalize().mul(maxFallSpeed);
                 velocity.y = velocityNorm.y;
             }
+             */
 
             position.x += velocity.x;
             handleCollisions(new Vector3f(velocity.x, 0, 0));
@@ -271,6 +254,13 @@ public class Client {
             handleCollisions(new Vector3f(0, velocity.y, 0));
 
             buildRay.update(position, cameraFront, world, true);
+            breakRay.update(position, cameraFront, world, true);
+
+            if (!breakRay.isAimingBlock()) {
+                sprite.reset();
+                breakRay.reset();
+                action = null;
+            }
 
             if (!inputData.isBreakingBlock()) {
                 canBreakBlock = true;
@@ -278,39 +268,110 @@ public class Client {
 
             if (inputData.isBreakingBlock()) {
 
-                byte block = buildRay.getAimedBlock();
+                byte block = breakRay.getAimedBlock();
+                sprite.update(PlayerAction.MINING);
+
+                if (action == PlayerAction.MINING && breakRay.isAimingBlock() && sprite.getIndex() == action.getLength() - 1) {
+                    Vector3i rayPosition = breakRay.getBlockWorldPosition();
+                    Vector3i blockPositionLocal = Utils.worldToLocal(rayPosition);
+                    Material material = Material.getMaterialById(block);
+
+                    BreakedBlock breakedBlock = new BreakedBlock(rayPosition, block);
+                    breakedBlocks.add(breakedBlock);
+
+                    logger.info(name + " (" + uuid + ") a cassé un block de " + material + " en " + breakRay.getBlockWorldPosition());
+
+                    synchronized (world.getPlacedBlocks()) {
+                        PlacedBlock placedBlock = world.getPlacedBlocks().get(breakedBlock.getPosition());
+                        if (placedBlock != null) {
+                            world.getPlacedBlocks().remove(breakedBlock.getPosition());
+                        }
+                    }
+
+                    synchronized (world.getBrokenBlocks()) {
+                        world.getBrokenBlocks().put(breakedBlock.getPosition(), breakedBlock);
+                    }
+
+                    breakRay.getAimedChunk().setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, Material.AIR.getId());
+                    breakRay.reset();
+                    sprite.reset();
+
+                    Random random = new Random();
+                    DroppedItem droppedItem = new DroppedItem(new Vector3f(rayPosition), material);
+                    droppedItem.getVelocity().y = 0.8f;
+                    droppedItem.getVelocity().x = random.nextFloat(0.35f, 0.75f);
+                    droppedItem.getVelocity().z = random.nextFloat(0.3f, 0.85f);
+
+                    world.getDroppedItems().put(droppedItem.getUuid(), droppedItem);
+                }
 
                 if (this.canBreakBlock) {
-                    if (buildRay.getAimedChunk() != null && block != Material.AIR.getId() && block != Material.WATER.getId()) {
+                    if (breakRay.isAimingBlock()) {
+                        action = PlayerAction.MINING;
+                        sprite.reset();
+                    }
+                    this.canBreakBlock = false;
+                }
+            } else {
+                sprite.reset();
+            }
+
+
+            if (!inputData.isPlacingBlock()) {
+                canPlaceBlock = true;
+            }
+
+            if (inputData.isPlacingBlock()) {
+                byte block = buildRay.getAimedBlock();
+                ItemStack hotbarItem = hotbar.getItems()[hotbar.getSelectedSlot()];
+
+                if (canPlaceBlock && hotbarItem != null && hotbarItem.getMaterial() != Material.AIR) {
+                    if (buildRay.isAimingBlock()) {
 
                         Vector3i rayPosition = buildRay.getBlockWorldPosition();
-                        Vector3i blockPositionLocal = Utils.worldToLocal(rayPosition);
+                        Vector3i placedBlockWorldPosition = buildRay.getBlockPlacedPosition(rayPosition);
+                        Vector3i blockPositionLocal = Utils.worldToLocal(placedBlockWorldPosition);
+                        PlacedBlock placedBlock = new PlacedBlock(uuid, placedBlockWorldPosition, blockPositionLocal, hotbarItem.getMaterial().getId());
+                        Material material = hotbarItem.getMaterial();
+                        placedBlocks.add(placedBlock);
 
-                        blocksPosition.add(rayPosition);
-                        blocksIDs.add(block);
+                        synchronized (world.getBrokenBlocks()) {
+                            BreakedBlock breakedBlock = world.getBrokenBlocks().get(placedBlock.getWorldPosition());
+                            if (breakedBlock != null) {
+                                world.getBrokenBlocks().remove(placedBlock.getWorldPosition());
+                            }
+                        }
 
-                        logger.info(name + " (" + uuid + ") a cassé un block de " + Material.getMaterialById(block) + " en " + buildRay.getBlockWorldPosition());
+                        synchronized (world.getPlacedBlocks()) {
+                            world.getPlacedBlocks().put(placedBlock.getWorldPosition(), placedBlock);
+                        }
 
-                        buildRay.getAimedChunk().setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, Material.AIR.getId());
+                        /*On détermine le chunk où le */
+                        Chunk aimedChunk = world.getChunkAt(placedBlockWorldPosition);
+
+                        aimedChunk.setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, material.getId());
+                        hotbarItem.setAmount(hotbarItem.getAmount() - 1);
+
+                        if (hotbarItem.getAmount() == 0) {
+                            hotbar.getItems()[hotbar.getSelectedSlot()] = null;
+                        }
+
+                        logger.info(name + " (" + uuid + ") a placé un block de " + hotbarItem.getMaterial() + " en " + buildRay.getBlockWorldPosition());
+
                         buildRay.reset();
-                        this.canBreakBlock = false;
+                        this.canPlaceBlock = false;
                     }
                 }
             }
 
             velocity.mul(0.95f);
         }
-
-        this.aimedBlocks = blocksPosition;
-        this.aimedBlocksIDs = blocksIDs;
-        // System.out.println("Tick " + payload.getTick() + " InputVector: " + payload.getInputVector() + " Calculated position : " + position);
     }
 
     private void handleJump() {
         if (canJump) {
             velocity.y += gravity.y * (2.5f - 1) * 1.0f / GameConfiguration.UPS;
             canJump = false;
-            maxFallSpeed = 1f;
         }
     }
 
@@ -350,10 +411,15 @@ public class Client {
         node.put("vx", this.velocity.x);
         node.put("vy", this.velocity.y);
         node.put("vz", this.velocity.z);
+        node.put("rx", this.buildRay.getBlockWorldPosition().x);
+        node.put("ry", this.buildRay.getBlockWorldPosition().y);
+        node.put("rz", this.buildRay.getBlockWorldPosition().z);
         node.put("movingLeft", movingLeft);
         node.put("movingRight", movingRight);
         node.put("movingForward", movingForward);
         node.put("movingBackward", movingBackward);
+        node.put("action", action == null ? "NONE" : action.toString());
+        node.put("spriteIndex", sprite.getIndex());
         node.put("yaw", this.yaw);
         node.put("pitch", this.pitch);
         node.put("bodyYaw", this.bodyYaw);
@@ -421,12 +487,12 @@ public class Client {
         return stateBuffer;
     }
 
-    public List<Byte> getAimedBlocksIDs() {
-        return aimedBlocksIDs;
+    public List<BreakedBlock> getBreakedBlocks() {
+        return breakedBlocks;
     }
 
-    public List<Vector3i> getAimedBlocks() {
-        return aimedBlocks;
+    public List<PlacedBlock> getPlacedBlocks() {
+        return placedBlocks;
     }
 
     public Vector3f getFront() {
@@ -445,4 +511,26 @@ public class Client {
         return buildRay;
     }
 
+    public Ray getBreakRay() {
+        return breakRay;
+    }
+    
+    public PlayerInventory getInventory() {
+        return inventory;
+    }
+
+    public Hotbar getHotbar() {
+        return hotbar;
+    }
+
+    public void addItem(ItemStack item) {
+        if (hotbar.getCurrentSize() < hotbar.getSize()) {
+            hotbar.addItem(item);
+        } else {
+            if (inventory.getCurrentSize() >= inventory.getSize()) {
+                return;
+            }
+            inventory.addItem(item);
+        }
+    }
 }

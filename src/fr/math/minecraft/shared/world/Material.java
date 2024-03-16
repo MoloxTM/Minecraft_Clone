@@ -14,9 +14,9 @@ public enum Material {
     CACTUS("Cactus", 5, new Vector2i(6, 11), new Vector2i(6, 11), new Vector2i(6, 11), new Vector2i(6, 11), new Vector2i(5, 11), new Vector2i(7, 11), 7, 1),
     OAK_LOG("Log",6,new Vector2i(4, 14), new Vector2i(4, 14), new Vector2i(4, 14), new Vector2i(4, 14), new Vector2i(5, 14), new Vector2i(5, 14), 6, 7),
     OAK_LEAVES("Oak leaves", 7, 4, 12, 1, 0),
-    WEED("Weed", 8, 7, 13, -1, -1),
-    ROSE("Rose", 9, 12, 15, -1, -1),
-    DEAD_BUSH("Dead bush", 10, 7, 12, -1, -1),
+    WEED("Weed", 8, 7, 13, 14, 3, false, true),
+    ROSE("Rose", 9, 12, 15, 9, 3, false, true),
+    DEAD_BUSH("Dead bush", 10, 7, 12, 14, 3, false, true),
     BIRCH_LOG("Birch log", 11, new Vector2i(5, 8), new Vector2i(5, 8), new Vector2i(5, 8), new Vector2i(5, 8), new Vector2i(10, 7), new Vector2i(10, 7), 8, 7),
     BIRCH_LEAVES("Oak leaves", 12, 4, 7, 0, 0),
     OAK_PLANKS("Oak planks", 13, 4, 15, 0, 0),
@@ -58,6 +58,14 @@ public enum Material {
     DIAMOND_CHESSPLATE("Diamond Chessplate", 49, -1, -1, 25, 1, false, true),
     DIAMOND_PANTS("Diamond Pants", 50, -1, -1, 26, 1, false, true),
     DIAMOND_BOOTS("Diamond Boots", 51, -1, -1, 27, 1, false, true);
+    BIRCH_LEAVES("Oak leaves", 12, 4, 7, 1, 0),
+    SPRUCE_WOOD("Spruce Wood", 13, new Vector2i(4, 8), new Vector2i(4, 8), new Vector2i(4, 8), new Vector2i(4, 8), new Vector2i(5, 14), new Vector2i(5, 14), 7, 7),
+    SPRUCE_LEAVES("Spruce leaves", 14, 5, 7, 0, 0),
+    APPLE("Apple", 15, -1, -1, 21, 1, false, true),
+    SNOW("Snow", 16, 2, 11, 8, 4, true, false),
+    DIAMOND_SWORD("Diamond Sword", 17, -1, -1, 4, 2, false, true),
+    DIAMOND_AXE("Diamond Axe", 18, -1, -1, 27, 3, false, true),
+    BREAKING_ANIMATION("", -3, 0, 0, 0, 0);
 
     private final int blockIconX, x;
     private final int blockIconY, y;
@@ -125,7 +133,7 @@ public enum Material {
         return y;
     }
 
-    public boolean isFaces() {
+    public boolean isSymetric() {
         return faces;
     }
 
@@ -176,5 +184,9 @@ public enum Material {
 
     public int getBlockIconY() {
         return blockIconY;
+    }
+
+    public boolean isItem() {
+        return item;
     }
 }

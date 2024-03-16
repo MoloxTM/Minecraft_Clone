@@ -6,10 +6,13 @@ import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.shared.network.PlayerInputData;
 import fr.math.minecraft.client.network.payload.InputPayload;
 import fr.math.minecraft.client.network.payload.StatePayload;
+import fr.math.minecraft.shared.world.BreakedBlock;
+import fr.math.minecraft.shared.world.PlacedBlock;
 import fr.math.minecraft.shared.world.World;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class PlayerMovementHandler {
@@ -27,7 +30,7 @@ public class PlayerMovementHandler {
         this.stateBuffer = new StatePayload[BUFFER_SIZE];
     }
 
-    public void handle(World world, Player player, Vector3f playerPosition, List<PlayerInputData> inputData, List<Vector3i> aimedBlockData) {
+    public void handle(World world, Player player, Vector3f playerPosition, List<PlayerInputData> inputData, List<PlacedBlock> placedBlocks, List<BreakedBlock> brokenBlockData) {
 
         int bufferIndex = currentTick % BUFFER_SIZE;
 
@@ -37,7 +40,8 @@ public class PlayerMovementHandler {
         StatePayload statePayload = new StatePayload(inputPayload);
         // statePayload.predictMovement(player, playerPosition);
         statePayload.setPosition(playerPosition);
-        statePayload.setAimedBlockData(aimedBlockData);
+        statePayload.setBreakedBlocksData(brokenBlockData);
+        statePayload.setPlacedBlocksData(placedBlocks);
         statePayload.send(player);
 
         player.setLastPosition(new Vector3f(playerPosition));
@@ -55,6 +59,7 @@ public class PlayerMovementHandler {
     public void reconcile(World world, Player player) {
 
         int serverTick = lastServerState.getInputPayload().getTick();
+
         Vector3f serverPosition = lastServerState.getPosition();
         Vector3f serverVelocity = lastServerState.getVelocity();
 
@@ -62,7 +67,9 @@ public class PlayerMovementHandler {
 
         float positionError = serverPosition.distance(payload.getPosition());
 
-        // lastServerState.verifyAimedBlocks(payload.getAimedBlockData());
+        lastServerState.verifyPlacedBlocks(world, payload.getPlacedBlocks());
+        lastServerState.verifyBrokenBlocks(world, payload.getBreakedBlockData());
+        lastServerState.reconcileInventory(player);
 
         if (positionError > 0.001f) {
             Camera camera = Game.getInstance().getCamera();

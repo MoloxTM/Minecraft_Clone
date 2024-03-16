@@ -27,7 +27,9 @@ public class TimeoutHandler extends Thread {
                 long lastTimeSeen = server.getLastActivities().get(uuid);
                 if (currentTime - lastTimeSeen > TIMEOUT_DELAY_MS) {
                     synchronized (server.getClients()) {
-                        String clientName = server.getClients().get(uuid).getName();
+                        Client client = server.getClients().get(uuid);
+                        if (!client.isActive()) continue;
+                        String clientName = client.getName();
                         timeout = true;
 
                         server.getClients().remove(uuid);

@@ -63,6 +63,7 @@ public class ConnectionInitHandler extends PacketHandler implements Runnable {
         node.put("spawnY", world.getSpawnPosition().y);
         node.put("spawnZ", world.getSpawnPosition().z);
         node.put("seed", 0);
+        node.set("worldData", world.toJSONObject());
 
         try {
             byte[] buffer = mapper.writeValueAsString(node).getBytes(StandardCharsets.UTF_8);
@@ -86,7 +87,7 @@ public class ConnectionInitHandler extends PacketHandler implements Runnable {
             if (!lastActivities.containsKey(uuid)) {
                 lastActivities.put(uuid, System.currentTimeMillis());
                 TimeoutHandler handler = new TimeoutHandler(server, uuid);
-                handler.start();
+                //handler.start();
             }
 
             server.sendPacket(packet);

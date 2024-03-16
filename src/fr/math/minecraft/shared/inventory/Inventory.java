@@ -1,5 +1,10 @@
 package fr.math.minecraft.shared.inventory;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.world.Material;
 
 public abstract class Inventory {
@@ -9,11 +14,13 @@ public abstract class Inventory {
     protected int currentSize;
     protected int currentSlot;
     protected boolean open;
+    protected int holdedSlot;
 
     public Inventory() {
         this.slotIndex = 0;
         this.currentSize = 0;
         this.currentSlot = 0;
+        this.holdedSlot = -1;
         this.open = false;
     }
 
@@ -47,6 +54,10 @@ public abstract class Inventory {
         for (int i = 0; i < currentSize; i++) {
             ItemStack item = items[i];
 
+            if (item == null) {
+                continue;
+            }
+
             if (item.getMaterial().getId() == material.getId()) {
                 return i;
             }
@@ -63,6 +74,10 @@ public abstract class Inventory {
         }
         ItemStack currentItem = items[itemIndex];
         currentItem.setAmount(currentItem.getAmount() + 1);
+    }
+
+    public void setItem(ItemStack item, int slot) {
+        items[slot] = item;
     }
 
     public int getCurrentSize() {
@@ -85,10 +100,53 @@ public abstract class Inventory {
         this.currentSlot = currentSlot;
     }
 
+    public int getSize() {
+        return items.length;
+    }
+
     public void setCurrentSize(int currentSize) {
         this.currentSize = currentSize;
     }
-    public void setItem(ItemStack item, int slot) {
-        items[slot] = item;
+
+    public int getHoldedSlot() {
+        return holdedSlot;
     }
+
+    public void setHoldedSlot(int holdedSlot) {
+        this.holdedSlot = holdedSlot;
+    }
+
+    public boolean isFull() {
+        return currentSize >= this.getSize();
+    }
+
+    public abstract float getItemX(int slot);
+    public abstract float getItemY(int slot);
+
+    public ArrayNode toJSONArray() {
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayNode arrayNode = mapper.createArrayNode();
+        for (int slot = 0; slot < items.length; slot++) {
+            ItemStack item = items[slot];
+            ObjectNode itemNode = mapper.createObjectNode();
+
+            Material material = Material.AIR;
+            int amount = 0;
+
+            if (item != null) {
+                material = item.getMaterial();
+                amount = item.getAmount();
+            }
+
+            itemNode.put("slot", slot);
+            itemNode.put("block", material.getId());
+            itemNode.put("amount", amount);
+
+            arrayNode.add(itemNode);
+
+        }
+
+        return arrayNode;
+    }
+
 }

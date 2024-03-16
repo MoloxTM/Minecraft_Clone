@@ -16,6 +16,7 @@ import java.util.Map;
 public class OverworldGenerator implements TerrainGenerator {
 
     private final CavesGenerator cavesGenerator;
+    public final static int WATER_LEVEL = 43;
 
     public OverworldGenerator() {
         this.cavesGenerator = new OverworldCavesGenerator();
@@ -63,7 +64,13 @@ public class OverworldGenerator implements TerrainGenerator {
         float topLeft =  this.calculBiomeHeight(chunkX + xMin, chunkZ + zMax);
         float topRight =  this.calculBiomeHeight(chunkX + xMax, chunkZ + zMax);
 
-        int worldHeight = (int) (InterpolateMath.smoothInterpolation(bottomLeft, bottomRight, topLeft, topRight, xMin, xMax, zMin, zMax, worldX % Chunk.SIZE, worldZ % Chunk.SIZE));
+        int x = (worldX % Chunk.SIZE);
+        int z = (worldZ % Chunk.SIZE);
+
+        x = x < 0 ? x + Chunk.SIZE : x;
+        z = z < 0 ? z + Chunk.SIZE : z;
+
+        int worldHeight = (int) (InterpolateMath.smoothInterpolation(bottomLeft, bottomRight, topLeft, topRight, xMin, xMax, zMin, zMax, x, z));
 
         return worldHeight;
     }
@@ -71,8 +78,13 @@ public class OverworldGenerator implements TerrainGenerator {
     @Override
     public void generateChunk(World world, Chunk chunk) {
 
-        Map<Vector2i, Integer> heightMap = this.fillHeightMap(chunk.getPosition().x, chunk.getPosition().z, 0, Chunk.SIZE - 1, 0, Chunk.SIZE - 1);
-        PerlinNoiseGenerator noiseGenerator = new PerlinNoiseGenerator(0.005f, 0.2f, 3, 2.175f, 0);
+        Map<Vector2i, Integer> heightMap = fillHeightMap(chunk.getPosition().x, chunk.getPosition().z, 0, Chunk.SIZE - 1, 0, Chunk.SIZE - 1);
+
+        int regionX = (int) Math.floor((chunk.getPosition().x * Chunk.SIZE)/ (double) (Chunk.SIZE * Region.SIZE));
+        int regionY = (int) Math.floor((chunk.getPosition().y * Chunk.SIZE) / (double) (Chunk.SIZE * Region.SIZE));
+        int regionZ = (int) Math.floor((chunk.getPosition().z * Chunk.SIZE) / (double) (Chunk.SIZE * Region.SIZE));
+
+        world.generateRegion(new Vector3i(regionX, regionY, regionZ));
 
         for (int x = 0; x < Chunk.SIZE; x++) {
             for (int z = 0; z < Chunk.SIZE; z++) {
@@ -94,15 +106,28 @@ public class OverworldGenerator implements TerrainGenerator {
 
                     Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
                     Vector3i blockWorldPosition = new Vector3i(worldX, worldY, worldZ);
+                    BreakedBlock breakedBlock = world.getBrokenBlocks().get(blockWorldPosition);
+                    PlacedBlock placedBlock = world.getPlacedBlocks().get(blockWorldPosition);
+
+                    if (breakedBlock != null) {
+                        chunk.setBlock(x, y, z, Material.AIR.getId());
+                        continue;
+                    }
+
+                    if (placedBlock != null) {
+                        chunk.setBlock(x, y, z, placedBlock.getBlock());
+                        continue;
+                    }
 
                     if (block == Material.OAK_LEAVES.getId() || block == Material.OAK_LOG.getId()) {
                         continue;
                     }
 
-                    int regionX = (int) Math.floor(worldX / (double) (Chunk.SIZE * Region.SIZE));
-                    int regionY = (int) Math.floor(worldY / (double) (Chunk.SIZE * Region.SIZE));
-                    int regionZ = (int) Math.floor(worldZ / (double) (Chunk.SIZE * Region.SIZE));
+                    worldY = y + chunk.getPosition().y * Chunk.SIZE;
 
+                    regionX = (int) Math.floor(worldX / (double) (Chunk.SIZE * Region.SIZE));
+                    regionY = (int) Math.floor(worldY / (double) (Chunk.SIZE * Region.SIZE));
+                    regionZ = (int) Math.floor(worldZ / (double) (Chunk.SIZE * Region.SIZE));
                     Region chunkRegion = world.getRegion(regionX, regionY, regionZ);
 
                     if (chunkRegion != null && chunkRegion.getStructure().getStructureMap().containsKey(coordinates)) {
@@ -120,7 +145,7 @@ public class OverworldGenerator implements TerrainGenerator {
                     } else if (worldY == worldHeight) {
                         material = currentBiome.getUpperBlock();
                     } else {
-                        if (worldY <= 43) {
+                        if (worldY <= WATER_LEVEL) {
                             material = Material.WATER;
                         }
                     }

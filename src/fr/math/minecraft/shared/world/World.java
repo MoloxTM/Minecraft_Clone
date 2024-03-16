@@ -1,5 +1,12 @@
 package fr.math.minecraft.shared.world;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.math.minecraft.client.Game;
+import fr.math.minecraft.client.gui.menus.ConnectionMenu;
+import fr.math.minecraft.client.gui.menus.Menu;
+import fr.math.minecraft.client.manager.MenuManager;
 import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.meshs.WaterMesh;
 import fr.math.minecraft.logger.LogType;
@@ -23,9 +30,12 @@ public class World {
     private final Set<Byte> solidBlocks;
     private final Map<Vector3i, Chunk> cachedChunks;
     private final Map<Coordinates, Region> regions;
-    private final Vector3f spawnPosition;
+    private Vector3f spawnPosition;
+    private final Map<String, DroppedItem> droppedItems;
     private final static Logger logger = LoggerUtility.getServerLogger(World.class, LogType.TXT);
-
+    private final Map<Vector3i, BreakedBlock> brokenBlocks;
+    private final Map<Vector3i, PlacedBlock> placedBlocks;
+    private Set<Coordinates> loadedRegions;
     private TerrainGenerator terrainGenerator;
     private final int SPAWN_SIZE = 2;
 
@@ -39,12 +49,10 @@ public class World {
         this.transparents = initTransparents();
         this.terrainGenerator = new OverworldGenerator();
         this.cachedChunks = new HashMap<>();
-        Region region = new Region(0, 0, 0);
-        region.generateStructure(this);
-        this.addRegion(region);
-        this.spawnPosition = this.calculateSpawnPosition();
-
-        logger.info("Point de spawn calculé en " + spawnPosition);
+        this.droppedItems = new HashMap<>();
+        this.brokenBlocks = new HashMap<>();
+        this.placedBlocks = new HashMap<>();
+        this.loadedRegions = new HashSet<>();
 
         for (Material material : Material.values()) {
             if (material.isSolid()) {
@@ -53,19 +61,20 @@ public class World {
         }
     }
 
-    public Vector3f calculateSpawnPosition() {
+    public void calculateSpawnPosition() {
         int spawnX = 0;
         int spawnZ = 0;
-        for (int chunkY = 3; chunkY < 10; chunkY++) {
+        for (int chunkY = 5; chunkY < 10; chunkY++) {
             for (int y = 0; y < Chunk.SIZE; y++) {
                 int worldY = chunkY * Chunk.SIZE + y;
                 byte block = this.getBlockAt(spawnX, worldY, spawnZ);
                 if (block == Material.AIR.getId()) {
-                    return new Vector3f(spawnX, worldY + 5, spawnZ);
+                    spawnPosition = new Vector3f(spawnX, worldY + 20, spawnZ);
+                    return;
                 }
             }
         }
-        return new Vector3f(0, 300.0f, 0);
+        spawnPosition = new Vector3f(0, 300.0f, 0);
     }
 
 
@@ -80,7 +89,6 @@ public class World {
                 }
             }
         }
-
         logger.info("Spawn construit avec succès !");
     }
 
@@ -100,6 +108,7 @@ public class World {
                     chunk.setMesh(chunkMesh);
                     chunk.setWaterMesh(waterMesh);
                     chunk.setLoaded(true);
+
                 }
             }
         }
@@ -220,13 +229,32 @@ public class World {
         return terrainGenerator;
     }
 
-    public void addRegion(int regionX, int regionY, int regionZ) {
-        Region region = new Region(new Vector3i(regionX, regionY, regionZ));
-        this.regions.put(new Coordinates(regionX, regionY, regionZ), region);
+    public Vector3i regionPosition(Vector3f playerPos) {
+        Vector3i intPlayerPos = new Vector3i((int)playerPos.x, (int)playerPos.y, (int)playerPos.z);
+        Vector3i regionPosition = new Vector3i();
+        int offset = (Region.SIZE * Chunk.SIZE)/2;
+        Vector3i offsetVector = new Vector3i(-offset, 0, -offset);
+        regionPosition.add(intPlayerPos);
+        regionPosition.add(offsetVector);
+        return regionPosition;
+    }
+
+    public void generateRegion(Vector3i regionPosition) {
+        Coordinates coordinates = new Coordinates(regionPosition);
+        if (!loadedRegions.contains(coordinates)) {
+            loadedRegions.add(coordinates);
+            Region region = new Region(regionPosition);
+            region.generateStructure(this);
+            this.addRegion(region, coordinates);
+        }
     }
 
     public void addRegion(Region region) {
         this.regions.put(new Coordinates(region.getPosition().x, region.getPosition().y, region.getPosition().z), region);
+    }
+
+    public void addRegion(Region region, Coordinates coordinates) {
+        this.regions.put(coordinates, region);
     }
 
     public Region getRegion(int x, int y, int z) {
@@ -261,4 +289,41 @@ public class World {
     public Map<Vector3i, Byte> getCavesBlocks() {
         return cavesBlocks;
     }
+
+    public Map<String, DroppedItem> getDroppedItems() {
+        return droppedItems;
+    }
+
+    public void setSpawnPosition(Vector3f spawnPosition) {
+        this.spawnPosition = spawnPosition;
+    }
+
+    public Map<Vector3i, BreakedBlock> getBrokenBlocks() {
+        return brokenBlocks;
+    }
+
+    public Map<Vector3i, PlacedBlock> getPlacedBlocks() {
+        return placedBlocks;
+    }
+
+    public ObjectNode toJSONObject() {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode worldNode = mapper.createObjectNode();
+        ArrayNode brokenBlocksArray = mapper.createArrayNode();
+        ArrayNode placedBlocksArray = mapper.createArrayNode();
+
+        for (BreakedBlock breakedBlock : brokenBlocks.values()) {
+            brokenBlocksArray.add(breakedBlock.toJSONObject());
+        }
+
+        for (PlacedBlock placedBlock : placedBlocks.values()) {
+            placedBlocksArray.add(placedBlock.toJSONObject());
+        }
+
+        worldNode.set("brokenBlocks", brokenBlocksArray);
+        worldNode.set("placedBlocks", placedBlocksArray);
+
+        return worldNode;
+    }
+
 }
