@@ -21,11 +21,13 @@ public class Region {
     private final Map<Coordinates, Byte> structureMap;
     public final static int SIZE = 8;
     private final Structure structure;
+    private boolean hasVillage;
     private final static Logger logger = LoggerUtility.getServerLogger(Region.class, LogType.TXT);
     public Region(Vector3i position) {
         this.position = position;
         this.structure = new Structure();
         this.structureMap = new HashMap<>();
+        this.hasVillage=false;
     }
 
     public Region(int x, int y, int z) {
@@ -48,8 +50,10 @@ public class Region {
 
                 int worldHeight = generator.getHeight(worldX, worldZ);
                 if (SIZE / 4 < x && x < Chunk.SIZE * SIZE - SIZE / 4 && SIZE / 4 < z && z < Chunk.SIZE * SIZE - SIZE / 4) {
-                    currentBiome.buildTree(worldX, worldHeight, worldZ, structure, world);
+                    if(!this.hasVillage){currentBiome.buildVillage(worldX, worldHeight, worldZ, structure, world,this);}
                     currentBiome.buildWeeds(worldX, worldHeight, worldZ, structure, world);
+                    currentBiome.buildTree(worldX, worldHeight, worldZ, structure, world);
+
                 }
             }
         }
@@ -67,5 +71,9 @@ public class Region {
 
     public Structure getStructure() {
         return structure;
+    }
+
+    public void setHasVillage(boolean hasVillage) {
+        this.hasVillage = hasVillage;
     }
 }

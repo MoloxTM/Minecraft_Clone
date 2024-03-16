@@ -321,4 +321,91 @@ public class  StructureBuilder {
             structure.setBlock(x, y+i, z, wood.getId());
         }
     }
+    public static void buildHouse(Structure structure, int x, int y, int z){
+        //etage 0
+        y=y+0;
+        for(int i=0; i<9;i++){
+            for(int j=0;j<6;j++){
+                structure.setBlock(x+i,y,z+j,Material.STONE.getId());
+            }
+        }
+        //etage 1
+        y=y+1;
+        for(int j =0;j<2;j++) {
+            for(int i = 0; i < 6; i++) {
+                structure.setBlock(x+i,y,z+j*9,Material.STONE.getId());
+            }
+        }
+        for(int i=0;i<2;i++) {
+            for (int j = 0; j <9; j++) {
+                if(!(i==1 && j==7) ) {
+                    structure.setBlock(x + i * 6, y, z + j, Material.STONE.getId());
+                }
+            }
+        }
+        //etage 2
+        y=y+1;
+        //stone
+        structure.setBlock(x,y,z,Material.STONE.getId());
+        structure.setBlock(x+5,y,z,Material.STONE.getId());
+        structure.setBlock(x,y,z+8,Material.STONE.getId());
+        structure.setBlock(x+5,y,z+8,Material.STONE.getId());
+        //wood
+        structure.setBlock(x+1,y,z,Material.BIRCH_LOG.getId());
+        structure.setBlock(x+4,y,z,Material.BIRCH_LOG.getId());
+        structure.setBlock(x+1,y,z+8,Material.BIRCH_LOG.getId());
+        structure.setBlock(x+4,y,z+8,Material.BIRCH_LOG.getId());
+        structure.setBlock(x,y,z+1,Material.BIRCH_LOG.getId());
+        structure.setBlock(x,y,z+3,Material.BIRCH_LOG.getId());
+        structure.setBlock(x,y,z+4,Material.BIRCH_LOG.getId());
+        structure.setBlock(x,y,z+7,Material.BIRCH_LOG.getId());
+        structure.setBlock(x+5,y,z+1,Material.BIRCH_LOG.getId());
+        structure.setBlock(x+5,y,z+3,Material.BIRCH_LOG.getId());
+        structure.setBlock(x+5,y,z+4,Material.BIRCH_LOG.getId());
+        structure.setBlock(x+5,y,z+7,Material.BIRCH_LOG.getId());
+
+        //etage 3
+        y=y+1;
+        for(int i=0;i<6;i++){
+            structure.setBlock(x+i,y,z,Material.STONE.getId());
+            structure.setBlock(x+i,y,z+8,Material.STONE.getId());
+        }
+        for(int i =0;i<9;i++){
+            structure.setBlock(x+5,y,z+i,Material.BIRCH_LOG.getId());
+            structure.setBlock(x+5,y,z+i,Material.BIRCH_LOG.getId());
+        }
+        for(int i =0;i<7;i++){
+            structure.setBlock(x+5,y,z+1+i,Material.BIRCH_LOG.getId());
+            structure.setBlock(x+5,y,z+1+i,Material.BIRCH_LOG.getId());
+        }
+
+        //etage 4
+        y=y+1;
+        for(int i = 0;i<9;i++){
+            structure.setBlock(x,y,z+i,Material.BIRCH_LOG.getId());
+            structure.setBlock(x+5,y,z+i,Material.BIRCH_LOG.getId());
+        }
+        for (int i = 0; i < 6; i++) {
+            structure.setBlock(x+i,y,z,Material.BIRCH_LOG.getId());
+            structure.setBlock(x+i,y,z+8,Material.BIRCH_LOG.getId());
+        }
+
+        //etage 5
+        y=y+1;
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 4; j++) {
+                structure.setBlock(x+j+1,y,z+i,Material.BIRCH_LOG.getId());
+            }
+        }
+
+        //etage 6
+        y=y+1;
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 2; j++) {
+                structure.setBlock(x+j+2,y,z+i,Material.BIRCH_LOG.getId());
+            }
+        }
+        System.out.println("A house has been built");
+    }
 }
+

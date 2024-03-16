@@ -1,14 +1,12 @@
 package fr.math.minecraft.server.world.biome;
 
-import fr.math.minecraft.server.RandomSeed;
 import fr.math.minecraft.server.Utils;
 import fr.math.minecraft.server.builder.StructureBuilder;
 import fr.math.minecraft.server.world.*;
-import fr.math.minecraft.shared.world.Coordinates;
-import fr.math.minecraft.shared.world.Material;
-import fr.math.minecraft.shared.world.World;
+import fr.math.minecraft.shared.world.*;
 import fr.math.minecraft.shared.world.generator.NoiseGenerator;
 import fr.math.minecraft.shared.world.generator.OverworldGenerator;
+import org.joml.Vector3i;
 
 public class PlainBiome extends AbstractBiome{
 
@@ -70,4 +68,33 @@ public class PlainBiome extends AbstractBiome{
             StructureBuilder.buildWeed(structure, worldX, worldY, worldZ, weedNoiseValue);
         }
     }
+
+    @Override
+    public void buildVillage(int worldX, int worldY, int worldZ, Structure structure, World world, Region region){
+        Vector3i regionPosition = region.getPosition();
+        int houseCount=0;
+        int maxHousePerVillage=5;
+        for (int i = regionPosition.x; i < Region.SIZE * Chunk.SIZE+ regionPosition.x; i+=9) {
+            for (int j = regionPosition.z; j < Region.SIZE *Chunk.SIZE+ regionPosition.z; j+=11) {
+                if(canBuildHouse(worldX,worldY,worldZ,world) && houseCount<=maxHousePerVillage){
+                    StructureBuilder.buildHouse(structure,worldX,worldY,worldZ);
+                    houseCount++;
+                    System.out.println("A house has been built at: "+worldX+","+worldY+","+worldZ);
+                }
+            }
+        }
+    }
+
+    public boolean canBuildHouse(int worldX, int worldY, int worldZ, World world){
+        int res=0;
+        for (int i = 0; i < 6; i++) {
+            for (int j = 0; j < 9; j++) {
+                if(this.getHeight(worldX+i,worldZ+j)!=worldY){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
 }

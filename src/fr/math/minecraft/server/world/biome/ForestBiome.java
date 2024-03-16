@@ -6,6 +6,7 @@ import fr.math.minecraft.server.builder.StructureBuilder;
 import fr.math.minecraft.server.world.*;
 import fr.math.minecraft.shared.world.Coordinates;
 import fr.math.minecraft.shared.world.Material;
+import fr.math.minecraft.shared.world.Region;
 import fr.math.minecraft.shared.world.World;
 import fr.math.minecraft.shared.world.generator.NoiseGenerator;
 import fr.math.minecraft.shared.world.generator.OverworldGenerator;
@@ -92,5 +93,10 @@ public class ForestBiome extends AbstractBiome {
         if (weedNoiseValue < .23f) {
             StructureBuilder.buildWeed(structure, worldX, worldY, worldZ, weedNoiseValue);
         }
+    }
+
+    @Override
+    public void buildVillage(int worldX, int worldY, int worldZ, Structure structure, World world, Region region) {
+
     }
 }
