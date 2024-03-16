@@ -73,10 +73,12 @@ public class Renderer {
     private final Texture invetoryTexture;
     private final Texture iconsTexture;
     private final Texture guiBlocksTexture;
+    private final Texture villagerTexture;
     private final CrosshairMesh crosshairMesh;
     private final ImageMesh imageMesh;
     private final ImageMesh screenMesh;
     private final FontManager fontManager;
+    private final VillagerMesh villagerMesh;
     private final CFont font;
     private final Map<String, Texture> skinsMap;
     private final CubemapTexture panoramaTexture;
@@ -89,6 +91,7 @@ public class Renderer {
 
     public Renderer() {
         this.playerMesh = new PlayerMesh();
+        this.villagerMesh = new VillagerMesh();
         this.imageMesh = new ImageMesh(0, 0, 0, 0);
         this.itemMesh = new ItemMesh(Material.DIAMOND_SWORD);
         this.font = new CFont(GameConfiguration.FONT_FILE_PATH, GameConfiguration.FONT_SIZE);
@@ -148,6 +151,7 @@ public class Renderer {
         this.invetoryTexture = new Texture("res/textures/gui/inventory.png", 9);
         this.iconsTexture = new Texture("res/textures/gui/icons.png", 10);
         this.guiBlocksTexture = new Texture("res/textures/gui/gui_blocks.png", 11);
+        this.villagerTexture = new Texture("res/textures/entity/villager.png", 13);
 
         this.dirtTexture = new TextureBuilder().buildDirtBackgroundTexture();
 
@@ -165,12 +169,13 @@ public class Renderer {
         this.invetoryTexture.load();
         this.iconsTexture.load();
         this.guiBlocksTexture.load();
+        this.villagerTexture.load();
     }
 
     public void render(Camera camera, Player player) {
 
-        Texture skinTexture;
-
+        Texture skinTexture = villagerTexture;
+        /*
         if (skinsMap.containsKey(player.getUuid())) {
             skinTexture = skinsMap.get(player.getUuid());
             if (!skinTexture.isLoaded()) {
@@ -185,6 +190,7 @@ public class Renderer {
             skinTexture.load();
             skinsMap.put(player.getUuid(), skinTexture);
         }
+         */
 
         playerShader.enable();
         playerShader.sendInt("uTexture", skinTexture.getSlot());
@@ -194,7 +200,7 @@ public class Renderer {
 
         camera.matrix(playerShader, player);
 
-        playerMesh.draw();
+        villagerMesh.draw();
 
         skinTexture.unbind();
 

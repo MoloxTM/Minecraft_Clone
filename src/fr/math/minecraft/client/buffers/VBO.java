@@ -106,6 +106,25 @@ public class VBO {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
+    public VBO(VillagerVertex[] vertices) {
+        id = glGenBuffers();
+        float[] data = new float[vertices.length * 6];
+        int bufferPosition = 0;
+        for (VillagerVertex vertex : vertices) {
+            data[bufferPosition++] = vertex.getPosition().x;
+            data[bufferPosition++] = vertex.getPosition().y;
+            data[bufferPosition++] = vertex.getPosition().z;
+            data[bufferPosition++] = vertex.getTextureCoords().x;
+            data[bufferPosition++] = vertex.getTextureCoords().y;
+            data[bufferPosition++] = vertex.getPartId();
+        }
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(vertices.length * 6);
+        buffer.put(data).flip();
+        glBindBuffer(GL_ARRAY_BUFFER, id);
+        glBufferData(GL_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
     public VBO(float[] vertices) {
         id = glGenBuffers();
         FloatBuffer buffer = BufferUtils.createFloatBuffer(vertices.length);

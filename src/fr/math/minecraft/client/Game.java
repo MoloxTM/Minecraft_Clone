@@ -178,6 +178,7 @@ public class Game {
 
         menuManager.registerMenu(mainMenu);
         menuManager.registerMenu(connectionMenu);
+
     }
 
     private void loadSplashText() {
