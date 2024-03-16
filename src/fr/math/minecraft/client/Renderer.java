@@ -19,6 +19,8 @@ import fr.math.minecraft.shared.ChatMessage;
 import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.shared.Sprite;
 import fr.math.minecraft.client.texture.Texture;
+import fr.math.minecraft.shared.entity.Entity;
+import fr.math.minecraft.shared.entity.Villager;
 import fr.math.minecraft.shared.entity.mob.Mob;
 import fr.math.minecraft.shared.entity.mob.MobType;
 import fr.math.minecraft.shared.inventory.*;
@@ -183,8 +185,7 @@ public class Renderer {
 
     public void render(Camera camera, Player player) {
 
-        Texture skinTexture = villagerTexture;
-        /*
+        Texture skinTexture = defaultSkinTexture;
         if (skinsMap.containsKey(player.getUuid())) {
             skinTexture = skinsMap.get(player.getUuid());
             if (!skinTexture.isLoaded()) {
@@ -199,17 +200,16 @@ public class Renderer {
             skinTexture.load();
             skinsMap.put(player.getUuid(), skinTexture);
         }
-         */
 
-        villagerShader.enable();
-        villagerShader.sendInt("uTexture", skinTexture.getSlot());
+        playerShader.enable();
+        playerShader.sendInt("uTexture", skinTexture.getSlot());
 
         glActiveTexture(GL_TEXTURE0 + skinTexture.getSlot());
         skinTexture.bind();
 
-        camera.matrix(villagerShader, player);
+        camera.matrix(playerShader, player);
 
-        villagerMesh.draw();
+        playerMesh.draw();
 
         skinTexture.unbind();
 
@@ -220,7 +220,22 @@ public class Renderer {
         }
     }
 
-    public void render(Camera camera, Mob mob) {
+    public void render(Camera camera, Villager villager) {
+
+        villagerShader.enable();
+        villagerShader.sendInt("uTexture", villagerTexture.getSlot());
+
+        glActiveTexture(GL_TEXTURE0 + villagerTexture.getSlot());
+        villagerTexture.bind();
+
+        camera.matrix(villagerShader, villager);
+
+        villagerMesh.draw();
+
+        villagerTexture.unbind();
+    }
+
+    public void renderMob(Camera camera, Mob mob) {
 
         playerShader.enable();
         playerShader.sendInt("uTexture", zombieTexture.getSlot());
@@ -236,35 +251,35 @@ public class Renderer {
         this.renderNametag(camera, mob);
     }
 
-    public void renderNametag(Camera camera, Player player) {
-        this.renderNametagBar(camera, player);
-        this.renderNametagText(camera, player);
+    public void renderNametag(Camera camera, Entity entity) {
+        this.renderNametagBar(camera, entity);
+        this.renderNametagText(camera, entity);
     }
 
-    private void renderNametagBar(Camera camera, Player player) {
+    private void renderNametagBar(Camera camera, Entity entity) {
 
-        NametagMesh nametagMesh = player.getNametagMesh();
+        NametagMesh nametagMesh = entity.getNametagMesh();
 
         if (nametagMesh == null)
             return;
 
         nametagShader.enable();
 
-        camera.matrixNametag(nametagShader, player);
+        camera.matrixNametag(nametagShader, entity);
 
         nametagMesh.draw();
     }
 
-    private void renderNametagText(Camera camera, Player player) {
+    private void renderNametagText(Camera camera, Entity entity) {
         Texture texture = font.getTexture();
         nametagTextShader.enable();
         nametagTextShader.sendInt("uTexture", texture.getSlot());
 
         glActiveTexture(GL_TEXTURE0 + texture.getSlot());
         texture.bind();
-        camera.matrixNametag(nametagTextShader, player);
+        camera.matrixNametag(nametagTextShader, entity);
 
-        fontManager.addText(fontMesh, player.getName(), 0, 0, 0, 1.0f, 0xFFFFFF, true);
+        fontManager.addText(fontMesh, entity.getName(), 0, 0, 0, 1.0f, 0xFFFFFF, true);
 
         fontMesh.flush();
 
@@ -308,7 +323,7 @@ public class Renderer {
         texture.unbind();
     }
 
-    public void render(Camera camera, Chunk chunk) {
+    public void renderChunk(Camera camera, Chunk chunk) {
 
         chunkShader.enable();
         chunkShader.sendInt("uTexture", terrainTexture.getSlot());

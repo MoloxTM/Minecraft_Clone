@@ -4,6 +4,7 @@ import fr.math.minecraft.client.audio.Sound;
 import fr.math.minecraft.client.audio.Sounds;
 import fr.math.minecraft.client.entity.Ray;
 import fr.math.minecraft.shared.ChatMessage;
+import fr.math.minecraft.shared.entity.Entity;
 import fr.math.minecraft.shared.entity.mob.Mob;
 import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.client.events.listeners.PlayerListener;
@@ -16,7 +17,6 @@ import fr.math.minecraft.client.manager.*;
 import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.shared.world.DroppedItem;
 import fr.math.minecraft.shared.entity.mob.Zombie;
-import fr.math.minecraft.shared.inventory.DroppedItem;
 import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.world.*;
 import fr.math.minecraft.logger.LogType;
@@ -311,11 +311,6 @@ public class Game {
                 player.update();
             }
         }
-        synchronized (this.getMobs()) {
-            for (Mob mob : this.getMobs().values()){
-                mob.update(world);
-            }
-        }
     }
 
     public void update(Player player) {
@@ -375,7 +370,7 @@ public class Game {
                     continue;
                 }
 
-                renderer.render(camera, chunk);
+                renderer.renderChunk(camera, chunk);
             }
             for (Chunk chunk : world.getChunks().values()) {
 
@@ -410,21 +405,28 @@ public class Game {
             }
         }
 
+        synchronized (world.getEntities()) {
+            for (Entity entity : world.getEntities().values()) {
+                entity.lerpPosition();
+            }
+        }
+
         synchronized (this.getPlayers()) {
             for (Player player : this.getPlayers().values()) {
                 if (!player.getNametagMesh().isInitiated()) {
                     player.getNametagMesh().init();
                 }
-                renderer.render(camera, player);
+                player.render(camera, renderer);
             }
         }
 
-        synchronized (this.getMobs()) {
-            for (Mob mob : this.getMobs().values()) {
-                if(!mob.getNametagMesh().isInitiated()) {
-                    mob.getNametagMesh().init();
+        synchronized (world.getEntities()) {
+            for (Entity entity : world.getEntities().values()) {
+                if (!entity.getNametagMesh().isInitiated()) {
+                    entity.getNametagMesh().init();
                 }
-                renderer.render(camera, mob);
+
+                entity.render(camera, renderer);
             }
         }
 

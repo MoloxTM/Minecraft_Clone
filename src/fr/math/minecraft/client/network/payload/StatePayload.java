@@ -117,8 +117,7 @@ public class StatePayload {
             if (inputData.isJumping()) {
                 // this.handleJump();
                 if (player.canJump()) {
-                    player.setMaxFallSpeed(0.5f);
-                    acceleration.y += 10.0f;
+                    player.getVelocity().y = Player.JUMP_VELOCITY;
                     player.setCanJump(false);
                 }
             }
@@ -130,12 +129,6 @@ public class StatePayload {
                 velocityNorm.normalize().mul(player.getMaxSpeed());
                 player.getVelocity().x = velocityNorm.x;
                 player.getVelocity().z = velocityNorm.z;
-            }
-
-            if (new Vector3f(0, velocity.y, 0).length() > player.getMaxFallSpeed()) {
-                Vector3f velocityNorm = new Vector3f(velocity.x, velocity.y, velocity.z);
-                velocityNorm.normalize().mul(player.getMaxFallSpeed());
-                player.getVelocity().y = velocityNorm.y;
             }
 
             player.getPosition().x += player.getVelocity().x;

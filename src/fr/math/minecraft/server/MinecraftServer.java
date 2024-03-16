@@ -6,6 +6,7 @@ import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.server.handler.*;
 import fr.math.minecraft.server.manager.ChunkManager;
 import fr.math.minecraft.shared.ChatMessage;
+import fr.math.minecraft.shared.entity.Villager;
 import fr.math.minecraft.shared.world.World;
 import org.apache.log4j.Logger;
 
@@ -53,6 +54,8 @@ public class MinecraftServer {
         this.chatMessages = new ArrayList<>();
 
         logger.info("Point de spawn calculé en " + world.getSpawnPosition());
+        world.addEntity(new Villager("Dummy"));
+        logger.info("Un villageois a spawn !");
     }
 
     public void start() throws IOException {
@@ -158,6 +161,20 @@ public class MinecraftServer {
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
             for (Client client : this.getClients().values()) {
                 if (!client.isActive()) continue;
+                packet.setAddress(client.getAddress());
+                packet.setPort(client.getPort());
+
+                this.sendPacket(packet);
+            }
+        }
+    }
+
+    public void broadcast(byte[] buffer) {
+        synchronized (this.getClients()) {
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+            for (Client client : this.getClients().values()) {
+                if (!client.isActive()) continue;
+
                 packet.setAddress(client.getAddress());
                 packet.setPort(client.getPort());
 

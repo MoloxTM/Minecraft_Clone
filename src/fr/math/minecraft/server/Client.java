@@ -76,7 +76,7 @@ public class Client {
         this.inputQueue = new LinkedList<>();
         this.gravity = new Vector3f(0, -0.0025f, 0);
         this.front = new Vector3f(0.0f, 0.0f, 0.0f);
-        this.position = new Vector3f(0.0f, 300.0f, 0.0f);
+        this.position = new Vector3f(0.0f, 100.0f, 0.0f);
         this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 1.0f, 0.25f));
         this.stateBuffer = new StatePayload[GameConfiguration.BUFFER_SIZE];
         this.gameMode = GameMode.SURVIVAL;
@@ -85,7 +85,7 @@ public class Client {
         this.speed = GameConfiguration.DEFAULT_SPEED;
         this.maxSpeed = 0.03f;
         this.breakBlockCooldown = GameConfiguration.BLOCK_BREAK_COOLDOWN;
-        this.placeBlockCoolDown= GameConfiguration.BLOCK_BREAK_COOLDOWN;
+        this.placeBlockCoolDown = GameConfiguration.BLOCK_BREAK_COOLDOWN;
         this.skin = null;
         this.movingLeft = false;
         this.movingRight = false;
@@ -206,7 +206,6 @@ public class Client {
                     logger.info(name + "(" + uuid + ") " + " a drop un item de " + hotbarItem.getMaterial());
                     hotbarItem.setAmount(itemAmount - 1);
                     if (hotbarItem.getAmount() == 0) {
-                        logger.info("je met " + hotbarItem.getMaterial() + " a la case " + hotbar.getSelectedSlot());
                         hotbar.setItem(null, hotbar.getSelectedSlot());
                         //hotbar.setItem(new ItemStack(Material.DIRT, 1), 0);
                     }
@@ -249,6 +248,7 @@ public class Client {
                     canJump = false;
                 }
             }
+
 
             velocity.add(acceleration.mul(speed));
 
@@ -555,5 +555,13 @@ public class Client {
             }
             inventory.addItem(item);
         }
+    }
+
+    public float getSpeed() {
+        return speed;
+    }
+
+    public float getMaxSpeed() {
+        return maxSpeed;
     }
 }

@@ -11,6 +11,9 @@ import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.meshs.WaterMesh;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
+import fr.math.minecraft.shared.entity.Entity;
+import fr.math.minecraft.shared.entity.EntityType;
+import fr.math.minecraft.shared.entity.Villager;
 import fr.math.minecraft.shared.world.generator.OverworldGenerator;
 import fr.math.minecraft.shared.world.generator.TerrainGenerator;
 import org.apache.log4j.Logger;
@@ -23,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class World {
 
     private final HashMap<Coordinates, Chunk> chunks;
+    private final Map<String, Entity> entities;
     private final Map<Vector3i, Byte> cavesBlocks;
     private final ConcurrentHashMap<Coordinates, Chunk> pendingChunks;
     private final Set<Coordinates> loadingChunks;
@@ -53,12 +57,15 @@ public class World {
         this.brokenBlocks = new HashMap<>();
         this.placedBlocks = new HashMap<>();
         this.loadedRegions = new HashSet<>();
+        this.entities = new HashMap<>();
 
         for (Material material : Material.values()) {
             if (material.isSolid()) {
                 solidBlocks.add(material.getId());
             }
         }
+
+        entities.put("1", new Villager("dummy"));
     }
 
     public void calculateSpawnPosition() {
@@ -326,4 +333,19 @@ public class World {
         return worldNode;
     }
 
+    public Map<String, Entity> getEntities() {
+        return entities;
+    }
+
+    public void addEntity(Entity entity) {
+        synchronized (this.getEntities()) {
+            entities.put(entity.getUuid(), entity);
+        }
+    }
+
+    public void removeEntity(Entity entity) {
+        synchronized (this.getEntities()) {
+            entities.remove(entity.getUuid());
+        }
+    }
 }

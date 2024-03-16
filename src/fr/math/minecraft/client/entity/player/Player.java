@@ -1,5 +1,7 @@
 package fr.math.minecraft.client.entity.player;
 
+import fr.math.minecraft.client.Camera;
+import fr.math.minecraft.client.Renderer;
 import fr.math.minecraft.client.network.payload.ChatPayload;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.animations.*;
@@ -13,6 +15,8 @@ import fr.math.minecraft.client.manager.ChunkManager;
 import fr.math.minecraft.client.meshs.NametagMesh;
 import fr.math.minecraft.server.Utils;
 import fr.math.minecraft.shared.GameConfiguration;
+import fr.math.minecraft.shared.entity.Entity;
+import fr.math.minecraft.shared.entity.EntityType;
 import fr.math.minecraft.shared.world.*;
 import fr.math.minecraft.shared.Sprite;
 import fr.math.minecraft.shared.PlayerAction;
@@ -38,100 +42,61 @@ import java.util.*;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class Player {
+public class Player extends Entity {
 
-    public final static float WIDTH = .75f;
-    public final static float HEIGHT = 1.75f;
-    public final static float DEPTH = WIDTH;
-    private Vector3f position;
     private final Hotbar hotbar;
-    private float yaw;
-    private float lastYaw;
-    private float bodyYaw;
-    private float pitch;
-    private float speed;
     private boolean firstMouse;
     private boolean movingLeft, movingRight, movingForward, movingBackward;
-    private boolean flying, sneaking, canJump, canBreakBlock, canPlaceBlock, jumping, sprinting;
-    private boolean movingMouse;
+    private boolean flying, sneaking, canBreakBlock, canPlaceBlock, jumping, sprinting;
     private boolean droppingItem;
     private boolean placingBlock, breakingBlock;
     private boolean canHoldItem, canPlaceHoldedItem;
     private boolean debugKeyPressed, occlusionKeyPressed, interpolationKeyPressed, inventoryKeyPressed, chatKeyPressed;
     private float lastMouseX, lastMouseY;
-    private String name;
-    private String uuid;
-    private final ArrayList<Animation> animations;
     private final MiningAnimation miningAnimation;
-    private NametagMesh nametagMesh;
     private BufferedImage skin;
     private float sensitivity;
-    private final static Logger logger = LoggerUtility.getClientLogger(Player.class, LogType.TXT);
-    private final List<EventListener> eventListeners;
-    private final Vector3f velocity;
-    private final Vector3f gravity;
-    private float maxSpeed, maxFall;
     private int ping;
     private final List<PlayerInputData> inputs;
     private final Set<Coordinates> receivedChunks;
-    private final Hitbox hitbox;
     private GameMode gameMode;
-    private Vector3f lastPosition;
     private String skinPath;
     private final PlayerHand hand;
     private EntityUpdate lastUpdate;
     private int breakBlockCooldown, placeBlockCooldown;
-    private Ray attackRay, buildRay, breakRay;
-    private List<PlacedBlock> placedBlocks;
-    private ArrayList<BreakedBlock> breakedBlocks;
-    private ArrayList<Vector3i> aimedBlocks;
-    private final PlayerInventory inventory;
+    private final Ray attackRay, buildRay, breakRay;
+    private final List<PlacedBlock> placedBlocks;
+    private final ArrayList<BreakedBlock> breakedBlocks;
     private Inventory lastInventory;
-    private final float health;
-    private final float maxHealth;
     private PlayerAction action;
     private Sprite sprite;
     private final PlayerCraftInventory craftInventory;
-    private final static float JUMP_VELOCITY = .125f;
+    public final static float JUMP_VELOCITY = .125f;
     private final ChatPayload chatPayload;
 
     public Player(String name) {
-        this.position = new Vector3f(0.0f, 90.0f, 0.0f);
-        this.lastPosition = new Vector3f(0, 0, 0);
-        this.gravity = new Vector3f(0, -0.0025f, 0);
-        this.velocity = new Vector3f();
+        super(null, EntityType.PLAYER);
+        this.name = name;
         this.receivedChunks = new HashSet<>();
         this.inputs = new ArrayList<>();
         this.hand = new PlayerHand();
         this.inventory = new PlayerInventory();
         this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 1.0f, 0.25f));
-        this.animations = new ArrayList<>();
-        this.nametagMesh = new NametagMesh(name);
         this.hotbar = new Hotbar();
         this.lastUpdate = new EntityUpdate(new Vector3f(position), yaw, pitch, bodyYaw);
-        this.aimedBlocks = new ArrayList<>();
-        this.eventListeners = new ArrayList<>();
         this.sprite = new Sprite();
         this.miningAnimation = new MiningAnimation();
         this.action = PlayerAction.MINING;
         this.gameMode = GameMode.SURVIVAL;
         this.chatPayload = new ChatPayload(this);
-        this.yaw = 0.0f;
-        this.lastYaw = 0.0f;
-        this.bodyYaw = 0.0f;
-        this.pitch = 0.0f;
         this.firstMouse = true;
         this.lastMouseX = 0.0f;
         this.lastMouseY = 0.0f;
         this.speed = gameMode == GameMode.SURVIVAL ? GameConfiguration.DEFAULT_SPEED : 0.1f;
         this.maxSpeed = gameMode == GameMode.SURVIVAL ? 0.03f : 0.1f;
         this.maxFall = 0;
-        this.health = 20.0f;
-        this.maxHealth = 20.0f;
         this.ping = 0;
         this.sensitivity = 0.1f;
-        this.name = name;
-        this.uuid = null;
         this.movingLeft = false;
         this.movingRight = false;
         this.movingForward = false;
@@ -144,11 +109,10 @@ public class Player {
         this.inventoryKeyPressed = false;
         this.canHoldItem = false;
         this.canPlaceHoldedItem = false;
-        this.movingMouse = true;
         this.sneaking = false;
         this.sprinting = false;
         this.flying = false;
-        this.canJump = false;
+        this.canJump = true;
         this.canBreakBlock = true;
         this.canPlaceBlock = true;
         this.jumping = false;
@@ -272,10 +236,6 @@ public class Player {
         }
 
         this.resetMoving();
-
-        if (mouseOffsetX != 0 || mouseOffsetY != 0) {
-            movingMouse = true;
-        }
 
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
             movingForward = true;
@@ -420,7 +380,6 @@ public class Player {
         flying = false;
         sneaking = false;
         jumping = false;
-        movingMouse = false;
         droppingItem = false;
     }
 
@@ -449,52 +408,6 @@ public class Player {
         if (canJump) {
             maxFall = 0.5f;
             canJump = false;
-        }
-    }
-
-    public void handleCollisions(World world, Vector3f velocity) {
-
-        int minX = (int) Math.floor(position.x - hitbox.getWidth());
-        int maxX = (int) Math.ceil(position.x + hitbox.getWidth());
-        int minY = (int) Math.floor(position.y - hitbox.getHeight());
-        int maxY = (int) Math.ceil(position.y + hitbox.getHeight());
-        int minZ = (int) Math.floor(position.z - hitbox.getDepth());
-        int maxZ = (int) Math.ceil(position.z + hitbox.getDepth());
-
-        for (int worldX = minX; worldX < maxX; worldX++) {
-            for (int worldY = minY; worldY < maxY; worldY++) {
-                for (int worldZ = minZ; worldZ < maxZ; worldZ++) {
-
-                    byte block = world.getBlockAt(worldX, worldY, worldZ);
-                    Material material = Material.getMaterialById(block);
-
-                    if (!material.isSolid()) {
-                        continue;
-                    }
-
-                    if (velocity.x > 0) {
-                        position.x = worldX - hitbox.getWidth();
-                    } else if (velocity.x < 0) {
-                        position.x = worldX + hitbox.getWidth() + 1;
-                    }
-
-                    if (velocity.y > 0) {
-                        position.y = worldY - hitbox.getHeight();
-                        this.velocity.y = 0;
-                    } else if (velocity.y < 0) {
-                        //maxFall = MAX_FALL_SPEED;
-                        canJump = true;
-                        position.y = worldY + hitbox.getHeight() + 1;
-                        this.velocity.y = 0;
-                    }
-
-                    if (velocity.z > 0) {
-                        position.z = worldZ - hitbox.getDepth();
-                    } else if (velocity.z < 0) {
-                        position.z = worldZ + hitbox.getDepth() + 1;
-                    }
-                }
-            }
         }
     }
 
@@ -656,54 +569,6 @@ public class Player {
         }
     }
 
-    public float getSpeed() {
-        return speed;
-    }
-
-    public Vector3f getPosition() {
-        return position;
-    }
-
-    public Vector3f getVelocity() {
-        return velocity;
-    }
-
-    public float getPitch() {
-        return pitch;
-    }
-
-    public float getYaw() {
-        return yaw;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
-
-    public void setPosition(Vector3f position) {
-        this.position = position;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setYaw(float yaw) {
-        this.yaw = yaw;
-    }
-
-    public void setPitch(float pitch) {
-        this.pitch = pitch;
-    }
-
     public void setMovingLeft(boolean movingLeft) {
         this.movingLeft = movingLeft;
     }
@@ -720,12 +585,13 @@ public class Player {
         this.movingBackward = movingBackward;
     }
 
-    public ArrayList<Animation> getAnimations() {
-        return animations;
-    }
-
     public NametagMesh getNametagMesh() {
         return nametagMesh;
+    }
+
+    @Override
+    public void render(Camera camera, Renderer renderer) {
+        renderer.render(camera, this);
     }
 
     public BufferedImage getSkin() {
@@ -736,26 +602,10 @@ public class Player {
         this.skin = skin;
     }
 
-    public float getBodyYaw() {
-        return bodyYaw;
-    }
-
-    public void setBodyYaw(float bodyYaw) {
-        this.bodyYaw = bodyYaw;
-    }
-
     public void notifyEvent(PlayerMoveEvent event) {
         for (EventListener eventListener : eventListeners) {
             eventListener.onPlayerMove(event);
         }
-    }
-
-    public void addEventListener(EventListener event) {
-        eventListeners.add(event);
-    }
-
-    public void removeEventListener(EventListener event) {
-        eventListeners.remove(event);
     }
 
     public boolean isFlying() {
@@ -779,24 +629,8 @@ public class Player {
         return inputs;
     }
 
-    public float getMaxSpeed() {
-        return maxSpeed;
-    }
-
-    public Vector3f getGravity() {
-        return gravity;
-    }
-
     public Set<Coordinates> getReceivedChunks() {
         return receivedChunks;
-    }
-
-    public Vector3f getLastPosition() {
-        return lastPosition;
-    }
-
-    public void setLastPosition(Vector3f lastPosition) {
-        this.lastPosition = lastPosition;
     }
 
     public String getSkinPath() {
@@ -819,14 +653,6 @@ public class Player {
         this.lastUpdate = lastUpdate;
     }
 
-    public boolean canJump() {
-        return this.canJump;
-    }
-
-    public void setCanJump(boolean canJump) {
-        this.canJump = canJump;
-    }
-
     public float getMaxFallSpeed() {
         return maxFall;
     }
@@ -847,10 +673,6 @@ public class Player {
         return breakRay;
     }
 
-    public void setSpeed(float speed) {
-        this.speed = speed;
-    }
-
     public List<PlacedBlock> getPlacedBlocks() {
         return placedBlocks;
     }
@@ -859,20 +681,8 @@ public class Player {
         return breakedBlocks;
     }
 
-    public PlayerInventory getInventory() {
-        return inventory;
-    }
-
     public Hotbar getHotbar() {
         return hotbar;
-    }
-
-    public float getHealth() {
-        return health;
-    }
-
-    public float getMaxHealth() {
-        return maxHealth;
     }
 
     public PlayerAction getAction() {

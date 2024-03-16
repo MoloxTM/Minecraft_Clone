@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.server.payload.*;
 import fr.math.minecraft.shared.GameConfiguration;
+import fr.math.minecraft.shared.entity.Entity;
 import fr.math.minecraft.shared.world.BreakedBlock;
 import fr.math.minecraft.shared.world.DroppedItem;
 import fr.math.minecraft.shared.world.PlacedBlock;
@@ -172,21 +173,7 @@ public class TickHandler extends Thread {
 
             try {
                 byte[] buffer = mapper.writeValueAsBytes(node);
-                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-
-                synchronized (server.getClients()) {
-                    for (Client client : server.getClients().values()) {
-
-                        if (!client.isActive()) {
-                            continue;
-                        }
-
-                        packet.setAddress(client.getAddress());
-                        packet.setPort(client.getPort());
-
-                        server.sendPacket(packet);
-                    }
-                }
+                server.broadcast(buffer);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
@@ -220,6 +207,18 @@ public class TickHandler extends Thread {
 
                         payload.send(client);
                     }
+                }
+            }
+        }
+
+        synchronized (world.getEntities()) {
+            for (Entity entity : world.getEntities().values()) {
+                try {
+                    entity.update(world);
+                    byte[] entityBuffer = mapper.writeValueAsBytes(entity.toJSONObject());
+                    server.broadcast(entityBuffer);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         }
