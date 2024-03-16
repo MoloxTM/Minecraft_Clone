@@ -96,7 +96,7 @@ public class Player {
     private final ChatPayload chatPayload;
 
     public Player(String name) {
-        this.position = new Vector3f(0.0f, 88.0f, 0.0f);
+        this.position = new Vector3f(0.0f, 90.0f, 0.0f);
         this.lastPosition = new Vector3f(0, 0, 0);
         this.gravity = new Vector3f(0, -0.0025f, 0);
         this.velocity = new Vector3f();

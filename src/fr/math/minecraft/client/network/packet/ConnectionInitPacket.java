@@ -98,9 +98,15 @@ public class ConnectionInitPacket extends ClientPacket implements Runnable {
                 throw new RuntimeException("Impossible d'envoyer le packet, le serveur a mis trop de temps à répondre ! (timeout)");
             }
 
+
             JsonNode serverData = mapper.readTree(data);
 
             logger.info("Connexion initié, Réponse : " + serverData);
+
+            if (serverData.get("uuid") == null) {
+                client.connect();
+                throw new RuntimeException("Impossible de se connecter au serveur, veuillez réessayez");
+            }
 
             String uuid = serverData.get("uuid").asText();
 

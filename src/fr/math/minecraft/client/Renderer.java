@@ -61,6 +61,7 @@ public class Renderer {
     private final Shader colorShader;
     private final Shader itemShader;
     private final Shader selectedBlockShader;
+    private final Shader villagerShader;
     private final Shader hitboxShader;
     private final Texture terrainTexture;
     private final Texture skinTexture;
@@ -139,6 +140,7 @@ public class Renderer {
         this.itemShader = new Shader("res/shaders/item.vert", "res/shaders/item.frag");
         this.colorShader = new Shader("res/shaders/color.vert", "res/shaders/color.frag");
         this.hitboxShader = new Shader("res/shaders/hitbox.vert", "res/shaders/hitbox.frag");
+        this.villagerShader = new Shader("res/shaders/villager.vert", "res/shaders/villager.frag");
 
         this.terrainTexture = new Texture("res/textures/terrain.png", 1);
         this.defaultSkinTexture = new Texture("res/textures/skin.png", 2);
@@ -151,7 +153,7 @@ public class Renderer {
         this.invetoryTexture = new Texture("res/textures/gui/inventory.png", 9);
         this.iconsTexture = new Texture("res/textures/gui/icons.png", 10);
         this.guiBlocksTexture = new Texture("res/textures/gui/gui_blocks.png", 11);
-        this.villagerTexture = new Texture("res/textures/entity/villager.png", 13);
+        this.villagerTexture = new Texture("res/textures/entity/villager2.png", 13);
 
         this.dirtTexture = new TextureBuilder().buildDirtBackgroundTexture();
 
@@ -192,13 +194,13 @@ public class Renderer {
         }
          */
 
-        playerShader.enable();
-        playerShader.sendInt("uTexture", skinTexture.getSlot());
+        villagerShader.enable();
+        villagerShader.sendInt("uTexture", skinTexture.getSlot());
 
         glActiveTexture(GL_TEXTURE0 + skinTexture.getSlot());
         skinTexture.bind();
 
-        camera.matrix(playerShader, player);
+        camera.matrix(villagerShader, player);
 
         villagerMesh.draw();
 

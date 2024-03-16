@@ -19,6 +19,11 @@ public class VillagerVertex extends Vertex {
         this.partId = partId;
     }
 
+    public VillagerVertex(VillagerVertex vertex) {
+        super(new Vector3f(vertex.getPosition()), new Vector2f(vertex.getTextureCoords()));
+        this.partId = vertex.getPartId();
+    }
+
     public float getPartId() {
         return partId;
     }
