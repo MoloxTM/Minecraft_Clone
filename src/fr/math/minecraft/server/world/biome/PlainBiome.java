@@ -74,22 +74,26 @@ public class PlainBiome extends AbstractBiome{
         Vector3i regionPosition = region.getPosition();
         int houseCount=0;
         int maxHousePerVillage=5;
-        for (int i = regionPosition.x; i < Region.SIZE * Chunk.SIZE+ regionPosition.x; i+=9) {
-            for (int j = regionPosition.z; j < Region.SIZE *Chunk.SIZE+ regionPosition.z; j+=11) {
-                if(canBuildHouse(worldX,worldY,worldZ,world) && houseCount<=maxHousePerVillage){
-                    StructureBuilder.buildHouse(structure,worldX,worldY,worldZ);
+        Vector3i beginningCoordinate= new Vector3i(worldX,worldY,worldZ);
+        Vector3i endCoordinate= new Vector3i(worldX,worldY,worldZ);
+
+        for (int i = regionPosition.x; i < (Region.SIZE * Chunk.SIZE)+ regionPosition.x; i+=9) {
+            for (int j = regionPosition.z; j < (Region.SIZE *Chunk.SIZE)+ regionPosition.z; j+=11) {
+                if(canBuildHouse(worldX+i,worldY,worldZ+j) && houseCount<=maxHousePerVillage){
+                    StructureBuilder.buildHouse(structure,worldX+i,worldY,worldZ+j);
+                    //StructureBuilder.buildStoneCube(structure,worldX+i,worldY,worldZ+j);
                     houseCount++;
-                    System.out.println("A house has been built at: "+worldX+","+worldY+","+worldZ);
+                    region.setHasVillage(true);
                 }
+                if(houseCount==5){return;}
             }
         }
     }
 
-    public boolean canBuildHouse(int worldX, int worldY, int worldZ, World world){
-        int res=0;
-        for (int i = 0; i < 6; i++) {
-            for (int j = 0; j < 9; j++) {
-                if(this.getHeight(worldX+i,worldZ+j)!=worldY){
+    public boolean canBuildHouse(int worldX, int worldY, int worldZ){
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if((int)this.getHeight(worldX+i,worldZ+j)!=worldY){
                     return false;
                 }
             }

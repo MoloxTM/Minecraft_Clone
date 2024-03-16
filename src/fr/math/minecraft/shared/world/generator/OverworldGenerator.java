@@ -72,6 +72,7 @@ public class OverworldGenerator implements TerrainGenerator {
 
         int worldHeight = (int) (InterpolateMath.smoothInterpolation(bottomLeft, bottomRight, topLeft, topRight, xMin, xMax, zMin, zMax, x, z));
 
+
         return worldHeight;
     }
 

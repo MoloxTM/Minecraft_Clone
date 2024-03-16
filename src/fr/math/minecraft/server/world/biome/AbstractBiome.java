@@ -19,6 +19,7 @@ public abstract class AbstractBiome {
     public abstract void buildVillage(int worldX, int worldY, int worldZ, Structure structure, World world, Region region);
 
     public float getHeight(int x, int z) {
+
         return noise.getHeight(x, z);
     }
     

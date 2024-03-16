@@ -407,5 +407,15 @@ public class  StructureBuilder {
         }
         System.out.println("A house has been built");
     }
+
+    public static void buildStoneCube(Structure structure,int x, int y, int z){
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
+                for (int k = 0; k < 10; k++) {
+                    structure.setBlock(x+i,y+j,z+k,Material.STONE.getId());
+                }
+            }
+        }
+    }
 }
 
