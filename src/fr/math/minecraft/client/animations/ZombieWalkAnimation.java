@@ -23,10 +23,12 @@ public class ZombieWalkAnimation extends Animation{
 
     @Override
     public void update() {
+        /*
         if(!zombie.isMoving()) {
             legRotation *=0.95;
             return;
         }
+         */
         legRotation = Math.sin(Game.getInstance().getTime() * HAND_WALKING_ANIMATION_SPEED) * MAX_HAND_ROTATION_ANGLE;
 
     }

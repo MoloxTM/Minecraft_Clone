@@ -11,6 +11,8 @@ public class EntityFactory {
                 return new Player(entityType.getName());
             case VILLAGER:
                 return new Villager(entityType.getName());
+            case ZOMBIE:
+                return new Zombie(entityType.getName());
         }
         return null;
     }

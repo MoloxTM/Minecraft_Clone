@@ -77,11 +77,11 @@ void main() {
     } else if (aPartId == 3.0) {
         // If vertex is a part of right hand
         float rotationAngle = radians(40.0f);
-        vec3 pivot = vec3(-0.42f, -0.4f, .12f);
+        vec3 pivot = vec3(-0.32f, -0.4f, .12f);
         translationMatrix *= rotateAroundPoint(rotationAngle, pivot);
     } else if (aPartId == 3.5) {
         // If vertex is a part of left hand
-        vec3 pivot = vec3(-0.42f, -0.4f, .12f);
+        vec3 pivot = vec3(-0.32f, -0.4f, .12f);
         float rotationAngle = radians(40.0f);
         translationMatrix *= rotateAroundPoint(-rotationAngle, pivot);
     } else if (aPartId == 4.0) {

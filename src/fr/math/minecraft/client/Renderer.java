@@ -15,20 +15,23 @@ import fr.math.minecraft.client.meshs.*;
 import fr.math.minecraft.client.meshs.model.ItemModelData;
 import fr.math.minecraft.client.network.payload.ChatPayload;
 import fr.math.minecraft.client.texture.CubemapTexture;
+import fr.math.minecraft.logger.LogType;
+import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.shared.ChatMessage;
 import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.shared.Sprite;
 import fr.math.minecraft.client.texture.Texture;
 import fr.math.minecraft.shared.entity.Entity;
 import fr.math.minecraft.shared.entity.Villager;
-import fr.math.minecraft.shared.entity.mob.Mob;
 import fr.math.minecraft.shared.entity.mob.MobType;
+import fr.math.minecraft.shared.entity.mob.Zombie;
 import fr.math.minecraft.shared.inventory.*;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.server.manager.BiomeManager;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.world.DroppedItem;
 import fr.math.minecraft.shared.world.Material;
+import org.apache.log4j.Logger;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 import org.lwjgl.BufferUtils;
@@ -95,6 +98,7 @@ public class Renderer {
     private final GameConfiguration gameConfiguration;
     private final static float HOTBAR_SCALE = 1.8f;
     private final DoubleBuffer mouseX, mouseY;
+    private final static Logger logger = LoggerUtility.getClientLogger(Renderer.class, LogType.TXT);
 
     public Renderer() {
         this.playerMesh = new PlayerMesh();
@@ -235,20 +239,19 @@ public class Renderer {
         villagerTexture.unbind();
     }
 
-    public void renderMob(Camera camera, Mob mob) {
+    public void render(Camera camera, Zombie zombie) {
 
         playerShader.enable();
         playerShader.sendInt("uTexture", zombieTexture.getSlot());
 
-        glActiveTexture(GL_TEXTURE0 + zombieTexture.getSlot());
+        zombieTexture.activeSlot();
         zombieTexture.bind();
 
-        camera.matrix(playerShader, mob);
+        camera.matrix(playerShader, zombie);
 
         playerMesh.draw();
 
         zombieTexture.unbind();
-        this.renderNametag(camera, mob);
     }
 
     public void renderNametag(Camera camera, Entity entity) {
@@ -280,43 +283,6 @@ public class Renderer {
         camera.matrixNametag(nametagTextShader, entity);
 
         fontManager.addText(fontMesh, entity.getName(), 0, 0, 0, 1.0f, 0xFFFFFF, true);
-
-        fontMesh.flush();
-
-        texture.unbind();
-    }
-
-    public void renderNametag(Camera camera, Mob mob) {
-        this.renderNametagBar(camera, mob);
-        this.renderNametagText(camera, mob);
-    }
-
-
-
-    private void renderNametagBar(Camera camera, Mob mob) {
-
-        NametagMesh nametagMesh = mob.getNametagMesh();
-
-        if (nametagMesh == null)
-            return;
-
-        nametagShader.enable();
-
-        camera.matrixNametag(nametagShader, mob);
-
-        nametagMesh.draw();
-    }
-
-    private void renderNametagText(Camera camera, Mob mob) {
-        Texture texture = font.getTexture();
-        nametagTextShader.enable();
-        nametagTextShader.sendInt("uTexture", texture.getSlot());
-
-        glActiveTexture(GL_TEXTURE0 + texture.getSlot());
-        texture.bind();
-        camera.matrixNametag(nametagTextShader, mob);
-
-        fontManager.addText(fontMesh, mob.getName(), 0, 0, 0, 1.0f, 0xFFFFFF, true);
 
         fontMesh.flush();
 

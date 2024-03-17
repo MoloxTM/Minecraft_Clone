@@ -132,13 +132,13 @@ public class StatePayload {
             }
 
             player.getPosition().x += player.getVelocity().x;
-            player.handleCollisions(world, new Vector3f(player.getVelocity().x, 0, 0));
+            player.handleCollisions(world, new Vector3f(player.getVelocity().x, 0, 0), false);
 
             player.getPosition().z += player.getVelocity().z;
-            player.handleCollisions(world, new Vector3f(0, 0, player.getVelocity().z));
+            player.handleCollisions(world, new Vector3f(0, 0, player.getVelocity().z), false);
 
             player.getPosition().y += player.getVelocity().y;
-            player.handleCollisions(world, new Vector3f(0, player.getVelocity().y, 0));
+            player.handleCollisions(world, new Vector3f(0, player.getVelocity().y, 0), false);
 
             player.getVelocity().mul(0.95f);
         }

@@ -540,13 +540,13 @@ public class Player extends Entity {
         }
 
         position.x += velocity.x;
-        handleCollisions(world, new Vector3f(velocity.x, 0, 0));
+        handleCollisions(world, new Vector3f(velocity.x, 0, 0), false);
 
         position.z += velocity.z;
-        handleCollisions(world, new Vector3f(0, 0, velocity.z));
+        handleCollisions(world, new Vector3f(0, 0, velocity.z), false);
 
         position.y += velocity.y;
-        handleCollisions(world, new Vector3f(0, velocity.y, 0));
+        handleCollisions(world, new Vector3f(0, velocity.y, 0), false);
 
         velocity.mul(0.95f);
 

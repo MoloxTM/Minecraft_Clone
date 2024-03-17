@@ -7,6 +7,7 @@ import fr.math.minecraft.server.handler.*;
 import fr.math.minecraft.server.manager.ChunkManager;
 import fr.math.minecraft.shared.ChatMessage;
 import fr.math.minecraft.shared.entity.Villager;
+import fr.math.minecraft.shared.entity.mob.Zombie;
 import fr.math.minecraft.shared.world.World;
 import org.apache.log4j.Logger;
 
@@ -55,7 +56,9 @@ public class MinecraftServer {
 
         logger.info("Point de spawn calculé en " + world.getSpawnPosition());
         world.addEntity(new Villager("Dummy"));
+        world.addEntity(new Zombie("Dummy"));
         logger.info("Un villageois a spawn !");
+        logger.info("Un zombie a spawn !");
     }
 
     public void start() throws IOException {

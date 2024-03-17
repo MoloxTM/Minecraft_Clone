@@ -7,17 +7,17 @@ import org.joml.Vector3f;
 public class VillagerModel {
 
     public final static float SKIN_SIZE = 64.0f;
-    public final static float HEAD_SIZE = .32f;
-    public final static float HEAD_OFFSET = .15f;
+    public final static float HEAD_SIZE = .25f;
+    public final static float HEAD_OFFSET = .1f;
     public final static float NOISE_WIDTH = HEAD_SIZE / 4.5f;
     public final static float NOISE_HEIGHT = HEAD_SIZE / 1.1f;
     public final static float NOISE_DEPTH = NOISE_WIDTH * 1.5f;
     public final static float NOISE_OFFSET = .25f;
-    public final static float CHEST_HEIGHT = 1.0f;
+    public final static float CHEST_HEIGHT = .75f;
     public final static float CHEST_DEPTH = .28f;
     public final static float CHEST_WIDTH = .75f;
-    public final static float HAND_WIDTH = .3f;
-    public final static float HAND_HEIGHT = .65f;
+    public final static float HAND_WIDTH = .25f;
+    public final static float HAND_HEIGHT = .6f;
     public final static float HAND_DEPTH = HAND_WIDTH;
     public final static float LEG_WIDTH = .5f;
     public final static float LEG_HEIGHT = .75f;

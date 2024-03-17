@@ -65,7 +65,6 @@ public class World {
             }
         }
 
-        entities.put("1", new Villager("dummy"));
     }
 
     public void calculateSpawnPosition() {

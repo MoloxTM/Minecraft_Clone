@@ -51,7 +51,6 @@ public class PacketListener implements PacketEventListener {
 
     @Override
     public void onPlayerListPacket(PlayerListPacketEvent event) {
-        if (true) return;
         ArrayNode playersNode = event.getPlayers();
 
         for (int i = 0; i < playersNode.size(); i++) {

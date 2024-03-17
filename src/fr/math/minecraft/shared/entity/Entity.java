@@ -98,17 +98,14 @@ public abstract class Entity {
             velocity.z = velocityNorm.z;
         }
 
-        System.out.println(front);
-        System.out.println(yaw);
-
         position.x += velocity.x;
-        handleCollisions(world, new Vector3f(velocity.x, 0, 0));
+        handleCollisions(world, new Vector3f(velocity.x, 0, 0), true);
 
         position.z += velocity.z;
-        handleCollisions(world, new Vector3f(0, 0, velocity.z));
+        handleCollisions(world, new Vector3f(0, 0, velocity.z), true);
 
         position.y += velocity.y;
-        handleCollisions(world, new Vector3f(0, velocity.y, 0));
+        handleCollisions(world, new Vector3f(0, velocity.y, 0), true);
     }
 
     public void lerpPosition() {
@@ -125,7 +122,7 @@ public abstract class Entity {
         }
     }
 
-    public void handleCollisions(World world, Vector3f velocity) {
+    public void handleCollisions(World world, Vector3f velocity, boolean serverSide) {
 
         int minX = (int) Math.floor(position.x - hitbox.getWidth());
         int maxX = (int) Math.ceil(position.x + hitbox.getWidth());
@@ -138,7 +135,13 @@ public abstract class Entity {
             for (int worldY = minY; worldY < maxY; worldY++) {
                 for (int worldZ = minZ; worldZ < maxZ; worldZ++) {
 
-                    byte block = world.getBlockAt(worldX, worldY, worldZ);
+                    byte block;
+                    if (serverSide) {
+                        block = world.getServerBlockAt(worldX, worldY, worldZ);
+                    } else {
+                        block = world.getBlockAt(worldX, worldY, worldZ);
+                    }
+
                     Material material = Material.getMaterialById(block);
 
                     if (!material.isSolid()) {
