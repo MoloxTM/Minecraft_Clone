@@ -3,6 +3,7 @@ package fr.math.minecraft.server.builder;
 import fr.math.minecraft.server.RandomSeed;
 import fr.math.minecraft.server.world.Structure;
 import fr.math.minecraft.shared.world.Material;
+import fr.math.minecraft.shared.world.World;
 
 public class  StructureBuilder {
 
@@ -254,11 +255,11 @@ public class  StructureBuilder {
         }
     }
 
-    public static void buildWeed(Structure structure, int x, int y, int z, float noiseValue) {
+    public static void buildWeed(World world, Structure structure, int x, int y, int z, float noiseValue) {
         if(noiseValue < 0.1f) {
             structure.setBlock(x, y+1, z, Material.ROSE.getId());
         } else {
-            structure.setBlock(x, y+1, z, Material.WEED.getId());
+                structure.setBlock(x, y+1, z, Material.WEED.getId());
         }
     }
 
@@ -413,7 +414,7 @@ public class  StructureBuilder {
         }
     }
 
-    public static void buildBigHouse(Structure structure, int x, int worldY, int z){
+    public static void buildBigHousePlain(Structure structure, int x, int worldY, int z){
         //etage 0
         int y = worldY;
         y=y+0;
@@ -530,6 +531,94 @@ public class  StructureBuilder {
                 }
             }
         }
+    }
+    public static void buildHouseDesert(Structure structure, int worldX, int worldY, int worldZ) {
+        int y = worldY;
+        int x = worldX;
+        int z = worldZ;
+        y = y + 1;
+        //Etage 1
+        for (int i = 0; i < 5; i++) {
+            if(i == 2) {
+                structure.setBlock(x + i, y, z, Material.AIR.getId());
+                structure.setBlock(x + i, y, z + 4, Material.SAND_STONE.getId());
+            } else {
+                structure.setBlock(x + i, y, z, Material.SAND_STONE.getId());
+                structure.setBlock(x + i, y, z + 4, Material.SAND_STONE.getId());
+            }
+        }
+        for (int i = 0; i < 5; i++) {
+            if(i == 1 || i == 3) {
+                structure.setBlock(x, y, z + i, Material.CUT_SANDSTONE.getId());
+                structure.setBlock(x + 4, y, z + i, Material.CUT_SANDSTONE.getId());
+            } else {
+                structure.setBlock(x, y, z + i, Material.SAND_STONE.getId());
+                structure.setBlock(x + 4, y, z + i, Material.SAND_STONE.getId());
+            }
+        }
+        y = y + 1;
+        //Etage 2
+        for (int i = 0; i < 5; i++) {
+            if(i == 2) {
+                structure.setBlock(x + i, y, z, Material.AIR.getId());
+                structure.setBlock(x + i, y, z + 4, Material.SMOOTH_SANDSTONE.getId());
+            } else {
+                structure.setBlock(x + i, y, z, Material.SMOOTH_SANDSTONE.getId());
+                structure.setBlock(x + i, y, z + 4, Material.SMOOTH_SANDSTONE.getId());
+            }
+        }
+        for (int i = 0; i < 5; i++) {
+            if(i == 1 || i == 3) {
+                structure.setBlock(x, y, z + i, Material.CUT_SANDSTONE.getId());
+                structure.setBlock(x + 4, y, z + i, Material.CUT_SANDSTONE.getId());
+            } else {
+                structure.setBlock(x, y, z + i, Material.SMOOTH_SANDSTONE.getId());
+                structure.setBlock(x + 4, y, z + i, Material.SMOOTH_SANDSTONE.getId());
+            }
+        }
+        y = y + 1;
+        //Etage 3
+        for (int i = 0; i < 5; i++) {
+            if(i == 2) {
+                structure.setBlock(x + i, y, z, Material.SMOOTH_SANDSTONE.getId());
+                structure.setBlock(x + i, y, z + 4, Material.SMOOTH_SANDSTONE.getId());
+            } else {
+                structure.setBlock(x + i, y, z, Material.SMOOTH_SANDSTONE.getId());
+                structure.setBlock(x + i, y, z + 4, Material.SMOOTH_SANDSTONE.getId());
+            }
+        }
+        for (int i = 0; i < 5; i++) {
+            if(i == 1 || i == 3) {
+                structure.setBlock(x, y, z + i, Material.CUT_SANDSTONE.getId());
+                structure.setBlock(x + 4, y, z + i, Material.CUT_SANDSTONE.getId());
+            } else {
+                structure.setBlock(x, y, z + i, Material.SMOOTH_SANDSTONE.getId());
+                structure.setBlock(x + 4, y, z + i, Material.SMOOTH_SANDSTONE.getId());
+            }
+        }
+        y = y + 1;
+        //Etage 4
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                structure.setBlock(x + i, y, z + j, Material.CUT_SANDSTONE.getId());
+            }
+        }
+        y = y + 1;
+        //Etage 5
+        for (int i = 0; i < 5; i++) {
+            if(i % 2 == 0) {
+                structure.setBlock(x + i, y, z, Material.CUT_SANDSTONE.getId());
+                structure.setBlock(x + i, y, z + 4, Material.CUT_SANDSTONE.getId());
+            }
+        }
+        for (int i = 0; i < 5; i++) {
+            if(i % 2 == 0) {
+                structure.setBlock(x, y, z + i, Material.CUT_SANDSTONE.getId());
+                structure.setBlock(x + 4, y, z + i, Material.CUT_SANDSTONE.getId());
+            }
+        }
+
+        System.out.println("J'ai construit un village desert en :" + worldX + "|" + worldY + "|" + worldZ);
     }
 }
 

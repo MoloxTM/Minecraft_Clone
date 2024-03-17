@@ -27,7 +27,10 @@ public enum Material {
     DIAMOND_AXE("Diamond Axe", 18, -1, -1, 27, 3, false, true),
     OAK_PLANK("Oak plank", 19, 4, 15, 5, 8),
     COBBLE_STONE("Cobble stone", 20, 0, 14, 0, 8),
-    BREAKING_ANIMATION("", -3, 0, 0, 0, 0);
+    BREAKING_ANIMATION("", -3, 0, 0, 0, 0),
+    SAND_STONE("Sand stone", 21, new Vector2i(0, 3), new Vector2i(0, 3), new Vector2i(0, 3), new Vector2i(0, 3), new Vector2i(0, 4), new Vector2i(0, 2), 1, 7),
+    CUT_SANDSTONE("Cut sandstone", 22, new Vector2i(0, 1), new Vector2i(0, 1), new Vector2i(0, 1), new Vector2i(0, 1), new Vector2i(0, 4), new Vector2i(0, 4), 3, 7),
+    SMOOTH_SANDSTONE("Smooth sandstone", 23, 0, 4, 0, 8);
 
     private final int blockIconX, x;
     private final int blockIconY, y;

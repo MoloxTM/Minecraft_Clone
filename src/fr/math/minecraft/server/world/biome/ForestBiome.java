@@ -91,7 +91,7 @@ public class ForestBiome extends AbstractBiome {
         float weedNoiseValue = weedNoise.getNoise(worldX, worldZ);
 
         if (weedNoiseValue < .23f) {
-            StructureBuilder.buildWeed(structure, worldX, worldY, worldZ, weedNoiseValue);
+            StructureBuilder.buildWeed(world,structure, worldX, worldY, worldZ, weedNoiseValue);
         }
     }
 

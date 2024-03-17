@@ -97,6 +97,7 @@ public class Region {
     public void setHasVillage(boolean hasVillage) {
         this.hasVillage = hasVillage;
     }
+    public boolean getHasVillage(){return hasVillage;}
 
     public ArrayList<Vector3i> getVillageArea() {
         return villageArea;

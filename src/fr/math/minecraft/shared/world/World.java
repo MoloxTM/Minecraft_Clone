@@ -326,4 +326,25 @@ public class World {
         return worldNode;
     }
 
+/*
+    public boolean AdjacentRegionsDoesntHaveVillages(Region region){
+        Coordinates front=new Coordinates(0,0,0);
+        Coordinates back=new Coordinates(0,0,0);
+        Coordinates left=new Coordinates(0,0,0);
+        Coordinates right=new Coordinates(0,0,0);
+        //front
+        front.setX(region.getPosition().x);
+        front.setZ(region.getPosition().z-Region.SIZE*Chunk.SIZE);
+        //back
+        back.setX(region.getPosition().x);
+        back.setZ(region.getPosition().z+Region.SIZE*Chunk.SIZE);
+        //left
+        left.setX(region.getPosition().x-Region.SIZE*Chunk.SIZE);
+        left.setZ(region.getPosition().z);
+        //right
+        right.setX(region.getPosition().x+Region.SIZE*Chunk.SIZE);
+        right.setZ(region.getPosition().z);
+        return !this.regions.get(front).getHasVillage() && !this.regions.get(back).getHasVillage() && !this.regions.get(left).getHasVillage() && !this.regions.get(right).getHasVillage();
+    }
+*/
 }

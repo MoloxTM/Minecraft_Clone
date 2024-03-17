@@ -65,8 +65,8 @@ public class PlainBiome extends AbstractBiome{
 
         float weedNoiseValue = weedNoise.getNoise(worldX, worldZ);
 
-        if (weedNoiseValue < .23f) {
-            StructureBuilder.buildWeed(structure, worldX, worldY, worldZ, weedNoiseValue);
+        if (weedNoiseValue < .23f && world.getBlockAt(worldX,worldY,worldZ)==Material.GRASS.getId()) {
+            StructureBuilder.buildWeed(world,structure, worldX, worldY, worldZ, weedNoiseValue);
         }
     }
 
@@ -78,15 +78,15 @@ public class PlainBiome extends AbstractBiome{
         Vector3i beginningCoordinate= new Vector3i(worldX,worldY,worldZ);
         Vector3i endCoordinate= new Vector3i(worldX,worldY,worldZ);
 
-        for (int i = regionPosition.x; i < (Region.SIZE * Chunk.SIZE)+ regionPosition.x; i+=9) {
-            for (int j = regionPosition.z; j < (Region.SIZE *Chunk.SIZE)+ regionPosition.z; j+=11) {
+        for (int i = regionPosition.x; i < (Region.SIZE * Chunk.SIZE)+ regionPosition.x-6; i+=9) {
+            for (int j = regionPosition.z; j < (Region.SIZE *Chunk.SIZE)+ regionPosition.z-9; j+=11) {
 
                 int x = i - regionPosition.x;
                 int z = j - regionPosition.z;
 
                 if(Region.SIZE / 4 < x && x < Chunk.SIZE * Region.SIZE - Region.SIZE / 4 && Region.SIZE / 4 < z && z < Chunk.SIZE * Region.SIZE - Region.SIZE / 4) {
                     if(canBuildHouse(worldX+i,worldY,worldZ+j) && houseCount<=maxHousePerVillage){
-                        StructureBuilder.buildBigHouse(structure,worldX+i,worldY,worldZ+j);
+                        StructureBuilder.buildBigHousePlain(structure,worldX+i,worldY,worldZ+j);
                         houseCount++;
                         region.setHasVillage(true);
                     }
