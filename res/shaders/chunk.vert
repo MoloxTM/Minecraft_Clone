@@ -49,6 +49,11 @@ vec4 calculatePosition() {
         position.z -= cos((time + position.x + position.y) * 1.5f) / 15.0f;
     }
 
+    if (equals(aBlockID, 53.0f) && equals(occlusionEnabled, 1.0f)) {
+        position.x += sin((time + position.y + position.z) * 1.5f) / 15.0f;
+        position.z -= cos((time + position.x + position.y) * 1.5f) / 15.0f;
+    }
+
     return vec4(position, 1.0);
 }
 

@@ -11,4 +11,14 @@ public class PlayerCraftingTableInventory extends Inventory{
     public ItemStack[] getItems() {
         return super.getItems();
     }
+
+    @Override
+    public float getItemX(int slot) {
+        return 0;
+    }
+
+    @Override
+    public float getItemY(int slot) {
+        return 0;
+    }
 }
