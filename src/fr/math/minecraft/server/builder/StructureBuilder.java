@@ -617,8 +617,6 @@ public class  StructureBuilder {
                 structure.setBlock(x + 4, y, z + i, Material.CUT_SANDSTONE.getId());
             }
         }
-
-        System.out.println("J'ai construit un village desert en :" + worldX + "|" + worldY + "|" + worldZ);
     }
 }
 

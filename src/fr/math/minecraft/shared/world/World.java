@@ -262,6 +262,11 @@ public class World {
         return regions.get(coordinates);
     }
 
+    public Region getRegion(Vector3i pos) {
+        Coordinates coordinates = new Coordinates(pos);
+        return regions.get(coordinates);
+    }
+
     public Region getRegion(Coordinates coordinates) {
         return regions.get(coordinates);
     }

@@ -52,16 +52,12 @@ public class Region {
                 AbstractBiome currentBiome = biomeManager.getBiome(worldX, worldZ);
 
                 int worldHeight = generator.getHeight(worldX, worldZ);
-                if(!this.hasVillage){
+                if(!this.hasVillage && !hasVillageNeighboors(world)){
                     currentBiome.buildVillage(worldX, worldHeight, worldZ, structure, world,this);
                 }
                 if (SIZE / 4 < x && x < Chunk.SIZE * SIZE - SIZE / 4 && SIZE / 4 < z && z < Chunk.SIZE * SIZE - SIZE / 4) {
-
-
-                    if(!inVillageArea(worldX, worldHeight, worldZ)) {
-                        currentBiome.buildWeeds(worldX, worldHeight, worldZ, structure, world);
-                        currentBiome.buildTree(worldX, worldHeight, worldZ, structure, world);
-                    }
+                    currentBiome.buildWeeds(worldX, worldHeight, worldZ, structure, world);
+                    currentBiome.buildTree(worldX, worldHeight, worldZ, structure, world);
                 }
             }
         }
@@ -80,6 +76,36 @@ public class Region {
         } else {
             return false;
         }
+    }
+
+    private boolean hasVillageNeighboors(World world) {
+        Vector3i regionPos = this.getPosition();
+        ArrayList<Vector3i> neighBoorsPos = new ArrayList<>();
+        Vector3i regionNXPZ = regionPos.add(-1, 0, 1);
+        Vector3i regionXPZ = regionPos.add(0, 0, 1);
+        Vector3i regionPXPZ = regionPos.add(1, 0, 1);
+        Vector3i regionNXZ = regionPos.add(-1, 0, 0);
+        Vector3i regionPXZ = regionPos.add(1, 0, 0);
+        Vector3i regionNXNZ = regionPos.add(-1, 0, -1);
+        Vector3i regionXNZ = regionPos.add(0, 0, -1);
+        Vector3i regionPXNZ = regionPos.add(1, 0, -1);
+
+        neighBoorsPos.add(regionNXPZ);
+        neighBoorsPos.add(regionNXZ);
+        neighBoorsPos.add(regionPXPZ);
+        neighBoorsPos.add(regionNXNZ);
+        neighBoorsPos.add(regionXPZ);
+        neighBoorsPos.add(regionPXNZ);
+        neighBoorsPos.add(regionPXZ);
+        neighBoorsPos.add(regionXNZ);
+
+        for (Vector3i pos : neighBoorsPos) {
+            Region neighB = world.getRegion(pos);
+            if(neighB != null && neighB.hasVillage) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Map<Coordinates, Byte> getStructureMap() {

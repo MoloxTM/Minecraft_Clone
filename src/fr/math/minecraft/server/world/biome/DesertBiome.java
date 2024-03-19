@@ -54,7 +54,7 @@ public class DesertBiome extends AbstractBiome{
 
         float weedNoiseValue = weedNoise.getNoise(worldX, worldZ);
 
-        if (weedNoiseValue < .23f) {
+        if (weedNoiseValue < 0.1f) {
             StructureBuilder.buildDeadBush(structure, worldX, worldY, worldZ);
         }
     }
@@ -75,7 +75,6 @@ public class DesertBiome extends AbstractBiome{
 
                 if(Region.SIZE / 4 < x && x < Chunk.SIZE * Region.SIZE - Region.SIZE / 4 && Region.SIZE / 4 < z && z < Chunk.SIZE * Region.SIZE - Region.SIZE / 4) {
                     if(canBuildHouse(worldX+i,worldY,worldZ+j) && houseCount<=maxHousePerVillage){
-                        System.out.println("je peux build un village en:" + worldX+i + "|" + worldY + "|" + worldZ+j);
                         StructureBuilder.buildHouseDesert(structure,worldX+i,worldY,worldZ+j);
                         houseCount++;
                         region.setHasVillage(true);
