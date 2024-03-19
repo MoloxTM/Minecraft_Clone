@@ -5,6 +5,7 @@ import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.server.handler.*;
 import fr.math.minecraft.server.manager.ChunkManager;
+import fr.math.minecraft.server.pathfinding.AStar;
 import fr.math.minecraft.shared.ChatMessage;
 import fr.math.minecraft.shared.entity.Villager;
 import fr.math.minecraft.shared.entity.mob.Zombie;
@@ -35,6 +36,7 @@ public class MinecraftServer {
     private final World world;
     private final static int MAX_REQUEST_SIZE = 16384;
     private final ThreadPoolExecutor packetQueue;
+    private final ThreadPoolExecutor pathfindingQueue;
     private final TickHandler tickHandler;
     private final ChunkManager chunkManager;
     private final List<ChatMessage> chatMessages;
@@ -49,15 +51,17 @@ public class MinecraftServer {
         this.world = new World();
         this.world.buildSpawn();
         this.world.calculateSpawnPosition();
+        AStar.initGraph(world, world.getSpawnPosition());
         this.packetQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(4);
+        this.pathfindingQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(4);
         this.tickHandler = new TickHandler();
         this.chunkManager = new ChunkManager();
         this.chatMessages = new ArrayList<>();
 
         logger.info("Point de spawn calculé en " + world.getSpawnPosition());
-        world.addEntity(new Villager("Dummy"));
+        //world.addEntity(new Villager("Dummy"));
         world.addEntity(new Zombie("Dummy"));
-        logger.info("Un villageois a spawn !");
+        //logger.info("Un villageois a spawn !");
         logger.info("Un zombie a spawn !");
     }
 
@@ -200,5 +204,9 @@ public class MinecraftServer {
 
     public List<ChatMessage> getChatMessages() {
         return chatMessages;
+    }
+
+    public ThreadPoolExecutor getPathfindingQueue() {
+        return pathfindingQueue;
     }
 }

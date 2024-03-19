@@ -9,18 +9,30 @@ import fr.math.minecraft.client.events.PlayerMoveEvent;
 import fr.math.minecraft.client.events.listeners.EntityUpdate;
 import fr.math.minecraft.client.events.listeners.EventListener;
 import fr.math.minecraft.client.meshs.NametagMesh;
+import fr.math.minecraft.server.Client;
+import fr.math.minecraft.server.MinecraftServer;
+import fr.math.minecraft.server.pathfinding.AStar;
+import fr.math.minecraft.server.pathfinding.Graph;
+import fr.math.minecraft.server.pathfinding.Node;
+import fr.math.minecraft.server.pathfinding.Pattern;
+import fr.math.minecraft.shared.Direction;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.entity.mob.MobBehavior;
 import fr.math.minecraft.shared.entity.mob.MobType;
 import fr.math.minecraft.shared.inventory.Inventory;
 import fr.math.minecraft.shared.network.Hitbox;
+import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.shared.world.World;
 import org.joml.Math;
+import org.joml.Vector2i;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public abstract class Entity {
 
@@ -44,13 +56,15 @@ public abstract class Entity {
     protected Inventory inventory;
     protected EntityType type;
     protected boolean canJump;
-
+    private Pattern pattern;
+    private int patternUpdateCooldown;
     public Entity(String uuid, EntityType type) {
         this.type = type;
         this.position = new Vector3f(0.0f, 100.0f, 0.0f);
         this.gravity = new Vector3f(0, -0.0025f, 0);
         this.velocity = new Vector3f();
         this.animations = new ArrayList<>();
+        this.pattern = null;
         this.lastUpdate = new EntityUpdate(new Vector3f(position), yaw, pitch, bodyYaw);
         this.eventListeners = new ArrayList<>();
         this.yaw = 0.0f;
@@ -67,6 +81,7 @@ public abstract class Entity {
         this.mobType = null;
         this.nametagMesh = new NametagMesh(name);
         this.canJump = false;
+        this.patternUpdateCooldown = 0;
     }
 
     public void notifyEvent(PlayerMoveEvent event) {
@@ -75,9 +90,56 @@ public abstract class Entity {
         }
     }
 
+    private Direction followNode(Node node) {
+        if (position.y < node.getPosition().y && Math.abs(position.x - node.getPosition().x) < .2f) {
+            return Direction.RIGHT;
+        } else if (position.y > node.getPosition().y && Math.abs(position.x - node.getPosition().x) < .2f) {
+            return Direction.LEFT;
+        }
+        if (position.z < node.getPosition().y) {
+            return Direction.BACKWARD;
+        } else {
+            return Direction.FORWARD;
+        }
+    }
+
     public void update(World world) {
 
+        MinecraftServer server = MinecraftServer.getInstance();
+        Map<String, Client> clients = server.getClients();
         velocity.add(gravity);
+
+        patternUpdateCooldown++;
+
+        if (patternUpdateCooldown == GameConfiguration.TICK_PER_SECONDS) {
+
+            int chunkX = (int) java.lang.Math.floor(position.x / (double) Chunk.SIZE);
+            int chunkY = (int) java.lang.Math.floor(position.y / (double) Chunk.SIZE);
+            int chunkZ = (int) java.lang.Math.floor(position.z / (double) Chunk.SIZE);
+
+            Vector3i chunkPosition = new Vector3i(chunkX, chunkY, chunkZ);
+
+            if (!world.getGraph().getLoadedChunks().contains(chunkPosition)) {
+                server.getPathfindingQueue().submit(() -> {
+                   AStar.initGraph(world, position);
+                });
+            }
+
+            synchronized (server.getClients()) {
+                for (Client client : clients.values()) {
+                    float clientDistance = client.getPosition().distance(position);
+                    if (1 < clientDistance && clientDistance < 10) {
+                        Node start = new Node(new Vector3f(position), false);
+                        Node end = new Node(new Vector3f(client.getPosition()), false);
+                        pattern = new Pattern(AStar.shortestPath(world.getGraph(), start, end));
+                        break;
+                    }
+                }
+            }
+            patternUpdateCooldown = 0;
+            System.out.println("Mis à jour du pattern !");
+        }
+
 
         Vector3f acceleration = new Vector3f(0, 0, 0);
         Vector3f front = new Vector3f();
@@ -87,7 +149,18 @@ public abstract class Entity {
         front.z = Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch));
 
         front.normalize();
-        acceleration.add(front);
+
+        Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
+
+        if (pattern != null && !pattern.getPath().isEmpty()) {
+            Node currentNode = pattern.getPath().get(0);
+            if (currentNode != null) {
+                Vector3f entityPosition = new Vector3f(position.x, 0, position.z);
+                Vector3f direction = new Vector3f(currentNode.getPosition().x, 0, currentNode.getPosition().y).sub(entityPosition);
+                acceleration.add(new Vector3f(direction.x, 0, direction.z));
+            }
+
+        }
 
         velocity.add(acceleration.mul(speed));
 
@@ -106,6 +179,14 @@ public abstract class Entity {
 
         position.y += velocity.y;
         handleCollisions(world, new Vector3f(0, velocity.y, 0), true);
+
+        if (pattern != null && !pattern.getPath().isEmpty()) {
+            float distance = (float) new Vector2i((int) position.x, (int) position.z).distance(pattern.getPath().get(0).getPosition());
+            System.out.println("distance : " + distance);
+            if (distance <= 1.0) {
+                pattern = pattern.next();
+            }
+        }
     }
 
     public void lerpPosition() {

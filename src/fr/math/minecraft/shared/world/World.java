@@ -11,6 +11,7 @@ import fr.math.minecraft.client.meshs.ChunkMesh;
 import fr.math.minecraft.client.meshs.WaterMesh;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
+import fr.math.minecraft.server.pathfinding.Graph;
 import fr.math.minecraft.shared.entity.Entity;
 import fr.math.minecraft.shared.entity.EntityType;
 import fr.math.minecraft.shared.entity.Villager;
@@ -42,6 +43,7 @@ public class World {
     private Set<Coordinates> loadedRegions;
     private TerrainGenerator terrainGenerator;
     private final int SPAWN_SIZE = 2;
+    private final Graph graph;
 
     public World() {
         this.chunks = new HashMap<>();
@@ -58,6 +60,7 @@ public class World {
         this.placedBlocks = new HashMap<>();
         this.loadedRegions = new HashSet<>();
         this.entities = new HashMap<>();
+        this.graph = new Graph();
 
         for (Material material : Material.values()) {
             if (material.isSolid()) {
@@ -346,5 +349,9 @@ public class World {
         synchronized (this.getEntities()) {
             entities.remove(entity.getUuid());
         }
+    }
+
+    public Graph getGraph() {
+        return graph;
     }
 }
