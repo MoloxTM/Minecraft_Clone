@@ -60,14 +60,12 @@ public class AStar {
                                 int worldX = x + chunk.getPosition().x * Chunk.SIZE;
                                 int worldZ = z + chunk.getPosition().z * Chunk.SIZE;
 
-                                if (worldX == -32 && worldZ == -31) {
-                                    System.out.println("??!!!!");
-                                }
-
                                 Material material = Material.getMaterialById(chunk.getBlock(x, y, z));
                                 Node node = new Node(worldX, worldZ, material.isSolid());
 
-                                graph.addNode(node);
+                                synchronized (world.getGraph()) {
+                                    graph.addNode(node);
+                                }
                             }
                         }
                     }
@@ -104,6 +102,10 @@ public class AStar {
         adjacentsNode.add(new Node(position.x + 1, position.y, false));
         adjacentsNode.add(new Node(position.x, position.y - 1, false));
         adjacentsNode.add(new Node(position.x, position.y + 1, false));
+        adjacentsNode.add(new Node(position.x + 1, position.y + 1, false));
+        adjacentsNode.add(new Node(position.x - 1, position.y + 1, false));
+        adjacentsNode.add(new Node(position.x - 1, position.y - 1, false));
+        adjacentsNode.add(new Node(position.x + 1, position.y - 1, false));
 
         return adjacentsNode;
     }
@@ -120,19 +122,22 @@ public class AStar {
         return path;
     }
 
-    public static List<Node> shortestPath(Graph graph, Node start, Node goal) {
+    public static List<Node> shortestPath(World world, Node start, Node goal) {
+        Graph graph = world.getGraph();
 
-        for (Node node : graph.getNodes().keySet()) {
-            node.setCost((float) node.getPosition().distance(start.getPosition()));
-            node.setHeuristic((float) node.getPosition().distance(goal.getPosition()));
+        synchronized (world.getGraph()) {
+            for (Node node : graph.getNodes().keySet()) {
+                node.setGCost((float) node.getPosition().distance(start.getPosition()));
+                node.setHCost((float) node.getPosition().distance(goal.getPosition()));
+            }
         }
 
         Set<Node> closedList = new HashSet<>();
-        PriorityQueue<Node> openList = new PriorityQueue<>(new NodeComparator());
+        PriorityQueue<Node> openList = new PriorityQueue<>(Comparator.comparing(Node::getFCost));
         openList.add(start);
 
-        start.setCost(0);
-        start.setHeuristic((float) start.getPosition().distance(goal.getPosition()));
+        start.setGCost(0);
+        start.setHCost((float) start.getPosition().distance(goal.getPosition()));
 
         while (!openList.isEmpty()) {
             Node current = openList.poll();
@@ -152,13 +157,15 @@ public class AStar {
                         continue;
                     }
 
-                    float newScore = current.getCost() + (float) current.getPosition().distance(neighbor.getPosition());
+                    float newScore = current.getGCost() + (float) current.getPosition().distance(neighbor.getPosition());
 
-                    if (!closedList.contains(neighbor) || newScore < neighbor.getCost()) {
+                    if (!closedList.contains(neighbor) || newScore < neighbor.getGCost()) {
                         neighbor.setParent(current);
-                        neighbor.setCost(neighbor.getCost() + 1);
-                        neighbor.setHeuristic(neighbor.getHeuristic() + newScore);
-                        openList.add(neighbor);
+                        neighbor.setGCost(newScore);
+                        neighbor.setFCost(neighbor.getHCost() + newScore);
+                        if (!openList.contains(neighbor)) {
+                            openList.add(neighbor);
+                        }
                     }
                 }
             }

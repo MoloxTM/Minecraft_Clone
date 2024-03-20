@@ -71,6 +71,9 @@ public class PlayerMovementHandler {
         lastServerState.verifyBrokenBlocks(world, payload.getBreakedBlockData());
         lastServerState.reconcileInventory(player);
 
+        player.setHealth(lastServerState.getHealth());
+        player.setMaxHealth(lastServerState.getMaxHealth());
+
         if (positionError > 0.001f) {
             Camera camera = Game.getInstance().getCamera();
             System.out.println("[Reconciliation] ServerTick : " + serverTick + " ClientTick : " + currentTick + " Error : " + positionError + " ServerPosition " + serverPosition + " PayloadPosition " + payload.getPosition());

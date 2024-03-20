@@ -6,17 +6,14 @@ import fr.math.minecraft.shared.entity.mob.Zombie;
 import org.joml.Math;
 
 
-public class ZombieWalkAnimation extends Animation{
+public class ZombieWalkAnimation extends Animation {
 
-    private float handRotation;
     private float legRotation;
-    private final Zombie zombie;
-    private final static float HAND_WALKING_ANIMATION_SPEED = 5.0f;
+    private final static float HAND_WALKING_ANIMATION_SPEED = 3.0f;
     private final static float MAX_HAND_ROTATION_ANGLE = 35.0f;
-
+    private final Zombie zombie;
 
     public ZombieWalkAnimation(Zombie zombie) {
-        this.handRotation = 90.0f;
         this.legRotation = 0.0f;
         this.zombie = zombie;
     }
@@ -35,7 +32,6 @@ public class ZombieWalkAnimation extends Animation{
 
     @Override
     public void sendUniforms(Shader shader) {
-        shader.sendFloat("handRotation", Math.toRadians(legRotation));
-
+        shader.sendFloat("legRotation", Math.toRadians(legRotation));
     }
 }

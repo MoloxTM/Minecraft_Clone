@@ -64,6 +64,8 @@ public class Client {
     private final static Logger logger = LoggerUtility.getServerLogger(Client.class, LogType.TXT);
     private final PlayerInventory inventory;
     private final Hotbar hotbar;
+    private float health;
+    private float maxHealth;
     private final static float JUMP_VELOCITY = .125f;
 
 
@@ -72,6 +74,8 @@ public class Client {
         this.port = port;
         this.uuid = uuid;
         this.name = name;
+        this.health = 20.0f;
+        this.maxHealth = 20.0f;
         this.velocity = new Vector3f();
         this.inputQueue = new LinkedList<>();
         this.gravity = new Vector3f(0, -0.0025f, 0);
@@ -446,6 +450,8 @@ public class Client {
         node.put("yaw", this.yaw);
         node.put("pitch", this.pitch);
         node.put("bodyYaw", this.bodyYaw);
+        node.put("health", this.health);
+        node.put("maxHealth", this.maxHealth);
 
         return node;
     }
@@ -563,5 +569,21 @@ public class Client {
 
     public float getMaxSpeed() {
         return maxSpeed;
+    }
+
+    public float getHealth() {
+        return health;
+    }
+
+    public void setHealth(float health) {
+        this.health = health;
+    }
+
+    public float getMaxHealth() {
+        return maxHealth;
+    }
+
+    public void setMaxHealth(float maxHealth) {
+        this.maxHealth = maxHealth;
     }
 }

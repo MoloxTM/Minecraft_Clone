@@ -17,6 +17,7 @@ import fr.math.minecraft.client.network.payload.ChatPayload;
 import fr.math.minecraft.client.texture.CubemapTexture;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
+import fr.math.minecraft.server.pathfinding.Node;
 import fr.math.minecraft.shared.ChatMessage;
 import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.shared.Sprite;
@@ -69,6 +70,7 @@ public class Renderer {
     private final Shader itemShader;
     private final Shader selectedBlockShader;
     private final Shader villagerShader;
+    private final Shader zombieShader;
     private final Shader hitboxShader;
     private final Texture terrainTexture;
     private final Texture skinTexture;
@@ -135,6 +137,7 @@ public class Renderer {
         this.fontManager = new FontManager();
 
         this.playerShader = new Shader("res/shaders/player.vert", "res/shaders/player.frag");
+        this.zombieShader = new Shader("res/shaders/zombie.vert", "res/shaders/player.frag");
         this.chunkShader = new Shader("res/shaders/chunk.vert", "res/shaders/chunk.frag");
         this.fontShader = new Shader("res/shaders/font.vert", "res/shaders/font.frag");
         this.nametagShader = new Shader("res/shaders/nametag.vert", "res/shaders/nametag.frag");
@@ -241,17 +244,34 @@ public class Renderer {
 
     public void render(Camera camera, Zombie zombie) {
 
-        playerShader.enable();
-        playerShader.sendInt("uTexture", zombieTexture.getSlot());
+        zombieShader.enable();
+        zombieShader.sendInt("uTexture", zombieTexture.getSlot());
 
         zombieTexture.activeSlot();
         zombieTexture.bind();
 
-        camera.matrix(playerShader, zombie);
+        camera.matrix(zombieShader, zombie);
 
         playerMesh.draw();
-
         zombieTexture.unbind();
+
+        if (zombie.getPattern() != null && !zombie.getPattern().getPath().isEmpty()) {
+            handBlockShader.enable();
+            handBlockShader.sendInt("uTexture", terrainTexture.getSlot());
+            terrainTexture.activeSlot();
+            terrainTexture.bind();
+
+            for (Node node : zombie.getPattern().getPath()) {
+                Vector3f pathWorldPosition = new Vector3f(node.getPosition().x, 11, node.getPosition().y);
+                camera.matrixInWorld(handBlockShader, pathWorldPosition);
+
+                handBlockMesh.update(handBlockShader, Material.DEBUG);
+
+                handBlockMesh.draw();
+            }
+
+            terrainTexture.unbind();
+        }
     }
 
     public void renderNametag(Camera camera, Entity entity) {
@@ -805,8 +825,6 @@ public class Renderer {
         }
 
         int filledHearts = (int) player.getHealth() / 2;
-        float missingHearts = player.getMaxHealth() - player.getHealth();
-
         imageShader.enable();
         glActiveTexture(GL_TEXTURE0 + iconsTexture.getSlot());
         iconsTexture.bind();
@@ -816,18 +834,43 @@ public class Renderer {
 
         imageMesh.texSubImage(16 + 4 * iconSize, 256.0f - iconSize, iconSize, iconSize, 256.0f, 256.0f);
 
-        for (int i = 0; i < filledHearts; i++) {
+        int currentHeart = 0;
+        while (currentHeart < filledHearts) {
             imageShader.sendFloat("depth", -10);
             imageMesh.texSubImage(16 + 0 * iconSize, 256.0f - iconSize, iconSize, iconSize, 256.0f, 256.0f);
-            imageMesh.translate(imageShader, hotbarX + i * iconSize * scale, hotbarY + hotbarHeight * scale + 5, iconSize * scale, iconSize * scale);
+            imageMesh.translate(imageShader, hotbarX + currentHeart * iconSize * scale, hotbarY + hotbarHeight * scale + 5, iconSize * scale, iconSize * scale);
             camera.matrixOrtho(imageShader, 0, 0);
             imageMesh.draw();
 
             imageShader.sendFloat("depth", -9);
             imageMesh.texSubImage(16 + 4 * iconSize, 256.0f - iconSize, iconSize, iconSize, 256.0f, 256.0f);
-            imageMesh.translate(imageShader, hotbarX + i * iconSize * scale, hotbarY + hotbarHeight * scale + 5, iconSize * scale, iconSize * scale);
+            imageMesh.translate(imageShader, hotbarX + currentHeart * iconSize * scale, hotbarY + hotbarHeight * scale + 5, iconSize * scale, iconSize * scale);
             camera.matrixOrtho(imageShader, 0, 0);
             imageMesh.draw();
+            currentHeart++;
+        }
+
+        if (player.getHealth() % 5 == 0.5f) {
+            imageShader.sendFloat("depth", -10);
+            imageMesh.texSubImage(16 + 0 * iconSize, 256.0f - iconSize, iconSize, iconSize, 256.0f, 256.0f);
+            imageMesh.translate(imageShader, hotbarX + currentHeart * iconSize * scale, hotbarY + hotbarHeight * scale + 5, iconSize * scale, iconSize * scale);
+            camera.matrixOrtho(imageShader, 0, 0);
+            imageMesh.draw();
+
+            imageShader.sendFloat("depth", -9);
+            imageMesh.texSubImage(16 + 5 * iconSize, 256.0f - iconSize, iconSize, iconSize, 256.0f, 256.0f);
+            imageMesh.translate(imageShader, hotbarX + currentHeart * iconSize * scale, hotbarY + hotbarHeight * scale + 5, iconSize * scale, iconSize * scale);
+            camera.matrixOrtho(imageShader, 0, 0);
+            imageMesh.draw();
+        }
+
+        while (currentHeart < player.getMaxHealth() / 2.0f) {
+            imageShader.sendFloat("depth", -9);
+            imageMesh.texSubImage(16 + 4 * iconSize, 256.0f - iconSize * 2, iconSize, iconSize, 256.0f, 256.0f);
+            imageMesh.translate(imageShader, hotbarX + currentHeart * iconSize * scale, hotbarY + hotbarHeight * scale + 5, iconSize * scale, iconSize * scale);
+            camera.matrixOrtho(imageShader, 0, 0);
+            imageMesh.draw();
+            currentHeart++;
         }
 
         iconsTexture.unbind();

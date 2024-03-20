@@ -1,6 +1,7 @@
 package fr.math.minecraft.shared.entity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.Camera;
 import fr.math.minecraft.client.Renderer;
@@ -9,6 +10,8 @@ import fr.math.minecraft.client.events.PlayerMoveEvent;
 import fr.math.minecraft.client.events.listeners.EntityUpdate;
 import fr.math.minecraft.client.events.listeners.EventListener;
 import fr.math.minecraft.client.meshs.NametagMesh;
+import fr.math.minecraft.logger.LogType;
+import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.server.Client;
 import fr.math.minecraft.server.MinecraftServer;
 import fr.math.minecraft.server.pathfinding.AStar;
@@ -24,15 +27,11 @@ import fr.math.minecraft.shared.network.Hitbox;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.shared.world.World;
+import org.apache.log4j.Logger;
+import org.joml.*;
 import org.joml.Math;
-import org.joml.Vector2i;
-import org.joml.Vector3f;
-import org.joml.Vector3i;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class Entity {
 
@@ -56,8 +55,10 @@ public abstract class Entity {
     protected Inventory inventory;
     protected EntityType type;
     protected boolean canJump;
+    protected float damage;
     private Pattern pattern;
     private int patternUpdateCooldown;
+    private final static Logger logger = LoggerUtility.getClientLogger(Entity.class, LogType.TXT);
     public Entity(String uuid, EntityType type) {
         this.type = type;
         this.position = new Vector3f(0.0f, 100.0f, 0.0f);
@@ -81,6 +82,7 @@ public abstract class Entity {
         this.mobType = null;
         this.nametagMesh = new NametagMesh(name);
         this.canJump = false;
+        this.damage = 0.0f;
         this.patternUpdateCooldown = 0;
     }
 
@@ -128,18 +130,24 @@ public abstract class Entity {
             synchronized (server.getClients()) {
                 for (Client client : clients.values()) {
                     float clientDistance = client.getPosition().distance(position);
-                    if (1 < clientDistance && clientDistance < 10) {
+                    if (clientDistance < 1) {
+                        client.setHealth(client.getHealth() - damage);
+                        logger.debug("Un " + type.getName() + " a attaqué " + client.getName() + " (" + client.getUuid() + ") " + client.getHealth() + "/" + client.getMaxHealth());
+                        continue;
+                    }
+                    if (clientDistance < 10) {
                         Node start = new Node(new Vector3f(position), false);
                         Node end = new Node(new Vector3f(client.getPosition()), false);
-                        pattern = new Pattern(AStar.shortestPath(world.getGraph(), start, end));
+                        Vector2f entityPosition = new Vector2f(position.x, position.z);
+                        Vector2f direction = new Vector2f(client.getPosition().x, client.getPosition().z).sub(entityPosition);
+                        pattern = new Pattern(AStar.shortestPath(world, start, end), start, end);
+                        yaw = (float) Math.toDegrees(java.lang.Math.atan(direction.y / direction.x));
                         break;
                     }
                 }
             }
             patternUpdateCooldown = 0;
-            System.out.println("Mis à jour du pattern !");
         }
-
 
         Vector3f acceleration = new Vector3f(0, 0, 0);
         Vector3f front = new Vector3f();
@@ -155,11 +163,13 @@ public abstract class Entity {
         if (pattern != null && !pattern.getPath().isEmpty()) {
             Node currentNode = pattern.getPath().get(0);
             if (currentNode != null) {
-                Vector3f entityPosition = new Vector3f(position.x, 0, position.z);
-                Vector3f direction = new Vector3f(currentNode.getPosition().x, 0, currentNode.getPosition().y).sub(entityPosition);
-                acceleration.add(new Vector3f(direction.x, 0, direction.z));
+                Vector2f entityPosition = new Vector2f(position.x, position.z);
+                Vector2f direction = new Vector2f(currentNode.getPosition()).sub(entityPosition);
+                if (direction.x != 0 && direction.y != 0) {
+                    direction.normalize();
+                }
+                acceleration.add(direction.x, 0, direction.y);
             }
-
         }
 
         velocity.add(acceleration.mul(speed));
@@ -182,15 +192,21 @@ public abstract class Entity {
 
         if (pattern != null && !pattern.getPath().isEmpty()) {
             float distance = (float) new Vector2i((int) position.x, (int) position.z).distance(pattern.getPath().get(0).getPosition());
-            System.out.println("distance : " + distance);
+            //System.out.println("distance : " + distance);
             if (distance <= 1.0) {
                 pattern = pattern.next();
             }
         }
     }
 
+    public void updateAnimations() {
+        for (Animation animation : animations) {
+            animation.update();
+        }
+    }
+
     public void lerpPosition() {
-        //this.updateAnimations();
+        this.updateAnimations();
         GameConfiguration gameConfiguration = GameConfiguration.getInstance();
 
         if (gameConfiguration.isEntityInterpolationEnabled()) {
@@ -258,6 +274,7 @@ public abstract class Entity {
     public ObjectNode toJSONObject() {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode entityNode = mapper.createObjectNode();
+        ArrayNode pathArrayNode = mapper.createArrayNode();
 
         entityNode.put("type", "ENTITY_STATE");
         entityNode.put("entityType", type.toString());
@@ -272,6 +289,16 @@ public abstract class Entity {
         entityNode.put("health", health);
         entityNode.put("maxHealth", maxHealth);
 
+        if (pattern != null && !pattern.getPath().isEmpty()) {
+            for (Node node : pattern.getPath()) {
+                ObjectNode pathNode = mapper.createObjectNode();
+                pathNode.put("x", node.getPosition().x);
+                pathNode.put("y", node.getPosition().y);
+                pathArrayNode.add(pathNode);
+            }
+        }
+
+        entityNode.set("path", pathArrayNode);
         return entityNode;
     }
 
@@ -443,5 +470,13 @@ public abstract class Entity {
 
     public EntityType getType() {
         return type;
+    }
+
+    public Pattern getPattern() {
+        return pattern;
+    }
+
+    public void setPattern(Pattern pattern) {
+        this.pattern = pattern;
     }
 }

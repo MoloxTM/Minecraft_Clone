@@ -8,8 +8,10 @@ import fr.math.minecraft.shared.entity.EntityFactory;
 import fr.math.minecraft.shared.entity.EntityType;
 import fr.math.minecraft.shared.entity.mob.Zombie;
 import fr.math.minecraft.shared.world.Chunk;
+import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.shared.world.World;
 import org.joml.Vector3f;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -17,29 +19,40 @@ import java.util.List;
 
 public class TestPathfinding {
 
+    private World world;
+
+    @Before
+    public void prepareWorld() {
+        world = new World();
+        Chunk chunk = new Chunk(0, 0, 0);
+
+        for (int x = 0; x < Chunk.SIZE; x++) {
+            for (int z = 0; z < Chunk.SIZE; z++) {
+                for (int y = 0; y < Chunk.SIZE; y++) {
+
+                    int worldY = y + chunk.getPosition().y * Chunk.SIZE;
+
+                    if (worldY <= 10) {
+                        chunk.setBlock(x, y, z, Material.STONE.getId());
+                    }
+                }
+            }
+        }
+
+        world.addChunk(chunk);
+    }
+
     @Test
     public void testPathFinding() {
-        /*
-        World world = new World();
-        world.buildSpawn();
-        world.calculateSpawnPosition();
         Entity zombie = EntityFactory.createEntity(EntityType.ZOMBIE);
-        zombie.setPosition(new Vector3f(world.getSpawnPosition()).add(0, 5, 0));
+        zombie.setPosition(new Vector3f(0, 0, 0));
         world.addEntity(zombie);
         AStar.initGraph(world, zombie.getPosition());
         Node start = new Node(zombie.getPosition(), false);
-        Node end = new Node(new Vector3f(zombie.getPosition()).add(10, 0, 0), false);
-        List<Node> path = AStar.shortestPath(world.getGraph(), start, end);
+        Node end = new Node(new Vector3f(zombie.getPosition()).add(10, 0, 4), false);
+        List<Node> path = AStar.shortestPath(world, start, end);
 
         System.out.println(Arrays.toString(path.toArray()));
-         */
-
-        Vector3f position = new Vector3f(10, 0, -1);
-        Node currentNode = new Node(0, 0, false);
-
-        Vector3f nodePosition = new Vector3f(currentNode.getPosition().x, 0, currentNode.getPosition().y);
-        Vector3f direction = new Vector3f(position.x, 0, position.z).sub(nodePosition);
-        System.out.println(direction);
     }
 
     @Test

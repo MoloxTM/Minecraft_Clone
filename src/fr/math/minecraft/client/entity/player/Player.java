@@ -62,7 +62,6 @@ public class Player extends Entity {
     private GameMode gameMode;
     private String skinPath;
     private final PlayerHand hand;
-    private EntityUpdate lastUpdate;
     private int breakBlockCooldown, placeBlockCooldown;
     private final Ray attackRay, buildRay, breakRay;
     private final List<PlacedBlock> placedBlocks;
@@ -383,13 +382,6 @@ public class Player extends Entity {
         droppingItem = false;
     }
 
-    public void updateAnimations() {
-        for (Animation animation : animations) {
-            animation.update();
-        }
-        // hotbar.getAnimation().update();
-    }
-
     public void update() {
         this.updateAnimations();
         GameConfiguration gameConfiguration = GameConfiguration.getInstance();
@@ -643,14 +635,6 @@ public class Player extends Entity {
 
     public PlayerHand getHand() {
         return hand;
-    }
-
-    public EntityUpdate getLastUpdate() {
-        return lastUpdate;
-    }
-
-    public void setLastUpdate(EntityUpdate lastUpdate) {
-        this.lastUpdate = lastUpdate;
     }
 
     public float getMaxFallSpeed() {

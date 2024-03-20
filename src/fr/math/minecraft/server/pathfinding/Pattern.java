@@ -6,16 +6,18 @@ public class Pattern {
 
     private List<Node> path;
     private int currentIndex;
+    private final Node start, end;
 
-    public Pattern(List<Node> path) {
+    public Pattern(List<Node> path, Node start, Node end) {
         this.path = path;
         this.currentIndex = 0;
+        this.start = start;
+        this.end = end;
     }
 
     public void setPath(List<Node> path) {
         this.path = path;
     }
-
 
     public List<Node> getPath() {
         return path;
@@ -42,5 +44,13 @@ public class Pattern {
 
     public void setCurrentIndex(int currentIndex) {
         this.currentIndex = currentIndex;
+    }
+
+    public Node getStart() {
+        return start;
+    }
+
+    public Node getEnd() {
+        return end;
     }
 }

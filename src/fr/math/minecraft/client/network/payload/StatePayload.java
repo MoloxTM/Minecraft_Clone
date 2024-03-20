@@ -31,7 +31,7 @@ public class StatePayload {
     private Vector3f velocity;
     private List<BreakedBlock> breakedBlockData;
     private List<PlacedBlock> placedBlocks;
-    private float yaw, pitch;
+    private float yaw, pitch, health, maxHealth;
     private ArrayNode inventoryItems, hotbarItems;
     private final static Logger logger = LoggerUtility.getClientLogger(StatePayload.class, LogType.TXT);
 
@@ -65,6 +65,8 @@ public class StatePayload {
         velocity.z = stateData.get("vz").floatValue();
         yaw = stateData.get("yaw").floatValue();
         pitch = stateData.get("pitch").floatValue();
+        health = stateData.get("health").floatValue();
+        maxHealth = stateData.get("maxHealth").floatValue();
     }
 
     public void reconcileMovement(World world, Player player, Vector3f playerPosition, Vector3f playerVelocity) {
@@ -285,6 +287,14 @@ public class StatePayload {
 
     public float getPitch() {
         return pitch;
+    }
+
+    public float getHealth() {
+        return health;
+    }
+
+    public float getMaxHealth() {
+        return maxHealth;
     }
 
     public Vector3f getVelocity() {

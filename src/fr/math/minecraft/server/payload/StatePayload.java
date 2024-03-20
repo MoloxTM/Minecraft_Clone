@@ -28,6 +28,7 @@ public class StatePayload {
     private Vector3f velocity;
     private float yaw;
     private float pitch;
+    private float health, maxHealth;
     private List<PlacedBlock> placedBlocks;
     private List<BreakedBlock> brokenBlocks;
     private Inventory inventory;
@@ -42,6 +43,8 @@ public class StatePayload {
         this.data = null;
         this.yaw = 0.0f;
         this.pitch = 0.0f;
+        this.health = 0.0f;
+        this.maxHealth = 0.0f;
     }
 
     public void predictMovement(World world, Client client) {
@@ -124,6 +127,8 @@ public class StatePayload {
         this.pitch = client.getPitch();
         this.position = newPosition;
         this.velocity = newVelocity;
+        this.health = client.getHealth();
+        this.maxHealth = client.getMaxHealth();
     }
 
     public void send() {
@@ -166,6 +171,8 @@ public class StatePayload {
         payloadNode.put("yaw", yaw);
         payloadNode.put("pitch", pitch);
         payloadNode.put("uuid", payload.getClientUuid());
+        payloadNode.put("health", health);
+        payloadNode.put("maxHealth", maxHealth);
 
         for (PlacedBlock placedBlock : placedBlocks) {
             Vector3i blockPosition = placedBlock.getWorldPosition();

@@ -9,7 +9,7 @@ import java.util.Objects;
 
 public class Node {
 
-    private float cost;
+    private float gCost, fCost, hCost;
     private float heuristic;
     private boolean solid;
     private final Vector2i position;
@@ -29,7 +29,9 @@ public class Node {
 
     public Node(Vector2i position, boolean solid) {
         this.position = position;
-        this.cost = -1;
+        this.gCost = -1;
+        this.hCost = -1;
+        this.fCost = -1;
         this.heuristic = -1;
         this.solid = solid;
         this.parent = null;
@@ -39,20 +41,28 @@ public class Node {
         return position;
     }
 
-    public void setCost(float cost) {
-        this.cost = cost;
+    public float getGCost() {
+        return gCost;
     }
 
-    public float getCost() {
-        return cost;
+    public void setGCost(float gCost) {
+        this.gCost = gCost;
     }
 
-    public void setHeuristic(float heuristic) {
-        this.heuristic = heuristic;
+    public float getFCost() {
+        return fCost;
     }
 
-    public float getHeuristic() {
-        return heuristic;
+    public void setFCost(float fCost) {
+        this.fCost = fCost;
+    }
+
+    public float getHCost() {
+        return hCost;
+    }
+
+    public void setHCost(float hCost) {
+        this.hCost = hCost;
     }
 
     public boolean isSolid() {
@@ -71,7 +81,6 @@ public class Node {
     public String toString() {
         return "Node{" +
                 ", position=" + position +
-                "cost=" + cost +
                 ", heuristic=" + heuristic +
                 ", solid=" + solid +
                 '}';

@@ -30,6 +30,8 @@ public class Zombie extends Entity {
         super(UUID.randomUUID().toString(), EntityType.ZOMBIE);
         this.name = name;
         this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 1.0f, 0.25f));
+        animations.add(new ZombieWalkAnimation(this));
+        this.damage = 1.0f;
     }
 
     @Override
