@@ -63,34 +63,24 @@ public class ForestBiome extends AbstractBiome {
             StructureBuilder.buildBallonTree(structure, worldX, worldY, worldZ, Material.OAK_LOG, Material.OAK_LEAVES);
             structure.getStructures().add(coordinates);
         }
-
-        /*
-        if(dropRate <= ForestBiome.TREE_DROP_RATE) {
-            if (dropRate <= ForestBiome.TREE_DROP_RATE * 0.07f) {
-                StructureBuilder.buildFancyTree(structure, worldX, worldY, worldZ, Material.OAK_LOG, Material.OAK_LEAVES);
-            } else if(dropRate <= ForestBiome.TREE_DROP_RATE * 0.25f) {
-                StructureBuilder.buildBallonTree(structure, worldX, worldY, worldZ, Material.OAK_LOG, Material.OAK_LEAVES);
-            } else {
-                if(dropRate >= ForestBiome.TREE_DROP_RATE * 0.9f) {
-                    StructureBuilder.buildSimpleTree(structure, worldX, worldY, worldZ, Material.BIRCH_LOG, Material.BIRCH_LEAVES, dropRate, ForestBiome.TREE_DROP_RATE);
-                } else {
-                    StructureBuilder.buildSimpleTree(structure, worldX, worldY, worldZ, Material.OAK_LOG, Material.OAK_LEAVES, dropRate, ForestBiome.TREE_DROP_RATE);
-                }
-            }
-            structure.getStructures().add(coordinates);
-        }
-         */
     }
 
     @Override
     public void buildWeeds(int worldX, int worldY, int worldZ, Structure structure, World world) {
+
+        Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
+
         if (worldY <= OverworldGenerator.WATER_LEVEL) {
+            return;
+        }
+
+        if(structure.getStructureMap().containsKey(coordinates)) {
             return;
         }
 
         float weedNoiseValue = weedNoise.getNoise(worldX, worldZ);
 
-        if (weedNoiseValue < .23f) {
+        if (weedNoiseValue < 0.23f) {
             StructureBuilder.buildWeed(world,structure, worldX, worldY, worldZ, weedNoiseValue);
         }
     }

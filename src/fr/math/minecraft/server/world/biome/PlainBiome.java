@@ -59,24 +59,32 @@ public class PlainBiome extends AbstractBiome{
 
     @Override
     public void buildWeeds(int worldX, int worldY, int worldZ, Structure structure, World world) {
+
+        Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
+
         if (worldY <= OverworldGenerator.WATER_LEVEL) {
+            return;
+        }
+
+        if(structure.getStructureMap().containsKey(coordinates)) {
             return;
         }
 
         float weedNoiseValue = weedNoise.getNoise(worldX, worldZ);
 
-        if (weedNoiseValue < .23f && world.getBlockAt(worldX,worldY,worldZ)==Material.GRASS.getId()) {
+        if (weedNoiseValue < 0.23f) {
             StructureBuilder.buildWeed(world,structure, worldX, worldY, worldZ, weedNoiseValue);
         }
     }
 
     @Override
     public void buildVillage(int worldX, int worldY, int worldZ, Structure structure, World world, Region region){
+        if (worldY <= OverworldGenerator.WATER_LEVEL) {
+            return;
+        }
         Vector3i regionPosition = region.getPosition();
         int houseCount=0;
         int maxHousePerVillage=5;
-        Vector3i beginningCoordinate= new Vector3i(worldX,worldY,worldZ);
-        Vector3i endCoordinate= new Vector3i(worldX,worldY,worldZ);
 
         for (int i = regionPosition.x; i < (Region.SIZE * Chunk.SIZE)+ regionPosition.x-6; i+=9) {
             for (int j = regionPosition.z; j < (Region.SIZE *Chunk.SIZE)+ regionPosition.z-9; j+=11) {
@@ -99,11 +107,6 @@ public class PlainBiome extends AbstractBiome{
     public boolean canBuildHouse(int worldX, int worldY, int worldZ){
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                /*
-                if((int)this.getHeight(worldX+i,worldZ+j)!=worldY){
-                    return false;
-                }
-                */
                 if((int)this.getHeight(worldX+i,worldZ+j)!=worldY) {
                     return false;
                 }

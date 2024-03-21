@@ -11,6 +11,8 @@ import org.joml.Vector3i;
 
 public class DesertBiome extends AbstractBiome{
 
+    private static int noiseOffset = (Chunk.SIZE / 2) - 1;
+
     public DesertBiome() {
         this.noise = new NoiseGenerator(9, 30, 500.0f, .5f, 25);
         this.treeNoise = new NoiseGenerator(4, 25, 0.001f, 0.31f, 0);
@@ -31,41 +33,51 @@ public class DesertBiome extends AbstractBiome{
     @Override
     public void buildTree(int worldX, int worldY, int worldZ, Structure structure, World world) {
 
-        Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
-        //Calul distance
-        for (Coordinates coordinates1 : structure.getStructureMap().keySet()) {
-            double dist = Utils.distance(coordinates, coordinates1);
-            if (dist <= 20) return;
+        Coordinates coordinates = new Coordinates(worldX + noiseOffset, worldY, worldZ + noiseOffset);
+
+        if(structure.getStructureMap().containsKey(coordinates)) {
+            return;
         }
 
-        RandomSeed randomSeed = RandomSeed.getInstance();
-        float dropRate = randomSeed.nextFloat() * 100.0f;
-        if(dropRate < 0.3f) {
+        if(worldY <= OverworldGenerator.WATER_LEVEL) {
+            return;
+        }
+
+        float treeNoiseValue = treeNoise.getNoise(worldX + noiseOffset, worldZ + noiseOffset);
+
+        if(treeNoiseValue < 0.1f) {
             StructureBuilder.buildSimpleCactus(structure, worldX, worldY, worldZ);
-            structure.getStructures().add(coordinates);
         }
     }
 
     @Override
     public void buildWeeds(int worldX, int worldY, int worldZ, Structure structure, World world) {
+
+        Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
+
         if (worldY <= OverworldGenerator.WATER_LEVEL) {
+            return;
+        }
+
+        if(structure.getStructureMap().containsKey(coordinates)) {
             return;
         }
 
         float weedNoiseValue = weedNoise.getNoise(worldX, worldZ);
 
         if (weedNoiseValue < 0.1f) {
-            StructureBuilder.buildDeadBush(structure, worldX, worldY, worldZ);
+            StructureBuilder.buildWeed(world,structure, worldX, worldY, worldZ, weedNoiseValue);
         }
     }
 
     @Override
     public void buildVillage(int worldX, int worldY, int worldZ, Structure structure, World world, Region region) {
+        if (worldY <= OverworldGenerator.WATER_LEVEL) {
+            return;
+        }
         Vector3i regionPosition = region.getPosition();
         int houseCount=0;
         int maxHousePerVillage=5;
-        Vector3i beginningCoordinate= new Vector3i(worldX,worldY,worldZ);
-        Vector3i endCoordinate= new Vector3i(worldX,worldY,worldZ);
 
         for (int i = regionPosition.x; i < (Region.SIZE * Chunk.SIZE)+ regionPosition.x; i+=9) {
             for (int j = regionPosition.z; j < (Region.SIZE *Chunk.SIZE)+ regionPosition.z; j+=11) {
@@ -88,11 +100,7 @@ public class DesertBiome extends AbstractBiome{
     public boolean canBuildHouse(int worldX, int worldY, int worldZ){
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                /*
-                if((int)this.getHeight(worldX+i,worldZ+j)!=worldY){
-                    return false;
-                }
-                */
+
                 if((int)this.getHeight(worldX+i,worldZ+j)!=worldY) {
                     return false;
                 }
