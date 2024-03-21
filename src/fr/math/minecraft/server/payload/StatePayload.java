@@ -28,7 +28,7 @@ public class StatePayload {
     private Vector3f velocity;
     private float yaw;
     private float pitch;
-    private float health, maxHealth;
+    private float health, maxHealth, maxSpeed;
     private List<PlacedBlock> placedBlocks;
     private List<BreakedBlock> brokenBlocks;
     private Inventory inventory;
@@ -129,6 +129,7 @@ public class StatePayload {
         this.velocity = newVelocity;
         this.health = client.getHealth();
         this.maxHealth = client.getMaxHealth();
+        this.maxSpeed = client.getMaxSpeed();
     }
 
     public void send() {
@@ -173,6 +174,7 @@ public class StatePayload {
         payloadNode.put("uuid", payload.getClientUuid());
         payloadNode.put("health", health);
         payloadNode.put("maxHealth", maxHealth);
+        payloadNode.put("maxSpeed", maxSpeed);
 
         for (PlacedBlock placedBlock : placedBlocks) {
             Vector3i blockPosition = placedBlock.getWorldPosition();

@@ -149,6 +149,7 @@ public class Client {
                         this.velocity.y = 0;
                     } else if (velocity.y < 0) {
                         canJump = true;
+                        this.maxSpeed = 0.03f;
                         position.y = worldY + hitbox.getHeight() + 1;
                         this.velocity.y = 0;
                     }
@@ -209,6 +210,7 @@ public class Client {
                     world.getDroppedItems().put(droppedItem.getUuid(), droppedItem);
                     logger.info(name + "(" + uuid + ") " + " a drop un item de " + hotbarItem.getMaterial());
                     hotbarItem.setAmount(itemAmount - 1);
+
                     if (hotbarItem.getAmount() == 0) {
                         hotbar.setItem(null, hotbar.getSelectedSlot());
                         //hotbar.setItem(new ItemStack(Material.DIRT, 1), 0);
@@ -252,7 +254,6 @@ public class Client {
                     canJump = false;
                 }
             }
-
 
             velocity.add(acceleration.mul(speed));
 
@@ -454,6 +455,10 @@ public class Client {
         node.put("maxHealth", this.maxHealth);
 
         return node;
+    }
+
+    public void setMaxSpeed(float maxSpeed) {
+        this.maxSpeed = maxSpeed;
     }
 
     public Vector3f getVelocity() {

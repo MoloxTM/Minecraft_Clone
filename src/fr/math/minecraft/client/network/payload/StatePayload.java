@@ -31,7 +31,7 @@ public class StatePayload {
     private Vector3f velocity;
     private List<BreakedBlock> breakedBlockData;
     private List<PlacedBlock> placedBlocks;
-    private float yaw, pitch, health, maxHealth;
+    private float yaw, pitch, health, maxHealth, maxSpeed;
     private ArrayNode inventoryItems, hotbarItems;
     private final static Logger logger = LoggerUtility.getClientLogger(StatePayload.class, LogType.TXT);
 
@@ -67,6 +67,7 @@ public class StatePayload {
         pitch = stateData.get("pitch").floatValue();
         health = stateData.get("health").floatValue();
         maxHealth = stateData.get("maxHealth").floatValue();
+        maxSpeed = stateData.get("maxSpeed").floatValue();
     }
 
     public void reconcileMovement(World world, Player player, Vector3f playerPosition, Vector3f playerVelocity) {
@@ -243,7 +244,6 @@ public class StatePayload {
             BreakedBlock breakedBlock = new BreakedBlock(position, block);
             this.breakedBlockData.add(breakedBlock);
         }
-
     }
 
     public void extractPlacedBlocks(JsonNode data) {
@@ -275,6 +275,10 @@ public class StatePayload {
 
     public InputPayload getInputPayload() {
         return payload;
+    }
+
+    public void setVelocity(Vector3f velocity) {
+        this.velocity = velocity;
     }
 
     public void setPosition(Vector3f position) {
@@ -324,4 +328,9 @@ public class StatePayload {
     public ArrayNode getInventoryItems() {
         return inventoryItems;
     }
+
+    public float getMaxSpeed() {
+        return maxSpeed;
+    }
+
 }

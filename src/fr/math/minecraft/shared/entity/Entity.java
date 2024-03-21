@@ -32,6 +32,7 @@ import org.joml.*;
 import org.joml.Math;
 
 import java.util.*;
+import java.util.Random;
 
 public abstract class Entity {
 
@@ -130,8 +131,12 @@ public abstract class Entity {
             synchronized (server.getClients()) {
                 for (Client client : clients.values()) {
                     float clientDistance = client.getPosition().distance(position);
-                    if (clientDistance < 1) {
+                    if (clientDistance < 1.0f) {
                         client.setHealth(client.getHealth() - damage);
+                        client.getVelocity().y = 0.25f;
+                        client.getVelocity().x = .4f;
+                        client.getVelocity().z = .4f;
+                        client.setMaxSpeed(.4f);
                         logger.debug("Un " + type.getName() + " a attaqué " + client.getName() + " (" + client.getUuid() + ") " + client.getHealth() + "/" + client.getMaxHealth());
                         continue;
                     }
@@ -257,6 +262,7 @@ public abstract class Entity {
                     } else if (velocity.y < 0) {
                         //maxFall = MAX_FALL_SPEED;
                         canJump = true;
+                        this.maxSpeed = 0.03f;
                         position.y = worldY + hitbox.getHeight() + 1;
                         this.velocity.y = 0;
                     }

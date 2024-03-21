@@ -290,7 +290,7 @@ public class Game {
             List<BreakedBlock> brokenBlocksData = new ArrayList<>(player.getBreakedBlocks());
             List<PlacedBlock> placedBlocksData = new ArrayList<>(player.getPlacedBlocks());
 
-            playerMovementHandler.handle(world, player, new Vector3f(player.getPosition()), inputData, placedBlocksData, brokenBlocksData);
+            playerMovementHandler.handle(world, player, new Vector3f(player.getPosition()), new Vector3f(player.getVelocity()), inputData, placedBlocksData, brokenBlocksData);
 
             player.getInputs().clear();
             player.getPlacedBlocks().clear();

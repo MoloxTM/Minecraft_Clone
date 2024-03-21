@@ -3,12 +3,15 @@ package fr.math.minecraft.client.handler;
 import fr.math.minecraft.client.Camera;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.entity.player.Player;
+import fr.math.minecraft.logger.LogType;
+import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.shared.network.PlayerInputData;
 import fr.math.minecraft.client.network.payload.InputPayload;
 import fr.math.minecraft.client.network.payload.StatePayload;
 import fr.math.minecraft.shared.world.BreakedBlock;
 import fr.math.minecraft.shared.world.PlacedBlock;
 import fr.math.minecraft.shared.world.World;
+import org.apache.log4j.Logger;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
@@ -22,6 +25,7 @@ public class PlayerMovementHandler {
     private StatePayload lastServerState;
     private int currentTick;
     private final static int BUFFER_SIZE = 1024;
+    private final static Logger logger = LoggerUtility.getClientLogger(PlayerMovementHandler.class, LogType.TXT);
 
     public PlayerMovementHandler() {
         this.currentTick = 0;
@@ -30,7 +34,7 @@ public class PlayerMovementHandler {
         this.stateBuffer = new StatePayload[BUFFER_SIZE];
     }
 
-    public void handle(World world, Player player, Vector3f playerPosition, List<PlayerInputData> inputData, List<PlacedBlock> placedBlocks, List<BreakedBlock> brokenBlockData) {
+    public void handle(World world, Player player, Vector3f playerPosition, Vector3f playerVelocity, List<PlayerInputData> inputData, List<PlacedBlock> placedBlocks, List<BreakedBlock> brokenBlockData) {
 
         int bufferIndex = currentTick % BUFFER_SIZE;
 
@@ -40,6 +44,7 @@ public class PlayerMovementHandler {
         StatePayload statePayload = new StatePayload(inputPayload);
         // statePayload.predictMovement(player, playerPosition);
         statePayload.setPosition(playerPosition);
+        statePayload.setVelocity(playerVelocity);
         statePayload.setBreakedBlocksData(brokenBlockData);
         statePayload.setPlacedBlocksData(placedBlocks);
         statePayload.send(player);
@@ -66,6 +71,7 @@ public class PlayerMovementHandler {
         StatePayload payload = stateBuffer[serverTick % BUFFER_SIZE];
 
         float positionError = serverPosition.distance(payload.getPosition());
+        float velocityError = serverVelocity.distance(payload.getVelocity());
 
         lastServerState.verifyPlacedBlocks(world, payload.getPlacedBlocks());
         lastServerState.verifyBrokenBlocks(world, payload.getBreakedBlockData());
@@ -73,6 +79,17 @@ public class PlayerMovementHandler {
 
         player.setHealth(lastServerState.getHealth());
         player.setMaxHealth(lastServerState.getMaxHealth());
+
+        if (velocityError > 0.001f) {
+            System.out.println("[Reconciliation] Server Velocity " + serverVelocity + " Payload Velocity " + payload.getVelocity());
+            player.getVelocity().x = serverVelocity.x;
+            player.getVelocity().y = serverVelocity.y;
+            player.getVelocity().z = serverVelocity.z;
+        }
+
+        if (lastServerState.getMaxSpeed() != player.getMaxSpeed()) {
+            player.setMaxSpeed(lastServerState.getMaxSpeed());
+        }
 
         if (positionError > 0.001f) {
             Camera camera = Game.getInstance().getCamera();

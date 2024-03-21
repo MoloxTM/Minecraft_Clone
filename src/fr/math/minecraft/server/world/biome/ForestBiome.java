@@ -22,6 +22,7 @@ public class ForestBiome extends AbstractBiome {
         this.biomeName = "Forests";
         this.biomeID = 1;
     }
+
     @Override
     public Material getUpperBlock() {
         return Material.GRASS;
