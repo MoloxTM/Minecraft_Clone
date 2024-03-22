@@ -66,7 +66,7 @@ public class DesertBiome extends AbstractBiome{
         float weedNoiseValue = weedNoise.getNoise(worldX, worldZ);
 
         if (weedNoiseValue < 0.1f) {
-            StructureBuilder.buildWeed(world,structure, worldX, worldY, worldZ, weedNoiseValue);
+            StructureBuilder.buildDeadBush(structure, worldX, worldY, worldZ);
         }
     }
 
