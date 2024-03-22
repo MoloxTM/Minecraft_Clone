@@ -131,7 +131,7 @@ public abstract class Entity {
             synchronized (server.getClients()) {
                 for (Client client : clients.values()) {
                     float clientDistance = client.getPosition().distance(position);
-                    if (clientDistance < 1.0f) {
+                    if (clientDistance < 1.5f) {
                         client.setHealth(client.getHealth() - damage);
                         client.getVelocity().y = 0.25f;
                         client.getVelocity().x = .4f;
@@ -484,5 +484,13 @@ public abstract class Entity {
 
     public void setPattern(Pattern pattern) {
         this.pattern = pattern;
+    }
+
+    public float getDamage() {
+        return damage;
+    }
+
+    public void setDamage(float damage) {
+        this.damage = damage;
     }
 }

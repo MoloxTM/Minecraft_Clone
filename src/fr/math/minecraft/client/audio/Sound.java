@@ -70,8 +70,13 @@ public class Sound {
         logger.info("Son " + filePath + " chargée avec succès");
     }
 
+    public int getState() {
+        return alGetSourcei(sourceId, AL_SOURCE_STATE);
+    }
+
     public void play() {
         int state = alGetSourcei(sourceId, AL_SOURCE_STATE);
+
         if (state == AL_STOPPED) {
             playing = false;
             alSourcei(sourceId, AL_POSITION, 0);

@@ -19,15 +19,29 @@ public enum Sounds {
     OXYGENE("res/sounds/music/oxygene.ogg"),
     WET_HANDS("res/sounds/music/wet_hands.ogg"),
     CLICK("res/sounds/click.ogg"),
+    HIT("res/sounds/hit.ogg"),
+    DIG_WOOD("res/sounds/blocks/dig/wood2.ogg"),
+    DIG_SNOW("res/sounds/blocks/dig/snow1.ogg"),
+    GRASS_WALK("res/sounds/blocks/grass_walk.ogg", true),
     POP("res/sounds/pop.ogg");
 
     private final String filePath;
+    private final boolean looping;
 
     Sounds(String filePath) {
+        this(filePath, false);
+    }
+
+    Sounds(String filePath, boolean looping) {
         this.filePath = filePath;
+        this.looping = looping;
     }
 
     public String getFilePath() {
         return filePath;
+    }
+
+    public boolean isLooping() {
+        return looping;
     }
 }

@@ -2,6 +2,7 @@ package fr.math.minecraft.client.entity.player;
 
 import fr.math.minecraft.client.Camera;
 import fr.math.minecraft.client.Renderer;
+import fr.math.minecraft.client.manager.SoundManager;
 import fr.math.minecraft.client.network.payload.ChatPayload;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.animations.*;
@@ -467,7 +468,10 @@ public class Player extends Entity {
                     BreakedBlock breakedBlock = new BreakedBlock(new Vector3i(breakRay.getBlockWorldPosition()), breakRay.getAimedBlock());
                     chunkManager.removeBlock(breakRay.getAimedChunk(), breakRay.getBlockChunkPositionLocal(), Game.getInstance().getWorld());
                     breakedBlocks.add(breakedBlock);
+                    Material material = Material.getMaterialById(breakedBlock.getBlock());
                     sprite.reset();
+                    SoundManager soundManager = SoundManager.getInstance();
+                    soundManager.play(soundManager.getDigSound(material));
                 }
             }
 

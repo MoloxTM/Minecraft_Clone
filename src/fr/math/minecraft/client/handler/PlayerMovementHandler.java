@@ -2,7 +2,9 @@ package fr.math.minecraft.client.handler;
 
 import fr.math.minecraft.client.Camera;
 import fr.math.minecraft.client.Game;
+import fr.math.minecraft.client.audio.Sounds;
 import fr.math.minecraft.client.entity.player.Player;
+import fr.math.minecraft.client.manager.SoundManager;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.shared.network.PlayerInputData;
@@ -77,11 +79,17 @@ public class PlayerMovementHandler {
         lastServerState.verifyBrokenBlocks(world, payload.getBreakedBlockData());
         lastServerState.reconcileInventory(player);
 
+        if (lastServerState.getHealth() < player.getHealth()) {
+            SoundManager soundManager = Game.getInstance().getSoundManager();
+            soundManager.play(Sounds.HIT);
+
+        }
+
         player.setHealth(lastServerState.getHealth());
         player.setMaxHealth(lastServerState.getMaxHealth());
 
         if (velocityError > 0.001f) {
-            System.out.println("[Reconciliation] Server Velocity " + serverVelocity + " Payload Velocity " + payload.getVelocity());
+            logger.debug("[Reconciliation] Server Velocity " + serverVelocity + " Payload Velocity " + payload.getVelocity());
             player.getVelocity().x = serverVelocity.x;
             player.getVelocity().y = serverVelocity.y;
             player.getVelocity().z = serverVelocity.z;
@@ -93,8 +101,8 @@ public class PlayerMovementHandler {
 
         if (positionError > 0.001f) {
             Camera camera = Game.getInstance().getCamera();
-            System.out.println("[Reconciliation] ServerTick : " + serverTick + " ClientTick : " + currentTick + " Error : " + positionError + " ServerPosition " + serverPosition + " PayloadPosition " + payload.getPosition());
-            System.out.println("[Reconciliation] Server Yaw : " + lastServerState.getYaw() + " Server Pitch : " + lastServerState.getPitch() + " Payload Yaw : " + payload.getInputPayload().getInputData().get(payload.getInputPayload().getInputData().size() - 1).getYaw() + " Payload Pitch : " + payload.getInputPayload().getInputData().get(payload.getInputPayload().getInputData().size() - 1).getPitch());
+            logger.debug("[Reconciliation] ServerTick : " + serverTick + " ClientTick : " + currentTick + " Error : " + positionError + " ServerPosition " + serverPosition + " PayloadPosition " + payload.getPosition());
+            logger.debug("[Reconciliation] Server Yaw : " + lastServerState.getYaw() + " Server Pitch : " + lastServerState.getPitch() + " Payload Yaw : " + payload.getInputPayload().getInputData().get(payload.getInputPayload().getInputData().size() - 1).getYaw() + " Payload Pitch : " + payload.getInputPayload().getInputData().get(payload.getInputPayload().getInputData().size() - 1).getPitch());
             stateBuffer[serverTick % BUFFER_SIZE] = lastServerState;
 
             int tickToProcess = serverTick + 1;
@@ -110,21 +118,19 @@ public class PlayerMovementHandler {
             player.setYaw(lastServerState.getYaw());
             player.setPitch(lastServerState.getPitch());
 
-            camera.update(player);
-
             while (tickToProcess <= currentTick) {
 
                 InputPayload inputPayload = inputBuffer[tickToProcess % BUFFER_SIZE];
                 StatePayload statePayload = new StatePayload(inputPayload);
                 statePayload.reconcileMovement(world, player, player.getPosition(), player.getVelocity());
 
-                camera.update(player);
-
                 int bufferIndex = tickToProcess % BUFFER_SIZE;
                 stateBuffer[bufferIndex] = statePayload;
 
                 tickToProcess++;
             }
+
+            camera.update(player);
         }
     }
 

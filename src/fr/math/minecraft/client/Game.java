@@ -1,7 +1,6 @@
 package fr.math.minecraft.client;
 
-import fr.math.minecraft.client.audio.Sound;
-import fr.math.minecraft.client.audio.Sounds;
+import fr.math.minecraft.client.audio.*;
 import fr.math.minecraft.client.entity.Ray;
 import fr.math.minecraft.shared.ChatMessage;
 import fr.math.minecraft.shared.entity.Entity;
@@ -140,7 +139,7 @@ public class Game {
         this.camera = new Camera(GameConfiguration.WINDOW_WIDTH, GameConfiguration.WINDOW_HEIGHT);
         this.world = new World();
         this.state = GameState.MAIN_MENU;
-        this.soundManager = new SoundManager();
+        this.soundManager = SoundManager.getInstance();
         this.menuManager = new MenuManager(this);
         this.worldManager = new WorldManager();
         this.renderer = new Renderer();
@@ -168,14 +167,23 @@ public class Game {
         this.loadSplashText();
 
         for (Sounds sound : Sounds.values()) {
-            soundManager.addSound(sound.getFilePath(), false);
+            soundManager.addSound(sound.getFilePath(), sound.isLooping());
         }
 
         if (gameConfiguration.isMusicEnabled()) {
+
             for (Sound sound : soundManager.getAllSounds()) {
                 sound.load();
             }
+
+            for (Sounds musicEnum : soundManager.getMusics()) {
+                Sound sound = soundManager.getSound(musicEnum);
+                soundManager.getMusicsPlaylist().addSound(sound);
+            }
+
+            Collections.shuffle(soundManager.getMusicsPlaylist().getSounds());
         }
+
 
         Menu mainMenu = new MainMenu(this);
         Menu connectionMenu = new ConnectionMenu(this);
@@ -211,7 +219,8 @@ public class Game {
         double lastFramesTime = glfwGetTime();
 
         if (gameConfiguration.isMusicEnabled()) {
-            soundManager.getRandomMusic().play();
+            PlaylistPlayer playlistPlayer = new PlaylistPlayer(soundManager.getMusicsPlaylist());
+            playlistPlayer.start();
         }
 
         menuManager.open(MainMenu.class);
@@ -309,6 +318,13 @@ public class Game {
     }
 
     public void update(Player player) {
+
+        if (player.isMoving()) {
+            soundManager.play(Sounds.GRASS_WALK);
+        } else {
+            soundManager.stop(Sounds.GRASS_WALK);
+        }
+
         player.updatePosition(world);
         player.updateAnimations();
         player.getHand().update(new Vector3f(player.getVelocity()));
@@ -565,4 +581,5 @@ public class Game {
     public Map<String, ChatMessage> getChatMessages() {
         return chatMessages;
     }
+
 }
