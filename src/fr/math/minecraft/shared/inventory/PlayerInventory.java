@@ -6,6 +6,7 @@ public class PlayerInventory extends Inventory {
 
     public PlayerInventory() {
         super();
+        this.type = InventoryType.PLAYER_INVENTORY;
         this.items = new ItemStack[GameConfiguration.PLAYER_INVENTORY_SIZE];
     }
 

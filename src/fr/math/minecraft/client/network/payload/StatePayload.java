@@ -5,10 +5,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.client.manager.ChunkManager;
 import fr.math.minecraft.client.network.FixedPacketSender;
-import fr.math.minecraft.client.network.packet.PlayerMovePacket;
+import fr.math.minecraft.client.network.packet.PlayerActionsPacket;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
-import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.MathUtils;
 import fr.math.minecraft.shared.inventory.Inventory;
 import fr.math.minecraft.shared.inventory.ItemStack;
@@ -235,7 +234,7 @@ public class StatePayload {
     }
 
     public void send(Player player) {
-        PlayerMovePacket packet = new PlayerMovePacket(player, this, payload);
+        PlayerActionsPacket packet = new PlayerActionsPacket(player, this, payload);
         FixedPacketSender.getInstance().enqueue(packet);
     }
 

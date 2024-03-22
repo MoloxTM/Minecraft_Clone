@@ -4,6 +4,7 @@ import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.shared.inventory.Inventory;
 import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.GameConfiguration;
+import fr.math.minecraft.shared.network.PlayerInputData;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -40,6 +41,8 @@ public class InventoryInputsHandler {
                     ItemStack item = inventory.getSelectedItem();
                     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
                         if (player.canPlaceHoldedItem()) {
+
+                            PlayerInputData playerInputData = new PlayerInputData(player.getLastInventory().getHoldedSlot(), player.getLastInventory().getType(), inventory.getType(), i);
                             ItemStack holdedItem = player.getLastInventory().getItems()[player.getLastInventory().getHoldedSlot()];
 
                             if (inventory.getItems()[i] == null) {
@@ -56,6 +59,7 @@ public class InventoryInputsHandler {
                                 }
                             }
 
+                            player.getInputs().add(playerInputData);
                             player.setCanHoldItem(false);
                             player.setCanPlaceHoldedItem(false);
                             player.getLastInventory().setHoldedSlot(-1);

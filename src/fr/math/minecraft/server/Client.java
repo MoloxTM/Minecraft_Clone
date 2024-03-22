@@ -1,18 +1,18 @@
 package fr.math.minecraft.server;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.entity.Ray;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
-import fr.math.minecraft.shared.inventory.Hotbar;
-import fr.math.minecraft.shared.inventory.ItemStack;
+import fr.math.minecraft.shared.inventory.*;
 import fr.math.minecraft.shared.network.GameMode;
 import fr.math.minecraft.shared.world.*;
 import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.shared.Sprite;
 import fr.math.minecraft.shared.world.DroppedItem;
-import fr.math.minecraft.shared.inventory.PlayerInventory;
 import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.server.payload.StatePayload;
 import fr.math.minecraft.shared.GameConfiguration;
@@ -64,6 +64,7 @@ public class Client {
     private final static Logger logger = LoggerUtility.getServerLogger(Client.class, LogType.TXT);
     private final PlayerInventory inventory;
     private final Hotbar hotbar;
+    private final PlayerCraftInventory craftInventory;
     private final static float JUMP_VELOCITY = .125f;
 
 
@@ -106,6 +107,7 @@ public class Client {
         this.placedBlocks = new ArrayList<>();
         this.inventory = new PlayerInventory();
         this.hotbar = new Hotbar();
+        this.craftInventory = new PlayerCraftInventory();
     }
 
     public String getName() {
@@ -364,6 +366,13 @@ public class Client {
                 }
             }
 
+            int holdedSlot = inputData.getHoldedSlot();
+            InventoryType inventoryType = inputData.getInventoryType();
+            InventoryType nextInventory = inputData.getNextInventory();
+            int nextSlot = inputData.getNextSlot();
+
+            // A finir pour le déplacement d'items dans les inventaires (et pour craft)
+
             velocity.mul(0.95f);
         }
     }
@@ -517,6 +526,10 @@ public class Client {
     
     public PlayerInventory getInventory() {
         return inventory;
+    }
+
+    public PlayerCraftInventory getPlayerCraftInventory() {
+        return craftInventory;
     }
 
     public Hotbar getHotbar() {

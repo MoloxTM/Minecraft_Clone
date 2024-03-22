@@ -194,6 +194,11 @@ public class Player {
             handler.handleInputs(window, this, craftInventory, (float) mouseX.get(0), (float) mouseY.get(0));
             handler.handleInputs(window, this, hotbar, (float) mouseX.get(0), (float) mouseY.get(0));
             handler.handleInputs(window, this, completedCraftPlayerInventory, (float) mouseX.get(0), (float) mouseY.get(0));
+
+            CraftController controller = new CraftController();
+            if (controller.getCraft(craftInventory) != null) {
+                completedCraftPlayerInventory.addItem(controller.getCraft(craftInventory));
+            }
             return;
         }
 
@@ -871,6 +876,10 @@ public class Player {
 
     public PlayerCraftInventory getCraftInventory() {
         return craftInventory;
+    }
+
+    public CompletedCraftPlayerInventory getCompletedCraftPlayerInventory() {
+        return completedCraftPlayerInventory;
     }
 
     public Inventory getLastInventory() {

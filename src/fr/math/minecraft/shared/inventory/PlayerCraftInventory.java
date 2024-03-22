@@ -6,6 +6,7 @@ public class PlayerCraftInventory extends Inventory {
 
     public PlayerCraftInventory() {
         super();
+        this.type = InventoryType.CRAFT_INVENTORY;
         this.items = new ItemStack[4];
     }
 

@@ -1,6 +1,7 @@
 package fr.math.minecraft.server;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import fr.math.minecraft.client.network.packet.PlayerActionsPacket;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.server.handler.*;
@@ -82,14 +83,14 @@ public class MinecraftServer {
                     ConnectionInitHandler connectionInitHandler = new ConnectionInitHandler(packetData, address, clientPort);
                     connectionInitHandler.run();
                     break;
-                case "PLAYER_MOVE":
+                case "PLAYER_ACTIONS":
                     String playerId = packetData.get("uuid").asText();
 
                     Client client = clients.get(playerId);
                     if (client == null) break;
 
-                    PlayerMoveHandler moveHandler = new PlayerMoveHandler(client, packetData, address, clientPort);
-                    packetQueue.submit(moveHandler);
+                    PlayerActionsHandler actionsHandler = new PlayerActionsHandler(client, packetData, address, clientPort);
+                    packetQueue.submit(actionsHandler);
                     break;
                 case "SKIN_REQUEST":
                     SkinRequestHandler skinHandler = new SkinRequestHandler(packetData, address, clientPort);

@@ -431,6 +431,7 @@ public class Game {
             renderer.renderInventory(camera, player.getInventory());
             renderer.renderInventory(camera, player.getCraftInventory());
             renderer.renderInventory(camera, player.getHotbar());
+            renderer.renderInventory(camera, player.getCompletedCraftPlayerInventory());
         }
     }
 
@@ -540,4 +541,6 @@ public class Game {
     public List<Chunk> getChunkUpdateQueue() {
         return chunkUpdateQueue;
     }
+
+
 }

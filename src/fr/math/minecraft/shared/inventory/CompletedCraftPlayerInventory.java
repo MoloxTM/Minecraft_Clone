@@ -16,7 +16,7 @@ public class CompletedCraftPlayerInventory extends Inventory{
         float slotScaleX = inventoryWidth / 177.0f;
         float slotWidth = 18.0f * slotScaleX;
         float inventoryX = (GameConfiguration.WINDOW_WIDTH - inventoryWidth) / 2;
-        return 142.0f * slotScaleX + inventoryX + slot * slotWidth;
+        return 144.0f * slotScaleX + inventoryX;
     }
 
     @Override
@@ -26,6 +26,6 @@ public class CompletedCraftPlayerInventory extends Inventory{
         float slotScaleY = inventoryHeight / 166.0f;
         float slotHeight = 18.0f * slotScaleY;
         float inventoryY = (GameConfiguration.WINDOW_HEIGHT - inventoryHeight) / 2;
-        return inventoryY + 112.0f * slotHeight;
+        return inventoryY + 115.0f * slotScaleY;
     }
 }

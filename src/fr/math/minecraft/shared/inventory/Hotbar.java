@@ -10,6 +10,7 @@ public class Hotbar extends Inventory {
 
     public Hotbar() {
         super();
+        this.type = InventoryType.HOTBAR;
         this.items = new ItemStack[9];
         this.animation = new HotbarAnimation();
         this.selectedSlot = 0;

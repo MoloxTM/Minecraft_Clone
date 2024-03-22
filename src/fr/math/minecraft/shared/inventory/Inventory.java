@@ -15,6 +15,7 @@ public abstract class Inventory {
     protected int currentSlot;
     protected boolean open;
     protected int holdedSlot;
+    protected InventoryType type;
 
     public Inventory() {
         this.slotIndex = 0;
@@ -22,10 +23,14 @@ public abstract class Inventory {
         this.currentSlot = 0;
         this.holdedSlot = -1;
         this.open = false;
+        this.type = null;
     }
 
     public ItemStack[] getItems() {
         return items;
+    }
+    public ItemStack getItemAtSlot(int slot) {
+        return items[slot];
     }
 
     public int getSlotIndex() {
@@ -149,4 +154,11 @@ public abstract class Inventory {
         return arrayNode;
     }
 
+    public InventoryType getType() {
+        return type;
+    }
+
+    public void setType(InventoryType type) {
+        this.type = type;
+    }
 }

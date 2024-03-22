@@ -1,23 +1,18 @@
 package fr.math.minecraft.server.handler;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.server.Client;
 import fr.math.minecraft.server.MinecraftServer;
 import fr.math.minecraft.server.TickHandler;
 import fr.math.minecraft.server.payload.InputPayload;
 
-import java.net.DatagramPacket;
 import java.net.InetAddress;
-import java.nio.charset.StandardCharsets;
 
-public class PlayerMoveHandler extends PacketHandler implements Runnable {
+public class PlayerActionsHandler extends PacketHandler implements Runnable {
 
     private final Client client;
 
-    public PlayerMoveHandler(Client client, JsonNode packetData, InetAddress address, int clientPort) {
+    public PlayerActionsHandler(Client client, JsonNode packetData, InetAddress address, int clientPort) {
         super(packetData, address, clientPort);
         this.client = client;
     }
