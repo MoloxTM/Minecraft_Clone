@@ -2,6 +2,7 @@ package fr.math.minecraft.client.entity.player;
 
 import fr.math.minecraft.client.Camera;
 import fr.math.minecraft.client.Renderer;
+import fr.math.minecraft.client.audio.Sounds;
 import fr.math.minecraft.client.manager.SoundManager;
 import fr.math.minecraft.client.network.payload.ChatPayload;
 import fr.math.minecraft.client.Game;

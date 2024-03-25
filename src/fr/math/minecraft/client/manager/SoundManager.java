@@ -105,6 +105,7 @@ public class SoundManager {
     }
 
     public Sounds getDigSound(Material material) {
+        if (material == null) return Sounds.DIG_SNOW;
         switch (material) {
             case SNOW:
                 return Sounds.DIG_SNOW;
@@ -113,7 +114,7 @@ public class SoundManager {
             case BIRCH_LOG:
                 return Sounds.DIG_WOOD;
         }
-        return null;
+        return Sounds.DIG_SNOW;
     }
 
     public List<Sounds> getMusics() {

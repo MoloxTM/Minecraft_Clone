@@ -29,10 +29,7 @@ public class SkinRequestHandler extends PacketHandler implements Runnable{
         MinecraftServer server = MinecraftServer.getInstance();
 
         if (!file.exists()) {
-            byte[] buffer = "PLAYER_DOESNT_EXISTS".getBytes(StandardCharsets.UTF_8);
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, clientPort);
-            server.sendPacket(packet);
-            return;
+            file = new File("skins/skin.png");
         }
 
         try {
