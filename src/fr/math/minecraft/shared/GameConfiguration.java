@@ -20,7 +20,7 @@ public class GameConfiguration {
     public final static int BUFFER_SIZE = 1024;
     public final static float CHUNK_TICK = 60.0f;
     public final static float CHUNK_TICK_RATE = 1000.0f / CHUNK_TICK;
-    public final static float ATTACK_REACH = 3f;
+    public final static float ATTACK_REACH = 3.5f;
     public final static float BUILDING_REACH = 4.5f;
     public final static float BREAKING_REACH = 4.5f;
     public final static float DEFAULT_SPEED= 0.0125f;

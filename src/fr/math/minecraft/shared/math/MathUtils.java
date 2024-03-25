@@ -1,12 +1,21 @@
-package fr.math.minecraft.shared;
+package fr.math.minecraft.shared.math;
 
 import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.shared.world.Coordinates;
 import java.lang.Math;
+
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
 public class MathUtils {
+
+    public static Vector2f getDirection2D(Vector3f p1, Vector3f p2) {
+        Vector2f position = new Vector2f(p1.x, p1.z);
+        Vector2f direction = new Vector2f(p2.x, p2.z).sub(position);
+
+        return direction;
+    }
 
     public static double distance(Player player, Vector3i position) {
 

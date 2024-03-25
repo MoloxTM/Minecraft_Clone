@@ -3,6 +3,8 @@ package fr.math.minecraft.client.entity.player;
 import fr.math.minecraft.client.Camera;
 import fr.math.minecraft.client.Renderer;
 import fr.math.minecraft.client.audio.Sounds;
+import fr.math.minecraft.client.entity.AttackRay;
+import fr.math.minecraft.client.entity.RayType;
 import fr.math.minecraft.client.manager.SoundManager;
 import fr.math.minecraft.client.network.payload.ChatPayload;
 import fr.math.minecraft.client.Game;
@@ -65,7 +67,8 @@ public class Player extends Entity {
     private String skinPath;
     private final PlayerHand hand;
     private int breakBlockCooldown, placeBlockCooldown;
-    private final Ray attackRay, buildRay, breakRay;
+    private final Ray buildRay, breakRay;
+    private final AttackRay attackRay;
     private final List<PlacedBlock> placedBlocks;
     private final ArrayList<BreakedBlock> breakedBlocks;
     private Inventory lastInventory;
@@ -121,7 +124,7 @@ public class Player extends Entity {
         this.breakingBlock = false;
         this.skin = null;
         this.skinPath = "res/textures/skin.png";
-        this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
+        this.attackRay = new AttackRay(GameConfiguration.ATTACK_REACH);
         this.buildRay = new Ray(GameConfiguration.BUILDING_REACH);
         this.breakRay = new Ray(GameConfiguration.BUILDING_REACH);
         this.placedBlocks = new ArrayList<>();
@@ -462,26 +465,28 @@ public class Player extends Entity {
 
         if (breakingBlock) {
             sprite.update(PlayerAction.MINING);
-
-            if (action == PlayerAction.MINING && sprite.getIndex() == action.getLength() - 1) {
-                ChunkManager chunkManager = new ChunkManager();
-                if (breakRay.getAimedChunk() != null && (breakRay.getAimedBlock() != Material.AIR.getId() || breakRay.getAimedBlock() != Material.WATER.getId())) {
-                    BreakedBlock breakedBlock = new BreakedBlock(new Vector3i(breakRay.getBlockWorldPosition()), breakRay.getAimedBlock());
-                    chunkManager.removeBlock(breakRay.getAimedChunk(), breakRay.getBlockChunkPositionLocal(), Game.getInstance().getWorld());
-                    breakedBlocks.add(breakedBlock);
-                    Material material = Material.getMaterialById(breakedBlock.getBlock());
-                    sprite.reset();
-                    SoundManager soundManager = SoundManager.getInstance();
-                    soundManager.play(soundManager.getDigSound(material));
+            Entity target = attackRay.getTarget();
+            if (target == null) {
+                if (action == PlayerAction.MINING && sprite.getIndex() == action.getLength() - 1) {
+                    ChunkManager chunkManager = new ChunkManager();
+                    if (breakRay.getAimedChunk() != null && (breakRay.getAimedBlock() != Material.AIR.getId() || breakRay.getAimedBlock() != Material.WATER.getId())) {
+                        BreakedBlock breakedBlock = new BreakedBlock(new Vector3i(breakRay.getBlockWorldPosition()), breakRay.getAimedBlock());
+                        chunkManager.removeBlock(breakRay.getAimedChunk(), breakRay.getBlockChunkPositionLocal(), Game.getInstance().getWorld());
+                        breakedBlocks.add(breakedBlock);
+                        Material material = Material.getMaterialById(breakedBlock.getBlock());
+                        sprite.reset();
+                        SoundManager soundManager = SoundManager.getInstance();
+                        soundManager.play(soundManager.getDigSound(material));
+                    }
                 }
-            }
 
-            if (canBreakBlock) {
-                if (breakRay.getAimedChunk() != null && (breakRay.getAimedBlock() != Material.AIR.getId() || breakRay.getAimedBlock() != Material.WATER.getId())) {
-                    action = PlayerAction.MINING;
+                if (canBreakBlock) {
+                    if (breakRay.getAimedChunk() != null && (breakRay.getAimedBlock() != Material.AIR.getId() || breakRay.getAimedBlock() != Material.WATER.getId())) {
+                        action = PlayerAction.MINING;
+                    }
+                    canBreakBlock = false;
+                    breakBlockCooldown = (int) GameConfiguration.UPS / 3;
                 }
-                canBreakBlock = false;
-                breakBlockCooldown = (int) GameConfiguration.UPS / 3;
             }
         } else {
             sprite.reset();
@@ -650,7 +655,7 @@ public class Player extends Entity {
         this.maxFall = maxFall;
     }
 
-    public Ray getAttackRay() {
+    public AttackRay getAttackRay() {
         return attackRay;
     }
 

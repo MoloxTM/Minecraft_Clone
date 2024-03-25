@@ -315,6 +315,14 @@ public class Game {
                 player.update();
             }
         }
+
+        synchronized (world.getEntities()) {
+            for (Entity entity : world.getEntities().values()) {
+                if (entity.getHitMarkDelay() > 0) {
+                    entity.setHitMarkDelay(entity.getHitMarkDelay() - 1);
+                }
+            }
+        }
     }
 
     public void update(Player player) {

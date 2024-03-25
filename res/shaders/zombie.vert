@@ -16,7 +16,6 @@ uniform float time;
 uniform float legRotation;
 uniform float bodyYaw;
 
-
 mat4 rotateY(float angle) {
     return mat4(
         1,     0     ,      0      ,   0,

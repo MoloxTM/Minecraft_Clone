@@ -15,7 +15,6 @@ import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.server.Client;
 import fr.math.minecraft.server.MinecraftServer;
 import fr.math.minecraft.server.pathfinding.AStar;
-import fr.math.minecraft.server.pathfinding.Graph;
 import fr.math.minecraft.server.pathfinding.Node;
 import fr.math.minecraft.server.pathfinding.Pattern;
 import fr.math.minecraft.shared.Direction;
@@ -32,7 +31,6 @@ import org.joml.*;
 import org.joml.Math;
 
 import java.util.*;
-import java.util.Random;
 
 public abstract class Entity {
 
@@ -58,7 +56,10 @@ public abstract class Entity {
     protected boolean canJump;
     protected float damage;
     private Pattern pattern;
+    private String lastAttackerID;
+    private EntityType lastAttackerType;
     private int patternUpdateCooldown;
+    private int hitMarkDelay;
     private final static Logger logger = LoggerUtility.getClientLogger(Entity.class, LogType.TXT);
     public Entity(String uuid, EntityType type) {
         this.type = type;
@@ -85,6 +86,9 @@ public abstract class Entity {
         this.canJump = false;
         this.damage = 0.0f;
         this.patternUpdateCooldown = 0;
+        this.lastAttackerID = null;
+        this.lastAttackerType = null;
+        this.hitMarkDelay = 0;
     }
 
     public void notifyEvent(PlayerMoveEvent event) {
@@ -129,26 +133,33 @@ public abstract class Entity {
             }
 
             synchronized (server.getClients()) {
+                float minDistance = Float.MAX_VALUE;
+                Client target = null;
                 for (Client client : clients.values()) {
                     float clientDistance = client.getPosition().distance(position);
                     if (clientDistance < 1.5f) {
+                        Vector2f entityPosition = new Vector2f(position.x, position.z);
+                        Vector2f direction = new Vector2f(client.getPosition().x, client.getPosition().z).sub(entityPosition);
                         client.setHealth(client.getHealth() - damage);
-                        client.getVelocity().y = 0.25f;
-                        client.getVelocity().x = .4f;
-                        client.getVelocity().z = .4f;
+                        client.getVelocity().y = 0.14f;
+                        client.getVelocity().x = direction.x * 0.125f;
+                        client.getVelocity().z = direction.y * 0.125f;
                         client.setMaxSpeed(.4f);
                         logger.debug("Un " + type.getName() + " a attaqué " + client.getName() + " (" + client.getUuid() + ") " + client.getHealth() + "/" + client.getMaxHealth());
                         continue;
                     }
-                    if (clientDistance < 10) {
-                        Node start = new Node(new Vector3f(position));
-                        Node end = new Node(new Vector3f(client.getPosition()));
-                        Vector2f entityPosition = new Vector2f(position.x, position.z);
-                        Vector2f direction = new Vector2f(client.getPosition().x, client.getPosition().z).sub(entityPosition);
-                        pattern = new Pattern(AStar.shortestPath(world, start, end), start, end);
-                        yaw = (float) Math.toDegrees(Math.atan2(direction.y, direction.x));
-                        break;
+                    if (clientDistance < 10 && clientDistance < minDistance) {
+                        target = client;
+                        minDistance = clientDistance;
                     }
+                }
+                if (target != null) {
+                    Node start = new Node(new Vector3f(position));
+                    Node end = new Node(new Vector3f(target.getPosition()));
+                    Vector2f entityPosition = new Vector2f(position.x, position.z);
+                    Vector2f direction = new Vector2f(target.getPosition().x, target.getPosition().z).sub(entityPosition);
+                    pattern = new Pattern(AStar.shortestPath(world, start, end), start, end);
+                    yaw = (float) Math.toDegrees(Math.atan2(direction.y, direction.x));
                 }
             }
             patternUpdateCooldown = 0;
@@ -307,6 +318,8 @@ public abstract class Entity {
         entityNode.put("bodyYaw", bodyYaw);
         entityNode.put("health", health);
         entityNode.put("maxHealth", maxHealth);
+        entityNode.put("lastAttacker", lastAttackerID == null ? "NONE" : lastAttackerID);
+        entityNode.put("lastAttackerType", lastAttackerType == null ? "NONE" : lastAttackerType.toString());
 
         if (pattern != null && !pattern.getPath().isEmpty()) {
             for (Node node : pattern.getPath()) {
@@ -505,5 +518,29 @@ public abstract class Entity {
 
     public void setDamage(float damage) {
         this.damage = damage;
+    }
+
+    public String getLastAttackerID() {
+        return lastAttackerID;
+    }
+
+    public EntityType getLastAttackerType() {
+        return lastAttackerType;
+    }
+
+    public void setLastAttackerType(EntityType lastAttackerType) {
+        this.lastAttackerType = lastAttackerType;
+    }
+
+    public void setLastAttackerID(String lastAttackerID) {
+        this.lastAttackerID = lastAttackerID;
+    }
+
+    public int getHitMarkDelay() {
+        return hitMarkDelay;
+    }
+
+    public void setHitMarkDelay(int hitMarkDelay) {
+        this.hitMarkDelay = hitMarkDelay;
     }
 }

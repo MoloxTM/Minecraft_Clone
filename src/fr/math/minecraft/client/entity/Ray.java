@@ -2,7 +2,7 @@ package fr.math.minecraft.client.entity;
 
 import fr.math.minecraft.client.meshs.Face;
 import fr.math.minecraft.server.Utils;
-import fr.math.minecraft.shared.MathUtils;
+import fr.math.minecraft.shared.math.MathUtils;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.shared.world.World;
@@ -10,17 +10,15 @@ import org.joml.Math;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
-import java.util.Arrays;
-
 public class Ray {
 
     private Chunk aimedChunk;
     private byte aimedBlock;
     private Vector3i blockWorldPosition, blockChunkPosition;
-    private float reach;
-    private final int xAxis = 0;
-    private final int yAxis= 1;
-    private final int zAxis = 2;
+    protected final float reach;
+    protected final int xAxis = 0;
+    protected final int yAxis= 1;
+    protected final int zAxis = 2;
     private Face faceAimed;
 
     public Ray(float reach) {
@@ -31,7 +29,6 @@ public class Ray {
         this.reach = reach;
         this.faceAimed = null;
     }
-
 
     public void update(Vector3f position, Vector3f front, World world, boolean isServer) {
 
@@ -178,10 +175,6 @@ public class Ray {
         this.aimedChunk = aimedChunk;
     }
 
-    public void setReach(float reach) {
-        this.reach = reach;
-    }
-
     public void reset() {
         this.aimedChunk = null;
         this.aimedBlock = Material.AIR.getId();
@@ -192,4 +185,5 @@ public class Ray {
     public boolean isAimingBlock() {
         return aimedChunk != null && aimedBlock != Material.AIR.getId() && aimedBlock != Material.WATER.getId();
     }
+
 }

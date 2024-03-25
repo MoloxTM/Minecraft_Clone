@@ -15,7 +15,7 @@ import fr.math.minecraft.client.network.payload.StatePayload;
 import fr.math.minecraft.client.texture.Texture;
 import fr.math.minecraft.shared.ChatMessage;
 import fr.math.minecraft.shared.GameConfiguration;
-import fr.math.minecraft.shared.MathUtils;
+import fr.math.minecraft.shared.math.MathUtils;
 import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.shared.world.*;
 import fr.math.minecraft.logger.LogType;
@@ -29,7 +29,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Base64;
-import java.util.List;
 import java.util.Map;
 
 public class PacketListener implements PacketEventListener {

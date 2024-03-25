@@ -2,9 +2,14 @@ package fr.math.minecraft.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.math.minecraft.client.entity.AttackRay;
 import fr.math.minecraft.client.entity.Ray;
+import fr.math.minecraft.shared.entity.EntityType;
+import fr.math.minecraft.shared.math.MathUtils;
+import fr.math.minecraft.shared.math.PhysicsController;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
+import fr.math.minecraft.shared.entity.Entity;
 import fr.math.minecraft.shared.inventory.Hotbar;
 import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.network.GameMode;
@@ -20,6 +25,7 @@ import fr.math.minecraft.shared.network.Hitbox;
 import fr.math.minecraft.shared.network.PlayerInputData;
 import org.apache.log4j.Logger;
 import org.joml.Math;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
@@ -55,7 +61,8 @@ public class Client {
     private final Queue<InputPayload> inputQueue;
     private final StatePayload[] stateBuffer;
     private boolean canJump;
-    private final Ray buildRay, attackRay, breakRay;
+    private final Ray buildRay, breakRay;
+    private final AttackRay attackRay;
     private List<BreakedBlock> breakedBlocks;
     private List<PlacedBlock> placedBlocks;
     private int breakBlockCooldown, placeBlockCoolDown;
@@ -103,9 +110,9 @@ public class Client {
         this.active = false;
         this.sprite = new Sprite();
         this.action = PlayerAction.MINING;
+        this.attackRay = new AttackRay(GameConfiguration.ATTACK_REACH);
         this.buildRay = new Ray(GameConfiguration.BUILDING_REACH);
-        this.breakRay = new Ray(GameConfiguration.BREAKING_REACH);
-        this.attackRay = new Ray(GameConfiguration.ATTACK_REACH);
+        this.breakRay = new Ray(GameConfiguration.BUILDING_REACH);
         this.breakedBlocks = new ArrayList<>();
         this.placedBlocks = new ArrayList<>();
         this.inventory = new PlayerInventory();
@@ -283,6 +290,7 @@ public class Client {
 
             buildRay.update(position, cameraFront, world, true);
             breakRay.update(position, cameraFront, world, true);
+            attackRay.update(position, cameraFront, world, true);
 
             if (!breakRay.isAimingBlock()) {
                 sprite.reset();
@@ -298,48 +306,59 @@ public class Client {
 
                 byte block = breakRay.getAimedBlock();
                 sprite.update(PlayerAction.MINING);
+                Entity target = attackRay.getTarget();
 
-                if (action == PlayerAction.MINING && breakRay.isAimingBlock() && sprite.getIndex() == action.getLength() - 1) {
-                    Vector3i rayPosition = breakRay.getBlockWorldPosition();
-                    Vector3i blockPositionLocal = Utils.worldToLocal(rayPosition);
-                    Material material = Material.getMaterialById(block);
+                if (target != null) {
+                    Vector2f direction = MathUtils.getDirection2D(position, target.getPosition());
+                    PhysicsController.infligeKnockback(target, direction);
+                    target.setHealth(target.getHealth() - 0.5f);
+                    target.setLastAttackerID(uuid);
+                    target.setLastAttackerType(EntityType.PLAYER);
+                    logger.info(name + "(" + uuid + ") a attaqué un zombie ! Zombie Health : " + target.getHealth() + "/" + target.getMaxHealth());
+                } else {
+                    if (action == PlayerAction.MINING && breakRay.isAimingBlock() && sprite.getIndex() == action.getLength() - 1) {
+                        Vector3i rayPosition = breakRay.getBlockWorldPosition();
+                        Vector3i blockPositionLocal = Utils.worldToLocal(rayPosition);
+                        Material material = Material.getMaterialById(block);
 
-                    BreakedBlock breakedBlock = new BreakedBlock(rayPosition, block);
-                    breakedBlocks.add(breakedBlock);
+                        BreakedBlock breakedBlock = new BreakedBlock(rayPosition, block);
+                        breakedBlocks.add(breakedBlock);
 
-                    logger.info(name + " (" + uuid + ") a cassé un block de " + material + " en " + breakRay.getBlockWorldPosition());
+                        logger.info(name + " (" + uuid + ") a cassé un block de " + material + " en " + breakRay.getBlockWorldPosition());
 
-                    synchronized (world.getPlacedBlocks()) {
-                        PlacedBlock placedBlock = world.getPlacedBlocks().get(breakedBlock.getPosition());
-                        if (placedBlock != null) {
-                            world.getPlacedBlocks().remove(breakedBlock.getPosition());
+                        synchronized (world.getPlacedBlocks()) {
+                            PlacedBlock placedBlock = world.getPlacedBlocks().get(breakedBlock.getPosition());
+                            if (placedBlock != null) {
+                                world.getPlacedBlocks().remove(breakedBlock.getPosition());
+                            }
                         }
-                    }
 
-                    synchronized (world.getBrokenBlocks()) {
-                        world.getBrokenBlocks().put(breakedBlock.getPosition(), breakedBlock);
-                    }
+                        synchronized (world.getBrokenBlocks()) {
+                            world.getBrokenBlocks().put(breakedBlock.getPosition(), breakedBlock);
+                        }
 
-                    breakRay.getAimedChunk().setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, Material.AIR.getId());
-                    breakRay.reset();
-                    sprite.reset();
-
-                    Random random = new Random();
-                    DroppedItem droppedItem = new DroppedItem(new Vector3f(rayPosition), material);
-                    droppedItem.getVelocity().y = 0.8f;
-                    droppedItem.getVelocity().x = random.nextFloat() * (0.75f - 0.35f) + 0.35f;
-                    droppedItem.getVelocity().z = random.nextFloat() * (0.85f - 0.3f) + 0.3f;
-
-                    world.getDroppedItems().put(droppedItem.getUuid(), droppedItem);
-                }
-
-                if (this.canBreakBlock) {
-                    if (breakRay.isAimingBlock()) {
-                        action = PlayerAction.MINING;
+                        breakRay.getAimedChunk().setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, Material.AIR.getId());
+                        breakRay.reset();
                         sprite.reset();
+
+                        Random random = new Random();
+                        DroppedItem droppedItem = new DroppedItem(new Vector3f(rayPosition), material);
+                        droppedItem.getVelocity().y = 0.8f;
+                        droppedItem.getVelocity().x = random.nextFloat() * (0.75f - 0.35f) + 0.35f;
+                        droppedItem.getVelocity().z = random.nextFloat() * (0.85f - 0.3f) + 0.3f;
+
+                        world.getDroppedItems().put(droppedItem.getUuid(), droppedItem);
                     }
-                    this.canBreakBlock = false;
+
+                    if (this.canBreakBlock) {
+                        if (breakRay.isAimingBlock()) {
+                            action = PlayerAction.MINING;
+                            sprite.reset();
+                        }
+                        this.canBreakBlock = false;
+                    }
                 }
+
             } else {
                 sprite.reset();
             }

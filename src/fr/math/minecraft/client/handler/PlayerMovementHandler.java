@@ -73,7 +73,6 @@ public class PlayerMovementHandler {
         StatePayload payload = stateBuffer[serverTick % BUFFER_SIZE];
 
         float positionError = serverPosition.distance(payload.getPosition());
-        float velocityError = serverVelocity.distance(payload.getVelocity());
 
         lastServerState.verifyPlacedBlocks(world, payload.getPlacedBlocks());
         lastServerState.verifyBrokenBlocks(world, payload.getBreakedBlockData());
@@ -82,18 +81,10 @@ public class PlayerMovementHandler {
         if (lastServerState.getHealth() < player.getHealth()) {
             SoundManager soundManager = Game.getInstance().getSoundManager();
             soundManager.play(Sounds.HIT);
-
         }
 
         player.setHealth(lastServerState.getHealth());
         player.setMaxHealth(lastServerState.getMaxHealth());
-
-        if (velocityError > 0.001f) {
-            logger.debug("[Reconciliation] Server Velocity " + serverVelocity + " Payload Velocity " + payload.getVelocity());
-            player.getVelocity().x = serverVelocity.x;
-            player.getVelocity().y = serverVelocity.y;
-            player.getVelocity().z = serverVelocity.z;
-        }
 
         if (lastServerState.getMaxSpeed() != player.getMaxSpeed()) {
             player.setMaxSpeed(lastServerState.getMaxSpeed());

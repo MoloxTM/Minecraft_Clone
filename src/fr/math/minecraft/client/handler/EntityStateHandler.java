@@ -2,7 +2,9 @@ package fr.math.minecraft.client.handler;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import fr.math.minecraft.client.audio.Sounds;
 import fr.math.minecraft.client.events.listeners.EntityUpdate;
+import fr.math.minecraft.client.manager.SoundManager;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.server.pathfinding.Node;
@@ -35,6 +37,8 @@ public class EntityStateHandler implements Runnable {
         String entityTypeValue = entityData.get("entityType").asText();
         Entity entity = world.getEntities().get(uuid);
         String entityName = entityData.get("name").asText();
+        String lastAttackerID = entityData.get("lastAttacker").asText();
+        String lastAttackerTypeValue = entityData.get("lastAttackerType").asText();
         float worldX = entityData.get("x").floatValue();
         float worldY = entityData.get("y").floatValue();
         float worldZ = entityData.get("z").floatValue();
@@ -74,6 +78,14 @@ public class EntityStateHandler implements Runnable {
             }
             Pattern pattern = new Pattern(path, null, null);
             entity.setPattern(pattern);
+            if (!lastAttackerID.equals("NONE")) {
+                EntityType lastAttackerType = EntityType.valueOf(lastAttackerTypeValue);
+                if (health < entity.getHealth() && lastAttackerType == EntityType.PLAYER) {
+                    entity.setHitMarkDelay(20);
+                    SoundManager soundManager = SoundManager.getInstance();
+                    soundManager.play(Sounds.HIT);
+                }
+            }
             entity.setHealth(health);
             entity.setMaxHealth(maxHealth);
         } catch (IllegalArgumentException e) {

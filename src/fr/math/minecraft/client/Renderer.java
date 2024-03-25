@@ -251,6 +251,7 @@ public class Renderer {
         zombieTexture.bind();
 
         camera.matrix(zombieShader, zombie);
+        zombieShader.sendFloat("hit", zombie.getHitMarkDelay() > 0 ? 1.0f : 0.0f);
 
         playerMesh.draw();
         zombieTexture.unbind();
