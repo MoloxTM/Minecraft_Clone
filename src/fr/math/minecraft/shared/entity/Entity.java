@@ -38,7 +38,7 @@ public abstract class Entity {
 
     protected Vector3f position;
     protected final Vector3f velocity;
-    protected final Vector3f gravity;
+    protected Vector3f gravity;
     protected float yaw, lastYaw, bodyYaw;
     protected float pitch;
     protected float speed, maxSpeed, maxFall;
@@ -141,12 +141,12 @@ public abstract class Entity {
                         continue;
                     }
                     if (clientDistance < 10) {
-                        Node start = new Node(new Vector3f(position), false);
-                        Node end = new Node(new Vector3f(client.getPosition()), false);
+                        Node start = new Node(new Vector3f(position));
+                        Node end = new Node(new Vector3f(client.getPosition()));
                         Vector2f entityPosition = new Vector2f(position.x, position.z);
                         Vector2f direction = new Vector2f(client.getPosition().x, client.getPosition().z).sub(entityPosition);
                         pattern = new Pattern(AStar.shortestPath(world, start, end), start, end);
-                        yaw = (float) Math.toDegrees(java.lang.Math.atan(direction.y / direction.x));
+                        yaw = (float) Math.toDegrees(Math.atan2(direction.y, direction.x));
                         break;
                     }
                 }
@@ -202,6 +202,8 @@ public abstract class Entity {
                 pattern = pattern.next();
             }
         }
+
+        velocity.mul(0.95f);
     }
 
     public void updateAnimations() {
@@ -251,8 +253,10 @@ public abstract class Entity {
                     }
 
                     if (velocity.x > 0) {
+                        handleJumpCollision();
                         position.x = worldX - hitbox.getWidth();
                     } else if (velocity.x < 0) {
+                        handleJumpCollision();
                         position.x = worldX + hitbox.getWidth() + 1;
                     }
 
@@ -268,12 +272,21 @@ public abstract class Entity {
                     }
 
                     if (velocity.z > 0) {
+                        handleJumpCollision();
                         position.z = worldZ - hitbox.getDepth();
                     } else if (velocity.z < 0) {
+                        handleJumpCollision();
                         position.z = worldZ + hitbox.getDepth() + 1;
                     }
                 }
             }
+        }
+    }
+
+    private void handleJumpCollision() {
+        if (type != EntityType.PLAYER && canJump) {
+            velocity.y = .27f;
+            canJump = false;
         }
     }
 

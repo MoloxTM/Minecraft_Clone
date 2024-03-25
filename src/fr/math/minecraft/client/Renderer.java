@@ -261,14 +261,16 @@ public class Renderer {
             terrainTexture.activeSlot();
             terrainTexture.bind();
 
+            /*
             for (Node node : zombie.getPattern().getPath()) {
-                Vector3f pathWorldPosition = new Vector3f(node.getPosition().x, 11, node.getPosition().y);
+                Vector3f pathWorldPosition = new Vector3f(node.getPosition().x, zombie.getPosition().y + 1, node.getPosition().y);
                 camera.matrixInWorld(handBlockShader, pathWorldPosition);
 
                 handBlockMesh.update(handBlockShader, Material.DEBUG);
 
                 handBlockMesh.draw();
             }
+             */
 
             terrainTexture.unbind();
         }

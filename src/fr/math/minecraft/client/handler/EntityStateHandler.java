@@ -69,7 +69,7 @@ public class EntityStateHandler implements Runnable {
                 int x = pathArrayNode.get(i).get("x").asInt();
                 int y = pathArrayNode.get(i).get("y").asInt();
                 Vector2i position = new Vector2i(x, y);
-                Node node = new Node(position, false);
+                Node node = new Node(position);
                 path.add(node);
             }
             Pattern pattern = new Pattern(path, null, null);

@@ -32,6 +32,7 @@ public class Zombie extends Entity {
         this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 1.0f, 0.25f));
         animations.add(new ZombieWalkAnimation(this));
         this.damage = 1.0f;
+        this.gravity = new Vector3f(0, -0.025f, 0);
     }
 
     @Override

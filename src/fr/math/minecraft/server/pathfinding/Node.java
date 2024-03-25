@@ -11,29 +11,27 @@ public class Node {
 
     private float gCost, fCost, hCost;
     private float heuristic;
-    private boolean solid;
     private final Vector2i position;
     private Node parent;
 
-    public Node(int x, int y, boolean solid) {
-        this(new Vector2i(x, y), solid);
+    public Node(int x, int y) {
+        this(new Vector2i(x, y));
     }
 
-    public Node(Vector3i position, boolean solid) {
-        this(new Vector2i(position.x, 0, position.z), solid);
+    public Node(Vector3i position) {
+        this(new Vector2i(position.x, 0, position.z));
     }
 
-    public Node(Vector3f position, boolean solid) {
-        this(new Vector2i((int) position.x, (int) position.z), solid);
+    public Node(Vector3f position) {
+        this(new Vector2i((int) position.x, (int) position.z));
     }
 
-    public Node(Vector2i position, boolean solid) {
+    public Node(Vector2i position) {
         this.position = position;
         this.gCost = -1;
         this.hCost = -1;
         this.fCost = -1;
         this.heuristic = -1;
-        this.solid = solid;
         this.parent = null;
     }
 
@@ -65,10 +63,6 @@ public class Node {
         this.hCost = hCost;
     }
 
-    public boolean isSolid() {
-        return solid;
-    }
-
     public Node getParent() {
         return parent;
     }
@@ -82,7 +76,6 @@ public class Node {
         return "Node{" +
                 ", position=" + position +
                 ", heuristic=" + heuristic +
-                ", solid=" + solid +
                 '}';
     }
 

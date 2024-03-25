@@ -54,18 +54,25 @@ public class AStar {
                     graph.getLoadedChunks().add(chunk.getPosition());
 
                     for (int x = 0; x < Chunk.SIZE; x++) {
-                        for (int y = 0; y < Chunk.SIZE; y++) {
-                            for (int z = 0; z < Chunk.SIZE; z++) {
+                        for (int z = 0; z < Chunk.SIZE; z++) {
+                            boolean solidNode = false;
+                            int worldX = x + chunk.getPosition().x * Chunk.SIZE;
+                            int worldZ = z + chunk.getPosition().z * Chunk.SIZE;
 
-                                int worldX = x + chunk.getPosition().x * Chunk.SIZE;
-                                int worldZ = z + chunk.getPosition().z * Chunk.SIZE;
-
+                            for (int y = 0; y < Chunk.SIZE; y++) {
                                 Material material = Material.getMaterialById(chunk.getBlock(x, y, z));
-                                Node node = new Node(worldX, worldZ, material.isSolid());
-
-                                synchronized (world.getGraph()) {
-                                    graph.addNode(node);
+                                if (material.isSolid()) {
+                                    solidNode = true;
                                 }
+                            }
+
+                            if (solidNode) {
+                                continue;
+                            }
+
+                            Node node = new Node(worldX, worldZ);
+                            synchronized (world.getGraph()) {
+                                graph.addNode(node);
                             }
                         }
                     }
@@ -98,14 +105,14 @@ public class AStar {
     public static List<Node> getAdjacentsNode(Vector2i position) {
         List<Node> adjacentsNode = new ArrayList<>();
 
-        adjacentsNode.add(new Node(position.x - 1, position.y, false));
-        adjacentsNode.add(new Node(position.x + 1, position.y, false));
-        adjacentsNode.add(new Node(position.x, position.y - 1, false));
-        adjacentsNode.add(new Node(position.x, position.y + 1, false));
-        adjacentsNode.add(new Node(position.x + 1, position.y + 1, false));
-        adjacentsNode.add(new Node(position.x - 1, position.y + 1, false));
-        adjacentsNode.add(new Node(position.x - 1, position.y - 1, false));
-        adjacentsNode.add(new Node(position.x + 1, position.y - 1, false));
+        adjacentsNode.add(new Node(position.x - 1, position.y));
+        adjacentsNode.add(new Node(position.x + 1, position.y));
+        adjacentsNode.add(new Node(position.x, position.y - 1));
+        adjacentsNode.add(new Node(position.x, position.y + 1));
+        adjacentsNode.add(new Node(position.x + 1, position.y + 1));
+        adjacentsNode.add(new Node(position.x - 1, position.y + 1));
+        adjacentsNode.add(new Node(position.x - 1, position.y - 1));
+        adjacentsNode.add(new Node(position.x + 1, position.y - 1));
 
         return adjacentsNode;
     }
@@ -150,10 +157,6 @@ public class AStar {
                 for (Node neighbor : graph.getNeighbors(current)) {
 
                     if (closedList.contains(neighbor)) {
-                        continue;
-                    }
-
-                    if (neighbor.isSolid()) {
                         continue;
                     }
 

@@ -10,10 +10,12 @@ import java.util.Set;
 public class Graph {
 
     private final Map<Node, Set<Node>> nodes;
+    private final Map<Node, Node> world;
     private final Set<Vector3i> loadedChunks;
 
     public Graph() {
         this.nodes = new HashMap<>();
+        this.world = new HashMap<>();
         this.loadedChunks = new HashSet<>();
     }
 
@@ -23,6 +25,7 @@ public class Graph {
 
     public void addNode(Node node) {
         nodes.put(node, new HashSet<>());
+        world.put(node, node);
     }
 
     public void removeNode(Node node) {

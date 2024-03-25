@@ -48,8 +48,8 @@ public class TestPathfinding {
         zombie.setPosition(new Vector3f(0, 0, 0));
         world.addEntity(zombie);
         AStar.initGraph(world, zombie.getPosition());
-        Node start = new Node(zombie.getPosition(), false);
-        Node end = new Node(new Vector3f(zombie.getPosition()).add(10, 0, 4), false);
+        Node start = new Node(zombie.getPosition());
+        Node end = new Node(new Vector3f(zombie.getPosition()).add(10, 0, 4));
         List<Node> path = AStar.shortestPath(world, start, end);
 
         System.out.println(Arrays.toString(path.toArray()));
@@ -58,13 +58,13 @@ public class TestPathfinding {
     @Test
     public void testGraph() {
         Graph graph = new Graph();
-        graph.addNode(new Node(0, 0, false));
-        graph.addNode(new Node(1, 0, false));
-        graph.addNode(new Node(2, 0, false));
-        graph.addNode(new Node(3, 0, false));
+        graph.addNode(new Node(0, 0));
+        graph.addNode(new Node(1, 0));
+        graph.addNode(new Node(2, 0));
+        graph.addNode(new Node(3, 0));
 
-        graph.addLink(new Node(0, 0, true), new Node(1, 0, false));
-        graph.addLink(new Node(0, 0, true), new Node(2, 0, false));
+        graph.addLink(new Node(0, 0), new Node(1, 0));
+        graph.addLink(new Node(0, 0), new Node(2, 0));
 
         System.out.println(graph);
 
