@@ -205,7 +205,7 @@ public class Game {
                 return;
             }
             Random r = new Random();
-            int randomLine = r.nextInt(0, lines);
+            int randomLine = r.nextInt(lines);
             this.splash = Files.readAllLines(Paths.get(GameConfiguration.SPLASHES_FILE_PATH)).get(randomLine);
             reader.close();
         } catch (IOException e) {

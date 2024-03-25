@@ -223,8 +223,8 @@ public class  StructureBuilder {
 
     public static void buildSimpleCactus(Structure structure, int x, int y, int z) {
         RandomSeed randomSeed = RandomSeed.getInstance();
-        int cactusSize = randomSeed.nextInt(3, 5);
-        float cactusSizeDrop = randomSeed.nextFloat(100);
+        int cactusSize = randomSeed.nextInt(5 - 3 + 1) + 3;
+        float cactusSizeDrop = randomSeed.nextFloat() * 100;
         if(cactusSizeDrop <= 99) {
             for(int i = 1; i<=cactusSize;i++){
                 structure.setBlock(x,y+i,z,Material.CACTUS.getId());

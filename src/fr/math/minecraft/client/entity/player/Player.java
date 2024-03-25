@@ -152,7 +152,7 @@ public class Player extends Entity {
                 return;
             }
             if (glfwGetKey(window, GLFW_KEY_BACKSPACE) == GLFW_PRESS) {
-                if (!chatPayload.getMessage().isEmpty()) {
+                if (chatPayload.getMessage().length() != 0) {
                     chatPayload.getMessage().deleteCharAt(chatPayload.getMessage().length() - 1);
                 }
                 return;

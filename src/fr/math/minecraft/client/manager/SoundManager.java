@@ -77,7 +77,7 @@ public class SoundManager {
 
     public Sound getRandomMusic() {
         Random random = new Random();
-        int index = random.nextInt(0, musics.size());
+        int index = random.nextInt(musics.size());
         Sounds sound = musics.get(index);
         return this.getSound(sound);
     }

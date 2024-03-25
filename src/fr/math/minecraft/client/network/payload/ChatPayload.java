@@ -18,7 +18,7 @@ public class ChatPayload {
     }
 
     public void send() {
-        if (message.isEmpty()) {
+        if (message.length() == 0) {
             return;
         }
 

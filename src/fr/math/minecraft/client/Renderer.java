@@ -970,7 +970,7 @@ public class Renderer {
         this.renderRect(camera, margin, margin + 50, width, height, 0x0, 0.45f, -11);
         float messageX = margin;
         float messageY = margin + 52;
-        List<ChatMessage> sortedMessages = new ArrayList<>(messages.values().stream().toList());
+        List<ChatMessage> sortedMessages = new ArrayList<>(messages.values());
         sortedMessages.sort(new ChatTimestampComparator());
 
         int messageDisplayed = 0;
