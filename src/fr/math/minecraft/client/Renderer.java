@@ -882,7 +882,7 @@ public class Renderer {
 
     public void renderSelectedBlock(Camera camera, Player player, Material material) {
 
-        glDisable(GL_DEPTH_TEST);
+        glClear(GL_DEPTH_BUFFER_BIT);
 
         handBlockShader.enable();
         handBlockShader.sendInt("uTexture", terrainTexture.getSlot());
@@ -892,12 +892,10 @@ public class Renderer {
 
         handBlockMesh.update(handBlockShader, material);
         camera.matrixSelectedBlock(player.getHand(), handBlockShader);
-
+        handBlockShader.sendFloat("blockID", material.getId());
         handBlockMesh.draw();
 
         terrainTexture.unbind();
-
-        glEnable(GL_DEPTH_TEST);
 
     }
 
@@ -920,17 +918,21 @@ public class Renderer {
         glActiveTexture(GL_TEXTURE0 + guiBlocksTexture.getSlot());
         guiBlocksTexture.bind();
 
-        ItemModelData itemModelData = ItemModelData.valueOf(String.valueOf(material));
+        try {
+            ItemModelData itemModelData = ItemModelData.valueOf(String.valueOf(material));
 
-        camera.matrixItem(player.getHand(), player.getMiningAnimation(), itemShader, itemModelData);
+            camera.matrixItem(player.getHand(), player.getMiningAnimation(), itemShader, itemModelData);
 
-        itemMesh.draw();
-        guiBlocksTexture.unbind();
+            itemMesh.draw();
+            guiBlocksTexture.unbind();
 
-        float itemTextX = (GameConfiguration.WINDOW_WIDTH - fontManager.getTextWidth(fontMesh, material.getName())) / 2.0f;
-        float itemTextY = 22 * HOTBAR_SCALE * gameConfiguration.getGuiScale() + 20;
+            float itemTextX = (GameConfiguration.WINDOW_WIDTH - fontManager.getTextWidth(fontMesh, material.getName())) / 2.0f;
+            float itemTextY = 22 * HOTBAR_SCALE * gameConfiguration.getGuiScale() + 20;
 
-        this.renderText(camera, material.getName(), itemTextX, itemTextY, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
+            this.renderText(camera, material.getName(), itemTextX, itemTextY, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
+        } catch (IllegalArgumentException e) {
+            this.renderHand(camera, player.getHand());
+        }
     }
 
     public Map<String, Texture> getSkinsMap() {

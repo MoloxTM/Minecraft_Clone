@@ -6,6 +6,7 @@ layout (location = 2) in float aIndex;
 layout (location = 3) in float aFace;
 
 out vec2 textureCoords;
+out float face;
 
 uniform mat4 projection;
 uniform mat4 view;
@@ -73,5 +74,5 @@ void main() {
 
     gl_Position = projection * view * model * vec4(aPosition, 1.0);
     textureCoords = texturePosition;
-
+    face = aFace;
 }

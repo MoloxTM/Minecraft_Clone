@@ -695,18 +695,18 @@ public class MeshBuilder {
             new BlockVertex(new Vector3f(-0.5f, 0.5f, -0.5f), texCoordsNz[1], 1, BlockFace.NZ_FACE.ordinal()),
             new BlockVertex(new Vector3f(0.5f, 0.5f, -0.5f), texCoordsNz[2], 2, BlockFace.NZ_FACE.ordinal()),
             new BlockVertex(new Vector3f(0.5f, -0.5f, -0.5f), texCoordsNz[3], 3, BlockFace.NZ_FACE.ordinal()),
-
             // Face gauche
             new BlockVertex(new Vector3f(-0.5f, -0.5f, -0.5f), texCoordsNx[0], 0, BlockFace.NX_FACE.ordinal()),
             new BlockVertex(new Vector3f(-0.5f, 0.5f, -0.5f), texCoordsNx[1], 1, BlockFace.NX_FACE.ordinal()),
             new BlockVertex(new Vector3f(-0.5f, 0.5f, 0.5f), texCoordsNx[2], 2, BlockFace.NX_FACE.ordinal()),
             new BlockVertex(new Vector3f(-0.5f, -0.5f, 0.5f), texCoordsNx[3], 3, BlockFace.NX_FACE.ordinal()),
 
+
             // Face droite
-            new BlockVertex(new Vector3f(0.5f, -0.5f, 0.5f), texCoordsPx[0], 0, BlockFace.PX_FACE.ordinal()),
-            new BlockVertex(new Vector3f(0.5f, 0.5f, 0.5f), texCoordsPx[1], 1, BlockFace.PX_FACE.ordinal()),
-            new BlockVertex(new Vector3f(0.5f, 0.5f, -0.5f), texCoordsPx[2], 2, BlockFace.PX_FACE.ordinal()),
-            new BlockVertex(new Vector3f(0.5f, -0.5f, -0.5f), texCoordsPx[3], 3, BlockFace.PX_FACE.ordinal()),
+            new BlockVertex(new Vector3f(0.5f, -0.5f, -0.5f), texCoordsPx[0], 0, BlockFace.PX_FACE.ordinal()),
+            new BlockVertex(new Vector3f(0.5f, 0.5f, -0.5f), texCoordsPx[1], 1, BlockFace.PX_FACE.ordinal()),
+            new BlockVertex(new Vector3f(0.5f, 0.5f, 0.5f), texCoordsPx[2], 2, BlockFace.PX_FACE.ordinal()),
+            new BlockVertex(new Vector3f(0.5f, -0.5f, 0.5f), texCoordsPx[3], 3, BlockFace.PX_FACE.ordinal()),
 
             // Face supérieure
             new BlockVertex(new Vector3f(-0.5f, 0.5f, 0.5f), texCoordsPy[0], 0, BlockFace.PY_FACE.ordinal()),
@@ -719,6 +719,7 @@ public class MeshBuilder {
             new BlockVertex(new Vector3f(-0.5f, -0.5f, -0.5f), texCoordsNy[1], 1, BlockFace.NY_FACE.ordinal()),
             new BlockVertex(new Vector3f(0.5f, -0.5f, -0.5f), texCoordsNy[2], 2, BlockFace.NY_FACE.ordinal()),
             new BlockVertex(new Vector3f(0.5f, -0.5f, 0.5f), texCoordsNy[3], 3, BlockFace.NY_FACE.ordinal())
+
         };
 
         return vertices;

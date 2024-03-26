@@ -61,11 +61,12 @@ public class Chunk {
     }
 
     public void update() {
-        if (!loaded) return;
-        mesh.delete();
-        mesh = new ChunkMesh(this);
+        if (loaded) {
+            mesh.delete();
+            waterMesh.delete();
+        }
 
-        waterMesh.delete();
+        mesh = new ChunkMesh(this);
         waterMesh = new WaterMesh(this);
     }
 
