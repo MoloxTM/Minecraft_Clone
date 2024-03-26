@@ -368,10 +368,56 @@ public class Client {
 
             int holdedSlot = inputData.getHoldedSlot();
             InventoryType inventoryType = inputData.getInventoryType();
-            InventoryType nextInventory = inputData.getNextInventory();
+            InventoryType nextInventoryType = inputData.getNextInventory();
             int nextSlot = inputData.getNextSlot();
+            Inventory lastInventory = null;
+            Inventory nextInventory = null;
 
-            // A finir pour le déplacement d'items dans les inventaires (et pour craft)
+            if (inventoryType != null) {
+                switch (inventoryType) {
+                    case HOTBAR:
+                        lastInventory = hotbar;
+                        break;
+                    case PLAYER_INVENTORY:
+                        lastInventory = inventory;
+                        break;
+                    case CRAFT_INVENTORY:
+                        lastInventory = craftInventory;
+                        break;
+                }
+            }
+
+            if (nextInventoryType != null) {
+                switch (nextInventoryType) {
+                    case HOTBAR:
+                        nextInventory = hotbar;
+                        break;
+                    case PLAYER_INVENTORY:
+                        nextInventory = inventory;
+                        break;
+                    case CRAFT_INVENTORY:
+                        nextInventory = craftInventory;
+                        break;
+                }
+            }
+
+            if (lastInventory != null && nextInventory != null) {
+                ItemStack holdedItem = lastInventory.getItems()[holdedSlot];
+
+                if (nextInventory.getItems()[nextSlot] == null) {
+                    nextInventory.setItem(holdedItem, nextSlot);
+                    lastInventory.setItem(null, holdedSlot);
+                } else {
+                    if (nextInventory.getItems()[nextSlot].getMaterial() == holdedItem.getMaterial()) {
+                        holdedItem.setAmount(holdedItem.getAmount() + nextInventory.getItems()[nextSlot].getAmount());
+                        nextInventory.setItem(holdedItem, nextSlot);
+                        lastInventory.setItem(null, holdedSlot);
+                    } else {
+                        nextInventory.setItem(holdedItem, nextSlot);
+                        lastInventory.setItem(holdedItem, holdedSlot);
+                    }
+                }
+            }
 
             velocity.mul(0.95f);
         }
