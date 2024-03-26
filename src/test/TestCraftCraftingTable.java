@@ -32,7 +32,7 @@ public class TestCraftCraftingTable {
         inventory.setItem(new ItemStack(Material.OAK_PLANKS, 1), 7);
         inventory.setItem(new ItemStack(Material.OAK_PLANKS, 1), 8);
 
-        CraftController craftController = new CraftController();
+        CraftController craftController = CraftController.getInstance();
         craftController.registerCraft(new ChestCraft());
         ItemStack itemStack = craftController.getCraft(inventory);
 
@@ -52,7 +52,7 @@ public class TestCraftCraftingTable {
         inventory.setItem(new ItemStack(Material.COBBLESTONE, 1), 7);
         inventory.setItem(new ItemStack(Material.COBBLESTONE, 1), 8);
 
-        CraftController craftController = new CraftController();
+        CraftController craftController = CraftController.getInstance();
         craftController.registerCraft(new FurnaceCraft());
         ItemStack itemStack = craftController.getCraft(inventory);
 
@@ -66,7 +66,7 @@ public class TestCraftCraftingTable {
         inventory.setItem(new ItemStack(Material.DIAMOND, 1), 3);
         inventory.setItem(new ItemStack(Material.STICK, 1), 6);
 
-        CraftController craftController = new CraftController();
+        CraftController craftController = CraftController.getInstance();
         craftController.registerCraft(new DiamondSwordCraft());
         ItemStack itemStack = craftController.getCraft(inventory);
 
@@ -75,7 +75,7 @@ public class TestCraftCraftingTable {
         inventory2.setItem(new ItemStack(Material.DIAMOND, 1), 4);
         inventory2.setItem(new ItemStack(Material.STICK, 1), 7);
 
-        CraftController craftController2 = new CraftController();
+        CraftController craftController2 = CraftController.getInstance();
         craftController2.registerCraft(new DiamondSwordCraft());
         ItemStack itemStack2 = craftController2.getCraft(inventory2);
 
@@ -84,7 +84,7 @@ public class TestCraftCraftingTable {
         inventory3.setItem(new ItemStack(Material.DIAMOND, 1), 5);
         inventory3.setItem(new ItemStack(Material.STICK, 1), 8);
 
-        CraftController craftController3 = new CraftController();
+        CraftController craftController3 = CraftController.getInstance();
         craftController3.registerCraft(new DiamondSwordCraft());
         ItemStack itemStack3 = craftController3.getCraft(inventory3);
 
@@ -103,7 +103,7 @@ public class TestCraftCraftingTable {
         inventory.setItem(new ItemStack(Material.STICK, 1), 4);
         inventory.setItem(new ItemStack(Material.STICK, 1), 7);
 
-        CraftController craftController = new CraftController();
+        CraftController craftController = CraftController.getInstance();
         craftController.registerCraft(new DiamondAxeCraft());
         ItemStack itemStack = craftController.getCraft(inventory);
 
@@ -114,7 +114,7 @@ public class TestCraftCraftingTable {
         inventory2.setItem(new ItemStack(Material.STICK, 1), 4);
         inventory2.setItem(new ItemStack(Material.STICK, 1), 7);
 
-        CraftController craftController2 = new CraftController();
+        CraftController craftController2 = CraftController.getInstance();
         craftController2.registerCraft(new DiamondAxeCraft());
         ItemStack itemStack2 = craftController2.getCraft(inventory2);
 
@@ -130,7 +130,7 @@ public class TestCraftCraftingTable {
         inventory.setItem(new ItemStack(Material.STICK, 1), 6);
 
 
-        CraftController craftController = new CraftController();
+        CraftController craftController = CraftController.getInstance();
         craftController.registerCraft(new IronShovelCraft());
         ItemStack itemStack = craftController.getCraft(inventory);
 
@@ -140,7 +140,7 @@ public class TestCraftCraftingTable {
         inventory2.setItem(new ItemStack(Material.STICK, 1), 7);
 
 
-        CraftController craftController2 = new CraftController();
+        CraftController craftController2 = CraftController.getInstance();
         craftController2.registerCraft(new IronShovelCraft());
         ItemStack itemStack2 = craftController2.getCraft(inventory2);
 
@@ -150,7 +150,7 @@ public class TestCraftCraftingTable {
         inventory3.setItem(new ItemStack(Material.STICK, 1), 8);
 
 
-        CraftController craftController3 = new CraftController();
+        CraftController craftController3 = CraftController.getInstance();
         craftController3.registerCraft(new IronShovelCraft());
         ItemStack itemStack3 = craftController.getCraft(inventory3);
 
@@ -169,7 +169,7 @@ public class TestCraftCraftingTable {
         inventory.setItem(new ItemStack(Material.STICK, 1), 4);
         inventory.setItem(new ItemStack(Material.STICK, 1), 7);
 
-        CraftController craftController = new CraftController();
+        CraftController craftController = CraftController.getInstance();
         craftController.registerCraft(new WoodenPickaxeCraft());
         ItemStack itemStack = craftController.getCraft(inventory);
 
@@ -185,7 +185,7 @@ public class TestCraftCraftingTable {
         inventory.setItem(new ItemStack(Material.LEATHER, 1), 3);
         inventory.setItem(new ItemStack(Material.LEATHER, 1), 5);
 
-        CraftController craftController = new CraftController();
+        CraftController craftController = CraftController.getInstance();
         craftController.registerCraft(new LeatherHelmetCraft());
         ItemStack itemStack = craftController.getCraft(inventory);
 
@@ -196,7 +196,7 @@ public class TestCraftCraftingTable {
         inventory2.setItem(new ItemStack(Material.LEATHER, 1), 6);
         inventory2.setItem(new ItemStack(Material.LEATHER, 1), 8);
 
-        CraftController craftController2 = new CraftController();
+        CraftController craftController2 = CraftController.getInstance();
         craftController2.registerCraft(new LeatherHelmetCraft());
         ItemStack itemStack2 = craftController.getCraft(inventory2);
 
@@ -216,7 +216,7 @@ public class TestCraftCraftingTable {
         inventory.setItem(new ItemStack(Material.IRON_INGOT, 1), 7);
         inventory.setItem(new ItemStack(Material.IRON_INGOT, 1), 8);
 
-        CraftController craftController = new CraftController();
+        CraftController craftController = CraftController.getInstance();
         craftController.registerCraft(new IronChessplateCraft());
         ItemStack itemStack = craftController.getCraft(inventory);
 
@@ -234,7 +234,7 @@ public class TestCraftCraftingTable {
         inventory.setItem(new ItemStack(Material.DIAMOND, 1), 6);
         inventory.setItem(new ItemStack(Material.DIAMOND, 1), 8);
 
-        CraftController craftController = new CraftController();
+        CraftController craftController = CraftController.getInstance();
         craftController.registerCraft(new DiamondPantsCraft());
         ItemStack itemStack = craftController.getCraft(inventory);
 
@@ -249,7 +249,7 @@ public class TestCraftCraftingTable {
         inventory.setItem(new ItemStack(Material.DIAMOND, 1), 3);
         inventory.setItem(new ItemStack(Material.DIAMOND, 1), 5);
 
-        CraftController craftController = new CraftController();
+        CraftController craftController = CraftController.getInstance();
         craftController.registerCraft(new DiamondBootsCraft());
         ItemStack itemStack = craftController.getCraft(inventory);
 
@@ -259,7 +259,7 @@ public class TestCraftCraftingTable {
         inventory2.setItem(new ItemStack(Material.DIAMOND, 1), 6);
         inventory2.setItem(new ItemStack(Material.DIAMOND, 1), 8);
 
-        CraftController craftController2 = new CraftController();
+        CraftController craftController2 = CraftController.getInstance();
         craftController2.registerCraft(new DiamondBootsCraft());
         ItemStack itemStack2 = craftController.getCraft(inventory2);
 

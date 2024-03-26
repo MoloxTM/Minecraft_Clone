@@ -1,14 +1,83 @@
 package fr.math.minecraft.shared.inventory;
 
+import fr.math.minecraft.shared.inventory.items.*;
+import fr.math.minecraft.shared.inventory.items.armor.*;
+import fr.math.minecraft.shared.inventory.items.axe.DiamondAxeCraft;
+import fr.math.minecraft.shared.inventory.items.axe.IronAxeCraft;
+import fr.math.minecraft.shared.inventory.items.axe.StoneAxeCraft;
+import fr.math.minecraft.shared.inventory.items.axe.WoodenAxeCraft;
+import fr.math.minecraft.shared.inventory.items.pickaxe.DiamondPickaxeCraft;
+import fr.math.minecraft.shared.inventory.items.pickaxe.IronPickaxeCraft;
+import fr.math.minecraft.shared.inventory.items.pickaxe.StonePickaxeCraft;
+import fr.math.minecraft.shared.inventory.items.pickaxe.WoodenPickaxeCraft;
+import fr.math.minecraft.shared.inventory.items.shovel.DiamondShovelCraft;
+import fr.math.minecraft.shared.inventory.items.shovel.IronShovelCraft;
+import fr.math.minecraft.shared.inventory.items.shovel.StoneShovelCraft;
+import fr.math.minecraft.shared.inventory.items.shovel.WoodenShovelCraft;
+import fr.math.minecraft.shared.inventory.items.sword.DiamondSwordCraft;
+import fr.math.minecraft.shared.inventory.items.sword.IronSwordCraft;
+import fr.math.minecraft.shared.inventory.items.sword.WoodenSwordCraft;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class CraftController {
 
     private ArrayList<CraftRecipes> recipes;
+    private static CraftController instance = null;
 
-    public CraftController() {
+    private CraftController() {
         this.recipes = new ArrayList<>();
+
+        registerCraft(new DiamondBootsCraft());
+        registerCraft(new DiamondChessplateCraft());
+        registerCraft(new DiamondHelmetCraft());
+        registerCraft(new DiamondPantsCraft());
+        registerCraft(new IronBootsCraft());
+        registerCraft(new IronChessplateCraft());
+        registerCraft(new IronChessplateCraft());
+        registerCraft(new IronHelmetCraft());
+        registerCraft(new IronPantsCraft());
+        registerCraft(new LeatherBootsCraft());
+        registerCraft(new LeatherChessplateCraft());
+        registerCraft(new LeatherHelmetCraft());
+        registerCraft(new LeatherPantsCraft());
+        registerCraft(new DiamondAxeCraft());
+        registerCraft(new IronAxeCraft());
+        registerCraft(new StoneAxeCraft());
+        registerCraft(new WoodenAxeCraft());
+        registerCraft(new DiamondPickaxeCraft());
+        registerCraft(new IronPickaxeCraft());
+        registerCraft(new StonePickaxeCraft());
+        registerCraft(new WoodenPickaxeCraft());
+        registerCraft(new DiamondShovelCraft());
+        registerCraft(new IronShovelCraft());
+        registerCraft(new StoneShovelCraft());
+        registerCraft(new WoodenShovelCraft());
+        registerCraft(new DiamondSwordCraft());
+        registerCraft(new IronSwordCraft());
+        registerCraft(new WoodenSwordCraft());
+        registerCraft(new ChestCraft());
+        registerCraft(new CraftingTableCraft());
+        registerCraft(new FurnaceCraft());
+        registerCraft(new OakPlanksCraft());
+        registerCraft(new StickCraft());
+    }
+
+    public void clearInventory(CraftRecipes craft, Inventory inventory) {
+        for (int slot = 0; slot < inventory.getSize(); slot++) {
+            for (CraftData craftData : craft.getPlayerInventory()) {
+                for (byte block : craftData.getTabCraft()) {
+                    ItemStack item = inventory.getItems()[slot];
+                    if (item != null && item.getMaterial().getId() == block) {
+                        item.setAmount(item.getAmount() - 1);
+                        if (item.getAmount() == 0) {
+                            inventory.getItems()[slot] = null;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public ArrayList<CraftRecipes> getRecipes() {
@@ -23,13 +92,12 @@ public class CraftController {
         recipes.add(craftRecipes);
     }
 
-    public ItemStack getCraft(PlayerCraftInventory playerCraftInventory) {
+    public CraftRecipes getCraft(PlayerCraftInventory playerCraftInventory) {
         for (CraftRecipes craftRecipes : recipes) {
             for (int i = 0; i < craftRecipes.getPlayerInventory().size(); i++) {
                 CraftData craftData = craftRecipes.getPlayerInventory().get(i);
-                System.out.println("Tableau de la recette " + i + " : " + Arrays.toString(craftData.getTabCraft()));
                 if (craftData.equals(playerCraftInventory)) {
-                    return craftRecipes.getCraft();
+                    return craftRecipes;
                 }
             }
         }
@@ -46,5 +114,12 @@ public class CraftController {
             }
         }
         return null;
+    }
+
+    public static CraftController getInstance() {
+        if (instance == null) {
+            instance = new CraftController();
+        }
+        return instance;
     }
 }

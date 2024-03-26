@@ -15,11 +15,11 @@ public class TestCraftPlayerInventory {
         inventory.setItem(new ItemStack(Material.OAK_PLANKS, 1), 0);
         inventory.setItem(new ItemStack(Material.OAK_PLANKS, 1), 2);
 
-        CraftController craftController = new CraftController();
+        CraftController craftController = CraftController.getInstance();
         craftController.registerCraft(new StickCraft());
-        ItemStack itemStack = craftController.getCraft(inventory);
+        CraftRecipes craftRecipes = craftController.getCraft(inventory);
 
-        Assert.assertEquals(itemStack.getMaterial(), Material.STICK);
+        Assert.assertEquals(craftRecipes.getCraft().getMaterial(), Material.STICK);
     }
 
     @Test
@@ -30,11 +30,11 @@ public class TestCraftPlayerInventory {
         inventory.setItem(new ItemStack(Material.OAK_PLANKS, 1), 2);
         inventory.setItem(new ItemStack(Material.OAK_PLANKS, 1), 3);
 
-        CraftController craftController = new CraftController();
+        CraftController craftController = CraftController.getInstance();
         craftController.registerCraft(new CraftingTableCraft());
-        ItemStack itemStack = craftController.getCraft(inventory);
+        CraftRecipes craftRecipes = craftController.getCraft(inventory);
 
-        Assert.assertEquals(itemStack.getMaterial(), Material.CRAFTING_TABLE);
+        Assert.assertEquals(craftRecipes.getCraft().getMaterial(), Material.CRAFTING_TABLE);
     }
 
 }

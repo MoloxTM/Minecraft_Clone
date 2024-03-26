@@ -70,15 +70,28 @@ public abstract class Inventory {
         return index;
     }
 
+    public int getAvailableSlot() {
+        for (int slot = 0; slot < items.length; slot++) {
+            if (items[slot] == null) {
+                return slot;
+            }
+        }
+        return -1;
+    }
+
     public void addItem(ItemStack item) {
+        int availableSlot = this.getAvailableSlot();
+        if (availableSlot == -1) {
+            return;
+        }
         int itemIndex = this.getItemIndex(item);
         if (itemIndex == -1) {
-            items[currentSize] = item;
+            items[availableSlot] = new ItemStack(item);
             currentSize++;
             return;
         }
         ItemStack currentItem = items[itemIndex];
-        currentItem.setAmount(currentItem.getAmount() + 1);
+        currentItem.setAmount(currentItem.getAmount() + item.getAmount());
     }
 
     public void setItem(ItemStack item, int slot) {
@@ -160,5 +173,11 @@ public abstract class Inventory {
 
     public void setType(InventoryType type) {
         this.type = type;
+    }
+
+    public void clear() {
+        for (int slot = 0; slot < items.length; slot++) {
+            items[slot] = null;
+        }
     }
 }

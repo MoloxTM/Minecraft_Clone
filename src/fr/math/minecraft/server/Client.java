@@ -65,6 +65,7 @@ public class Client {
     private final PlayerInventory inventory;
     private final Hotbar hotbar;
     private final PlayerCraftInventory craftInventory;
+    private final CompletedCraftPlayerInventory completedCraftPlayerInventory;
     private final static float JUMP_VELOCITY = .125f;
 
 
@@ -108,6 +109,7 @@ public class Client {
         this.inventory = new PlayerInventory();
         this.hotbar = new Hotbar();
         this.craftInventory = new PlayerCraftInventory();
+        this.completedCraftPlayerInventory = new CompletedCraftPlayerInventory();
     }
 
     public String getName() {
@@ -384,6 +386,9 @@ public class Client {
                     case CRAFT_INVENTORY:
                         lastInventory = craftInventory;
                         break;
+                    case COMPLETED_CRAFT_INVENTORY:
+                        lastInventory = completedCraftPlayerInventory;
+                        break;
                 }
             }
 
@@ -398,24 +403,47 @@ public class Client {
                     case CRAFT_INVENTORY:
                         nextInventory = craftInventory;
                         break;
+                    case COMPLETED_CRAFT_INVENTORY:
+                        nextInventory = completedCraftPlayerInventory;
+                        break;
                 }
+            }
+
+            ItemStack craftResult = completedCraftPlayerInventory.getItems()[0];
+
+            if (inputData.isCollectingCraft() && craftResult != null) {
+                this.addItem(craftResult);
+                craftInventory.clear();
+                completedCraftPlayerInventory.clear();
             }
 
             if (lastInventory != null && nextInventory != null) {
                 ItemStack holdedItem = lastInventory.getItems()[holdedSlot];
+                ItemStack oldItem = nextInventory.getItems()[nextSlot];
 
-                if (nextInventory.getItems()[nextSlot] == null) {
-                    nextInventory.setItem(holdedItem, nextSlot);
-                    lastInventory.setItem(null, holdedSlot);
-                } else {
-                    if (nextInventory.getItems()[nextSlot].getMaterial() == holdedItem.getMaterial()) {
-                        holdedItem.setAmount(holdedItem.getAmount() + nextInventory.getItems()[nextSlot].getAmount());
+                if (holdedItem != null) {
+                    if (oldItem == null) {
                         nextInventory.setItem(holdedItem, nextSlot);
                         lastInventory.setItem(null, holdedSlot);
                     } else {
-                        nextInventory.setItem(holdedItem, nextSlot);
-                        lastInventory.setItem(holdedItem, holdedSlot);
+                        if (nextSlot != holdedSlot && nextInventory.getItems()[nextSlot].getMaterial() == holdedItem.getMaterial()) {
+                            int newAmount = holdedItem.getAmount() + nextInventory.getItems()[nextSlot].getAmount();
+                            if (newAmount <= 64) {
+                                holdedItem.setAmount(newAmount);
+                                lastInventory.setItem(null, holdedSlot);
+                                nextInventory.setItem(holdedItem, nextSlot);
+                            }
+                        } else {
+                            nextInventory.setItem(holdedItem, nextSlot);
+                            lastInventory.setItem(oldItem, holdedSlot);
+                        }
                     }
+                }
+
+                CraftController controller = CraftController.getInstance();
+                CraftRecipes craft = controller.getCraft(craftInventory);
+                if (craft != null) {
+                    completedCraftPlayerInventory.setItem(craft.getCraft(), 0);
                 }
             }
 
@@ -572,6 +600,10 @@ public class Client {
     
     public PlayerInventory getInventory() {
         return inventory;
+    }
+
+    public CompletedCraftPlayerInventory getCompletedCraftPlayerInventory() {
+        return completedCraftPlayerInventory;
     }
 
     public PlayerCraftInventory getPlayerCraftInventory() {

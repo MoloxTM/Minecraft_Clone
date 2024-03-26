@@ -17,7 +17,7 @@ public class PlayerInputData {
     private final InventoryType inventoryType;
     private final InventoryType nextInventory;
     private final int nextSlot;
-
+    private boolean collectingCraft;
 
     public PlayerInputData(boolean movingLeft, boolean movingRight, boolean movingForward, boolean movingBackward, boolean flying, boolean sneaking, boolean jumping, float yaw, float pitch, boolean sprinting, boolean placingBlock, boolean breakingBlock, boolean droppingItem, int hotbarSlot) {
         this.movingLeft = movingLeft;
@@ -34,19 +34,19 @@ public class PlayerInputData {
         this.placingBlock = placingBlock;
         this.droppingItem = droppingItem;
         this.hotbarSlot = hotbarSlot;
-
         this.holdedSlot = 0;
         this.inventoryType = null;
         this.nextInventory = null;
         this.nextSlot = 0;
+        this.collectingCraft = false;
     }
 
-    public PlayerInputData(int holdedSlot, InventoryType type, InventoryType nextInventory, int nextSlot) {
+    public PlayerInputData(int holdedSlot, InventoryType type, InventoryType nextInventory, int nextSlot, boolean collectingCraft) {
         this.holdedSlot = holdedSlot;
         this.inventoryType = type;
         this.nextInventory = nextInventory;
         this.nextSlot = nextSlot;
-
+        this.collectingCraft = collectingCraft;
         this.movingLeft = false;
         this.movingRight = false;
         this.movingForward = false;
@@ -89,6 +89,7 @@ public class PlayerInputData {
             node.put("nextInventory", nextInventory.ordinal());
         }
         node.put("nextSlot", nextSlot);
+        node.put("collectingCraft", collectingCraft);
 
         return node;
     }
@@ -159,5 +160,13 @@ public class PlayerInputData {
 
     public int getNextSlot() {
         return nextSlot;
+    }
+
+    public boolean isCollectingCraft() {
+        return collectingCraft;
+    }
+
+    public void setCollectingCraft(boolean collectingCraft) {
+        this.collectingCraft = collectingCraft;
     }
 }

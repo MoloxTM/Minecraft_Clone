@@ -7,6 +7,7 @@ public class CompletedCraftPlayerInventory extends Inventory{
     public CompletedCraftPlayerInventory() {
         super();
         this.items =  new ItemStack[1];
+        this.type = InventoryType.COMPLETED_CRAFT_INVENTORY;
     }
 
     @Override

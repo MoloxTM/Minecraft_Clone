@@ -29,6 +29,12 @@ public class ItemStack {
         this.lore = new ArrayList<>();
     }
 
+    public ItemStack(ItemStack item) {
+        this.amount = item.getAmount();
+        this.material = item.getMaterial();
+        this.lore = new ArrayList<>(item.getLore());
+    }
+
     public List<String> getLore() {
         return lore;
     }
