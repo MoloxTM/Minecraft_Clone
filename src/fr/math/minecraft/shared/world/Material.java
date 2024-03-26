@@ -30,7 +30,10 @@ public enum Material {
     BREAKING_ANIMATION("", -3, 0, 0, 0, 0),
     SAND_STONE("Sand stone", 21, new Vector2i(0, 3), new Vector2i(0, 3), new Vector2i(0, 3), new Vector2i(0, 3), new Vector2i(0, 4), new Vector2i(0, 2), 1, 7),
     CUT_SANDSTONE("Cut sandstone", 22, new Vector2i(0, 1), new Vector2i(0, 1), new Vector2i(0, 1), new Vector2i(0, 1), new Vector2i(0, 4), new Vector2i(0, 4), 3, 7),
-    SMOOTH_SANDSTONE("Smooth sandstone", 23, 0, 4, 0, 8);
+    SMOOTH_SANDSTONE("Smooth sandstone", 23, 0, 4, 0, 8),
+    GLASS("Glass", 24, 1, 12, 9, 4),
+    CRAFTING_TABLE("Crafting Table", 25, new Vector2i(11, 12), new Vector2i(11, 12), new Vector2i(12, 12), new Vector2i(12, 12), new Vector2i(11, 13), new Vector2i(4, 15), 1, 2),
+    FURNACE("Furnace", 26, new Vector2i(13, 13), new Vector2i(13, 13), new Vector2i(13, 13), new Vector2i(12, 13), new Vector2i(14, 12), new Vector2i(14, 12), 1, 5);
 
     private final int blockIconX, x;
     private final int blockIconY, y;

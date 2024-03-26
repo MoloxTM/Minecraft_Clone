@@ -446,7 +446,8 @@ public class  StructureBuilder {
                 }
             }
         }
-
+        structure.setBlock(x + 1, y ,z + 7, Material.CRAFTING_TABLE.getId());
+        structure.setBlock(x + 2, y ,z + 7, Material.FURNACE.getId());
         //etage 2
         y=y+1;
         for(int i=0; i<9;i++){
@@ -465,11 +466,11 @@ public class  StructureBuilder {
 
                 if(j == 5) {
                     if( i == 2 || i == 3 || i == 5 || i == 6) {
-                        structure.setBlock(x+j,y,z+i,Material.AIR.getId());
+                        structure.setBlock(x+j,y,z+i,Material.GLASS.getId());
                     }
                 }
                 if(i == 5 && j == 0) {
-                    structure.setBlock(x+j,y,z+i,Material.AIR.getId());
+                    structure.setBlock(x+j,y,z+i,Material.GLASS.getId());
                 }
             }
         }

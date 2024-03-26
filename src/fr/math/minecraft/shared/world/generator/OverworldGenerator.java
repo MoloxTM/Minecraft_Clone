@@ -47,7 +47,6 @@ public class OverworldGenerator implements TerrainGenerator {
                 heightMap.put(new Vector2i(x, z), worldHeight);
             }
         }
-
         return heightMap;
     }
 
