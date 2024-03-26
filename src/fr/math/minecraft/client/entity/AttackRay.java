@@ -1,5 +1,7 @@
 package fr.math.minecraft.client.entity;
 
+import fr.math.minecraft.server.Client;
+import fr.math.minecraft.server.MinecraftServer;
 import fr.math.minecraft.shared.math.MathUtils;
 import fr.math.minecraft.shared.entity.Entity;
 import fr.math.minecraft.shared.entity.EntityType;
@@ -11,15 +13,17 @@ import org.joml.Vector3i;
 public class AttackRay extends Ray {
 
     private Entity target;
+    private Client clientTarget;
 
     public AttackRay(float reach) {
         super(reach);
         this.target = null;
     }
 
-    public void update(Vector3f position, Vector3f front, World world, boolean isServer) {
+    public void update(Vector3f position, String playerUuid, Vector3f front, World world, boolean isServer) {
 
         target = null;
+        clientTarget = null;
         Vector3f startPoint = new Vector3f(position).add(0.0f, 0.5f, 0.0f);
         Vector3i rayPosition = new Vector3i((int)startPoint.x, (int)startPoint.y, (int)startPoint.z);
         Vector3f endPoint = new Vector3f(startPoint);
@@ -52,13 +56,37 @@ public class AttackRay extends Ray {
                 tMaxZ += tDeltaZ;
             }
 
+            float targetDistance = -1;
+
             synchronized (world.getEntities()) {
                 for (Entity entity : world.getEntities().values()) {
-                    if (entity.getType() == EntityType.PLAYER) {
-                        continue;
-                    }
-                    if (entity.getPosition().distance(new Vector3f(rayPosition)) < 1.0f) {
+                    float entityDistance = entity.getPosition().distance(new Vector3f(rayPosition));
+                    if (entityDistance < 1.0f) {
                         target = entity;
+                        targetDistance = entityDistance;
+                    }
+                }
+            }
+
+            if (isServer) {
+                MinecraftServer server = MinecraftServer.getInstance();
+                synchronized (server.getClients()) {
+                    for (Client client : server.getClients().values()) {
+                        if (client.getUuid().equals(playerUuid)) {
+                            continue;
+                        }
+                        float clientDistance = client.getPosition().distance(new Vector3f(rayPosition));
+                        if (clientDistance < 1.0f) {
+                            if (targetDistance == -1) {
+                                clientTarget = client;
+                                target = null;
+                            } else {
+                                if (clientDistance < targetDistance) {
+                                    clientTarget = client;
+                                    target = null;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -69,4 +97,7 @@ public class AttackRay extends Ray {
         return target;
     }
 
+    public Client getClientTarget() {
+        return clientTarget;
+    }
 }

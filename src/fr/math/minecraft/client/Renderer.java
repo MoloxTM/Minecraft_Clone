@@ -210,6 +210,7 @@ public class Renderer {
 
         playerShader.enable();
         playerShader.sendInt("uTexture", skinTexture.getSlot());
+        playerShader.sendFloat("hit", player.getHitMarkDelay() > 0 ? 1.0f : 0.0f);
 
         glActiveTexture(GL_TEXTURE0 + skinTexture.getSlot());
         skinTexture.bind();

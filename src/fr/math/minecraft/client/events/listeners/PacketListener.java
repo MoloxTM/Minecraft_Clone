@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.Renderer;
+import fr.math.minecraft.client.audio.Sounds;
 import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.client.events.*;
+import fr.math.minecraft.client.manager.SoundManager;
 import fr.math.minecraft.client.network.FixedPacketSender;
 import fr.math.minecraft.client.handler.PlayerMovementHandler;
 import fr.math.minecraft.client.manager.ChunkManager;
@@ -15,6 +17,7 @@ import fr.math.minecraft.client.network.payload.StatePayload;
 import fr.math.minecraft.client.texture.Texture;
 import fr.math.minecraft.shared.ChatMessage;
 import fr.math.minecraft.shared.GameConfiguration;
+import fr.math.minecraft.shared.entity.EntityType;
 import fr.math.minecraft.shared.math.MathUtils;
 import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.shared.world.*;
@@ -88,9 +91,14 @@ public class PacketListener implements PacketEventListener {
             float pitch = playerNode.get("pitch").floatValue();
             float yaw = playerNode.get("yaw").floatValue();
             float bodyYaw = playerNode.get("bodyYaw").floatValue();
+            float health = playerNode.get("health").floatValue();
+            float maxHealth = playerNode.get("maxHealth").floatValue();
 
             String actionId = playerNode.get("action").asText();
             int spriteIndex = playerNode.get("spriteIndex").asInt();
+
+            String lastAttackerID = playerNode.get("lastAttacker").asText();
+            String lastAttackerTypeValue = playerNode.get("lastAttackerType").asText();
 
             PlayerAction action = null;
             if (!actionId.equalsIgnoreCase("NONE")) {
@@ -108,6 +116,16 @@ public class PacketListener implements PacketEventListener {
                 player.getPosition().z = playerZ;
             }
 
+            if (!lastAttackerID.equals("NONE")) {
+                if (health < player.getHealth()) {
+                    player.setHitMarkDelay(20);
+                    if (player.getPosition().distance(game.getPlayer().getPosition()) < 10.0f) {
+                        SoundManager soundManager = SoundManager.getInstance();
+                        soundManager.play(Sounds.HIT);
+                    }
+                }
+            }
+
             player.setMovingRight(movingRight);
             player.setMovingLeft(movingLeft);
             player.setMovingBackward(movingBackward);
@@ -116,6 +134,8 @@ public class PacketListener implements PacketEventListener {
             player.setYaw(yaw);
             player.setBodyYaw(bodyYaw);
             player.setPitch(pitch);
+            player.setHealth(health);
+            player.setMaxHealth(maxHealth);
 
             player.getBuildRay().getBlockWorldPosition().x = rayX;
             player.getBuildRay().getBlockWorldPosition().y = rayY;

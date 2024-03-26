@@ -76,11 +76,11 @@ public class EntityStateHandler implements Runnable {
                 Node node = new Node(position);
                 path.add(node);
             }
+
             Pattern pattern = new Pattern(path, null, null);
             entity.setPattern(pattern);
             if (!lastAttackerID.equals("NONE")) {
-                EntityType lastAttackerType = EntityType.valueOf(lastAttackerTypeValue);
-                if (health < entity.getHealth() && lastAttackerType == EntityType.PLAYER) {
+                if (health < entity.getHealth()) {
                     entity.setHitMarkDelay(20);
                     SoundManager soundManager = SoundManager.getInstance();
                     soundManager.play(Sounds.HIT);

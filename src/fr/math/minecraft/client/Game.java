@@ -337,7 +337,7 @@ public class Game {
         player.updateAnimations();
         player.getHand().update(new Vector3f(player.getVelocity()));
         camera.update(player);
-        player.getAttackRay().update(camera.getPosition(), camera.getFront(), world, false);
+        player.getAttackRay().update(camera.getPosition(), player.getUuid(), camera.getFront(), world, false);
         player.getBuildRay().update(camera.getPosition(), camera.getFront(), world, false);
         player.getBreakRay().update(camera.getPosition(), camera.getFront(), world, false);
         player.getMiningAnimation().update(player);

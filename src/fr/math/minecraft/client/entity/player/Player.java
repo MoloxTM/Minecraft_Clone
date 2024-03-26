@@ -390,7 +390,9 @@ public class Player extends Entity {
     public void update() {
         this.updateAnimations();
         GameConfiguration gameConfiguration = GameConfiguration.getInstance();
-
+        if (hitMarkDelay > 0) {
+            hitMarkDelay = hitMarkDelay - 1;
+        }
         if (gameConfiguration.isEntityInterpolationEnabled()) {
             position.x = Math.lerp(position.x, lastUpdate.getPosition().x, 0.1f);
             position.y = Math.lerp(position.y, lastUpdate.getPosition().y, 0.1f);

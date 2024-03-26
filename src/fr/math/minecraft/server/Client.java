@@ -73,6 +73,8 @@ public class Client {
     private final Hotbar hotbar;
     private float health;
     private float maxHealth;
+    private String lastAttackerID;
+    private EntityType lastAttackerType;
     private final static float JUMP_VELOCITY = .125f;
 
 
@@ -290,7 +292,7 @@ public class Client {
 
             buildRay.update(position, cameraFront, world, true);
             breakRay.update(position, cameraFront, world, true);
-            attackRay.update(position, cameraFront, world, true);
+            attackRay.update(position, uuid, cameraFront, world, true);
 
             if (!breakRay.isAimingBlock()) {
                 sprite.reset();
@@ -307,14 +309,24 @@ public class Client {
                 byte block = breakRay.getAimedBlock();
                 sprite.update(PlayerAction.MINING);
                 Entity target = attackRay.getTarget();
+                Client clientTarget = attackRay.getClientTarget();
 
-                if (target != null) {
-                    Vector2f direction = MathUtils.getDirection2D(position, target.getPosition());
-                    PhysicsController.infligeKnockback(target, direction);
-                    target.setHealth(target.getHealth() - 0.5f);
-                    target.setLastAttackerID(uuid);
-                    target.setLastAttackerType(EntityType.PLAYER);
-                    logger.info(name + "(" + uuid + ") a attaqué un zombie ! Zombie Health : " + target.getHealth() + "/" + target.getMaxHealth());
+                if (target != null || clientTarget != null) {
+                    if (target != null) {
+                        Vector2f direction = MathUtils.getDirection2D(position, target.getPosition());
+                        PhysicsController.infligeKnockback(target, direction);
+                        target.setHealth(target.getHealth() - 0.5f);
+                        target.setLastAttackerID(uuid);
+                        target.setLastAttackerType(EntityType.PLAYER);
+                        logger.info(name + "(" + uuid + ") a attaqué un " + target.getType() + " ! Health : " + target.getHealth() + "/" + target.getMaxHealth());
+                    } else {
+                        Vector2f direction = MathUtils.getDirection2D(position, clientTarget.getPosition());
+                        PhysicsController.infligeKnockback(clientTarget, direction);
+                        clientTarget.setHealth(clientTarget.getHealth() - 0.5f);
+                        clientTarget.setLastAttackerID(uuid);
+                        clientTarget.setLastAttackerType(EntityType.PLAYER);
+                        logger.info(name + "(" + uuid + ") a attaqué un JOUEUR ! Health : " + clientTarget.getHealth() + "/" + clientTarget.getMaxHealth());
+                    }
                 } else {
                     if (action == PlayerAction.MINING && breakRay.isAimingBlock() && sprite.getIndex() == action.getLength() - 1) {
                         Vector3i rayPosition = breakRay.getBlockWorldPosition();
@@ -472,6 +484,8 @@ public class Client {
         node.put("bodyYaw", this.bodyYaw);
         node.put("health", this.health);
         node.put("maxHealth", this.maxHealth);
+        node.put("lastAttacker", lastAttackerID == null ? "NONE" : lastAttackerID);
+        node.put("lastAttackerType", lastAttackerType == null ? "NONE" : lastAttackerType.toString());
 
         return node;
     }
@@ -609,5 +623,21 @@ public class Client {
 
     public void setMaxHealth(float maxHealth) {
         this.maxHealth = maxHealth;
+    }
+
+    public EntityType getLastAttackerType() {
+        return lastAttackerType;
+    }
+
+    public void setLastAttackerType(EntityType lastAttackerType) {
+        this.lastAttackerType = lastAttackerType;
+    }
+
+    public String getLastAttackerID() {
+        return lastAttackerID;
+    }
+
+    public void setLastAttackerID(String lastAttackerID) {
+        this.lastAttackerID = lastAttackerID;
     }
 }

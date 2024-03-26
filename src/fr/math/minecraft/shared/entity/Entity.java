@@ -59,7 +59,7 @@ public abstract class Entity {
     private String lastAttackerID;
     private EntityType lastAttackerType;
     private int patternUpdateCooldown;
-    private int hitMarkDelay;
+    protected int hitMarkDelay;
     private final static Logger logger = LoggerUtility.getClientLogger(Entity.class, LogType.TXT);
     public Entity(String uuid, EntityType type) {
         this.type = type;
