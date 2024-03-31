@@ -8,7 +8,7 @@ public class  StructureBuilder {
 
     public static void buildSimpleTree(Structure structure, int x, int y, int z, Material wood, Material leaf, float droprate, float treeType) {
         int treeSize = 6;
-        if(droprate <= treeType * 0.33f) {
+        if (droprate <= treeType * 0.33f) {
             treeSize = 5;
         } else if (droprate >= treeType * 0.75) {
             treeSize = 4;
@@ -221,12 +221,10 @@ public class  StructureBuilder {
         }
     }
 
-    public static void buildSimpleCactus(Structure structure, int x, int y, int z) {
-        RandomSeed randomSeed = RandomSeed.getInstance();
-        int cactusSize = randomSeed.nextInt(5 - 3 + 1) + 3;
-        float cactusSizeDrop = randomSeed.nextFloat() * 100;
-        if(cactusSizeDrop <= 99) {
-            for(int i = 1; i<=cactusSize;i++){
+    public static void buildSimpleCactus(Structure structure, int x, int y, int z, float noiseValue) {
+        int cactusSize = noiseValue < .12f ? 4 : 5;
+        if(noiseValue < .12f) {
+            for(int i = 1; i <= cactusSize; i++) {
                 structure.setBlock(x,y+i,z,Material.CACTUS.getId());
                 structure.setBlock(x-1,y+i,z-1,Material.AIR.getId());
                 structure.setBlock(x,y+i,z-1,Material.AIR.getId());
@@ -238,7 +236,7 @@ public class  StructureBuilder {
                 structure.setBlock(x+1,y+i,z+1,Material.AIR.getId());
             }
         } else {
-            for(int i = 1; i<=cactusSize;i++){
+            for (int i = 1; i <= cactusSize; i++) {
                 structure.setBlock(x,y+i,z,Material.CACTUS.getId());
                 structure.setBlock(x-1,y+i,z-1,Material.AIR.getId());
                 structure.setBlock(x,y+i,z-1,Material.AIR.getId());

@@ -106,8 +106,8 @@ public class PlayerMovementHandler {
             player.getVelocity().y = serverVelocity.y;
             player.getVelocity().z = serverVelocity.z;
 
-            player.setYaw(lastServerState.getYaw());
-            player.setPitch(lastServerState.getPitch());
+            //player.setYaw(lastServerState.getYaw());
+            //player.setPitch(lastServerState.getPitch());
 
             while (tickToProcess <= currentTick) {
 

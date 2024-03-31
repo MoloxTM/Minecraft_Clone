@@ -413,9 +413,9 @@ public class Player extends Entity {
     public void updatePosition(World world) {
 
         Vector3f front = new Vector3f();
-        front.x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
-        front.y = (float) Math.sin(Math.toRadians(0.0f));
-        front.z = (float) (Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
+        front.x = Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch));
+        front.y = Math.sin(Math.toRadians(0.0f));
+        front.z = Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch));
 
         front.normalize();
 

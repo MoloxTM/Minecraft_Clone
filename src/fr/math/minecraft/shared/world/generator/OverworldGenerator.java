@@ -104,15 +104,6 @@ public class OverworldGenerator implements TerrainGenerator {
                     byte block = chunk.getBlock(x, y, z);
                     int worldY = y + chunk.getPosition().y * Chunk.SIZE;
 
-                    /*
-                    if (true) {
-                        if (worldY <= 10) {
-                            chunk.setBlock(x, y, z, Material.GRASS.getId());
-                        }
-                        continue;
-                    }
-                     */
-
                     Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
                     Vector3i blockWorldPosition = new Vector3i(worldX, worldY, worldZ);
                     BreakedBlock breakedBlock = world.getBrokenBlocks().get(blockWorldPosition);

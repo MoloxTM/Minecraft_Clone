@@ -30,12 +30,13 @@ public class MountainsBiome extends AbstractBiome {
 
     @Override
     public void buildTree(int worldX, int worldY, int worldZ, Structure structure, World world) {
-        float treeNoiseValue = treeNoise.getNoise(worldX, worldZ);
-        Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
 
         if (worldY <= OverworldGenerator.WATER_LEVEL) {
             return;
         }
+
+        float treeNoiseValue = treeNoise.getNoise(worldX, worldZ);
+        Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
 
         for (Coordinates coordinatesAlreadyPlace : structure.getStructures()) {
             double dist = Utils.distance(coordinates, coordinatesAlreadyPlace);

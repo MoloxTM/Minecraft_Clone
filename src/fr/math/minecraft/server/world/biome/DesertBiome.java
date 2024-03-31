@@ -10,7 +10,7 @@ import fr.math.minecraft.shared.world.World;
 import fr.math.minecraft.shared.world.generator.NoiseGenerator;
 import fr.math.minecraft.shared.world.generator.OverworldGenerator;
 
-public class DesertBiome extends AbstractBiome{
+public class DesertBiome extends AbstractBiome {
 
     public DesertBiome() {
         this.noise = new NoiseGenerator(9, 30, 500.0f, .5f, 25);
@@ -32,6 +32,10 @@ public class DesertBiome extends AbstractBiome{
     @Override
     public void buildTree(int worldX, int worldY, int worldZ, Structure structure, World world) {
 
+        if (worldY <= OverworldGenerator.WATER_LEVEL) {
+            return;
+        }
+
         Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
         //Calul distance
         for (Coordinates coordinates1 : structure.getStructureMap().keySet()) {
@@ -39,10 +43,9 @@ public class DesertBiome extends AbstractBiome{
             if (dist <= 20) return;
         }
 
-        RandomSeed randomSeed = RandomSeed.getInstance();
-        float dropRate = randomSeed.nextFloat() * 100.0f;
-        if(dropRate < 0.3f) {
-            StructureBuilder.buildSimpleCactus(structure, worldX, worldY, worldZ);
+        float weedNoiseValue = weedNoise.getNoise(worldX, worldZ);
+        if(weedNoiseValue < 0.23f) {
+            StructureBuilder.buildSimpleCactus(structure, worldX, worldY, worldZ, weedNoiseValue);
             structure.getStructures().add(coordinates);
         }
     }

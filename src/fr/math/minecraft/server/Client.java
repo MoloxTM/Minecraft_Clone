@@ -187,14 +187,15 @@ public class Client {
 
             Vector3f acceleration = new Vector3f(0, 0, 0);
 
-            front.x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
-            front.y = (float) Math.sin(Math.toRadians(0.0f));
-            front.z = (float) (Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
+            front.x = Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch));
+            front.y = Math.sin(Math.toRadians(0.0f));
+            front.z = Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch));
+
+            front.normalize();
 
             Vector3f cameraFront = new Vector3f(front);
             cameraFront.y = Math.sin(Math.toRadians(pitch));
 
-            front.normalize();
             Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
 
             this.resetMoving();
@@ -289,6 +290,8 @@ public class Client {
 
             position.y += velocity.y;
             handleCollisions(new Vector3f(0, velocity.y, 0));
+
+            velocity.mul(0.95f);
 
             buildRay.update(position, cameraFront, world, true);
             breakRay.update(position, cameraFront, world, true);
@@ -422,8 +425,6 @@ public class Client {
                     }
                 }
             }
-
-            velocity.mul(0.95f);
         }
     }
 

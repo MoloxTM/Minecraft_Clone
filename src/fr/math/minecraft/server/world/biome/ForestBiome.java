@@ -49,12 +49,10 @@ public class ForestBiome extends AbstractBiome {
         }
 
 
-        RandomSeed randomSeed = RandomSeed.getInstance();
-        float dropRate = randomSeed.nextFloat() * 100.0f;
         float treeNoiseValue = treeNoise.getNoise(worldX, worldZ);
 
         if (treeNoiseValue < 0.25f) {
-            StructureBuilder.buildSimpleTree(structure, worldX, worldY, worldZ, Material.BIRCH_LOG, Material.BIRCH_LEAVES, dropRate, ForestBiome.TREE_DROP_RATE);
+            StructureBuilder.buildSimpleTree(structure, worldX, worldY, worldZ, Material.BIRCH_LOG, Material.BIRCH_LEAVES, treeNoiseValue, ForestBiome.TREE_DROP_RATE);
             structure.getStructures().add(coordinates);
         } else if (treeNoiseValue < 0.32f) {
             StructureBuilder.buildFancyTree(structure, worldX, worldY, worldZ, Material.OAK_LOG, Material.OAK_LEAVES);
@@ -64,22 +62,6 @@ public class ForestBiome extends AbstractBiome {
             structure.getStructures().add(coordinates);
         }
 
-        /*
-        if(dropRate <= ForestBiome.TREE_DROP_RATE) {
-            if (dropRate <= ForestBiome.TREE_DROP_RATE * 0.07f) {
-                StructureBuilder.buildFancyTree(structure, worldX, worldY, worldZ, Material.OAK_LOG, Material.OAK_LEAVES);
-            } else if(dropRate <= ForestBiome.TREE_DROP_RATE * 0.25f) {
-                StructureBuilder.buildBallonTree(structure, worldX, worldY, worldZ, Material.OAK_LOG, Material.OAK_LEAVES);
-            } else {
-                if(dropRate >= ForestBiome.TREE_DROP_RATE * 0.9f) {
-                    StructureBuilder.buildSimpleTree(structure, worldX, worldY, worldZ, Material.BIRCH_LOG, Material.BIRCH_LEAVES, dropRate, ForestBiome.TREE_DROP_RATE);
-                } else {
-                    StructureBuilder.buildSimpleTree(structure, worldX, worldY, worldZ, Material.OAK_LOG, Material.OAK_LEAVES, dropRate, ForestBiome.TREE_DROP_RATE);
-                }
-            }
-            structure.getStructures().add(coordinates);
-        }
-         */
     }
 
     @Override

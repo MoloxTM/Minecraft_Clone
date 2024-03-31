@@ -36,6 +36,10 @@ public class PlainBiome extends AbstractBiome{
     @Override
     public void buildTree(int worldX, int worldY, int worldZ, Structure structure, World world) {
 
+        if (worldY <= OverworldGenerator.WATER_LEVEL) {
+            return;
+        }
+
         Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
 
         //Calul distance
