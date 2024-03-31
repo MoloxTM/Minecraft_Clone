@@ -4,7 +4,7 @@ import org.joml.Vector3f;
 
 public enum EntityType {
 
-    PLAYER("Steve", 20.0f, 20.0f, 20.0f, 20.0f, new Vector3f(0, 0.25f, 0)),
+    PLAYER("Steve", 20.0f, 20.0f, 14.0f, 20.0f, new Vector3f(0, 0.25f, 0)),
     VILLAGER("Dummy", 100.0f, 100.0f, 0.0f, 0.0f, new Vector3f(0.25f, 0.32f, 0.25f)),
     ZOMBIE("Zombie", 100.0f, 100.0f, 0.0f, 0.0f, new Vector3f(0, 0.25f, 0));
 

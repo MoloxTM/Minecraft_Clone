@@ -21,7 +21,7 @@ public enum Material {
     BIRCH_LEAVES("Oak leaves", 12, 4, 7, 1, 0),
     SPRUCE_WOOD("Spruce Wood", 13, new Vector2i(4, 8), new Vector2i(4, 8), new Vector2i(4, 8), new Vector2i(4, 8), new Vector2i(5, 14), new Vector2i(5, 14), 7, 7),
     SPRUCE_LEAVES("Spruce leaves", 14, 5, 7, 0, 0),
-    APPLE("Apple", 15, -1, -1, 21, 1, false, true),
+    APPLE("Apple", 15, -1, -1, 21, 1, false, true, true),
     SNOW("Snow", 16, 2, 11, 8, 4, true, false),
     DIAMOND_SWORD("Diamond Sword", 17, -1, -1, 4, 2, false, true),
     DIAMOND_AXE("Diamond Axe", 18, -1, -1, 27, 3, false, true),
@@ -39,11 +39,11 @@ public enum Material {
     private final int blockIconY, y;
     private final byte id;
     private final String name;
-    private final boolean faces, solid, item;
+    private final boolean faces, solid, item, food;
     private final Vector2i px, nx, pz, nz, py, ny;
 
     Material(String name, int id, int x, int y, int blockIconX, int blockIconY) {
-        this(name, id, x, y, blockIconX, blockIconY, true, false);
+        this(name, id, x, y, blockIconX, blockIconY, true, false, false);
     }
 
     Material(String name, int id, int x, int y, int blockIconX, int blockIconY, boolean solid, boolean item) {
@@ -62,6 +62,26 @@ public enum Material {
         this.faces = false;
         this.solid = solid;
         this.item = item;
+        this.food = false;
+    }
+
+    Material(String name, int id, int x, int y, int blockIconX, int blockIconY, boolean solid, boolean item, boolean food) {
+        this.name = name;
+        this.id = (byte)id;
+        this.x = x;
+        this.y = y;
+        this.px = null;
+        this.nx = null;
+        this.pz = null;
+        this.nz = null;
+        this.py = null;
+        this.ny = null;
+        this.blockIconX = blockIconX;
+        this.blockIconY = blockIconY;
+        this.faces = false;
+        this.solid = solid;
+        this.item = item;
+        this.food = food;
     }
 
     Material(String name, int id, Vector2i px, Vector2i nx, Vector2i pz, Vector2i nz, Vector2i py, Vector2i ny, int blockIconX, int blockIconY) {
@@ -83,6 +103,7 @@ public enum Material {
         this.blockIconY = blockIconY;
         this.solid = solid;
         this.item = item;
+        this.food = false;
     }
 
     public String getName() {
@@ -154,4 +175,7 @@ public enum Material {
         return item;
     }
 
+    public boolean isFood() {
+        return food;
+    }
 }

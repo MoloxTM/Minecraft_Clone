@@ -73,6 +73,8 @@ public class Client {
     private final Hotbar hotbar;
     private float health;
     private float maxHealth;
+    private float hunger;
+    private float maxHunger;
     private String lastAttackerID;
     private EntityType lastAttackerType;
     private final static float JUMP_VELOCITY = .125f;
@@ -85,6 +87,8 @@ public class Client {
         this.name = name;
         this.health = 20.0f;
         this.maxHealth = 20.0f;
+        this.hunger = 14.0f;
+        this.maxHunger = 20.0f;
         this.velocity = new Vector3f();
         this.inputQueue = new LinkedList<>();
         this.gravity = new Vector3f(0, -0.0025f, 0);
@@ -357,6 +361,9 @@ public class Client {
                         sprite.reset();
 
                         Random random = new Random();
+                        if(material == Material.SPRUCE_LEAVES || material == Material.OAK_LEAVES || material == Material.BIRCH_LEAVES) {
+                            material = Material.APPLE;
+                        }
                         DroppedItem droppedItem = new DroppedItem(new Vector3f(rayPosition), material);
                         droppedItem.getVelocity().y = 0.8f;
                         droppedItem.getVelocity().x = random.nextFloat() * (0.75f - 0.35f) + 0.35f;
@@ -386,10 +393,18 @@ public class Client {
             if (inputData.isPlacingBlock()) {
                 byte block = buildRay.getAimedBlock();
                 ItemStack hotbarItem = hotbar.getItems()[hotbar.getSelectedSlot()];
-
                 if (canPlaceBlock && hotbarItem != null && hotbarItem.getMaterial() != Material.AIR) {
-                    if (buildRay.isAimingBlock()) {
-
+                    if(hotbarItem.getMaterial().isFood()) {
+                        if(getHunger() < getMaxHunger()) {
+                            this.setHunger(this.getHunger() + 2.0f);
+                            hotbarItem.setAmount(hotbarItem.getAmount() - 1);
+                            if (hotbarItem.getAmount() == 0) {
+                                hotbar.getItems()[hotbar.getSelectedSlot()] = null;
+                            }
+                        }
+                        buildRay.reset();
+                        this.canPlaceBlock = false;
+                    } else if (buildRay.isAimingBlock()) {
                         Vector3i rayPosition = buildRay.getBlockWorldPosition();
                         Vector3i placedBlockWorldPosition = buildRay.getBlockPlacedPosition(rayPosition);
                         Vector3i blockPositionLocal = Utils.worldToLocal(placedBlockWorldPosition);
@@ -408,7 +423,6 @@ public class Client {
                             world.getPlacedBlocks().put(placedBlock.getWorldPosition(), placedBlock);
                         }
 
-                        /*On détermine le chunk où le */
                         Chunk aimedChunk = world.getChunkAt(placedBlockWorldPosition);
 
                         aimedChunk.setBlock(blockPositionLocal.x, blockPositionLocal.y, blockPositionLocal.z, material.getId());
@@ -485,6 +499,8 @@ public class Client {
         node.put("bodyYaw", this.bodyYaw);
         node.put("health", this.health);
         node.put("maxHealth", this.maxHealth);
+        node.put("hunger", this.hunger);
+        node.put("maxHunger", this.maxHunger);
         node.put("lastAttacker", lastAttackerID == null ? "NONE" : lastAttackerID);
         node.put("lastAttackerType", lastAttackerType == null ? "NONE" : lastAttackerType.toString());
 
@@ -624,6 +640,22 @@ public class Client {
 
     public void setMaxHealth(float maxHealth) {
         this.maxHealth = maxHealth;
+    }
+
+    public float getHunger() {
+        return hunger;
+    }
+
+    public void setHunger(float hunger) {
+        this.hunger = hunger;
+    }
+
+    public float getMaxHunger() {
+        return maxHunger;
+    }
+
+    public void setMaxHunger(float maxHunger) {
+        this.maxHunger = maxHunger;
     }
 
     public EntityType getLastAttackerType() {
