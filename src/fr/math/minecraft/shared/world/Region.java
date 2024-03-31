@@ -52,10 +52,11 @@ public class Region {
                 AbstractBiome currentBiome = biomeManager.getBiome(worldX, worldZ);
 
                 int worldHeight = generator.getHeight(worldX, worldZ);
-                if(!this.hasVillage){
-                    currentBiome.buildVillage(worldX, worldHeight, worldZ, structure, world,this);
-                }
+
                 if (SIZE / 4 < x && x < Chunk.SIZE * SIZE - SIZE / 4 && SIZE / 4 < z && z < Chunk.SIZE * SIZE - SIZE / 4) {
+                    if(!this.hasVillage){
+                        currentBiome.buildVillage(worldX, worldHeight, worldZ, structure, world,this);
+                    }
                     currentBiome.buildWeeds(worldX, worldHeight, worldZ, structure, world);
                     currentBiome.buildTree(worldX, worldHeight, worldZ, structure, world);
                 }
