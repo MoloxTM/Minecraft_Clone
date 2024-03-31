@@ -46,7 +46,7 @@ public class DesertBiome extends AbstractBiome {
         float treeNoiseValue = treeNoise.getNoise(worldX + noiseOffset, worldZ + noiseOffset);
 
         if(treeNoiseValue < 0.1f) {
-            StructureBuilder.buildSimpleCactus(structure, worldX, worldY, worldZ);
+            StructureBuilder.buildSimpleCactus(structure, worldX, worldY, worldZ, treeNoiseValue);
         }
     }
 

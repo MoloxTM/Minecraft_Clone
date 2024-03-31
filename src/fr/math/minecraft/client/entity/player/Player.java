@@ -86,7 +86,6 @@ public class Player extends Entity {
         this.hand = new PlayerHand();
         this.inventory = new PlayerInventory();
         this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 0.9f, 0.25f));
-        this.animations = new ArrayList<>();
         this.nametagMesh = new NametagMesh(name);
         this.hotbar = new Hotbar();
         this.lastUpdate = new EntityUpdate(new Vector3f(position), yaw, pitch, bodyYaw);
