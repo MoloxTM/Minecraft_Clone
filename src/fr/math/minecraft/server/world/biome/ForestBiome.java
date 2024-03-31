@@ -6,6 +6,7 @@ import fr.math.minecraft.server.builder.StructureBuilder;
 import fr.math.minecraft.server.world.*;
 import fr.math.minecraft.shared.world.Coordinates;
 import fr.math.minecraft.shared.world.Material;
+import fr.math.minecraft.shared.world.Region;
 import fr.math.minecraft.shared.world.World;
 import fr.math.minecraft.shared.world.generator.NoiseGenerator;
 import fr.math.minecraft.shared.world.generator.OverworldGenerator;
@@ -61,19 +62,30 @@ public class ForestBiome extends AbstractBiome {
             StructureBuilder.buildBallonTree(structure, worldX, worldY, worldZ, Material.OAK_LOG, Material.OAK_LEAVES);
             structure.getStructures().add(coordinates);
         }
-
     }
 
     @Override
     public void buildWeeds(int worldX, int worldY, int worldZ, Structure structure, World world) {
+
+        Coordinates coordinates = new Coordinates(worldX, worldY, worldZ);
+
         if (worldY <= OverworldGenerator.WATER_LEVEL) {
+            return;
+        }
+
+        if(structure.getStructureMap().containsKey(coordinates)) {
             return;
         }
 
         float weedNoiseValue = weedNoise.getNoise(worldX, worldZ);
 
-        if (weedNoiseValue < .23f) {
-            StructureBuilder.buildWeed(structure, worldX, worldY, worldZ, weedNoiseValue);
+        if (weedNoiseValue < 0.23f) {
+            StructureBuilder.buildWeed(world,structure, worldX, worldY, worldZ, weedNoiseValue);
         }
+    }
+
+    @Override
+    public void buildVillage(int worldX, int worldY, int worldZ, Structure structure, World world, Region region) {
+
     }
 }

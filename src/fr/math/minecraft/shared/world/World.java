@@ -219,6 +219,7 @@ public class World {
         transparent.add(Material.ROSE.getId());
         transparent.add(Material.CACTUS.getId());
         transparent.add(Material.DEAD_BUSH.getId());
+        transparent.add(Material.GLASS.getId());
         return transparent;
     }
 
@@ -268,6 +269,11 @@ public class World {
 
     public Region getRegion(int x, int y, int z) {
         Coordinates coordinates = new Coordinates(x, y, z);
+        return regions.get(coordinates);
+    }
+
+    public Region getRegion(Vector3i pos) {
+        Coordinates coordinates = new Coordinates(pos);
         return regions.get(coordinates);
     }
 

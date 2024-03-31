@@ -47,7 +47,6 @@ public class OverworldGenerator implements TerrainGenerator {
                 heightMap.put(new Vector2i(x, z), worldHeight);
             }
         }
-
         return heightMap;
     }
 
@@ -71,6 +70,7 @@ public class OverworldGenerator implements TerrainGenerator {
         z = z < 0 ? z + Chunk.SIZE : z;
 
         int worldHeight = (int) (InterpolateMath.smoothInterpolation(bottomLeft, bottomRight, topLeft, topRight, xMin, xMax, zMin, zMax, x, z));
+
 
         return worldHeight;
     }

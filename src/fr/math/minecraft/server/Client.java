@@ -89,8 +89,8 @@ public class Client {
         this.inputQueue = new LinkedList<>();
         this.gravity = new Vector3f(0, -0.0025f, 0);
         this.front = new Vector3f(0.0f, 0.0f, 0.0f);
-        this.position = new Vector3f(0.0f, 100.0f, 0.0f);
-        this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 1.0f, 0.25f));
+        this.position = new Vector3f(0.0f, 300.0f, 0.0f);
+        this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 0.9f, 0.25f));
         this.stateBuffer = new StatePayload[GameConfiguration.BUFFER_SIZE];
         this.gameMode = GameMode.SURVIVAL;
         this.yaw = 0.0f;
