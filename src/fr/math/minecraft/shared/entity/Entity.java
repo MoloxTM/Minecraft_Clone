@@ -50,6 +50,8 @@ public abstract class Entity {
     protected final MobType mobType;
     protected float health;
     protected float maxHealth;
+    protected float hunger;
+    protected float maxHunger;
     protected NametagMesh nametagMesh;
     protected Inventory inventory;
     protected EntityType type;
@@ -89,6 +91,8 @@ public abstract class Entity {
         this.lastAttackerID = null;
         this.lastAttackerType = null;
         this.hitMarkDelay = 0;
+        this.hunger = type.getHunger();
+        this.maxHunger = type.getMaxHunger();
     }
 
     public void notifyEvent(PlayerMoveEvent event) {
@@ -318,6 +322,8 @@ public abstract class Entity {
         entityNode.put("bodyYaw", bodyYaw);
         entityNode.put("health", health);
         entityNode.put("maxHealth", maxHealth);
+        entityNode.put("hunger", hunger);
+        entityNode.put("maxHunger", maxHunger);
         entityNode.put("lastAttacker", lastAttackerID == null ? "NONE" : lastAttackerID);
         entityNode.put("lastAttackerType", lastAttackerType == null ? "NONE" : lastAttackerType.toString());
 
@@ -480,6 +486,22 @@ public abstract class Entity {
 
     public void setMaxHealth(float maxHealth) {
         this.maxHealth = maxHealth;
+    }
+
+    public float getHunger() {
+        return hunger;
+    }
+
+    public void setHunger(float hunger) {
+        this.hunger = hunger;
+    }
+
+    public float getMaxHunger() {
+        return maxHunger;
+    }
+
+    public void setMaxHunger(float maxHunger) {
+        this.maxHunger = maxHunger;
     }
 
     public NametagMesh getNametagMesh() {

@@ -77,7 +77,6 @@ public class Player extends Entity {
     private final PlayerCraftInventory craftInventory;
     public final static float JUMP_VELOCITY = .125f;
     private final ChatPayload chatPayload;
-
     public Player(String name) {
         super(null, EntityType.PLAYER);
         this.name = name;

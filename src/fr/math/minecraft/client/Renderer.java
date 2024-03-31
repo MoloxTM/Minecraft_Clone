@@ -877,6 +877,54 @@ public class Renderer {
             currentHeart++;
         }
 
+
+        int filledFood = (int) player.getHunger() / 2;
+        imageShader.enable();
+        glActiveTexture(GL_TEXTURE0 + iconsTexture.getSlot());
+        iconsTexture.bind();
+        imageShader.sendInt("uTexture", iconsTexture.getSlot());
+
+        imageMesh.texSubImage(16 + 4 * iconSize, 256.0f - iconSize * 4, iconSize, iconSize, 256.0f, 256.0f);
+
+        int currentFood = 0;
+        while (currentFood < filledFood) {
+            imageShader.sendFloat("depth", -10);
+            imageMesh.texSubImage(16 + 0 * iconSize, 256.0f - iconSize * 4, iconSize, iconSize, 256.0f, 256.0f);
+            imageMesh.translate(imageShader, (hotbarX + (hotbarWidth * scale) - 2*iconSize) - (currentFood * iconSize * scale), hotbarY + hotbarHeight * scale + 5, iconSize * scale, iconSize * scale);
+            camera.matrixOrtho(imageShader, 0, 0);
+            imageMesh.draw();
+
+            imageShader.sendFloat("depth", -9);
+            imageMesh.texSubImage(16 + 4 * iconSize, 256.0f - iconSize * 4, iconSize, iconSize, 256.0f, 256.0f);
+            imageMesh.translate(imageShader, (hotbarX + (hotbarWidth * scale) - 2*iconSize) - (currentFood * iconSize * scale), hotbarY + hotbarHeight * scale + 5, iconSize * scale, iconSize * scale);
+            camera.matrixOrtho(imageShader, 0, 0);
+            imageMesh.draw();
+            currentFood++;
+        }
+
+        if (player.getHunger() % 5 == 0.5f) {
+            imageShader.sendFloat("depth", -10);
+            imageMesh.texSubImage(16 + 0 * iconSize, 256.0f - iconSize * 4, iconSize, iconSize, 256.0f, 256.0f);
+            imageMesh.translate(imageShader, (hotbarX + (hotbarWidth * scale) - 2*iconSize) - (currentFood * iconSize * scale), hotbarY + hotbarHeight * scale + 5, iconSize * scale, iconSize * scale);
+            camera.matrixOrtho(imageShader, 0, 0);
+            imageMesh.draw();
+
+            imageShader.sendFloat("depth", -9);
+            imageMesh.texSubImage(16 + 5 * iconSize, 256.0f - iconSize * 4, iconSize, iconSize, 256.0f, 256.0f);
+            imageMesh.translate(imageShader, (hotbarX + (hotbarWidth * scale) - 2*iconSize) - (currentFood * iconSize * scale), hotbarY + hotbarHeight * scale + 5, iconSize * scale, iconSize * scale);
+            camera.matrixOrtho(imageShader, 0, 0);
+            imageMesh.draw();
+        }
+
+        while (currentFood < player.getMaxHunger() / 2.0f) {
+            imageShader.sendFloat("depth", -9);
+            imageMesh.texSubImage(16 + 0 * iconSize, 256.0f - iconSize * 4, iconSize, iconSize, 256.0f, 256.0f);
+            imageMesh.translate(imageShader, (hotbarX + (hotbarWidth * scale) - 2*iconSize) - (currentFood * iconSize * scale), hotbarY + hotbarHeight * scale + 5, iconSize * scale, iconSize * scale);
+            camera.matrixOrtho(imageShader, 0, 0);
+            imageMesh.draw();
+            currentFood++;
+        }
+
         iconsTexture.unbind();
 
     }
