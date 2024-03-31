@@ -44,7 +44,7 @@ public class TestPosition {
         player.setYaw(yaw);
         player.setPitch(pitch);
 
-        PlayerInputData inputData = new PlayerInputData(false, false, true, false, false, false, true, yaw, pitch, false, false, false, false, 0);
+        PlayerInputData inputData = new PlayerInputData(false, false, true, false, false, false, false, yaw, pitch, false, false, false, false, 0);
         List<PlayerInputData> inputs = new ArrayList<>();
         inputs.add(inputData);
 
@@ -62,16 +62,14 @@ public class TestPosition {
         node.set("inputs", inputsArray);
 
         InputPayload inputPayload = new InputPayload(node);
-        for (int i = 0; i < 10; i++) {
-            client.update(world, inputPayload);
-        }
 
         System.out.println("Client (Speed) " + client.getSpeed());
         System.out.println("Player (Speed) " + player.getSpeed());
 
         player.setMovingForward(true);
         for (int i = 0; i < 10; i++) {
-            player.updatePosition(world);
+            client.update(world, inputPayload);
+            //player.updatePosition(world);
         }
 
         StatePayload payload = new StatePayload(new fr.math.minecraft.client.network.payload.InputPayload(0, inputs));

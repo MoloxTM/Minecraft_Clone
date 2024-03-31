@@ -83,9 +83,9 @@ public class StatePayload {
 
             Vector3f acceleration = new Vector3f(0,0,0);
 
-            front.x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
-            front.y = (float) Math.sin(Math.toRadians(0.0f));
-            front.z = (float) (Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
+            front.x = Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch));
+            front.y = Math.sin(Math.toRadians(0.0f));
+            front.z = Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch));
 
             front.normalize();
             Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
@@ -126,8 +126,8 @@ public class StatePayload {
 
             player.getVelocity().add(acceleration.mul(player.getSpeed()));
 
-            if (new Vector3f(velocity.x, 0, velocity.z).length() > player.getMaxSpeed()) {
-                Vector3f velocityNorm = new Vector3f(velocity.x, velocity.y, velocity.z);
+            if (new Vector3f(player.getVelocity().x, 0, player.getVelocity().z).length() > player.getMaxSpeed()) {
+                Vector3f velocityNorm = new Vector3f(player.getVelocity().x, player.getVelocity().y, player.getVelocity().z);
                 velocityNorm.normalize().mul(player.getMaxSpeed());
                 player.getVelocity().x = velocityNorm.x;
                 player.getVelocity().z = velocityNorm.z;
