@@ -22,6 +22,7 @@ public class InventoryInputsHandler {
         float slotScaleY = inventoryHeight / 166.0f;
         float slotSize = 16.0f * 1.4f * gameConfiguration.getGuiScale();
         boolean collectingCraft = false;
+        boolean pressingPlaceKey = false;
 
         mouseY = GameConfiguration.WINDOW_HEIGHT - mouseY;
 
@@ -41,6 +42,14 @@ public class InventoryInputsHandler {
                 if (itemY <= mouseY && mouseY <= itemY + slotSize * slotScaleY) {
                     inventory.setCurrentSlot(i);
                     ItemStack item = inventory.getSelectedItem();
+
+                    if (player.canPlaceHoldedItem() && glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+                        pressingPlaceKey = true;
+                        PlayerInputData playerInputData = new PlayerInputData(player.getLastInventory().getHoldedSlot(), player.getLastInventory().getType(), inventory.getType(), i, collectingCraft, pressingPlaceKey);
+                        player.getInputs().add(playerInputData);
+                        return;
+                    }
+
                     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
 
                         if (inventory.getType() == InventoryType.COMPLETED_CRAFT_INVENTORY) {
@@ -49,7 +58,7 @@ public class InventoryInputsHandler {
 
                         if (player.canPlaceHoldedItem()) {
 
-                            PlayerInputData playerInputData = new PlayerInputData(player.getLastInventory().getHoldedSlot(), player.getLastInventory().getType(), inventory.getType(), i, collectingCraft);
+                            PlayerInputData playerInputData = new PlayerInputData(player.getLastInventory().getHoldedSlot(), player.getLastInventory().getType(), inventory.getType(), i, collectingCraft, pressingPlaceKey);
                             ItemStack holdedItem = player.getLastInventory().getItems()[player.getLastInventory().getHoldedSlot()];
 
                             if (holdedItem != null) {
@@ -80,7 +89,7 @@ public class InventoryInputsHandler {
                     }
 
                     if (collectingCraft) {
-                        PlayerInputData playerInputData = new PlayerInputData(player.getLastInventory().getHoldedSlot(), player.getLastInventory().getType(), inventory.getType(), i, collectingCraft);
+                        PlayerInputData playerInputData = new PlayerInputData(player.getLastInventory().getHoldedSlot(), player.getLastInventory().getType(), inventory.getType(), i, collectingCraft, pressingPlaceKey);
                         player.getInputs().add(playerInputData);
                     }
 

@@ -423,7 +423,10 @@ public class Game {
             }
         }
 
-        renderer.renderDebugTools(camera, player, fps);
+        if (gameConfiguration.isDebugging()) {
+            renderer.renderDebugTools(camera, player, fps);
+        }
+
         renderer.renderHotbar(camera, player, player.getHotbar());
         renderer.renderCrosshair(camera);
 

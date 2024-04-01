@@ -415,35 +415,47 @@ public class Client {
                 this.addItem(craftResult);
                 craftInventory.clear();
                 completedCraftPlayerInventory.clear();
-            }
+            } else {
+                if (lastInventory != null && nextInventory != null && holdedSlot != -1 && nextSlot != -1) {
+                    ItemStack holdedItem = lastInventory.getItems()[holdedSlot];
+                    ItemStack oldItem = nextInventory.getItems()[nextSlot];
 
-            if (lastInventory != null && nextInventory != null) {
-                ItemStack holdedItem = lastInventory.getItems()[holdedSlot];
-                ItemStack oldItem = nextInventory.getItems()[nextSlot];
-
-                if (holdedItem != null) {
-                    if (oldItem == null) {
-                        nextInventory.setItem(holdedItem, nextSlot);
-                        lastInventory.setItem(null, holdedSlot);
-                    } else {
-                        if (nextSlot != holdedSlot && nextInventory.getItems()[nextSlot].getMaterial() == holdedItem.getMaterial()) {
-                            int newAmount = holdedItem.getAmount() + nextInventory.getItems()[nextSlot].getAmount();
-                            if (newAmount <= 64) {
-                                holdedItem.setAmount(newAmount);
-                                lastInventory.setItem(null, holdedSlot);
-                                nextInventory.setItem(holdedItem, nextSlot);
+                    if (inputData.isPressingPlaceKey()) {
+                        if (holdedItem != null) {
+                            if (oldItem == null) {
+                                holdedItem.setAmount(holdedItem.getAmount() - 1);
+                                if (holdedItem.getAmount() == 0) {
+                                    lastInventory.setItem(null, holdedSlot);
+                                }
+                                nextInventory.setItem(new ItemStack(holdedItem.getMaterial(), 1), nextSlot);
                             }
-                        } else {
-                            nextInventory.setItem(holdedItem, nextSlot);
-                            lastInventory.setItem(oldItem, holdedSlot);
+                        }
+                    } else {
+                        if (holdedItem != null) {
+                            if (oldItem == null) {
+                                nextInventory.setItem(holdedItem, nextSlot);
+                                lastInventory.setItem(null, holdedSlot);
+                            } else {
+                                if (nextSlot != holdedSlot && nextInventory.getItems()[nextSlot].getMaterial() == holdedItem.getMaterial()) {
+                                    int newAmount = holdedItem.getAmount() + nextInventory.getItems()[nextSlot].getAmount();
+                                    if (newAmount <= 64) {
+                                        holdedItem.setAmount(newAmount);
+                                        lastInventory.setItem(null, holdedSlot);
+                                        nextInventory.setItem(holdedItem, nextSlot);
+                                    }
+                                } else {
+                                    nextInventory.setItem(holdedItem, nextSlot);
+                                    lastInventory.setItem(oldItem, holdedSlot);
+                                }
+                            }
                         }
                     }
-                }
 
-                CraftController controller = CraftController.getInstance();
-                CraftRecipes craft = controller.getCraft(craftInventory);
-                if (craft != null) {
-                    completedCraftPlayerInventory.setItem(craft.getCraft(), 0);
+                    CraftController controller = CraftController.getInstance();
+                    CraftRecipes craft = controller.getCraft(craftInventory);
+                    if (craft != null) {
+                        completedCraftPlayerInventory.setItem(craft.getCraft(), 0);
+                    }
                 }
             }
 

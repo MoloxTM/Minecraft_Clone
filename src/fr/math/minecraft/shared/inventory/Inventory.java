@@ -94,6 +94,19 @@ public abstract class Inventory {
         currentItem.setAmount(currentItem.getAmount() + item.getAmount());
     }
 
+    public void removeItem(Material material) {
+        int itemSlot = this.getItemIndex(material);
+        if (itemSlot == -1) {
+            return;
+        }
+        ItemStack item = items[itemSlot];
+        item.setAmount(item.getAmount() - 1);
+        if (item.getAmount() == 0) {
+            this.setItem(null, itemSlot);
+        }
+
+    }
+
     public void setItem(ItemStack item, int slot) {
         items[slot] = item;
     }

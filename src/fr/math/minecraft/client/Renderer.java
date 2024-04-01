@@ -826,7 +826,12 @@ public class Renderer {
         glActiveTexture(GL_TEXTURE0 + guiBlocksTexture.getSlot());
         guiBlocksTexture.bind();
 
-        ItemModelData itemModelData = ItemModelData.valueOf(String.valueOf(material));
+        ItemModelData itemModelData;
+        try {
+            itemModelData = ItemModelData.valueOf(String.valueOf(material));
+        } catch (IllegalArgumentException e) {
+            itemModelData = ItemModelData.DEBUG;
+        }
 
         camera.matrixItem(player.getHand(), player.getMiningAnimation(), itemShader, itemModelData);
 

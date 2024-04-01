@@ -37,6 +37,7 @@ public class InputPayload {
             boolean placingBlock = inputNode.get("placingBlock").asBoolean();
             boolean droppingItem = inputNode.get("droppingItem").asBoolean();
             boolean collectingCraft = inputNode.get("collectingCraft").asBoolean();
+            boolean pressingPlaceKey = inputNode.get("pressingPlaceKey").asBoolean();
             int hotbarSlot = inputNode.get("hotbarSlot").asInt();
             int holdedSlot = inputNode.get("holdedSlot").asInt();
             JsonNode inventoryTypeNode = inputNode.get("inventoryType");
@@ -47,7 +48,7 @@ public class InputPayload {
             if (inventoryTypeNode != null && nextInventoryNode != null) {
                 InventoryType inventoryType = InventoryType.values()[inputNode.get("inventoryType").asInt()];
                 InventoryType nextInventory = InventoryType.values()[inputNode.get("nextInventory").asInt()];
-                inputData = new PlayerInputData(holdedSlot, inventoryType, nextInventory, nextSlot, collectingCraft);
+                inputData = new PlayerInputData(holdedSlot, inventoryType, nextInventory, nextSlot, collectingCraft, pressingPlaceKey);
             } else {
                 inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, jumping, yaw, pitch, sprinting, placingBlock, breakingBlock, droppingItem, hotbarSlot);
             }
@@ -55,8 +56,6 @@ public class InputPayload {
             inputData.setCollectingCraft(collectingCraft);
 
             inputsData.add(inputData);
-
-
         }
     }
 
