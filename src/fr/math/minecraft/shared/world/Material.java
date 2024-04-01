@@ -34,6 +34,51 @@ public enum Material {
     GLASS("Glass", 24, 1, 12, 9, 4),
     CRAFTING_TABLE("Crafting Table", 25, new Vector2i(11, 12), new Vector2i(11, 12), new Vector2i(12, 12), new Vector2i(12, 12), new Vector2i(11, 13), new Vector2i(4, 15), 1, 2),
     FURNACE("Furnace", 26, new Vector2i(13, 13), new Vector2i(13, 13), new Vector2i(13, 13), new Vector2i(12, 13), new Vector2i(14, 12), new Vector2i(14, 12), 1, 5);
+    BIRCH_LEAVES("Oak leaves", 12, 4, 7, 0, 0),
+    OAK_PLANKS("Oak planks", 13, 4, 15, 5, 8),
+    CRAFTING_TABLE("Crafting Table", 14, new Vector2i(11, 12), new Vector2i(11, 12), new Vector2i(12, 12), new Vector2i(12, 12), new Vector2i(11, 13), new Vector2i(4, 15), 2, 1),
+    FURNACE("Furnace", 15, new Vector2i(12, 13), new Vector2i(12, 13), new Vector2i(11, 13), new Vector2i(12, 13), new Vector2i(14, 12), new Vector2i(14, 12), 1, 5),
+    COBBLESTONE("Cobblestone", 16, 14, 0, 0, 8),
+    CHEST("Chest", 17, new Vector2i(10, 14), new Vector2i(10, 14), new Vector2i(11, 14), new Vector2i(11, 14), new Vector2i(10, 14), new Vector2i(10, 14), 1, 4),
+    STICK("Stick", 18, -1, -1, 14, 3, false, true),
+    WOODEN_PICKAXE("Wooden Pickaxe", 19, -1, -1, 13, 2, false, true),
+    STONE_PICKAXE("Stone Pickaxe", 20, -1, -1, 18, 2, false, true),
+    IRON_PICKAXE("Iron Pickaxe", 21, -1, -1, 22, 2, false, true),
+    DIAMOND_PICKAXE("Diamond Pickaxe", 22, -1, -1, 25, 2, false, true),
+    WOODEN_SHOVEL("Wooden Shovel", 23, -1, -1, 15, 2, false, true),
+    WOODEN_AXE("Wooden Axe", 24, -1, -1, 16, 2, false, true),
+    WOODEN_SWORD("Wooden Sword", 25, -1, -1, 2, 1, false, true),
+    STONE_SHOVEL("Stone Shovel", 26, -1, -1, 19, 2, false, true),
+    STONE_AXE("Stone Axe", 27, -1, -1, 20, 2, false, true),
+    STONE_SWORD("Wooden Sword", 28, -1, -1, 3, 1, false, true),
+    IRON_SHOVEL("Iron Shovel", 29, -1, -1, 23, 2, false, true),
+    IRON_AXE("Iron Axe", 30, -1, -1, 24, 2, false, true),
+    IRON_SWORD("Iron Sword", 31, -1, -1, 23, 3, false, true),
+    DIAMOND_SHOVEL("Diamond Shovel", 32, -1, -1, 26, 2, false, true),
+    DIAMOND_AXE("Diamond Axe", 33, -1, -1, 27, 2, false, true),
+    DIAMOND_SWORD("Diamond Sword", 34, -1, -1, 4, 1, false, true),
+    IRON_INGOT("Iron Ingot", 35, -1, -1, 31, 3, false, true),
+    GOLD_INGOT("Gold Ingot", 36, -1, -1, 30, 3, false, true),
+    DIAMOND("Diamond", 37, -1, -1, 2, 2, false, true),
+    LEATHER("Leather", 38, -1, -1, 16, 1, false, true),
+    COAL("Coal", 39, -1, -1, 17, 0, false, true),
+    LEATHER_HELMET("Leather Helmet", 40, -1, -1, 15, 1, false, true),
+    LEATHER_CHESSPLATE("Leather Chessplate", 41, -1, -1, 17, 1, false, true),
+    LEATHER_PANTS("Leather Pants", 42, -1, -1, 18, 1, false, true),
+    LEATHER_BOOTS("Leather Boots", 43, -1, -1, 19, 1, false, true),
+    IRON_HELMET("Iron Helmet", 44, -1, -1, 20, 1, false, true),
+    IRON_CHESSPLATE("Iron Chessplate", 45, -1, -1, 21, 1, false, true),
+    IRON_PANTS("Iron Pants", 46, -1, -1, 22, 1, false, true),
+    IRON_BOOTS("Iron Boots", 47, -1, -1, 23, 1, false, true),
+    DIAMOND_HELMET("Diamond Helmet", 48, -1, -1, 24, 1, false, true),
+    DIAMOND_CHESSPLATE("Diamond Chessplate", 49, -1, -1, 25, 1, false, true),
+    DIAMOND_PANTS("Diamond Pants", 50, -1, -1, 26, 1, false, true),
+    DIAMOND_BOOTS("Diamond Boots", 51, -1, -1, 27, 1, false, true),
+    SPRUCE_WOOD("Spruce Wood", 52, new Vector2i(4, 8), new Vector2i(4, 8), new Vector2i(4, 8), new Vector2i(4, 8), new Vector2i(5, 14), new Vector2i(5, 14), 7, 7),
+    SPRUCE_LEAVES("Spruce leaves", 53, 5, 7, 0, 0),
+    APPLE("Apple", 54, -1, -1, 21, 1, false, true),
+    SNOW("Snow", 55, 2, 11, 8, 4, true, false),
+    BREAKING_ANIMATION("", -3, 0, 0, 0, 0);
 
     private final int blockIconX, x;
     private final int blockIconY, y;
@@ -103,6 +148,10 @@ public enum Material {
 
     public boolean isSymetric() {
         return faces;
+    }
+
+    public boolean isItem() {
+        return item;
     }
 
     public Vector2i getPx() {

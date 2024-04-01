@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.client.manager.ChunkManager;
 import fr.math.minecraft.client.network.FixedPacketSender;
-import fr.math.minecraft.client.network.packet.PlayerMovePacket;
+import fr.math.minecraft.client.network.packet.PlayerActionsPacket;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.shared.math.MathUtils;
@@ -32,6 +32,7 @@ public class StatePayload {
     private List<PlacedBlock> placedBlocks;
     private float yaw, pitch, health, maxHealth, maxSpeed;
     private ArrayNode inventoryItems, hotbarItems;
+    private ArrayNode inventoryItems, hotbarItems, craftItems, completedCraftItems;
     private final static Logger logger = LoggerUtility.getClientLogger(StatePayload.class, LogType.TXT);
 
 
@@ -52,6 +53,8 @@ public class StatePayload {
         this.placedBlocks = new ArrayList<>();
         this.inventoryItems = (ArrayNode) stateData.get("inventory");
         this.hotbarItems = (ArrayNode) stateData.get("hotbar");
+        this.craftItems = (ArrayNode) stateData.get("craftInventory");
+        this.completedCraftItems = (ArrayNode) stateData.get("completedCraftInventory");
 
         this.extractBrokenBlocks(stateData);
         this.extractPlacedBlocks(stateData);
@@ -207,6 +210,8 @@ public class StatePayload {
     public void reconcileInventory(Player player) {
         Inventory inventory = player.getInventory();
         Inventory hotbar = player.getHotbar();
+        Inventory craftInventory = player.getCraftInventory();
+        Inventory completedCraftInventory = player.getCompletedCraftPlayerInventory();
 
         for (int slot = 0; slot < inventoryItems.size(); slot++) {
             JsonNode itemNode = inventoryItems.get(slot);
@@ -227,10 +232,30 @@ public class StatePayload {
                 hotbar.setItem(item, slot);
             }
         }
+
+        for (int slot = 0; slot < craftItems.size(); slot++) {
+            JsonNode itemNode = craftItems.get(slot);
+            ItemStack item = new ItemStack(itemNode);
+            if (item.getMaterial() == Material.AIR) {
+                craftInventory.setItem(null, slot);
+            } else {
+                craftInventory.setItem(item, slot);
+            }
+        }
+
+        for (int slot = 0; slot < completedCraftItems.size(); slot++) {
+            JsonNode itemNode = completedCraftItems.get(slot);
+            ItemStack item = new ItemStack(itemNode);
+            if (item.getMaterial() == Material.AIR) {
+                completedCraftInventory.setItem(null, slot);
+            } else {
+                completedCraftInventory.setItem(item, slot);
+            }
+        }
     }
 
     public void send(Player player) {
-        PlayerMovePacket packet = new PlayerMovePacket(player, this, payload);
+        PlayerActionsPacket packet = new PlayerActionsPacket(player, this, payload);
         FixedPacketSender.getInstance().enqueue(packet);
     }
 

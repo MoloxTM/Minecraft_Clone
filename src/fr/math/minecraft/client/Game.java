@@ -13,6 +13,11 @@ import fr.math.minecraft.client.gui.menus.Menu;
 import fr.math.minecraft.client.handler.PlayerMovementHandler;
 import fr.math.minecraft.client.manager.*;
 import fr.math.minecraft.client.entity.player.Player;
+import fr.math.minecraft.shared.inventory.ItemStack;
+import fr.math.minecraft.shared.world.Chunk;
+import fr.math.minecraft.shared.world.Coordinates;
+import fr.math.minecraft.shared.world.Material;
+import fr.math.minecraft.shared.world.World;
 import fr.math.minecraft.shared.world.DroppedItem;
 import fr.math.minecraft.shared.entity.mob.Zombie;
 import fr.math.minecraft.shared.inventory.ItemStack;
@@ -463,7 +468,10 @@ public class Game {
             }
         }
 
-        renderer.renderDebugTools(camera, player, fps);
+        if (gameConfiguration.isDebugging()) {
+            renderer.renderDebugTools(camera, player, fps);
+        }
+
         renderer.renderHotbar(camera, player, player.getHotbar());
         renderer.renderCrosshair(camera);
 
@@ -471,6 +479,7 @@ public class Game {
             renderer.renderInventory(camera, player.getInventory());
             renderer.renderInventory(camera, player.getCraftInventory());
             renderer.renderInventory(camera, player.getHotbar());
+            renderer.renderInventory(camera, player.getCompletedCraftPlayerInventory());
         }
 
         if (player.getChatPayload().isOpen()) {

@@ -27,6 +27,10 @@ import fr.math.minecraft.shared.entity.Villager;
 import fr.math.minecraft.shared.entity.mob.MobType;
 import fr.math.minecraft.shared.entity.mob.Zombie;
 import fr.math.minecraft.shared.inventory.*;
+import fr.math.minecraft.shared.inventory.Hotbar;
+import fr.math.minecraft.shared.inventory.Inventory;
+import fr.math.minecraft.shared.inventory.ItemStack;
+import fr.math.minecraft.shared.inventory.PlayerInventory;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.server.manager.BiomeManager;
 import fr.math.minecraft.shared.GameConfiguration;
@@ -919,21 +923,23 @@ public class Renderer {
         glActiveTexture(GL_TEXTURE0 + guiBlocksTexture.getSlot());
         guiBlocksTexture.bind();
 
+        ItemModelData itemModelData;
         try {
-            ItemModelData itemModelData = ItemModelData.valueOf(String.valueOf(material));
-
-            camera.matrixItem(player.getHand(), player.getMiningAnimation(), itemShader, itemModelData);
-
-            itemMesh.draw();
-            guiBlocksTexture.unbind();
-
-            float itemTextX = (GameConfiguration.WINDOW_WIDTH - fontManager.getTextWidth(fontMesh, material.getName())) / 2.0f;
-            float itemTextY = 22 * HOTBAR_SCALE * gameConfiguration.getGuiScale() + 20;
-
-            this.renderText(camera, material.getName(), itemTextX, itemTextY, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
+            itemModelData = ItemModelData.valueOf(String.valueOf(material));
         } catch (IllegalArgumentException e) {
-            this.renderHand(camera, player.getHand());
+            itemModelData = ItemModelData.DEBUG;
         }
+
+        camera.matrixItem(player.getHand(), player.getMiningAnimation(), itemShader, itemModelData);
+
+        itemMesh.draw();
+        guiBlocksTexture.unbind();
+
+        float itemTextX = (GameConfiguration.WINDOW_WIDTH - fontManager.getTextWidth(fontMesh, material.getName())) / 2.0f;
+        float itemTextY = 22 * HOTBAR_SCALE * gameConfiguration.getGuiScale() + 20;
+
+        this.renderText(camera, material.getName(), itemTextX, itemTextY, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
+        
     }
 
     public Map<String, Texture> getSkinsMap() {

@@ -12,10 +12,10 @@ import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import org.apache.log4j.Logger;
 
-public class PlayerMovePacket extends ClientPacket {
+public class PlayerActionsPacket extends ClientPacket {
 
     private final ObjectMapper mapper;
-    private final static Logger logger = LoggerUtility.getClientLogger(PlayerMovePacket.class, LogType.TXT);;
+    private final static Logger logger = LoggerUtility.getClientLogger(PlayerActionsPacket.class, LogType.TXT);;
     private boolean movingLeft;
     private boolean movingRight;
     private boolean movingForward;
@@ -29,7 +29,7 @@ public class PlayerMovePacket extends ClientPacket {
     private String response;
     private final Player player;
 
-    public PlayerMovePacket(Player player, StatePayload statePayload, InputPayload inputPayload) {
+    public PlayerActionsPacket(Player player, StatePayload statePayload, InputPayload inputPayload) {
         this.player = player;
         this.statePayload = statePayload;
         this.tick = inputPayload.getTick();
@@ -57,7 +57,7 @@ public class PlayerMovePacket extends ClientPacket {
         messageNode.put("playerName", player.getName());
         messageNode.put("uuid", player.getUuid());
         messageNode.put("clientVersion", "1.0.0");
-        messageNode.put("type", "PLAYER_MOVE");
+        messageNode.put("type", "PLAYER_ACTIONS");
         messageNode.set("inputs", inputsNode);
         messageNode.put("bodyYaw", player.getBodyYaw());
 

@@ -1,6 +1,8 @@
 package fr.math.minecraft.server;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.entity.AttackRay;
 import fr.math.minecraft.client.entity.Ray;
@@ -17,7 +19,6 @@ import fr.math.minecraft.shared.world.*;
 import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.shared.Sprite;
 import fr.math.minecraft.shared.world.DroppedItem;
-import fr.math.minecraft.shared.inventory.PlayerInventory;
 import fr.math.minecraft.server.payload.InputPayload;
 import fr.math.minecraft.server.payload.StatePayload;
 import fr.math.minecraft.shared.GameConfiguration;
@@ -75,6 +76,8 @@ public class Client {
     private float maxHealth;
     private String lastAttackerID;
     private EntityType lastAttackerType;
+    private final PlayerCraftInventory craftInventory;
+    private final CompletedCraftPlayerInventory completedCraftPlayerInventory;
     private final static float JUMP_VELOCITY = .125f;
 
 
@@ -119,6 +122,8 @@ public class Client {
         this.placedBlocks = new ArrayList<>();
         this.inventory = new PlayerInventory();
         this.hotbar = new Hotbar();
+        this.craftInventory = new PlayerCraftInventory();
+        this.completedCraftPlayerInventory = new CompletedCraftPlayerInventory();
     }
 
     public String getName() {
@@ -425,6 +430,99 @@ public class Client {
                     }
                 }
             }
+
+            int holdedSlot = inputData.getHoldedSlot();
+            InventoryType inventoryType = inputData.getInventoryType();
+            InventoryType nextInventoryType = inputData.getNextInventory();
+            int nextSlot = inputData.getNextSlot();
+            Inventory lastInventory = null;
+            Inventory nextInventory = null;
+
+            if (inventoryType != null) {
+                switch (inventoryType) {
+                    case HOTBAR:
+                        lastInventory = hotbar;
+                        break;
+                    case PLAYER_INVENTORY:
+                        lastInventory = inventory;
+                        break;
+                    case CRAFT_INVENTORY:
+                        lastInventory = craftInventory;
+                        break;
+                    case COMPLETED_CRAFT_INVENTORY:
+                        lastInventory = completedCraftPlayerInventory;
+                        break;
+                }
+            }
+
+            if (nextInventoryType != null) {
+                switch (nextInventoryType) {
+                    case HOTBAR:
+                        nextInventory = hotbar;
+                        break;
+                    case PLAYER_INVENTORY:
+                        nextInventory = inventory;
+                        break;
+                    case CRAFT_INVENTORY:
+                        nextInventory = craftInventory;
+                        break;
+                    case COMPLETED_CRAFT_INVENTORY:
+                        nextInventory = completedCraftPlayerInventory;
+                        break;
+                }
+            }
+
+            ItemStack craftResult = completedCraftPlayerInventory.getItems()[0];
+
+            if (inputData.isCollectingCraft() && craftResult != null) {
+                this.addItem(craftResult);
+                craftInventory.clear();
+                completedCraftPlayerInventory.clear();
+            } else {
+                if (lastInventory != null && nextInventory != null && holdedSlot != -1 && nextSlot != -1) {
+                    ItemStack holdedItem = lastInventory.getItems()[holdedSlot];
+                    ItemStack oldItem = nextInventory.getItems()[nextSlot];
+
+                    if (inputData.isPressingPlaceKey()) {
+                        if (holdedItem != null) {
+                            if (oldItem == null) {
+                                holdedItem.setAmount(holdedItem.getAmount() - 1);
+                                if (holdedItem.getAmount() == 0) {
+                                    lastInventory.setItem(null, holdedSlot);
+                                }
+                                nextInventory.setItem(new ItemStack(holdedItem.getMaterial(), 1), nextSlot);
+                            }
+                        }
+                    } else {
+                        if (holdedItem != null) {
+                            if (oldItem == null) {
+                                nextInventory.setItem(holdedItem, nextSlot);
+                                lastInventory.setItem(null, holdedSlot);
+                            } else {
+                                if (nextSlot != holdedSlot && nextInventory.getItems()[nextSlot].getMaterial() == holdedItem.getMaterial()) {
+                                    int newAmount = holdedItem.getAmount() + nextInventory.getItems()[nextSlot].getAmount();
+                                    if (newAmount <= 64) {
+                                        holdedItem.setAmount(newAmount);
+                                        lastInventory.setItem(null, holdedSlot);
+                                        nextInventory.setItem(holdedItem, nextSlot);
+                                    }
+                                } else {
+                                    nextInventory.setItem(holdedItem, nextSlot);
+                                    lastInventory.setItem(oldItem, holdedSlot);
+                                }
+                            }
+                        }
+                    }
+
+                    CraftController controller = CraftController.getInstance();
+                    CraftRecipes craft = controller.getCraft(craftInventory);
+                    if (craft != null) {
+                        completedCraftPlayerInventory.setItem(craft.getCraft(), 0);
+                    }
+                }
+            }
+
+            velocity.mul(0.95f);
         }
     }
 
@@ -585,6 +683,14 @@ public class Client {
     
     public PlayerInventory getInventory() {
         return inventory;
+    }
+
+    public CompletedCraftPlayerInventory getCompletedCraftPlayerInventory() {
+        return completedCraftPlayerInventory;
+    }
+
+    public PlayerCraftInventory getPlayerCraftInventory() {
+        return craftInventory;
     }
 
     public Hotbar getHotbar() {

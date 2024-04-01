@@ -31,8 +31,7 @@ public class StatePayload {
     private float health, maxHealth, maxSpeed;
     private List<PlacedBlock> placedBlocks;
     private List<BreakedBlock> brokenBlocks;
-    private Inventory inventory;
-    private Inventory hotbar;
+    private Inventory hotbar, craftInventory, completedCraftInventory, inventory;
 
     public StatePayload(InputPayload payload) {
         this.payload = payload;
@@ -125,6 +124,8 @@ public class StatePayload {
         this.hotbar = client.getHotbar();
         this.yaw = client.getYaw();
         this.pitch = client.getPitch();
+        this.completedCraftInventory = client.getCompletedCraftPlayerInventory();
+        this.craftInventory = client.getPlayerCraftInventory();
         this.position = newPosition;
         this.velocity = newVelocity;
         this.health = client.getHealth();
@@ -160,6 +161,8 @@ public class StatePayload {
         ArrayNode placedBlocksArray = mapper.createArrayNode();
         ArrayNode inventoryArray = mapper.createArrayNode();
         ArrayNode hotbarArray = mapper.createArrayNode();
+        ArrayNode craftInventoryArray = mapper.createArrayNode();
+        ArrayNode completedCraftInventoryArray = mapper.createArrayNode();
 
         payloadNode.put("tick", payload.getTick());
         payloadNode.put("type", "STATE_PAYLOAD");
@@ -228,10 +231,28 @@ public class StatePayload {
             hotbarArray.add(item.toJSONObject());
         }
 
+        for (ItemStack item : craftInventory.getItems()) {
+            if (item == null) {
+                craftInventoryArray.add(airNode);
+                continue;
+            }
+            craftInventoryArray.add(item.toJSONObject());
+        }
+
+        for (ItemStack item : completedCraftInventory.getItems()) {
+            if (item == null) {
+                completedCraftInventoryArray.add(airNode);
+                continue;
+            }
+            completedCraftInventoryArray.add(item.toJSONObject());
+        }
+
         payloadNode.set("aimedPlacedBlocks", placedBlocksArray);
         payloadNode.set("brokenBlocks", brokenBlocksArray);
         payloadNode.set("inventory", inventoryArray);
         payloadNode.set("hotbar", hotbarArray);
+        payloadNode.set("craftInventory", craftInventoryArray);
+        payloadNode.set("completedCraftInventory", completedCraftInventoryArray);
 
         return payloadNode;
     }

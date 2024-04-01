@@ -2,9 +2,8 @@ package fr.math.minecraft.shared.network;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.joml.Vector3i;
-
-import java.util.Queue;
+import fr.math.minecraft.shared.inventory.Inventory;
+import fr.math.minecraft.shared.inventory.InventoryType;
 
 public class PlayerInputData {
 
@@ -14,6 +13,12 @@ public class PlayerInputData {
     private final boolean flying, sneaking, jumping, sprinting;
     private final boolean placingBlock, breakingBlock, droppingItem;
     private final int hotbarSlot;
+    private final int holdedSlot;
+    private final InventoryType inventoryType;
+    private final InventoryType nextInventory;
+    private final int nextSlot;
+    private boolean collectingCraft;
+    private boolean pressingPlaceKey;
 
     public PlayerInputData(boolean movingLeft, boolean movingRight, boolean movingForward, boolean movingBackward, boolean flying, boolean sneaking, boolean jumping, float yaw, float pitch, boolean sprinting, boolean placingBlock, boolean breakingBlock, boolean droppingItem, int hotbarSlot) {
         this.movingLeft = movingLeft;
@@ -30,6 +35,35 @@ public class PlayerInputData {
         this.placingBlock = placingBlock;
         this.droppingItem = droppingItem;
         this.hotbarSlot = hotbarSlot;
+        this.holdedSlot = 0;
+        this.inventoryType = null;
+        this.nextInventory = null;
+        this.nextSlot = 0;
+        this.collectingCraft = false;
+        this.pressingPlaceKey = false;
+    }
+
+    public PlayerInputData(int holdedSlot, InventoryType type, InventoryType nextInventory, int nextSlot, boolean collectingCraft, boolean pressingPressKey) {
+        this.holdedSlot = holdedSlot;
+        this.inventoryType = type;
+        this.nextInventory = nextInventory;
+        this.nextSlot = nextSlot;
+        this.collectingCraft = collectingCraft;
+        this.movingLeft = false;
+        this.movingRight = false;
+        this.movingForward = false;
+        this.movingBackward = false;
+        this.flying = false;
+        this.sneaking = false;
+        this.jumping = false;
+        this.yaw = 0.0f;
+        this.pitch = 0.0f;
+        this.sprinting = false;
+        this.breakingBlock = false;
+        this.placingBlock = false;
+        this.droppingItem = false;
+        this.pressingPlaceKey = pressingPressKey;
+        this.hotbarSlot = 0;
     }
 
     public ObjectNode toJSON() {
@@ -50,6 +84,16 @@ public class PlayerInputData {
         node.put("breakingBlock", breakingBlock);
         node.put("droppingItem", droppingItem);
         node.put("hotbarSlot", hotbarSlot);
+        node.put("holdedSlot", holdedSlot);
+        if (inventoryType != null) {
+            node.put("inventoryType", inventoryType.ordinal());
+        }
+        if (nextInventory != null) {
+            node.put("nextInventory", nextInventory.ordinal());
+        }
+        node.put("nextSlot", nextSlot);
+        node.put("collectingCraft", collectingCraft);
+        node.put("pressingPlaceKey", pressingPlaceKey);
 
         return node;
     }
@@ -105,4 +149,33 @@ public class PlayerInputData {
     public int getHotbarSlot() {
         return hotbarSlot;
     }
+
+    public int getHoldedSlot() {
+        return holdedSlot;
+    }
+
+    public InventoryType getInventoryType() {
+        return inventoryType;
+    }
+
+    public InventoryType getNextInventory() {
+        return nextInventory;
+    }
+
+    public int getNextSlot() {
+        return nextSlot;
+    }
+
+    public boolean isCollectingCraft() {
+        return collectingCraft;
+    }
+
+    public void setCollectingCraft(boolean collectingCraft) {
+        this.collectingCraft = collectingCraft;
+    }
+
+    public boolean isPressingPlaceKey() {
+        return pressingPlaceKey;
+    }
+
 }

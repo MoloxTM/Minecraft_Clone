@@ -17,6 +17,7 @@ import fr.math.minecraft.client.handler.ChatInputsHandler;
 import fr.math.minecraft.client.handler.InventoryInputsHandler;
 import fr.math.minecraft.client.manager.ChunkManager;
 import fr.math.minecraft.client.meshs.NametagMesh;
+import fr.math.minecraft.shared.inventory.*;
 import fr.math.minecraft.server.Utils;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.entity.Entity;
@@ -25,10 +26,7 @@ import fr.math.minecraft.shared.world.*;
 import fr.math.minecraft.shared.Sprite;
 import fr.math.minecraft.shared.PlayerAction;
 import fr.math.minecraft.shared.inventory.Hotbar;
-import fr.math.minecraft.shared.inventory.Inventory;
-import fr.math.minecraft.shared.inventory.PlayerCraftInventory;
 import fr.math.minecraft.shared.inventory.PlayerInventory;
-import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.network.GameMode;
 import fr.math.minecraft.shared.network.Hitbox;
 import fr.math.minecraft.shared.network.PlayerInputData;
@@ -77,6 +75,7 @@ public class Player extends Entity {
     private final PlayerCraftInventory craftInventory;
     public final static float JUMP_VELOCITY = .125f;
     private final ChatPayload chatPayload;
+    private final CompletedCraftPlayerInventory completedCraftPlayerInventory;
 
     public Player(String name) {
         super(null, EntityType.PLAYER);
@@ -132,6 +131,7 @@ public class Player extends Entity {
         this.breakedBlocks = new ArrayList<>();
         this.craftInventory = new PlayerCraftInventory();
         this.lastInventory = inventory;
+        this.completedCraftPlayerInventory = new CompletedCraftPlayerInventory();
         this.initAnimations();
     }
 
@@ -216,6 +216,7 @@ public class Player extends Entity {
             handler.handleInputs(window, this, inventory, (float) mouseX.get(0), (float) mouseY.get(0));
             handler.handleInputs(window, this, craftInventory, (float) mouseX.get(0), (float) mouseY.get(0));
             handler.handleInputs(window, this, hotbar, (float) mouseX.get(0), (float) mouseY.get(0));
+            handler.handleInputs(window, this, completedCraftPlayerInventory, (float) mouseX.get(0), (float) mouseY.get(0));
             return;
         }
 
@@ -720,6 +721,10 @@ public class Player extends Entity {
 
     public PlayerCraftInventory getCraftInventory() {
         return craftInventory;
+    }
+
+    public CompletedCraftPlayerInventory getCompletedCraftPlayerInventory() {
+        return completedCraftPlayerInventory;
     }
 
     public Inventory getLastInventory() {

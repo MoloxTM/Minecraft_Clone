@@ -2,6 +2,8 @@ package fr.math.minecraft.server.payload;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import fr.math.minecraft.shared.inventory.Inventory;
+import fr.math.minecraft.shared.inventory.InventoryType;
 import fr.math.minecraft.shared.network.PlayerInputData;
 
 import java.util.ArrayList;
@@ -34,9 +36,24 @@ public class InputPayload {
             boolean breakingBlock = inputNode.get("breakingBlock").asBoolean();
             boolean placingBlock = inputNode.get("placingBlock").asBoolean();
             boolean droppingItem = inputNode.get("droppingItem").asBoolean();
+            boolean collectingCraft = inputNode.get("collectingCraft").asBoolean();
+            boolean pressingPlaceKey = inputNode.get("pressingPlaceKey").asBoolean();
             int hotbarSlot = inputNode.get("hotbarSlot").asInt();
+            int holdedSlot = inputNode.get("holdedSlot").asInt();
+            JsonNode inventoryTypeNode = inputNode.get("inventoryType");
+            JsonNode nextInventoryNode = inputNode.get("nextInventory");
+            int nextSlot = inputNode.get("nextSlot").asInt();
 
-            PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, jumping, yaw, pitch, sprinting, placingBlock, breakingBlock, droppingItem, hotbarSlot);
+            PlayerInputData inputData;
+            if (inventoryTypeNode != null && nextInventoryNode != null) {
+                InventoryType inventoryType = InventoryType.values()[inputNode.get("inventoryType").asInt()];
+                InventoryType nextInventory = InventoryType.values()[inputNode.get("nextInventory").asInt()];
+                inputData = new PlayerInputData(holdedSlot, inventoryType, nextInventory, nextSlot, collectingCraft, pressingPlaceKey);
+            } else {
+                inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, jumping, yaw, pitch, sprinting, placingBlock, breakingBlock, droppingItem, hotbarSlot);
+            }
+
+            inputData.setCollectingCraft(collectingCraft);
 
             inputsData.add(inputData);
         }

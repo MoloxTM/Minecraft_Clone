@@ -1,5 +1,6 @@
 package fr.math.minecraft.shared.world.generator;
 
+import fr.math.minecraft.server.world.biome.ForestBiome;
 import fr.math.minecraft.shared.world.*;
 import fr.math.minecraft.server.MinecraftServer;
 import fr.math.minecraft.server.manager.BiomeManager;

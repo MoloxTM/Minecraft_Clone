@@ -15,6 +15,7 @@ public abstract class Inventory {
     protected int currentSlot;
     protected boolean open;
     protected int holdedSlot;
+    protected InventoryType type;
 
     public Inventory() {
         this.slotIndex = 0;
@@ -22,10 +23,14 @@ public abstract class Inventory {
         this.currentSlot = 0;
         this.holdedSlot = -1;
         this.open = false;
+        this.type = null;
     }
 
     public ItemStack[] getItems() {
         return items;
+    }
+    public ItemStack getItemAtSlot(int slot) {
+        return items[slot];
     }
 
     public int getSlotIndex() {
@@ -65,15 +70,41 @@ public abstract class Inventory {
         return index;
     }
 
+    public int getAvailableSlot() {
+        for (int slot = 0; slot < items.length; slot++) {
+            if (items[slot] == null) {
+                return slot;
+            }
+        }
+        return -1;
+    }
+
     public void addItem(ItemStack item) {
+        int availableSlot = this.getAvailableSlot();
+        if (availableSlot == -1) {
+            return;
+        }
         int itemIndex = this.getItemIndex(item);
         if (itemIndex == -1) {
-            items[currentSize] = item;
+            items[availableSlot] = new ItemStack(item);
             currentSize++;
             return;
         }
         ItemStack currentItem = items[itemIndex];
-        currentItem.setAmount(currentItem.getAmount() + 1);
+        currentItem.setAmount(currentItem.getAmount() + item.getAmount());
+    }
+
+    public void removeItem(Material material) {
+        int itemSlot = this.getItemIndex(material);
+        if (itemSlot == -1) {
+            return;
+        }
+        ItemStack item = items[itemSlot];
+        item.setAmount(item.getAmount() - 1);
+        if (item.getAmount() == 0) {
+            this.setItem(null, itemSlot);
+        }
+
     }
 
     public void setItem(ItemStack item, int slot) {
@@ -149,4 +180,17 @@ public abstract class Inventory {
         return arrayNode;
     }
 
+    public InventoryType getType() {
+        return type;
+    }
+
+    public void setType(InventoryType type) {
+        this.type = type;
+    }
+
+    public void clear() {
+        for (int slot = 0; slot < items.length; slot++) {
+            items[slot] = null;
+        }
+    }
 }
