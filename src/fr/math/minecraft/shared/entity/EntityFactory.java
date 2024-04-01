@@ -2,6 +2,7 @@ package fr.math.minecraft.shared.entity;
 
 import fr.math.minecraft.client.entity.player.Player;
 import fr.math.minecraft.shared.entity.mob.Zombie;
+import org.joml.Vector3f;
 
 public class EntityFactory {
 

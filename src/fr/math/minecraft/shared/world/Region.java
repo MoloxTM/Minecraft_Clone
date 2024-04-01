@@ -10,8 +10,10 @@ import fr.math.minecraft.server.world.biome.ForestBiome;
 import fr.math.minecraft.server.world.biome.PlainBiome;
 import fr.math.minecraft.shared.world.generator.OverworldGenerator;
 import org.apache.log4j.Logger;
+import org.joml.Vector3f;
 import org.joml.Vector3i;
 
+import javax.swing.text.html.parser.Entity;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +26,7 @@ public class Region {
     private final Structure structure;
     private boolean hasVillage;
     private ArrayList<Vector3i> villageArea;
+    private HashMap<Vector3f, Entity> entityHashMap;
     private final static Logger logger = LoggerUtility.getServerLogger(Region.class, LogType.TXT);
     public Region(Vector3i position) {
         this.position = position;
@@ -31,6 +34,7 @@ public class Region {
         this.structureMap = new HashMap<>();
         this.hasVillage=false;
         this.villageArea = new ArrayList<>();
+        this.entityHashMap = new HashMap<>();
     }
 
     public Region(int x, int y, int z) {
@@ -98,5 +102,12 @@ public class Region {
 
     public ArrayList<Vector3i> getVillageArea() {
         return villageArea;
+    }
+
+    public HashMap<Vector3f, Entity> getEntityHashMap() {
+        return entityHashMap;
+    }
+    public void setEntityHashMap(HashMap<Vector3f, Entity> entityHashMap) {
+        this.entityHashMap = entityHashMap;
     }
 }

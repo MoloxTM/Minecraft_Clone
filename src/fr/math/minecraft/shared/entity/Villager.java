@@ -6,6 +6,7 @@ import fr.math.minecraft.shared.network.Hitbox;
 import org.joml.Vector3f;
 
 import java.util.UUID;
+import java.util.Vector;
 
 public class Villager extends Entity {
 

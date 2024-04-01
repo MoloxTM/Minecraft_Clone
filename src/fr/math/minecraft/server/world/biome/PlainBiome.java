@@ -4,9 +4,12 @@ import fr.math.minecraft.client.Game;
 import fr.math.minecraft.server.Utils;
 import fr.math.minecraft.server.builder.StructureBuilder;
 import fr.math.minecraft.server.world.*;
+import fr.math.minecraft.shared.entity.Entity;
+import fr.math.minecraft.shared.entity.Villager;
 import fr.math.minecraft.shared.world.*;
 import fr.math.minecraft.shared.world.generator.NoiseGenerator;
 import fr.math.minecraft.shared.world.generator.OverworldGenerator;
+import org.joml.Vector3f;
 import org.joml.Vector3i;
 
 public class PlainBiome extends AbstractBiome{
@@ -99,6 +102,12 @@ public class PlainBiome extends AbstractBiome{
                 if(Region.SIZE / 4 < x && x < Chunk.SIZE * Region.SIZE - Region.SIZE / 4 && Region.SIZE / 4 < z && z < Chunk.SIZE * Region.SIZE - Region.SIZE / 4) {
                     if(canBuildHouse(worldX+i,worldY,worldZ+j) && houseCount<=maxHousePerVillage){
                         StructureBuilder.buildBigHousePlain(structure,worldX+i,worldY,worldZ+j);
+                        Villager villager = new Villager("Villager" + i);
+                        synchronized (world.getEntities()) {
+                            world.addEntity(villager);
+                            Vector3f villagerPos = new Vector3f(worldX+i +2,worldY + 1,worldZ+j + 2);
+                            villager.setPosition(villagerPos);
+                        }
                         houseCount++;
                         region.setHasVillage(true);
                     }

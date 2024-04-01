@@ -21,11 +21,10 @@ import fr.math.minecraft.shared.Direction;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.entity.mob.MobBehavior;
 import fr.math.minecraft.shared.entity.mob.MobType;
+import fr.math.minecraft.shared.entity.mob.Zombie;
 import fr.math.minecraft.shared.inventory.Inventory;
 import fr.math.minecraft.shared.network.Hitbox;
-import fr.math.minecraft.shared.world.Chunk;
-import fr.math.minecraft.shared.world.Material;
-import fr.math.minecraft.shared.world.World;
+import fr.math.minecraft.shared.world.*;
 import org.apache.log4j.Logger;
 import org.joml.*;
 import org.joml.Math;
@@ -122,7 +121,7 @@ public abstract class Entity {
 
         patternUpdateCooldown++;
 
-        if (patternUpdateCooldown == GameConfiguration.TICK_PER_SECONDS) {
+        if (patternUpdateCooldown == GameConfiguration.TICK_PER_SECONDS && (this instanceof Zombie)) {
 
             int chunkX = (int) java.lang.Math.floor(position.x / (double) Chunk.SIZE);
             int chunkY = (int) java.lang.Math.floor(position.y / (double) Chunk.SIZE);
