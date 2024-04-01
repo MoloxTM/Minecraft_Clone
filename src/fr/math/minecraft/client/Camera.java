@@ -62,7 +62,7 @@ public class Camera {
         pitch = player.getPitch();
     }
 
-    private void calculateFront(Vector3f front) {
+    public void calculateFront(Vector3f front) {
         front.x = Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch));
         front.y = Math.sin(Math.toRadians(pitch));
         front.z = Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch));

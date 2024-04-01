@@ -16,6 +16,8 @@ import org.joml.Vector3i;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TickHandler extends Thread {
 
@@ -212,13 +214,22 @@ public class TickHandler extends Thread {
         }
 
         synchronized (world.getEntities()) {
+            List<Entity> deadEntities = new ArrayList<>();
             for (Entity entity : world.getEntities().values()) {
                 try {
                     entity.update(world);
                     byte[] entityBuffer = mapper.writeValueAsBytes(entity.toJSONObject());
                     server.broadcast(entityBuffer);
+                    if (entity.getHealth() <= 0.0f) {
+                        deadEntities.add(entity);
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
+                }
+            }
+            for (Entity entity : deadEntities) {
+                synchronized (world.getEntities()) {
+                    world.getEntities().remove(entity.getUuid());
                 }
             }
         }

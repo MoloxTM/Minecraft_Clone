@@ -88,6 +88,13 @@ public class EntityStateHandler implements Runnable {
             }
             entity.setHealth(health);
             entity.setMaxHealth(maxHealth);
+
+            if (entity.getHealth() <= 0.0f) {
+                synchronized (world.getEntities()) {
+                    world.getEntities().remove(entity.getUuid());
+                    logger.info(entity.getType() + " est mort !");
+                }
+            }
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             logger.error("Le type d'entité : " + entityTypeValue + " est inconnu et a été ignoré.");

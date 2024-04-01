@@ -1,11 +1,15 @@
 package fr.math.minecraft.client.entity;
 
 import fr.math.minecraft.client.meshs.Face;
+import fr.math.minecraft.logger.LogType;
+import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.server.Utils;
+import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.math.MathUtils;
 import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.shared.world.World;
+import org.apache.log4j.Logger;
 import org.joml.Math;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
@@ -20,6 +24,7 @@ public class Ray {
     protected final int yAxis= 1;
     protected final int zAxis = 2;
     private Face faceAimed;
+    private final static Logger logger = LoggerUtility.getClientLogger(Ray.class, LogType.TXT);
 
     public Ray(float reach) {
         this.aimedChunk = null;
@@ -39,7 +44,6 @@ public class Ray {
         Vector3f startPoint = new Vector3f(position).add(0.0f, 0.5f, 0.0f);
         Vector3i rayPosition = new Vector3i((int)startPoint.x, (int)startPoint.y, (int)startPoint.z);
         Vector3f endPoint = new Vector3f(startPoint);
-
         endPoint.add(new Vector3f(front).mul(reach));
 
         float dx, dy, dz, tDeltaX, tDeltaY, tDeltaZ, tMaxX, tMaxY, tMaxZ;

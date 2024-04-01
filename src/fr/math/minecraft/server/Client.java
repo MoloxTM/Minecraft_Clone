@@ -365,12 +365,14 @@ public class Client {
 
                         Random random = new Random();
                         DroppedItem droppedItem = new DroppedItem(new Vector3f(rayPosition), Material.getMiningBlock(material));
-                        droppedItem.getVelocity().y = 0.8f;
-                        droppedItem.getVelocity().x = random.nextFloat() * (0.75f - 0.35f) + 0.35f;
-                        droppedItem.getVelocity().z = random.nextFloat() * (0.85f - 0.3f) + 0.3f;
 
-                        world.getDroppedItems().put(droppedItem.getUuid(), droppedItem);
+                        if (droppedItem.getMaterial() != Material.AIR) {
+                            droppedItem.getVelocity().y = 0.8f;
+                            droppedItem.getVelocity().x = random.nextFloat() * (0.75f - 0.35f) + 0.35f;
+                            droppedItem.getVelocity().z = random.nextFloat() * (0.85f - 0.3f) + 0.3f;
 
+                            world.getDroppedItems().put(droppedItem.getUuid(), droppedItem);
+                        }
                     }
 
                     if (this.canBreakBlock) {

@@ -31,4 +31,5 @@ public class EntityUpdate {
     public float getBodyYaw() {
         return bodyYaw;
     }
+
 }

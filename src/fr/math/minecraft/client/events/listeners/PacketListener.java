@@ -237,6 +237,7 @@ public class PacketListener implements PacketEventListener {
                 Vector3f position = new Vector3f(itemX, itemY, itemZ);
 
                 if (droppedItem == null) {
+                    System.out.println("Materiau : " + material + " ID " + materialID);
                     droppedItem = new DroppedItem(uuid, position, material);
                     world.getDroppedItems().put(uuid, droppedItem);
                 } else {

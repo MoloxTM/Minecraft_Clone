@@ -14,8 +14,8 @@ public enum Material {
     CACTUS("Cactus", 5, new Vector2i(6, 11), new Vector2i(6, 11), new Vector2i(6, 11), new Vector2i(6, 11), new Vector2i(5, 11), new Vector2i(7, 11), 7, 1),
     OAK_LOG("Log",6,new Vector2i(4, 14), new Vector2i(4, 14), new Vector2i(4, 14), new Vector2i(4, 14), new Vector2i(5, 14), new Vector2i(5, 14), 6, 7),
     OAK_LEAVES("Oak leaves", 7, 4, 12, 1, 0),
-    WEED("Weed", 8, 7, 13, 14, 3, false, true),
-    ROSE("Rose", 9, 63, 15, 9, 3, false, true),
+    WEED("Weed", 8, 7, 13, 24, 1, false, true),
+    ROSE("Rose", 63, 12, 15, 23, 1, false, true),
     DEAD_BUSH("Dead bush", 10, 7, 12, 14, 3, false, true),
     BIRCH_LOG("Birch log", 64, new Vector2i(5, 8), new Vector2i(5, 8), new Vector2i(5, 8), new Vector2i(5, 8), new Vector2i(10, 7), new Vector2i(10, 7), 8, 7),
     BIRCH_LEAVES("Oak leaves", 12, 4, 7, 1, 0),
@@ -190,7 +190,7 @@ public enum Material {
                 return material;
             }
         }
-        return null;
+        return Material.DEBUG;
     }
 
     public static Material getMiningBlock(Material material) {
@@ -203,6 +203,10 @@ public enum Material {
             case BIRCH_LEAVES:
             case SPRUCE_LEAVES:
                 return Material.APPLE;
+            case DEAD_BUSH:
+                return Material.STICK;
+            case WEED:
+                return Material.AIR;
         }
         return material;
     }

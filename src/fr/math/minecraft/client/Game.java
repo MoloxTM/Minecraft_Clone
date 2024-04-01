@@ -299,7 +299,7 @@ public class Game {
         }
 
         tick++;
-        if (tick % 1 == 0) {
+        if (tick % 10 == 0) {
             List<PlayerInputData> inputData = new ArrayList<>(player.getInputs());
             List<BreakedBlock> brokenBlocksData = new ArrayList<>(player.getBreakedBlocks());
             List<PlacedBlock> placedBlocksData = new ArrayList<>(player.getPlacedBlocks());
