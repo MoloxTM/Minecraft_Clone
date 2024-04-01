@@ -56,7 +56,7 @@ public abstract class Inventory {
 
     public int getItemIndex(Material material) {
         int index = -1;
-        for (int i = 0; i < currentSize; i++) {
+        for (int i = 0; i < items.length; i++) {
             ItemStack item = items[i];
 
             if (item == null) {
@@ -96,6 +96,7 @@ public abstract class Inventory {
 
     public void removeItem(Material material) {
         int itemSlot = this.getItemIndex(material);
+        System.out.println("item slot ?? " + itemSlot);
         if (itemSlot == -1) {
             return;
         }

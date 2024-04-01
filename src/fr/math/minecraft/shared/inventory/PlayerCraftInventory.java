@@ -30,4 +30,5 @@ public class PlayerCraftInventory extends Inventory {
         return inventoryY + 12.0f * slotScaleY + 3 * slotHeight + 22.0f * slotScaleY + (2 - (int) (slot / 2.0f)) * slotHeight;
     }
 
+
 }

@@ -77,7 +77,6 @@ public class Client {
     private final CompletedCraftPlayerInventory completedCraftPlayerInventory;
     private final static float JUMP_VELOCITY = .125f;
 
-
     public Client(String uuid, String name, InetAddress address, int port) {
         this.address = address;
         this.port = port;
@@ -218,7 +217,6 @@ public class Client {
                 if (hotbarItem != null) {
                     int itemAmount = hotbarItem.getAmount();
 
-                    Random random = new Random();
                     DroppedItem droppedItem = new DroppedItem(new Vector3f(position), hotbarItem.getMaterial());
                     droppedItem.getVelocity().y = 0.8f;
                     droppedItem.getVelocity().x = cameraFront.x * 0.7f;
@@ -477,9 +475,33 @@ public class Client {
             ItemStack craftResult = completedCraftPlayerInventory.getItems()[0];
 
             if (inputData.isCollectingCraft() && craftResult != null) {
-                this.addItem(craftResult);
-                craftInventory.clear();
-                completedCraftPlayerInventory.clear();
+                CraftController controller = CraftController.getInstance();
+                CraftRecipes craft = controller.getCraft(craftInventory);
+                CraftData matchingCraft = null;
+                if (craft != null) {
+                    System.out.println(craft);
+                    for (CraftData craftData : craft.getPlayerInventory()) {
+                        if (craftData.equals(craftInventory)) {
+                            matchingCraft = craftData;
+                            break;
+                        }
+                    }
+
+                    if (matchingCraft != null) {
+                        for (byte block : matchingCraft.getTabCraft()) {
+                            if (block == Material.AIR.getId()) {
+                                continue;
+                            }
+                            Material material = Material.getMaterialById(block);
+                            System.out.println("j'ai trouvé " + material + " " + craftInventory);
+                            craftInventory.removeItem(material);
+                            break;
+                        }
+                    }
+
+                    this.addItem(craftResult);
+                    completedCraftPlayerInventory.clear();
+                }
             } else {
                 if (lastInventory != null && nextInventory != null && holdedSlot != -1 && nextSlot != -1) {
                     ItemStack holdedItem = lastInventory.getItems()[holdedSlot];

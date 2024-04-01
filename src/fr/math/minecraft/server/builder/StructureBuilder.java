@@ -330,7 +330,7 @@ public class  StructureBuilder {
                 } else if(i == 0 || i == 8) {
                     structure.setBlock(x+i,y,z+j,Material.COBBLE_STONE.getId());
                 } else {
-                    structure.setBlock(x+i,y,z+j,Material.OAK_PLANK.getId());
+                    structure.setBlock(x+i,y,z+j,Material.OAK_PLANKS.getId());
                 }
             }
         }
@@ -423,7 +423,7 @@ public class  StructureBuilder {
                 } else if(i == 0 || i == 8) {
                     structure.setBlock(x+j,y,z+i,Material.COBBLE_STONE.getId());
                 } else {
-                    structure.setBlock(x+j,y,z+i,Material.OAK_PLANK.getId());
+                    structure.setBlock(x+j,y,z+i,Material.OAK_PLANKS.getId());
                 }
             }
         }
@@ -489,19 +489,19 @@ public class  StructureBuilder {
 
         y=y+1;
         for(int i = 0;i<9;i++){
-            structure.setBlock(x,y,z+i,Material.OAK_PLANK.getId());
-            structure.setBlock(x+5,y,z+i,Material.OAK_PLANK.getId());
+            structure.setBlock(x,y,z+i,Material.OAK_PLANKS.getId());
+            structure.setBlock(x+5,y,z+i,Material.OAK_PLANKS.getId());
         }
         for (int i = 0; i < 6; i++) {
-            structure.setBlock(x+i,y,z,Material.OAK_PLANK.getId());
-            structure.setBlock(x+i,y,z+8,Material.OAK_PLANK.getId());
+            structure.setBlock(x+i,y,z,Material.OAK_PLANKS.getId());
+            structure.setBlock(x+i,y,z+8,Material.OAK_PLANKS.getId());
         }
 
         //etage 5
         y=y+1;
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 4; j++) {
-                structure.setBlock(x+j+1,y,z+i,Material.OAK_PLANK.getId());
+                structure.setBlock(x+j+1,y,z+i,Material.OAK_PLANKS.getId());
             }
         }
 
@@ -509,7 +509,7 @@ public class  StructureBuilder {
         y=y+1;
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 2; j++) {
-                structure.setBlock(x+j+2,y,z+i,Material.OAK_PLANK.getId());
+                structure.setBlock(x+j+2,y,z+i,Material.OAK_PLANKS.getId());
             }
         }
 

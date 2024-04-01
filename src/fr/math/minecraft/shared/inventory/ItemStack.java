@@ -69,4 +69,13 @@ public class ItemStack {
         return itemNode;
     }
 
+    @Override
+    public String toString() {
+        return "ItemStack{" +
+                "amount=" + amount +
+                ", material=" + material +
+                ", lore=" + lore +
+                ", hovered=" + hovered +
+                '}';
+    }
 }
