@@ -41,7 +41,7 @@ void main() {
         } else if(biome == 1) {
             tex.rgb *= vec3(0.48, 0.73, 0.36);
         } else if(biome == 2) {
-            tex.rgb *= vec3(1.55, 1.55, 1.55);
+            tex.rgb *= vec3(0.511, 0.755, 0.3591);
         } else if(biome == 3) {
             tex.rgb *= vec3(0.511, 0.755, 0.3591);
         } else {

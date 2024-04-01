@@ -356,7 +356,7 @@ public class Client {
                         sprite.reset();
 
                         Random random = new Random();
-                        DroppedItem droppedItem = new DroppedItem(new Vector3f(rayPosition), material);
+                        DroppedItem droppedItem = new DroppedItem(new Vector3f(rayPosition), Material.getMiningBlock(material));
                         droppedItem.getVelocity().y = 0.8f;
                         droppedItem.getVelocity().x = random.nextFloat() * (0.75f - 0.35f) + 0.35f;
                         droppedItem.getVelocity().z = random.nextFloat() * (0.85f - 0.3f) + 0.3f;
@@ -395,7 +395,7 @@ public class Client {
                     craftingTableInventory.setOpen(true);
                 }
 
-                if (canPlaceBlock && hotbarItem != null && hotbarItem.getMaterial() != Material.AIR) {
+                if (canPlaceBlock && hotbarItem != null && hotbarItem.getMaterial() != Material.AIR && !hotbarItem.getMaterial().isItem()) {
                     if (buildRay.isAimingBlock()) {
 
                         Vector3i rayPosition = buildRay.getBlockWorldPosition();
@@ -503,7 +503,6 @@ public class Client {
                                 }
                                 Material material = Material.getMaterialById(block);
                                 craftingTableInventory.removeItem(material);
-                                break;
                             }
                         }
 
@@ -528,7 +527,6 @@ public class Client {
                                 }
                                 Material material = Material.getMaterialById(block);
                                 craftInventory.removeItem(material);
-                                break;
                             }
                         }
 

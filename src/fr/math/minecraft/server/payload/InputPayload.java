@@ -45,9 +45,6 @@ public class InputPayload {
             JsonNode nextInventoryNode = inputNode.get("nextInventory");
             int nextSlot = inputNode.get("nextSlot").asInt();
 
-
-            System.out.println("Placing block ? : " + placingBlock);
-
             PlayerInputData inputData;
             if (inventoryTypeNode != null && nextInventoryNode != null) {
                 InventoryType inventoryType = InventoryType.values()[inputNode.get("inventoryType").asInt()];

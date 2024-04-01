@@ -326,9 +326,9 @@ public class  StructureBuilder {
         for(int i=0; i<9;i++){
             for(int j=0;j<6;j++){
                 if(j == 0 || j == 5) {
-                    structure.setBlock(x+i,y,z+j,Material.COBBLE_STONE.getId());
+                    structure.setBlock(x+i,y,z+j,Material.COBBLESTONE.getId());
                 } else if(i == 0 || i == 8) {
-                    structure.setBlock(x+i,y,z+j,Material.COBBLE_STONE.getId());
+                    structure.setBlock(x+i,y,z+j,Material.COBBLESTONE.getId());
                 } else {
                     structure.setBlock(x+i,y,z+j,Material.OAK_PLANKS.getId());
                 }
@@ -419,9 +419,9 @@ public class  StructureBuilder {
         for(int i=0; i< 9 ;i++){
             for(int j=0;j < 6;j++){
                 if(j == 0 || j == 5) {
-                    structure.setBlock(x+j,y,z+i,Material.COBBLE_STONE.getId());
+                    structure.setBlock(x+j,y,z+i,Material.COBBLESTONE.getId());
                 } else if(i == 0 || i == 8) {
-                    structure.setBlock(x+j,y,z+i,Material.COBBLE_STONE.getId());
+                    structure.setBlock(x+j,y,z+i,Material.COBBLESTONE.getId());
                 } else {
                     structure.setBlock(x+j,y,z+i,Material.OAK_PLANKS.getId());
                 }
@@ -432,9 +432,9 @@ public class  StructureBuilder {
         for(int i=0; i<9;i++){
             for(int j=0;j<6;j++){
                 if(j == 0 || j == 5) {
-                    structure.setBlock(x+j,y,z+i,Material.COBBLE_STONE.getId());
+                    structure.setBlock(x+j,y,z+i,Material.COBBLESTONE.getId());
                 } else if(i == 0 || i == 8) {
-                    structure.setBlock(x+j,y,z+i,Material.COBBLE_STONE.getId());
+                    structure.setBlock(x+j,y,z+i,Material.COBBLESTONE.getId());
                 } else {
                     structure.setBlock(x+j,y,z+i,Material.AIR.getId());
                 }
@@ -451,9 +451,9 @@ public class  StructureBuilder {
         for(int i=0; i<9;i++){
             for(int j=0;j<6;j++){
                 if(j == 0 || j == 5) {
-                    structure.setBlock(x+j,y,z+i,Material.COBBLE_STONE.getId());
+                    structure.setBlock(x+j,y,z+i,Material.COBBLESTONE.getId());
                 } else if(i == 0 || i == 8) {
-                    structure.setBlock(x+j,y,z+i,Material.COBBLE_STONE.getId());
+                    structure.setBlock(x+j,y,z+i,Material.COBBLESTONE.getId());
                 } else {
                     structure.setBlock(x+j,y,z+i,Material.AIR.getId());
                 }
@@ -478,9 +478,9 @@ public class  StructureBuilder {
         for(int i=0; i<9;i++){
             for(int j=0;j<6;j++){
                 if(j == 0 || j == 5) {
-                    structure.setBlock(x+j,y,z+i,Material.COBBLE_STONE.getId());
+                    structure.setBlock(x+j,y,z+i,Material.COBBLESTONE.getId());
                 } else if(i == 0 || i == 8) {
-                    structure.setBlock(x+j,y,z+i,Material.COBBLE_STONE.getId());
+                    structure.setBlock(x+j,y,z+i,Material.COBBLESTONE.getId());
                 } else {
                     structure.setBlock(x+j,y,z+i,Material.AIR.getId());
                 }
