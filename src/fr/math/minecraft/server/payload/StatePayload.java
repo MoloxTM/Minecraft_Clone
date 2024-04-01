@@ -28,7 +28,7 @@ public class StatePayload {
     private Vector3f velocity;
     private float yaw;
     private float pitch;
-    private float health, maxHealth, maxSpeed;
+    private float health, maxHealth, maxSpeed, hunger, maxHunger;
     private List<PlacedBlock> placedBlocks;
     private List<BreakedBlock> brokenBlocks;
     private Inventory hotbar, craftInventory, completedCraftInventory, inventory, craftingTableInventory;
@@ -132,6 +132,8 @@ public class StatePayload {
         this.health = client.getHealth();
         this.maxHealth = client.getMaxHealth();
         this.maxSpeed = client.getMaxSpeed();
+        this.hunger = client.getHunger();
+        this.maxHunger = client.getMaxHunger();
     }
 
     public void send() {
@@ -180,6 +182,8 @@ public class StatePayload {
         payloadNode.put("health", health);
         payloadNode.put("maxHealth", maxHealth);
         payloadNode.put("maxSpeed", maxSpeed);
+        payloadNode.put("hunger", hunger);
+        payloadNode.put("maxHunger", maxHunger);
 
         for (PlacedBlock placedBlock : placedBlocks) {
             Vector3i blockPosition = placedBlock.getWorldPosition();

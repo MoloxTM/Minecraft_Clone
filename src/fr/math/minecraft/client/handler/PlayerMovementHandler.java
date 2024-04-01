@@ -86,6 +86,9 @@ public class PlayerMovementHandler {
         player.setHealth(lastServerState.getHealth());
         player.setMaxHealth(lastServerState.getMaxHealth());
 
+        player.setHunger(lastServerState.getHunger());
+        player.setMaxHunger(lastServerState.getMaxHunger());
+
         if (lastServerState.getMaxSpeed() != player.getMaxSpeed()) {
             player.setMaxSpeed(lastServerState.getMaxSpeed());
         }

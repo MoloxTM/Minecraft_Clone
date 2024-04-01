@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.math.minecraft.ServerMain;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.server.Client;
@@ -62,7 +63,7 @@ public class ConnectionInitHandler extends PacketHandler implements Runnable {
         node.put("spawnX", world.getSpawnPosition().x);
         node.put("spawnY", world.getSpawnPosition().y);
         node.put("spawnZ", world.getSpawnPosition().z);
-        node.put("seed", 0);
+        node.put("seed", world.getSeed());
         node.set("worldData", world.toJSONObject());
 
         try {

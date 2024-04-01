@@ -30,7 +30,7 @@ public class StatePayload {
     private Vector3f velocity;
     private List<BreakedBlock> breakedBlockData;
     private List<PlacedBlock> placedBlocks;
-    private float yaw, pitch, health, maxHealth, maxSpeed;
+    private float yaw, pitch, health, maxHealth, maxSpeed, hunger, maxHunger;
     private ArrayNode inventoryItems, hotbarItems, craftItems, completedCraftItems, craftingTableItems;
     private boolean craftTableOpen;
     private final static Logger logger = LoggerUtility.getClientLogger(StatePayload.class, LogType.TXT);
@@ -72,6 +72,8 @@ public class StatePayload {
         health = stateData.get("health").floatValue();
         maxHealth = stateData.get("maxHealth").floatValue();
         maxSpeed = stateData.get("maxSpeed").floatValue();
+        hunger = stateData.get("hunger").floatValue();
+        maxHunger = stateData.get("maxHunger").floatValue();
     }
 
     public void reconcileMovement(World world, Player player, Vector3f playerPosition, Vector3f playerVelocity) {
@@ -372,4 +374,11 @@ public class StatePayload {
         return maxSpeed;
     }
 
+    public float getHunger() {
+        return hunger;
+    }
+
+    public float getMaxHunger() {
+        return maxHunger;
+    }
 }

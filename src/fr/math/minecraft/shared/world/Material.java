@@ -72,11 +72,11 @@ public enum Material {
     private final int blockIconY, y;
     private final byte id;
     private final String name;
-    private final boolean faces, solid, item;
+    private final boolean faces, solid, item, food;
     private final Vector2i px, nx, pz, nz, py, ny;
 
     Material(String name, int id, int x, int y, int blockIconX, int blockIconY) {
-        this(name, id, x, y, blockIconX, blockIconY, true, false);
+        this(name, id, x, y, blockIconX, blockIconY, true, false, false);
     }
 
     Material(String name, int id, int x, int y, int blockIconX, int blockIconY, boolean solid, boolean item) {
@@ -95,6 +95,26 @@ public enum Material {
         this.faces = false;
         this.solid = solid;
         this.item = item;
+        this.food = false;
+    }
+
+    Material(String name, int id, int x, int y, int blockIconX, int blockIconY, boolean solid, boolean item, boolean food) {
+        this.name = name;
+        this.id = (byte)id;
+        this.x = x;
+        this.y = y;
+        this.px = null;
+        this.nx = null;
+        this.pz = null;
+        this.nz = null;
+        this.py = null;
+        this.ny = null;
+        this.blockIconX = blockIconX;
+        this.blockIconY = blockIconY;
+        this.faces = false;
+        this.solid = solid;
+        this.item = item;
+        this.food = food;
     }
 
     Material(String name, int id, Vector2i px, Vector2i nx, Vector2i pz, Vector2i nz, Vector2i py, Vector2i ny, int blockIconX, int blockIconY) {
@@ -116,6 +136,7 @@ public enum Material {
         this.blockIconY = blockIconY;
         this.solid = solid;
         this.item = item;
+        this.food = false;
     }
 
     public String getName() {
@@ -197,4 +218,7 @@ public enum Material {
         return item;
     }
 
+    public boolean isFood() {
+        return food;
+    }
 }

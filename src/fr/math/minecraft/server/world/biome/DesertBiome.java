@@ -86,7 +86,7 @@ public class DesertBiome extends AbstractBiome {
                 int z = j - regionPosition.z;
 
                 if(Region.SIZE / 4 < x && x < Chunk.SIZE * Region.SIZE - Region.SIZE / 4 && Region.SIZE / 4 < z && z < Chunk.SIZE * Region.SIZE - Region.SIZE / 4) {
-                    if(canBuildHouse(worldX+i,worldY,worldZ+j) && houseCount<=maxHousePerVillage){
+                    if(canBuildHouse(worldX+i,worldY,worldZ+j,world) && houseCount<=maxHousePerVillage){
                         StructureBuilder.buildHouseDesert(structure,worldX+i,worldY,worldZ+j);
                         houseCount++;
                         region.setHasVillage(true);
@@ -97,11 +97,11 @@ public class DesertBiome extends AbstractBiome {
         }
     }
 
-    public boolean canBuildHouse(int worldX, int worldY, int worldZ){
+    public boolean canBuildHouse(int worldX, int worldY, int worldZ,World world){
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
 
-                if((int)this.getHeight(worldX+i,worldZ+j)!=worldY) {
+                if((int)this.getHeight(worldX+i,worldZ+j,world.getSeed())!=worldY) {
                     return false;
                 }
             }

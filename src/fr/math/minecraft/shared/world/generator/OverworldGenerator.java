@@ -23,24 +23,24 @@ public class OverworldGenerator implements TerrainGenerator {
         this.cavesGenerator = new OverworldCavesGenerator();
     }
 
-    public float calculBiomeHeight(int worldX, int worldZ) {
+    public float calculBiomeHeight(int worldX, int worldZ, float seed) {
         BiomeManager biomeManager = new BiomeManager();
-        AbstractBiome currentBiome = biomeManager.getBiome(worldX, worldZ);
-        float height = currentBiome.getHeight(worldX, worldZ);
+        AbstractBiome currentBiome = biomeManager.getBiome(worldX, worldZ,seed);
+        float height = currentBiome.getHeight(worldX, worldZ,seed);
         return height;
     }
 
-    public Map<Vector2i, Integer> fillHeightMap(int chunkX, int chunkZ, int xMin, int xMax, int zMin, int zMax) {
+    public Map<Vector2i, Integer> fillHeightMap(int chunkX, int chunkZ, int xMin, int xMax, int zMin, int zMax,World world) {
 
         Map<Vector2i, Integer> heightMap = new HashMap<>();
 
         int worldX = chunkX * Chunk.SIZE;
         int worldZ = chunkZ * Chunk.SIZE;
 
-        float bottomLeft = this.calculBiomeHeight(worldX + xMin, worldZ + zMin);
-        float bottomRight =  this.calculBiomeHeight(worldX + xMax, worldZ + zMin);
-        float topLeft =  this.calculBiomeHeight(worldX + xMin, worldZ + zMax);
-        float topRight =  this.calculBiomeHeight(worldX + xMax, worldZ + zMax);
+        float bottomLeft = this.calculBiomeHeight(worldX + xMin, worldZ + zMin,world.getSeed());
+        float bottomRight =  this.calculBiomeHeight(worldX + xMax, worldZ + zMin,world.getSeed());
+        float topLeft =  this.calculBiomeHeight(worldX + xMin, worldZ + zMax,world.getSeed());
+        float topRight =  this.calculBiomeHeight(worldX + xMax, worldZ + zMax,world.getSeed());
 
         for (int x = xMin; x <= xMax; x++) {
             for (int z = zMin; z <= zMax; z++) {
@@ -51,7 +51,7 @@ public class OverworldGenerator implements TerrainGenerator {
         return heightMap;
     }
 
-    public int getHeight(int worldX, int worldZ) {
+    public int getHeight(int worldX, int worldZ, World world) {
 
         int chunkX = ((int) Math.floor(worldX / (double) Chunk.SIZE)) * Chunk.SIZE;
         int chunkZ = ((int) Math.floor(worldZ / (double) Chunk.SIZE)) * Chunk.SIZE;
@@ -59,10 +59,10 @@ public class OverworldGenerator implements TerrainGenerator {
         int xMin = 0, zMin = 0;
         int xMax = Chunk.SIZE - 1, zMax = Chunk.SIZE - 1;
 
-        float bottomLeft = this.calculBiomeHeight(chunkX + xMin, chunkZ + zMin);
-        float bottomRight =  this.calculBiomeHeight(chunkX + xMax, chunkZ + zMin);
-        float topLeft =  this.calculBiomeHeight(chunkX + xMin, chunkZ + zMax);
-        float topRight =  this.calculBiomeHeight(chunkX + xMax, chunkZ + zMax);
+        float bottomLeft = this.calculBiomeHeight(chunkX + xMin, chunkZ + zMin,world.getSeed());
+        float bottomRight =  this.calculBiomeHeight(chunkX + xMax, chunkZ + zMin,world.getSeed());
+        float topLeft =  this.calculBiomeHeight(chunkX + xMin, chunkZ + zMax,world.getSeed());
+        float topRight =  this.calculBiomeHeight(chunkX + xMax, chunkZ + zMax,world.getSeed());
 
         int x = (worldX % Chunk.SIZE);
         int z = (worldZ % Chunk.SIZE);
@@ -79,7 +79,7 @@ public class OverworldGenerator implements TerrainGenerator {
     @Override
     public void generateChunk(World world, Chunk chunk) {
 
-        Map<Vector2i, Integer> heightMap = fillHeightMap(chunk.getPosition().x, chunk.getPosition().z, 0, Chunk.SIZE - 1, 0, Chunk.SIZE - 1);
+        Map<Vector2i, Integer> heightMap = fillHeightMap(chunk.getPosition().x, chunk.getPosition().z, 0, Chunk.SIZE - 1, 0, Chunk.SIZE - 1,world);
 
         int regionX = (int) Math.floor((chunk.getPosition().x * Chunk.SIZE)/ (double) (Chunk.SIZE * Region.SIZE));
         int regionY = (int) Math.floor((chunk.getPosition().y * Chunk.SIZE) / (double) (Chunk.SIZE * Region.SIZE));
@@ -95,7 +95,7 @@ public class OverworldGenerator implements TerrainGenerator {
                 int worldX = x + chunk.getPosition().x * Chunk.SIZE;
                 int worldZ = z + chunk.getPosition().z * Chunk.SIZE;
 
-                AbstractBiome currentBiome = biomeManager.getBiome(worldX, worldZ);
+                AbstractBiome currentBiome = biomeManager.getBiome(worldX, worldZ,world.getSeed());
                 chunk.setBiome(currentBiome);
 
                 int worldHeight = heightMap.get(new Vector2i(x, z));

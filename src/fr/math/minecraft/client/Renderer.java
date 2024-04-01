@@ -36,6 +36,7 @@ import fr.math.minecraft.server.manager.BiomeManager;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.world.DroppedItem;
 import fr.math.minecraft.shared.world.Material;
+import fr.math.minecraft.shared.world.World;
 import org.apache.log4j.Logger;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
@@ -600,7 +601,8 @@ public class Renderer {
         this.renderText(camera, "FPS: " + frames, 0, GameConfiguration.WINDOW_HEIGHT - 120,0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
         this.renderText(camera, "Ping: " + player.getPing() + "ms", 0, GameConfiguration.WINDOW_HEIGHT - 140,0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
         BiomeManager biomeManager = new BiomeManager();
-        this.renderText(camera, "BIOME: " + biomeManager.getBiome((int) player.getPosition().x, (int)player.getPosition().z).getBiomeName(), 0, GameConfiguration.WINDOW_HEIGHT - 160, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
+        World world = Game.getInstance().getWorld();
+        this.renderText(camera, "BIOME: " + biomeManager.getBiome((int) player.getPosition().x, (int)player.getPosition().z,world.getSeed()).getBiomeName(), 0, GameConfiguration.WINDOW_HEIGHT - 160, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
         this.renderText(camera, "Entity Interpolation: " + gameConfiguration.isEntityInterpolationEnabled(), 0, GameConfiguration.WINDOW_HEIGHT - 180, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
     }
 
@@ -885,6 +887,54 @@ public class Renderer {
             camera.matrixOrtho(imageShader, 0, 0);
             imageMesh.draw();
             currentHeart++;
+        }
+
+
+        int filledFood = (int) player.getHunger() / 2;
+        imageShader.enable();
+        glActiveTexture(GL_TEXTURE0 + iconsTexture.getSlot());
+        iconsTexture.bind();
+        imageShader.sendInt("uTexture", iconsTexture.getSlot());
+
+        imageMesh.texSubImage(16 + 4 * iconSize, 256.0f - iconSize * 4, iconSize, iconSize, 256.0f, 256.0f);
+
+        int currentFood = 0;
+        while (currentFood < filledFood) {
+            imageShader.sendFloat("depth", -10);
+            imageMesh.texSubImage(16 + 0 * iconSize, 256.0f - iconSize * 4, iconSize, iconSize, 256.0f, 256.0f);
+            imageMesh.translate(imageShader, (hotbarX + (hotbarWidth * scale) - 2*iconSize) - (currentFood * iconSize * scale), hotbarY + hotbarHeight * scale + 5, iconSize * scale, iconSize * scale);
+            camera.matrixOrtho(imageShader, 0, 0);
+            imageMesh.draw();
+
+            imageShader.sendFloat("depth", -9);
+            imageMesh.texSubImage(16 + 4 * iconSize, 256.0f - iconSize * 4, iconSize, iconSize, 256.0f, 256.0f);
+            imageMesh.translate(imageShader, (hotbarX + (hotbarWidth * scale) - 2*iconSize) - (currentFood * iconSize * scale), hotbarY + hotbarHeight * scale + 5, iconSize * scale, iconSize * scale);
+            camera.matrixOrtho(imageShader, 0, 0);
+            imageMesh.draw();
+            currentFood++;
+        }
+
+        if (player.getHunger() % 5 == 0.5f) {
+            imageShader.sendFloat("depth", -10);
+            imageMesh.texSubImage(16 + 0 * iconSize, 256.0f - iconSize * 4, iconSize, iconSize, 256.0f, 256.0f);
+            imageMesh.translate(imageShader, (hotbarX + (hotbarWidth * scale) - 2*iconSize) - (currentFood * iconSize * scale), hotbarY + hotbarHeight * scale + 5, iconSize * scale, iconSize * scale);
+            camera.matrixOrtho(imageShader, 0, 0);
+            imageMesh.draw();
+
+            imageShader.sendFloat("depth", -9);
+            imageMesh.texSubImage(16 + 5 * iconSize, 256.0f - iconSize * 4, iconSize, iconSize, 256.0f, 256.0f);
+            imageMesh.translate(imageShader, (hotbarX + (hotbarWidth * scale) - 2*iconSize) - (currentFood * iconSize * scale), hotbarY + hotbarHeight * scale + 5, iconSize * scale, iconSize * scale);
+            camera.matrixOrtho(imageShader, 0, 0);
+            imageMesh.draw();
+        }
+
+        while (currentFood < player.getMaxHunger() / 2.0f) {
+            imageShader.sendFloat("depth", -9);
+            imageMesh.texSubImage(16 + 0 * iconSize, 256.0f - iconSize * 4, iconSize, iconSize, 256.0f, 256.0f);
+            imageMesh.translate(imageShader, (hotbarX + (hotbarWidth * scale) - 2*iconSize) - (currentFood * iconSize * scale), hotbarY + hotbarHeight * scale + 5, iconSize * scale, iconSize * scale);
+            camera.matrixOrtho(imageShader, 0, 0);
+            imageMesh.draw();
+            currentFood++;
         }
 
         iconsTexture.unbind();

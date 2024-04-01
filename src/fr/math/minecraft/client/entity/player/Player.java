@@ -72,7 +72,7 @@ public class Player extends Entity {
     private final ChatPayload chatPayload;
     private final CompletedCraftPlayerInventory completedCraftPlayerInventory;
     private final CraftingTableInventory craftingTableInventory;
-
+    
     public Player(String name) {
         super(null, EntityType.PLAYER);
         this.name = name;
@@ -130,6 +130,7 @@ public class Player extends Entity {
         this.craftingTableInventory = new CraftingTableInventory();
         this.lastInventory = inventory;
         this.initAnimations();
+        this.saturation = 10.0f;
     }
 
     private void initAnimations() {
@@ -511,7 +512,7 @@ public class Player extends Entity {
             ItemStack hotbarItem = hotbar.getItems()[hotbar.getSelectedSlot()];
             if (canPlaceBlock && hotbarItem != null && hotbarItem.getMaterial() != Material.AIR) {
                 ChunkManager chunkManager = new ChunkManager();
-                if (buildRay.isAimingBlock()) {
+                if (buildRay.isAimingBlock() && !hotbarItem.getMaterial().isFood()) {
                     Vector3i rayPosition = buildRay.getBlockWorldPosition();
                     Vector3i placedBlockWorldPosition = buildRay.getBlockPlacedPosition(rayPosition);
                     Vector3i blockPositionLocal = Utils.worldToLocal(placedBlockWorldPosition);

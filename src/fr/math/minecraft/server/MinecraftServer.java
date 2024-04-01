@@ -50,9 +50,9 @@ public class MinecraftServer {
         this.sockets = new HashMap<>();
         this.lastActivities = new HashMap<>();
         this.world = new World();
-        this.world.buildSpawn();
-        this.world.calculateSpawnPosition();
-        AStar.initGraph(world, world.getSpawnPosition());
+        //this.world.buildSpawn();
+        //this.world.calculateSpawnPosition();
+        //AStar.initGraph(world, world.getSpawnPosition());
         this.packetQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(4);
         this.pathfindingQueue = (ThreadPoolExecutor) Executors.newFixedThreadPool(4);
         this.tickHandler = new TickHandler();

@@ -21,11 +21,10 @@ import fr.math.minecraft.shared.Direction;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.entity.mob.MobBehavior;
 import fr.math.minecraft.shared.entity.mob.MobType;
+import fr.math.minecraft.shared.entity.mob.Zombie;
 import fr.math.minecraft.shared.inventory.Inventory;
 import fr.math.minecraft.shared.network.Hitbox;
-import fr.math.minecraft.shared.world.Chunk;
-import fr.math.minecraft.shared.world.Material;
-import fr.math.minecraft.shared.world.World;
+import fr.math.minecraft.shared.world.*;
 import org.apache.log4j.Logger;
 import org.joml.*;
 import org.joml.Math;
@@ -50,6 +49,8 @@ public abstract class Entity {
     protected final MobType mobType;
     protected float health;
     protected float maxHealth;
+    protected float hunger;
+    protected float maxHunger;
     protected NametagMesh nametagMesh;
     protected Inventory inventory;
     protected EntityType type;
@@ -89,6 +90,8 @@ public abstract class Entity {
         this.lastAttackerID = null;
         this.lastAttackerType = null;
         this.hitMarkDelay = 0;
+        this.hunger = type.getHunger();
+        this.maxHunger = type.getMaxHunger();
     }
 
     public void notifyEvent(PlayerMoveEvent event) {
@@ -118,7 +121,7 @@ public abstract class Entity {
 
         patternUpdateCooldown++;
 
-        if (patternUpdateCooldown == GameConfiguration.TICK_PER_SECONDS) {
+        if (patternUpdateCooldown == GameConfiguration.TICK_PER_SECONDS && (this instanceof Zombie)) {
 
             int chunkX = (int) java.lang.Math.floor(position.x / (double) Chunk.SIZE);
             int chunkY = (int) java.lang.Math.floor(position.y / (double) Chunk.SIZE);
@@ -141,9 +144,9 @@ public abstract class Entity {
                         Vector2f entityPosition = new Vector2f(position.x, position.z);
                         Vector2f direction = new Vector2f(client.getPosition().x, client.getPosition().z).sub(entityPosition);
                         client.setHealth(client.getHealth() - damage);
-                        client.getVelocity().y = 0.14f;
-                        client.getVelocity().x = direction.x * 0.125f;
-                        client.getVelocity().z = direction.y * 0.125f;
+                        client.getVelocity().y = GameConfiguration.KNOCK_BACK_Y;
+                        client.getVelocity().x = direction.x * GameConfiguration.KNOCK_BACK_X;
+                        client.getVelocity().z = direction.y * GameConfiguration.KNOCK_BACK_Z;
                         client.setMaxSpeed(.4f);
                         logger.debug("Un " + type.getName() + " a attaqué " + client.getName() + " (" + client.getUuid() + ") " + client.getHealth() + "/" + client.getMaxHealth());
                         continue;
@@ -318,6 +321,8 @@ public abstract class Entity {
         entityNode.put("bodyYaw", bodyYaw);
         entityNode.put("health", health);
         entityNode.put("maxHealth", maxHealth);
+        entityNode.put("hunger", hunger);
+        entityNode.put("maxHunger", maxHunger);
         entityNode.put("lastAttacker", lastAttackerID == null ? "NONE" : lastAttackerID);
         entityNode.put("lastAttackerType", lastAttackerType == null ? "NONE" : lastAttackerType.toString());
 
@@ -480,6 +485,22 @@ public abstract class Entity {
 
     public void setMaxHealth(float maxHealth) {
         this.maxHealth = maxHealth;
+    }
+
+    public float getHunger() {
+        return hunger;
+    }
+
+    public void setHunger(float hunger) {
+        this.hunger = hunger;
+    }
+
+    public float getMaxHunger() {
+        return maxHunger;
+    }
+
+    public void setMaxHunger(float maxHunger) {
+        this.maxHunger = maxHunger;
     }
 
     public NametagMesh getNametagMesh() {

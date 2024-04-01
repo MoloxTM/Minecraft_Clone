@@ -93,6 +93,8 @@ public class PacketListener implements PacketEventListener {
             float bodyYaw = playerNode.get("bodyYaw").floatValue();
             float health = playerNode.get("health").floatValue();
             float maxHealth = playerNode.get("maxHealth").floatValue();
+            float hunger = playerNode.get("hunger").floatValue();
+            float maxHunger = playerNode.get("maxHunger").floatValue();
 
             String actionId = playerNode.get("action").asText();
             int spriteIndex = playerNode.get("spriteIndex").asInt();
@@ -136,6 +138,7 @@ public class PacketListener implements PacketEventListener {
             player.setPitch(pitch);
             player.setHealth(health);
             player.setMaxHealth(maxHealth);
+            player.setMaxHunger(maxHunger);
 
             player.getBuildRay().getBlockWorldPosition().x = rayX;
             player.getBuildRay().getBlockWorldPosition().y = rayY;

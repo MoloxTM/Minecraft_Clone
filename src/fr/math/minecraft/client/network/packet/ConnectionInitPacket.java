@@ -126,7 +126,8 @@ public class ConnectionInitPacket extends ClientPacket implements Runnable {
                 ConnectionMenu connectionMenu = (ConnectionMenu) menu;
                 connectionMenu.getTitle().setText("Construction du monde...");
             }
-
+            float seed = serverData.get("seed").floatValue();
+            world.setSeed(seed);
             world.buildSpawn();
             world.buildSpawnMesh();
 
