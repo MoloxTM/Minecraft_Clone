@@ -63,9 +63,9 @@ public class Camera {
     }
 
     private void calculateFront(Vector3f front) {
-        front.x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
-        front.y = (float) Math.sin(Math.toRadians(pitch));
-        front.z = (float) (Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
+        front.x = Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch));
+        front.y = Math.sin(Math.toRadians(pitch));
+        front.z = Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch));
         front.normalize();
     }
 

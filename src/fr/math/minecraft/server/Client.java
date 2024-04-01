@@ -1,19 +1,16 @@
 package fr.math.minecraft.server;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.entity.AttackRay;
 import fr.math.minecraft.client.entity.Ray;
 import fr.math.minecraft.shared.entity.EntityType;
+import fr.math.minecraft.shared.inventory.*;
 import fr.math.minecraft.shared.math.MathUtils;
 import fr.math.minecraft.shared.math.PhysicsController;
 import fr.math.minecraft.logger.LogType;
 import fr.math.minecraft.logger.LoggerUtility;
 import fr.math.minecraft.shared.entity.Entity;
-import fr.math.minecraft.shared.inventory.Hotbar;
-import fr.math.minecraft.shared.inventory.ItemStack;
 import fr.math.minecraft.shared.network.GameMode;
 import fr.math.minecraft.shared.world.*;
 import fr.math.minecraft.shared.PlayerAction;
@@ -92,7 +89,7 @@ public class Client {
         this.inputQueue = new LinkedList<>();
         this.gravity = new Vector3f(0, -0.0025f, 0);
         this.front = new Vector3f(0.0f, 0.0f, 0.0f);
-        this.position = new Vector3f(0.0f, 300.0f, 0.0f);
+        this.position = new Vector3f(0.0f, 100.0f, 0.0f);
         this.hitbox = new Hitbox(new Vector3f(0, 0, 0), new Vector3f(0.25f, 0.9f, 0.25f));
         this.stateBuffer = new StatePayload[GameConfiguration.BUFFER_SIZE];
         this.gameMode = GameMode.SURVIVAL;
@@ -198,8 +195,13 @@ public class Client {
 
             front.normalize();
 
-            Vector3f cameraFront = new Vector3f(front);
+            Vector3f cameraFront = new Vector3f();
+
+            cameraFront.x = Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch));
             cameraFront.y = Math.sin(Math.toRadians(pitch));
+            cameraFront.z = Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch));
+
+            cameraFront.normalize();
 
             Vector3f right = new Vector3f(front).cross(new Vector3f(0, 1, 0)).normalize();
 
@@ -521,8 +523,6 @@ public class Client {
                     }
                 }
             }
-
-            velocity.mul(0.95f);
         }
     }
 

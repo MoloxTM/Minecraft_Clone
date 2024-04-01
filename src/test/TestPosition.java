@@ -69,12 +69,12 @@ public class TestPosition {
         player.setMovingForward(true);
         for (int i = 0; i < 10; i++) {
             client.update(world, inputPayload);
-            //player.updatePosition(world);
+            player.updatePosition(world);
         }
 
         StatePayload payload = new StatePayload(new fr.math.minecraft.client.network.payload.InputPayload(0, inputs));
         for (int i = 0; i < 10; i++) {
-            payload.reconcileMovement(world, player, new Vector3f(), new Vector3f());
+            //payload.reconcileMovement(world, player, new Vector3f(), new Vector3f());
         }
 
         System.out.println(payload.getPosition());

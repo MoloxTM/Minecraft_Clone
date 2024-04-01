@@ -31,8 +31,7 @@ public class StatePayload {
     private List<BreakedBlock> breakedBlockData;
     private List<PlacedBlock> placedBlocks;
     private float yaw, pitch, health, maxHealth, maxSpeed;
-    private ArrayNode inventoryItems, hotbarItems;
-    private ArrayNode inventoryItems, hotbarItems, craftItems, completedCraftItems;
+    private ArrayNode inventoryItems, hotbarItems, craftItems, completedCraftItems;;
     private final static Logger logger = LoggerUtility.getClientLogger(StatePayload.class, LogType.TXT);
 
 

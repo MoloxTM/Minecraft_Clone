@@ -19,25 +19,15 @@ public enum Material {
     DEAD_BUSH("Dead bush", 10, 7, 12, 14, 3, false, true),
     BIRCH_LOG("Birch log", 11, new Vector2i(5, 8), new Vector2i(5, 8), new Vector2i(5, 8), new Vector2i(5, 8), new Vector2i(10, 7), new Vector2i(10, 7), 8, 7),
     BIRCH_LEAVES("Oak leaves", 12, 4, 7, 1, 0),
-    SPRUCE_WOOD("Spruce Wood", 13, new Vector2i(4, 8), new Vector2i(4, 8), new Vector2i(4, 8), new Vector2i(4, 8), new Vector2i(5, 14), new Vector2i(5, 14), 7, 7),
-    SPRUCE_LEAVES("Spruce leaves", 14, 5, 7, 0, 0),
-    APPLE("Apple", 15, -1, -1, 21, 1, false, true),
-    SNOW("Snow", 16, 2, 11, 8, 4, true, false),
-    DIAMOND_SWORD("Diamond Sword", 17, -1, -1, 4, 2, false, true),
-    DIAMOND_AXE("Diamond Axe", 18, -1, -1, 27, 3, false, true),
     OAK_PLANK("Oak plank", 19, 4, 15, 5, 8),
     COBBLE_STONE("Cobble stone", 20, 0, 14, 0, 8),
-    BREAKING_ANIMATION("", -3, 0, 0, 0, 0),
     SAND_STONE("Sand stone", 21, new Vector2i(0, 3), new Vector2i(0, 3), new Vector2i(0, 3), new Vector2i(0, 3), new Vector2i(0, 4), new Vector2i(0, 2), 1, 7),
     CUT_SANDSTONE("Cut sandstone", 22, new Vector2i(0, 1), new Vector2i(0, 1), new Vector2i(0, 1), new Vector2i(0, 1), new Vector2i(0, 4), new Vector2i(0, 4), 3, 7),
     SMOOTH_SANDSTONE("Smooth sandstone", 23, 0, 4, 0, 8),
     GLASS("Glass", 24, 1, 12, 9, 4),
-    CRAFTING_TABLE("Crafting Table", 25, new Vector2i(11, 12), new Vector2i(11, 12), new Vector2i(12, 12), new Vector2i(12, 12), new Vector2i(11, 13), new Vector2i(4, 15), 1, 2),
-    FURNACE("Furnace", 26, new Vector2i(13, 13), new Vector2i(13, 13), new Vector2i(13, 13), new Vector2i(12, 13), new Vector2i(14, 12), new Vector2i(14, 12), 1, 5);
-    BIRCH_LEAVES("Oak leaves", 12, 4, 7, 0, 0),
+    CRAFTING_TABLE("Crafting Table", 25, new Vector2i(11, 12), new Vector2i(11, 12), new Vector2i(12, 12), new Vector2i(12, 12), new Vector2i(11, 13), new Vector2i(4, 15), 2, 1),
+    FURNACE("Furnace", 26, new Vector2i(13, 13), new Vector2i(13, 13), new Vector2i(13, 13), new Vector2i(12, 13), new Vector2i(14, 12), new Vector2i(14, 12), 1, 5),
     OAK_PLANKS("Oak planks", 13, 4, 15, 5, 8),
-    CRAFTING_TABLE("Crafting Table", 14, new Vector2i(11, 12), new Vector2i(11, 12), new Vector2i(12, 12), new Vector2i(12, 12), new Vector2i(11, 13), new Vector2i(4, 15), 2, 1),
-    FURNACE("Furnace", 15, new Vector2i(12, 13), new Vector2i(12, 13), new Vector2i(11, 13), new Vector2i(12, 13), new Vector2i(14, 12), new Vector2i(14, 12), 1, 5),
     COBBLESTONE("Cobblestone", 16, 14, 0, 0, 8),
     CHEST("Chest", 17, new Vector2i(10, 14), new Vector2i(10, 14), new Vector2i(11, 14), new Vector2i(11, 14), new Vector2i(10, 14), new Vector2i(10, 14), 1, 4),
     STICK("Stick", 18, -1, -1, 14, 3, false, true),
@@ -148,10 +138,6 @@ public enum Material {
 
     public boolean isSymetric() {
         return faces;
-    }
-
-    public boolean isItem() {
-        return item;
     }
 
     public Vector2i getPx() {
