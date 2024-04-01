@@ -54,6 +54,10 @@ public class PlayerInputData {
         return node;
     }
 
+    public boolean isMoving() {
+        return (movingBackward || movingForward || movingLeft || movingRight || jumping || sprinting);
+    }
+
     public float getPitch() {
         return pitch;
     }

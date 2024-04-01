@@ -304,6 +304,7 @@ public class Game {
             player.getInputs().clear();
             player.getPlacedBlocks().clear();
             player.getBreakedBlocks().clear();
+
         }
 
         player.handleInputs(window);
@@ -347,11 +348,6 @@ public class Game {
             player.getBreakRay().reset();
             player.setAction(null);
         }
-        /*
-        if (player.getBreakRay().getAimedChunk() != null && (player.getBreakRay().getAimedBlock() != Material.AIR.getId() || player.getBreakRay().getAimedBlock() != Material.WATER.getId())){
-            player.getAimedBreakedBlocks().add(player.getBreakRay().getBlockWorldPosition());
-        }
-         */
     }
 
     private void render(Renderer renderer) {

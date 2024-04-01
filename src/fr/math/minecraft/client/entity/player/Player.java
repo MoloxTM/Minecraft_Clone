@@ -77,6 +77,7 @@ public class Player extends Entity {
     private final PlayerCraftInventory craftInventory;
     public final static float JUMP_VELOCITY = .125f;
     private final ChatPayload chatPayload;
+    private float saturation;
     public Player(String name) {
         super(null, EntityType.PLAYER);
         this.name = name;
@@ -132,6 +133,7 @@ public class Player extends Entity {
         this.craftInventory = new PlayerCraftInventory();
         this.lastInventory = inventory;
         this.initAnimations();
+        this.saturation = 10.0f;
     }
 
     private void initAnimations() {
@@ -505,11 +507,7 @@ public class Player extends Entity {
             ItemStack hotbarItem = hotbar.getItems()[hotbar.getSelectedSlot()];
             if (canPlaceBlock && hotbarItem != null && hotbarItem.getMaterial() != Material.AIR) {
                 ChunkManager chunkManager = new ChunkManager();
-                if(hotbarItem.getMaterial().isFood()) {
-                    if(getHunger() < getMaxHunger()) {
-                        this.setHunger(this.getHunger() + 2.0f);
-                    }
-                } else if (buildRay.isAimingBlock()) {
+                if (buildRay.isAimingBlock() && !hotbarItem.getMaterial().isFood()) {
                     Vector3i rayPosition = buildRay.getBlockWorldPosition();
                     Vector3i placedBlockWorldPosition = buildRay.getBlockPlacedPosition(rayPosition);
                     Vector3i blockPositionLocal = Utils.worldToLocal(placedBlockWorldPosition);
@@ -735,5 +733,13 @@ public class Player extends Entity {
 
     public ChatPayload getChatPayload() {
         return chatPayload;
+    }
+
+    public float getSaturation() {
+        return saturation;
+    }
+
+    public void setSaturation(float saturation) {
+        this.saturation = saturation;
     }
 }

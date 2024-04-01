@@ -78,6 +78,7 @@ public class Client {
     private String lastAttackerID;
     private EntityType lastAttackerType;
     private final static float JUMP_VELOCITY = .125f;
+    private boolean decreaseHunger;
 
 
     public Client(String uuid, String name, InetAddress address, int port) {
@@ -87,7 +88,7 @@ public class Client {
         this.name = name;
         this.health = 20.0f;
         this.maxHealth = 20.0f;
-        this.hunger = 14.0f;
+        this.hunger = 20.0f;
         this.maxHunger = 20.0f;
         this.velocity = new Vector3f();
         this.inputQueue = new LinkedList<>();
@@ -123,6 +124,7 @@ public class Client {
         this.placedBlocks = new ArrayList<>();
         this.inventory = new PlayerInventory();
         this.hotbar = new Hotbar();
+        this.decreaseHunger = false;
     }
 
     public String getName() {
@@ -181,6 +183,8 @@ public class Client {
 
         breakedBlocks.clear();
         placedBlocks.clear();
+
+        this.setDecreaseHunger(false);
 
         for (PlayerInputData inputData : payload.getInputsData()) {
             float yaw = inputData.getYaw();
@@ -361,15 +365,26 @@ public class Client {
                         sprite.reset();
 
                         Random random = new Random();
+
                         if(material == Material.SPRUCE_LEAVES || material == Material.OAK_LEAVES || material == Material.BIRCH_LEAVES) {
                             material = Material.APPLE;
-                        }
-                        DroppedItem droppedItem = new DroppedItem(new Vector3f(rayPosition), material);
-                        droppedItem.getVelocity().y = 0.8f;
-                        droppedItem.getVelocity().x = random.nextFloat() * (0.75f - 0.35f) + 0.35f;
-                        droppedItem.getVelocity().z = random.nextFloat() * (0.85f - 0.3f) + 0.3f;
+                            if(random.nextFloat(0, 1) <= 0.5) {
+                                DroppedItem droppedItem = new DroppedItem(new Vector3f(rayPosition), material);
+                                droppedItem.getVelocity().y = 0.8f;
+                                droppedItem.getVelocity().x = random.nextFloat() * (0.75f - 0.35f) + 0.35f;
+                                droppedItem.getVelocity().z = random.nextFloat() * (0.85f - 0.3f) + 0.3f;
 
-                        world.getDroppedItems().put(droppedItem.getUuid(), droppedItem);
+                                world.getDroppedItems().put(droppedItem.getUuid(), droppedItem);
+                            }
+                        } else {
+                            DroppedItem droppedItem = new DroppedItem(new Vector3f(rayPosition), material);
+                            droppedItem.getVelocity().y = 0.8f;
+                            droppedItem.getVelocity().x = random.nextFloat() * (0.75f - 0.35f) + 0.35f;
+                            droppedItem.getVelocity().z = random.nextFloat() * (0.85f - 0.3f) + 0.3f;
+
+                            world.getDroppedItems().put(droppedItem.getUuid(), droppedItem);
+                        }
+
                     }
 
                     if (this.canBreakBlock) {
@@ -395,10 +410,18 @@ public class Client {
                 ItemStack hotbarItem = hotbar.getItems()[hotbar.getSelectedSlot()];
                 if (canPlaceBlock && hotbarItem != null && hotbarItem.getMaterial() != Material.AIR) {
                     if(hotbarItem.getMaterial().isFood()) {
-                        if(getHunger() < getMaxHunger()) {
-                            this.setHunger(this.getHunger() + 2.0f);
-                            hotbarItem.setAmount(hotbarItem.getAmount() - 1);
-                            if (hotbarItem.getAmount() == 0) {
+                        System.out.println("Faim du joueur :"+(int)this.getHunger());
+                        if((int)this.getHunger() <= this.getMaxHunger()) {
+                            float hungerValue = 0.0f;
+                            if((int)this.getHunger() + 2.0f <= this.getMaxHunger()) {
+                                hungerValue = 2.0f;
+                                hotbarItem.setAmount(hotbarItem.getAmount() - 1);
+                            } else if((int)this.getHunger() + 1.0f <= this.getMaxHunger()){
+                                hungerValue = this.getMaxHunger() - this.getHunger();
+                                hotbarItem.setAmount(hotbarItem.getAmount() - 1);
+                            }
+                            this.setHunger(this.getHunger() + hungerValue);
+                            if (hotbarItem.getAmount() <= 0) {
                                 hotbar.getItems()[hotbar.getSelectedSlot()] = null;
                             }
                         }
@@ -438,6 +461,16 @@ public class Client {
                         this.canPlaceBlock = false;
                     }
                 }
+            }
+
+            if(inputData.isMoving()) {
+                this.setDecreaseHunger(true);
+            }
+        }
+
+        if(this.isDecreaseHunger() == true) {
+            if(this.getHunger() - 0.0005f >= 0){
+                this.setHunger(this.getHunger() - 0.0005f);
             }
         }
     }
@@ -672,5 +705,153 @@ public class Client {
 
     public void setLastAttackerID(String lastAttackerID) {
         this.lastAttackerID = lastAttackerID;
+    }
+
+    public void setPosition(Vector3f position) {
+        this.position = position;
+    }
+
+    public void setFront(Vector3f front) {
+        this.front = front;
+    }
+
+    public void setBodyYaw(float bodyYaw) {
+        this.bodyYaw = bodyYaw;
+    }
+
+    public void setSpeed(float speed) {
+        this.speed = speed;
+    }
+
+    public boolean isMovingLeft() {
+        return movingLeft;
+    }
+
+    public void setMovingLeft(boolean movingLeft) {
+        this.movingLeft = movingLeft;
+    }
+
+    public boolean isMovingRight() {
+        return movingRight;
+    }
+
+    public void setMovingRight(boolean movingRight) {
+        this.movingRight = movingRight;
+    }
+
+    public boolean isMovingForward() {
+        return movingForward;
+    }
+
+    public void setMovingForward(boolean movingForward) {
+        this.movingForward = movingForward;
+    }
+
+    public boolean isMovingBackward() {
+        return movingBackward;
+    }
+
+    public void setMovingBackward(boolean movingBackward) {
+        this.movingBackward = movingBackward;
+    }
+
+    public boolean isFlying() {
+        return flying;
+    }
+
+    public void setFlying(boolean flying) {
+        this.flying = flying;
+    }
+
+    public boolean isSneaking() {
+        return sneaking;
+    }
+
+    public void setSneaking(boolean sneaking) {
+        this.sneaking = sneaking;
+    }
+
+    public boolean isCanBreakBlock() {
+        return canBreakBlock;
+    }
+
+    public void setCanBreakBlock(boolean canBreakBlock) {
+        this.canBreakBlock = canBreakBlock;
+    }
+
+    public boolean isCanPlaceBlock() {
+        return canPlaceBlock;
+    }
+
+    public void setCanPlaceBlock(boolean canPlaceBlock) {
+        this.canPlaceBlock = canPlaceBlock;
+    }
+
+    public GameMode getGameMode() {
+        return gameMode;
+    }
+
+    public void setGameMode(GameMode gameMode) {
+        this.gameMode = gameMode;
+    }
+
+    public Hitbox getHitbox() {
+        return hitbox;
+    }
+
+    public boolean isCanJump() {
+        return canJump;
+    }
+
+    public void setCanJump(boolean canJump) {
+        this.canJump = canJump;
+    }
+
+    public void setBreakedBlocks(List<BreakedBlock> breakedBlocks) {
+        this.breakedBlocks = breakedBlocks;
+    }
+
+    public void setPlacedBlocks(List<PlacedBlock> placedBlocks) {
+        this.placedBlocks = placedBlocks;
+    }
+
+    public int getBreakBlockCooldown() {
+        return breakBlockCooldown;
+    }
+
+    public void setBreakBlockCooldown(int breakBlockCooldown) {
+        this.breakBlockCooldown = breakBlockCooldown;
+    }
+
+    public int getPlaceBlockCoolDown() {
+        return placeBlockCoolDown;
+    }
+
+    public void setPlaceBlockCoolDown(int placeBlockCoolDown) {
+        this.placeBlockCoolDown = placeBlockCoolDown;
+    }
+
+    public Sprite getSprite() {
+        return sprite;
+    }
+
+    public void setSprite(Sprite sprite) {
+        this.sprite = sprite;
+    }
+
+    public PlayerAction getAction() {
+        return action;
+    }
+
+    public void setAction(PlayerAction action) {
+        this.action = action;
+    }
+
+    public boolean isDecreaseHunger() {
+        return decreaseHunger;
+    }
+
+    public void setDecreaseHunger(boolean decreaseHunger) {
+        this.decreaseHunger = decreaseHunger;
     }
 }
