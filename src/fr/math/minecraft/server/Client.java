@@ -369,24 +369,7 @@ public class Client {
                         droppedItem.getVelocity().x = random.nextFloat() * (0.75f - 0.35f) + 0.35f;
                         droppedItem.getVelocity().z = random.nextFloat() * (0.85f - 0.3f) + 0.3f;
 
-                        if(material == Material.SPRUCE_LEAVES || material == Material.OAK_LEAVES || material == Material.BIRCH_LEAVES) {
-                            material = Material.APPLE;
-                            if(random.nextFloat() <= 0.5) {
-                                DroppedItem droppedItem = new DroppedItem(new Vector3f(rayPosition), material);
-                                droppedItem.getVelocity().y = 0.8f;
-                                droppedItem.getVelocity().x = random.nextFloat() * (0.75f - 0.35f) + 0.35f;
-                                droppedItem.getVelocity().z = random.nextFloat() * (0.85f - 0.3f) + 0.3f;
-
-                                world.getDroppedItems().put(droppedItem.getUuid(), droppedItem);
-                            }
-                        } else {
-                            DroppedItem droppedItem = new DroppedItem(new Vector3f(rayPosition), material);
-                            droppedItem.getVelocity().y = 0.8f;
-                            droppedItem.getVelocity().x = random.nextFloat() * (0.75f - 0.35f) + 0.35f;
-                            droppedItem.getVelocity().z = random.nextFloat() * (0.85f - 0.3f) + 0.3f;
-
-                            world.getDroppedItems().put(droppedItem.getUuid(), droppedItem);
-                        }
+                        world.getDroppedItems().put(droppedItem.getUuid(), droppedItem);
 
                     }
 
@@ -440,7 +423,8 @@ public class Client {
                         }
                         buildRay.reset();
                         this.canPlaceBlock = false;
-                    } else if (buildRay.isAimingBlock()) {
+                    }
+                    if (buildRay.isAimingBlock() && !hotbarItem.getMaterial().isItem()) {
                         Vector3i rayPosition = buildRay.getBlockWorldPosition();
                         Vector3i placedBlockWorldPosition = buildRay.getBlockPlacedPosition(rayPosition);
                         Vector3i blockPositionLocal = Utils.worldToLocal(placedBlockWorldPosition);

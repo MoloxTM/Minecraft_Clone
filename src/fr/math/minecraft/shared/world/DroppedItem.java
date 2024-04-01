@@ -31,7 +31,7 @@ public class DroppedItem {
         this.velocity = new Vector3f();
         this.acceleration = new Vector3f();
         this.lastPosition = new Vector3f(position);
-        this.material = defineDroppedMaterial(material);
+        this.material = material;
         this.time = 0.0f;
         this.onFloor = false;
         this.hitbox = new Hitbox(new Vector3f(), new Vector3f(0.025f, 0.025f, 0.025f));
@@ -44,7 +44,7 @@ public class DroppedItem {
         this.velocity = new Vector3f();
         this.acceleration = new Vector3f();
         this.lastPosition = new Vector3f(position);
-        this.material = defineDroppedMaterial(material);
+        this.material = material;
         this.time = 0.0f;
         this.onFloor = false;
         this.hitbox = new Hitbox(new Vector3f(), new Vector3f(0.025f, 0.025f, 0.025f));
@@ -127,14 +127,6 @@ public class DroppedItem {
         }
 
         velocity.mul(0.95f);
-    }
-
-    public Material defineDroppedMaterial(Material material) {
-        Material droppedMaterial = material;
-        if(material == Material.SPRUCE_LEAVES || material == Material.OAK_LEAVES || material == Material.BIRCH_LEAVES){
-            droppedMaterial = Material.APPLE;
-        }
-        return droppedMaterial;
     }
 
     public Vector3f getPosition() {

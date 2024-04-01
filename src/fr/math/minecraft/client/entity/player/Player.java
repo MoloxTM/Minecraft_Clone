@@ -130,7 +130,6 @@ public class Player extends Entity {
         this.craftingTableInventory = new CraftingTableInventory();
         this.lastInventory = inventory;
         this.initAnimations();
-        this.saturation = 10.0f;
     }
 
     private void initAnimations() {

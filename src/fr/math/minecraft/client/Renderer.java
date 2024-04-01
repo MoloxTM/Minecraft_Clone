@@ -172,7 +172,7 @@ public class Renderer {
         this.playerInventoryTexture = new Texture("res/textures/gui/inventory.png", 9);
         this.craftingTableInventoryTexture = new Texture("res/textures/gui/crafting_table.png", 9);
         this.iconsTexture = new Texture("res/textures/gui/icons.png", 10);
-        this.guiBlocksTexture = new Texture("res/textures/gui/gui_blocks.png", 11);
+        this.guiBlocksTexture = new Texture("res/textures/gui/gui_blocks2.png", 11);
         this.villagerTexture = new Texture("res/textures/entity/villager2.png", 13);
         this.zombieTexture = new Texture("res/textures/zombie.png", 12);
 

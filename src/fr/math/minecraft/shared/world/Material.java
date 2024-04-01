@@ -8,7 +8,7 @@ public enum Material {
     STONE("Stone", 0, 1, 15, 7, 8),
     DIRT("Dirt", 1, 2, 15, 8, 8),
     GRASS("Grass", 3, new Vector2i(3, 15), new Vector2i(3, 15), new Vector2i(3, 15), new Vector2i(3, 15), new Vector2i(8, 13), new Vector2i(2, 15), 9, 8),
-    DEBUG("Debug", -2, 0, 1, -1, -1),
+    DEBUG("Debug", -2, 2, 1, -1, -1),
     WATER("Water", 2, 15, 2, -1, -1, false, false),
     SAND("Sand", 4, 2, 14, 4, 7),
     CACTUS("Cactus", 5, new Vector2i(6, 11), new Vector2i(6, 11), new Vector2i(6, 11), new Vector2i(6, 11), new Vector2i(5, 11), new Vector2i(7, 11), 7, 1),
@@ -64,7 +64,8 @@ public enum Material {
     DIAMOND_BOOTS("Diamond Boots", 51, -1, -1, 27, 2, false, true),
     SPRUCE_WOOD("Spruce Wood", 52, new Vector2i(4, 8), new Vector2i(4, 8), new Vector2i(4, 8), new Vector2i(4, 8), new Vector2i(5, 14), new Vector2i(5, 14), 7, 7),
     SPRUCE_LEAVES("Spruce leaves", 53, 5, 7, 0, 0),
-    APPLE("Apple", 54, -1, -1, 21, 1, false, true),
+    APPLE("Apple", 54, 4, 4, 21, 1, false, true, true),
+    BREAD("Bread", 80, -1, -1, 19, 1, false, true, true),
     SNOW("Snow", 55, 2, 11, 8, 4, true, false),
     BREAKING_ANIMATION("", -3, 0, 0, 0, 0);
 
@@ -198,6 +199,10 @@ public enum Material {
                 return Material.COBBLESTONE;
             case GRASS:
                 return Material.DIRT;
+            case OAK_LEAVES:
+            case BIRCH_LEAVES:
+            case SPRUCE_LEAVES:
+                return Material.APPLE;
         }
         return material;
     }
