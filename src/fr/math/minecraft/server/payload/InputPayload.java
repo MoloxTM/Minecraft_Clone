@@ -38,17 +38,21 @@ public class InputPayload {
             boolean droppingItem = inputNode.get("droppingItem").asBoolean();
             boolean collectingCraft = inputNode.get("collectingCraft").asBoolean();
             boolean pressingPlaceKey = inputNode.get("pressingPlaceKey").asBoolean();
+            boolean closingCraftInventory = inputNode.get("closingCraftInventory").asBoolean();
             int hotbarSlot = inputNode.get("hotbarSlot").asInt();
             int holdedSlot = inputNode.get("holdedSlot").asInt();
             JsonNode inventoryTypeNode = inputNode.get("inventoryType");
             JsonNode nextInventoryNode = inputNode.get("nextInventory");
             int nextSlot = inputNode.get("nextSlot").asInt();
 
+
+            System.out.println("Placing block ? : " + placingBlock);
+
             PlayerInputData inputData;
             if (inventoryTypeNode != null && nextInventoryNode != null) {
                 InventoryType inventoryType = InventoryType.values()[inputNode.get("inventoryType").asInt()];
                 InventoryType nextInventory = InventoryType.values()[inputNode.get("nextInventory").asInt()];
-                inputData = new PlayerInputData(holdedSlot, inventoryType, nextInventory, nextSlot, collectingCraft, pressingPlaceKey);
+                inputData = new PlayerInputData(holdedSlot, inventoryType, nextInventory, nextSlot, collectingCraft, pressingPlaceKey, closingCraftInventory);
             } else {
                 inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, jumping, yaw, pitch, sprinting, placingBlock, breakingBlock, droppingItem, hotbarSlot);
             }

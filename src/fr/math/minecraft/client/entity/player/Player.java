@@ -2,9 +2,7 @@ package fr.math.minecraft.client.entity.player;
 
 import fr.math.minecraft.client.Camera;
 import fr.math.minecraft.client.Renderer;
-import fr.math.minecraft.client.audio.Sounds;
 import fr.math.minecraft.client.entity.AttackRay;
-import fr.math.minecraft.client.entity.RayType;
 import fr.math.minecraft.client.manager.SoundManager;
 import fr.math.minecraft.client.network.payload.ChatPayload;
 import fr.math.minecraft.client.Game;
@@ -30,9 +28,6 @@ import fr.math.minecraft.shared.inventory.PlayerInventory;
 import fr.math.minecraft.shared.network.GameMode;
 import fr.math.minecraft.shared.network.Hitbox;
 import fr.math.minecraft.shared.network.PlayerInputData;
-import fr.math.minecraft.logger.LogType;
-import fr.math.minecraft.logger.LoggerUtility;
-import org.apache.log4j.Logger;
 import org.joml.Math;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
@@ -76,6 +71,7 @@ public class Player extends Entity {
     public final static float JUMP_VELOCITY = .125f;
     private final ChatPayload chatPayload;
     private final CompletedCraftPlayerInventory completedCraftPlayerInventory;
+    private final CraftingTableInventory craftingTableInventory;
 
     public Player(String name) {
         super(null, EntityType.PLAYER);
@@ -130,8 +126,9 @@ public class Player extends Entity {
         this.placedBlocks = new ArrayList<>();
         this.breakedBlocks = new ArrayList<>();
         this.craftInventory = new PlayerCraftInventory();
-        this.lastInventory = inventory;
         this.completedCraftPlayerInventory = new CompletedCraftPlayerInventory();
+        this.craftingTableInventory = new CraftingTableInventory();
+        this.lastInventory = inventory;
         this.initAnimations();
     }
 
@@ -141,12 +138,10 @@ public class Player extends Entity {
 
     public void handleInputs(long window) {
 
-        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-            if (chatPayload.isOpen()) {
-                chatPayload.setOpen(false);
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-                glfwFocusWindow(window);
-            }
+        if (chatPayload.isOpen() && glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+            chatPayload.setOpen(false);
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            glfwFocusWindow(window);
             return;
         }
 
@@ -216,6 +211,15 @@ public class Player extends Entity {
             handler.handleInputs(window, this, inventory, (float) mouseX.get(0), (float) mouseY.get(0));
             handler.handleInputs(window, this, craftInventory, (float) mouseX.get(0), (float) mouseY.get(0));
             handler.handleInputs(window, this, hotbar, (float) mouseX.get(0), (float) mouseY.get(0));
+            handler.handleInputs(window, this, completedCraftPlayerInventory, (float) mouseX.get(0), (float) mouseY.get(0));
+            return;
+        }
+
+        if (craftingTableInventory.isOpen()) {
+            InventoryInputsHandler handler = new InventoryInputsHandler();
+            handler.handleInputs(window, this, inventory, (float) mouseX.get(0), (float) mouseY.get(0));
+            handler.handleInputs(window, this, hotbar, (float) mouseX.get(0), (float) mouseY.get(0));
+            handler.handleInputs(window, this, craftingTableInventory, (float) mouseX.get(0), (float) mouseY.get(0));
             handler.handleInputs(window, this, completedCraftPlayerInventory, (float) mouseX.get(0), (float) mouseY.get(0));
             return;
         }
@@ -556,6 +560,12 @@ public class Player extends Entity {
 
         velocity.mul(0.95f);
 
+        if (inventory.isOpen() || craftingTableInventory.isOpen()) {
+            this.resetMoving();
+            placingBlock = false;
+            breakingBlock = false;
+        }
+
         PlayerInputData inputData = new PlayerInputData(movingLeft, movingRight, movingForward, movingBackward, flying, sneaking, jumping, yaw, pitch, sprinting, placingBlock, breakingBlock, droppingItem, hotbar.getSelectedSlot());
         inputs.add(inputData);
     }
@@ -737,5 +747,9 @@ public class Player extends Entity {
 
     public ChatPayload getChatPayload() {
         return chatPayload;
+    }
+
+    public CraftingTableInventory getCraftingTableInventory() {
+        return craftingTableInventory;
     }
 }

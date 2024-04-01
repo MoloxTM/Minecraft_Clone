@@ -105,11 +105,15 @@ public class CraftController {
     }
 
     public ItemStack getCraft(PlayerCraftingTableInventory playerCraftingTableInventory) {
+        return null;
+    }
+
+    public CraftRecipes getCraft(CraftingTableInventory craftingTableInventory) {
         for (CraftRecipes craftRecipes : recipes) {
             for (int i = 0; i < craftRecipes.getCraftingTable().size(); i++) {
                 CraftData craftData = craftRecipes.getCraftingTable().get(i);
-                if (craftData.equals(playerCraftingTableInventory)) {
-                    return craftRecipes.getCraft();
+                if (craftData.equals(craftingTableInventory)) {
+                    return craftRecipes;
                 }
             }
         }

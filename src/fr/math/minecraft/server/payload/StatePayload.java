@@ -31,7 +31,7 @@ public class StatePayload {
     private float health, maxHealth, maxSpeed;
     private List<PlacedBlock> placedBlocks;
     private List<BreakedBlock> brokenBlocks;
-    private Inventory hotbar, craftInventory, completedCraftInventory, inventory;
+    private Inventory hotbar, craftInventory, completedCraftInventory, inventory, craftingTableInventory;
 
     public StatePayload(InputPayload payload) {
         this.payload = payload;
@@ -126,6 +126,7 @@ public class StatePayload {
         this.pitch = client.getPitch();
         this.completedCraftInventory = client.getCompletedCraftPlayerInventory();
         this.craftInventory = client.getPlayerCraftInventory();
+        this.craftingTableInventory = client.getCraftingTableInventory();
         this.position = newPosition;
         this.velocity = newVelocity;
         this.health = client.getHealth();
@@ -163,6 +164,7 @@ public class StatePayload {
         ArrayNode hotbarArray = mapper.createArrayNode();
         ArrayNode craftInventoryArray = mapper.createArrayNode();
         ArrayNode completedCraftInventoryArray = mapper.createArrayNode();
+        ArrayNode craftingTableInventoryArray = mapper.createArrayNode();
 
         payloadNode.put("tick", payload.getTick());
         payloadNode.put("type", "STATE_PAYLOAD");
@@ -247,12 +249,22 @@ public class StatePayload {
             completedCraftInventoryArray.add(item.toJSONObject());
         }
 
+        for (ItemStack item : craftingTableInventory.getItems()) {
+            if (item == null) {
+                craftingTableInventoryArray.add(airNode);
+                continue;
+            }
+            craftingTableInventoryArray.add(item.toJSONObject());
+        }
+
         payloadNode.set("aimedPlacedBlocks", placedBlocksArray);
         payloadNode.set("brokenBlocks", brokenBlocksArray);
         payloadNode.set("inventory", inventoryArray);
         payloadNode.set("hotbar", hotbarArray);
         payloadNode.set("craftInventory", craftInventoryArray);
         payloadNode.set("completedCraftInventory", completedCraftInventoryArray);
+        payloadNode.set("craftingTableInventory", craftingTableInventoryArray);
+        payloadNode.put("craftingTableOpen", craftingTableInventory.isOpen());
 
         return payloadNode;
     }

@@ -33,10 +33,10 @@ public class CraftData {
         return Arrays.equals(tabCraft, playerCraft);
     }
 
-    public boolean equals(PlayerCraftingTableInventory playerCraftingTableInventory) {
-        byte[] playerCraft = new byte[playerCraftingTableInventory.getItems().length];
-        for (int i = 0; i < playerCraftingTableInventory.getItems().length; i++) {
-            ItemStack itemStack = playerCraftingTableInventory.getItems()[i];
+    public boolean equals(CraftingTableInventory craftingTableInventory) {
+        byte[] playerCraft = new byte[craftingTableInventory.getItems().length];
+        for (int i = 0; i < craftingTableInventory.getItems().length; i++) {
+            ItemStack itemStack = craftingTableInventory.getItems()[i];
             if (itemStack == null) {
                 playerCraft[i] = Material.AIR.getId();
             } else {

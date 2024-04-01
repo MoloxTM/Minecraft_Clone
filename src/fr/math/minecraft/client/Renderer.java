@@ -84,11 +84,12 @@ public class Renderer {
     private final Texture dirtTexture;
     private final Texture crosshairTexuture;
     private final Texture placeholdTexture;
-    private final Texture invetoryTexture;
+    private final Texture playerInventoryTexture;
     private final Texture iconsTexture;
     private final Texture guiBlocksTexture;
     private final Texture villagerTexture;
     private final Texture zombieTexture;
+    private final Texture craftingTableInventoryTexture;
     private final CrosshairMesh crosshairMesh;
     private final ImageMesh imageMesh;
     private final ImageMesh screenMesh;
@@ -167,13 +168,14 @@ public class Renderer {
         this.skinTexture = new Texture(Game.getInstance().getPlayer().getSkinPath(), 6);
         this.crosshairTexuture = new Texture("res/textures/gui/crosshair.png", 7);
         this.placeholdTexture = new Texture("res/textures/gui/placehold.png", 8);
-        this.invetoryTexture = new Texture("res/textures/gui/inventory.png", 9);
+        this.playerInventoryTexture = new Texture("res/textures/gui/inventory.png", 9);
+        this.craftingTableInventoryTexture = new Texture("res/textures/gui/crafting_table.png", 9);
         this.iconsTexture = new Texture("res/textures/gui/icons.png", 10);
         this.guiBlocksTexture = new Texture("res/textures/gui/gui_blocks.png", 11);
         this.villagerTexture = new Texture("res/textures/entity/villager2.png", 13);
         this.zombieTexture = new Texture("res/textures/zombie.png", 12);
 
-        this.dirtTexture = new TextureBuilder().buildDirtBackgroundTexture();
+        this.dirtTexture = TextureBuilder.buildDirtBackgroundTexture();
 
         this.skinsMap = new HashMap<>();
         this.mobTextureMap = new HashMap<>();
@@ -187,11 +189,12 @@ public class Renderer {
         this.skinTexture.load();
         this.crosshairTexuture.load();
         this.placeholdTexture.load();
-        this.invetoryTexture.load();
+        this.playerInventoryTexture.load();
         this.iconsTexture.load();
         this.guiBlocksTexture.load();
         this.villagerTexture.load();
         this.zombieTexture.load();
+        this.craftingTableInventoryTexture.load();
     }
 
     public void render(Camera camera, Player player) {
@@ -620,20 +623,23 @@ public class Renderer {
 
     }
 
-    public void renderInventory(Camera camera, Inventory inventory) {
+    public void renderInventory(Camera camera, Inventory inventory, InventoryType layer) {
 
         float inventoryWidth = GameConfiguration.INVENTORY_TEXTURE_WIDTH * 1.4f * gameConfiguration.getGuiScale();
         float inventoryHeight = GameConfiguration.INVENTORY_TEXTURE_HEIGHT * 1.4f * gameConfiguration.getGuiScale();
 
         float inventoryX = (GameConfiguration.WINDOW_WIDTH - inventoryWidth) / 2;
         float inventoryY = (GameConfiguration.WINDOW_HEIGHT - inventoryHeight) / 2;
+
+        Texture inventoryTexture = layer == InventoryType.CRAFTING_TABLE ? craftingTableInventoryTexture : playerInventoryTexture;
+
         imageShader.enable();
-        imageShader.sendInt("uTexture", invetoryTexture.getSlot());
+        imageShader.sendInt("uTexture", inventoryTexture.getSlot());
         imageShader.sendFloat("depth", -12);
 
-        if (inventory instanceof PlayerInventory) {
-            glActiveTexture(GL_TEXTURE0 + invetoryTexture.getSlot());
-            invetoryTexture.bind();
+        if (inventory.getType() == InventoryType.PLAYER_INVENTORY || inventory.getType() == InventoryType.CRAFTING_TABLE) {
+            glActiveTexture(GL_TEXTURE0 + inventoryTexture.getSlot());
+            inventoryTexture.bind();
 
             imageMesh.texSubImage(0, 90, 177, 166, GameConfiguration.INVENTORY_TEXTURE_WIDTH, GameConfiguration.INVENTORY_TEXTURE_HEIGHT);
             imageMesh.translate(imageShader, inventoryX, inventoryY, inventoryWidth, inventoryHeight);
@@ -642,7 +648,7 @@ public class Renderer {
 
             imageMesh.draw();
 
-            invetoryTexture.unbind();
+            inventoryTexture.unbind();
         }
 
         glActiveTexture(GL_TEXTURE0 + guiBlocksTexture.getSlot());

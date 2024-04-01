@@ -31,7 +31,8 @@ public class StatePayload {
     private List<BreakedBlock> breakedBlockData;
     private List<PlacedBlock> placedBlocks;
     private float yaw, pitch, health, maxHealth, maxSpeed;
-    private ArrayNode inventoryItems, hotbarItems, craftItems, completedCraftItems;;
+    private ArrayNode inventoryItems, hotbarItems, craftItems, completedCraftItems, craftingTableItems;
+    private boolean craftTableOpen;
     private final static Logger logger = LoggerUtility.getClientLogger(StatePayload.class, LogType.TXT);
 
 
@@ -54,6 +55,8 @@ public class StatePayload {
         this.hotbarItems = (ArrayNode) stateData.get("hotbar");
         this.craftItems = (ArrayNode) stateData.get("craftInventory");
         this.completedCraftItems = (ArrayNode) stateData.get("completedCraftInventory");
+        this.craftingTableItems = (ArrayNode) stateData.get("craftingTableInventory");
+        this.craftTableOpen = stateData.get("craftingTableOpen").booleanValue();
 
         this.extractBrokenBlocks(stateData);
         this.extractPlacedBlocks(stateData);
@@ -211,6 +214,7 @@ public class StatePayload {
         Inventory hotbar = player.getHotbar();
         Inventory craftInventory = player.getCraftInventory();
         Inventory completedCraftInventory = player.getCompletedCraftPlayerInventory();
+        Inventory craftingTableInventory = player.getCraftingTableInventory();
 
         for (int slot = 0; slot < inventoryItems.size(); slot++) {
             JsonNode itemNode = inventoryItems.get(slot);
@@ -249,6 +253,18 @@ public class StatePayload {
                 completedCraftInventory.setItem(null, slot);
             } else {
                 completedCraftInventory.setItem(item, slot);
+            }
+        }
+
+        craftingTableInventory.setOpen(craftTableOpen);
+
+        for (int slot = 0; slot < craftingTableItems.size(); slot++) {
+            JsonNode itemNode = craftingTableItems.get(slot);
+            ItemStack item = new ItemStack(itemNode);
+            if (item.getMaterial() == Material.AIR) {
+                craftingTableInventory.setItem(null, slot);
+            } else {
+                craftingTableInventory.setItem(item, slot);
             }
         }
     }

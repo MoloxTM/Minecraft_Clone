@@ -476,10 +476,17 @@ public class Game {
         renderer.renderCrosshair(camera);
 
         if (player.getInventory().isOpen()) {
-            renderer.renderInventory(camera, player.getInventory());
-            renderer.renderInventory(camera, player.getCraftInventory());
-            renderer.renderInventory(camera, player.getHotbar());
-            renderer.renderInventory(camera, player.getCompletedCraftPlayerInventory());
+            renderer.renderInventory(camera, player.getInventory(), player.getInventory().getType());
+            renderer.renderInventory(camera, player.getCraftInventory(), player.getInventory().getType());
+            renderer.renderInventory(camera, player.getHotbar(), player.getInventory().getType());
+            renderer.renderInventory(camera, player.getCompletedCraftPlayerInventory(), player.getInventory().getType());
+        }
+
+        if (player.getCraftingTableInventory().isOpen()) {
+            renderer.renderInventory(camera, player.getCraftingTableInventory(), player.getCraftingTableInventory().getType());
+            renderer.renderInventory(camera, player.getHotbar(), player.getCraftingTableInventory().getType());
+            renderer.renderInventory(camera, player.getInventory(), player.getCraftingTableInventory().getType());
+            renderer.renderInventory(camera, player.getCompletedCraftPlayerInventory(), player.getInventory().getType());
         }
 
         if (player.getChatPayload().isOpen()) {

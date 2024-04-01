@@ -19,6 +19,7 @@ public class PlayerInputData {
     private final int nextSlot;
     private boolean collectingCraft;
     private boolean pressingPlaceKey;
+    private boolean closingCraftInventory;
 
     public PlayerInputData(boolean movingLeft, boolean movingRight, boolean movingForward, boolean movingBackward, boolean flying, boolean sneaking, boolean jumping, float yaw, float pitch, boolean sprinting, boolean placingBlock, boolean breakingBlock, boolean droppingItem, int hotbarSlot) {
         this.movingLeft = movingLeft;
@@ -41,9 +42,10 @@ public class PlayerInputData {
         this.nextSlot = 0;
         this.collectingCraft = false;
         this.pressingPlaceKey = false;
+        this.closingCraftInventory = false;
     }
 
-    public PlayerInputData(int holdedSlot, InventoryType type, InventoryType nextInventory, int nextSlot, boolean collectingCraft, boolean pressingPressKey) {
+    public PlayerInputData(int holdedSlot, InventoryType type, InventoryType nextInventory, int nextSlot, boolean collectingCraft, boolean pressingPressKey, boolean closingCraftInventory) {
         this.holdedSlot = holdedSlot;
         this.inventoryType = type;
         this.nextInventory = nextInventory;
@@ -63,6 +65,7 @@ public class PlayerInputData {
         this.placingBlock = false;
         this.droppingItem = false;
         this.pressingPlaceKey = pressingPressKey;
+        this.closingCraftInventory = closingCraftInventory;
         this.hotbarSlot = 0;
     }
 
@@ -85,15 +88,18 @@ public class PlayerInputData {
         node.put("droppingItem", droppingItem);
         node.put("hotbarSlot", hotbarSlot);
         node.put("holdedSlot", holdedSlot);
+
         if (inventoryType != null) {
             node.put("inventoryType", inventoryType.ordinal());
         }
         if (nextInventory != null) {
             node.put("nextInventory", nextInventory.ordinal());
         }
+
         node.put("nextSlot", nextSlot);
         node.put("collectingCraft", collectingCraft);
         node.put("pressingPlaceKey", pressingPlaceKey);
+        node.put("closingCraftInventory", closingCraftInventory);
 
         return node;
     }
@@ -178,4 +184,7 @@ public class PlayerInputData {
         return pressingPlaceKey;
     }
 
+    public boolean isClosingCraftInventory() {
+        return closingCraftInventory;
+    }
 }

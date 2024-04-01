@@ -75,6 +75,7 @@ public class Client {
     private EntityType lastAttackerType;
     private final PlayerCraftInventory craftInventory;
     private final CompletedCraftPlayerInventory completedCraftPlayerInventory;
+    private final CraftingTableInventory craftingTableInventory;
     private final static float JUMP_VELOCITY = .125f;
 
     public Client(String uuid, String name, InetAddress address, int port) {
@@ -120,6 +121,7 @@ public class Client {
         this.hotbar = new Hotbar();
         this.craftInventory = new PlayerCraftInventory();
         this.completedCraftPlayerInventory = new CompletedCraftPlayerInventory();
+        this.craftingTableInventory = new CraftingTableInventory();
     }
 
     public String getName() {
@@ -279,14 +281,6 @@ public class Client {
                 velocity.z = velocityNorm.z;
             }
 
-            /*
-            if (new Vector3f(0, velocity.y, 0).length() > maxFallSpeed) {
-                Vector3f velocityNorm = new Vector3f(velocity.x, velocity.y, velocity.z);
-                velocityNorm.normalize().mul(maxFallSpeed);
-                velocity.y = velocityNorm.y;
-            }
-             */
-
             position.x += velocity.x;
             handleCollisions(new Vector3f(velocity.x, 0, 0));
 
@@ -388,9 +382,18 @@ public class Client {
                 canPlaceBlock = true;
             }
 
+            if (inputData.isClosingCraftInventory()) {
+                craftingTableInventory.setOpen(false);
+                System.out.println("?");
+            }
+
             if (inputData.isPlacingBlock()) {
                 byte block = buildRay.getAimedBlock();
                 ItemStack hotbarItem = hotbar.getItems()[hotbar.getSelectedSlot()];
+
+                if (canPlaceBlock && block == Material.CRAFTING_TABLE.getId()) {
+                    craftingTableInventory.setOpen(true);
+                }
 
                 if (canPlaceBlock && hotbarItem != null && hotbarItem.getMaterial() != Material.AIR) {
                     if (buildRay.isAimingBlock()) {
@@ -452,6 +455,9 @@ public class Client {
                     case COMPLETED_CRAFT_INVENTORY:
                         lastInventory = completedCraftPlayerInventory;
                         break;
+                    case CRAFTING_TABLE:
+                        lastInventory = craftingTableInventory;
+                        break;
                 }
             }
 
@@ -469,6 +475,9 @@ public class Client {
                     case COMPLETED_CRAFT_INVENTORY:
                         nextInventory = completedCraftPlayerInventory;
                         break;
+                    case CRAFTING_TABLE:
+                        nextInventory = craftingTableInventory;
+                        break;
                 }
             }
 
@@ -476,31 +485,56 @@ public class Client {
 
             if (inputData.isCollectingCraft() && craftResult != null) {
                 CraftController controller = CraftController.getInstance();
-                CraftRecipes craft = controller.getCraft(craftInventory);
-                CraftData matchingCraft = null;
-                if (craft != null) {
-                    System.out.println(craft);
-                    for (CraftData craftData : craft.getPlayerInventory()) {
-                        if (craftData.equals(craftInventory)) {
-                            matchingCraft = craftData;
-                            break;
-                        }
-                    }
-
-                    if (matchingCraft != null) {
-                        for (byte block : matchingCraft.getTabCraft()) {
-                            if (block == Material.AIR.getId()) {
-                                continue;
+                if (craftingTableInventory.isOpen()) {
+                    CraftRecipes craft = controller.getCraft(craftingTableInventory);
+                    CraftData matchingCraft = null;
+                    if (craft != null) {
+                        for (CraftData craftData : craft.getCraftingTable()) {
+                            if (craftData.equals(craftingTableInventory)) {
+                                matchingCraft = craftData;
+                                break;
                             }
-                            Material material = Material.getMaterialById(block);
-                            System.out.println("j'ai trouvé " + material + " " + craftInventory);
-                            craftInventory.removeItem(material);
-                            break;
                         }
-                    }
 
-                    this.addItem(craftResult);
-                    completedCraftPlayerInventory.clear();
+                        if (matchingCraft != null) {
+                            for (byte block : matchingCraft.getTabCraft()) {
+                                if (block == Material.AIR.getId()) {
+                                    continue;
+                                }
+                                Material material = Material.getMaterialById(block);
+                                craftingTableInventory.removeItem(material);
+                                break;
+                            }
+                        }
+
+                        this.addItem(craftResult);
+                        completedCraftPlayerInventory.clear();
+                    }
+                } else {
+                    CraftRecipes craft = controller.getCraft(craftInventory);
+                    CraftData matchingCraft = null;
+                    if (craft != null) {
+                        for (CraftData craftData : craft.getPlayerInventory()) {
+                            if (craftData.equals(craftInventory)) {
+                                matchingCraft = craftData;
+                                break;
+                            }
+                        }
+
+                        if (matchingCraft != null) {
+                            for (byte block : matchingCraft.getTabCraft()) {
+                                if (block == Material.AIR.getId()) {
+                                    continue;
+                                }
+                                Material material = Material.getMaterialById(block);
+                                craftInventory.removeItem(material);
+                                break;
+                            }
+                        }
+
+                        this.addItem(craftResult);
+                        completedCraftPlayerInventory.clear();
+                    }
                 }
             } else {
                 if (lastInventory != null && nextInventory != null && holdedSlot != -1 && nextSlot != -1) {
@@ -539,9 +573,16 @@ public class Client {
                     }
 
                     CraftController controller = CraftController.getInstance();
-                    CraftRecipes craft = controller.getCraft(craftInventory);
-                    if (craft != null) {
-                        completedCraftPlayerInventory.setItem(craft.getCraft(), 0);
+                    if (craftingTableInventory.isOpen()) {
+                        CraftRecipes craft = controller.getCraft(craftingTableInventory);
+                        if (craft != null) {
+                            completedCraftPlayerInventory.setItem(craft.getCraft(), 0);
+                        }
+                    } else {
+                        CraftRecipes craft = controller.getCraft(craftInventory);
+                        if (craft != null) {
+                            completedCraftPlayerInventory.setItem(craft.getCraft(), 0);
+                        }
                     }
                 }
             }
@@ -713,6 +754,10 @@ public class Client {
 
     public PlayerCraftInventory getPlayerCraftInventory() {
         return craftInventory;
+    }
+
+    public CraftingTableInventory getCraftingTableInventory() {
+        return craftingTableInventory;
     }
 
     public Hotbar getHotbar() {
