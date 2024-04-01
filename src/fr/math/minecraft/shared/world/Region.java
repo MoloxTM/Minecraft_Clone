@@ -53,9 +53,9 @@ public class Region {
                 int worldZ = position.z * SIZE * Chunk.SIZE + z;
 
                 BiomeManager biomeManager = new BiomeManager();
-                AbstractBiome currentBiome = biomeManager.getBiome(worldX, worldZ);
+                AbstractBiome currentBiome = biomeManager.getBiome(worldX, worldZ,world.getSeed());
 
-                int worldHeight = generator.getHeight(worldX, worldZ);
+                int worldHeight = generator.getHeight(worldX, worldZ,world);
 
                 if (SIZE / 4 < x && x < Chunk.SIZE * SIZE - SIZE / 4 && SIZE / 4 < z && z < Chunk.SIZE * SIZE - SIZE / 4) {
                     if(!this.hasVillage){

@@ -18,8 +18,8 @@ public class BiomeManager {
         this.montainsBiome = new MountainsBiome();
     }
 
-    public AbstractBiome getBiome(int x, int z){
-        float res = noise.getNoise(x, z);
+    public AbstractBiome getBiome(int x, int z,float seed){
+        float res = noise.getNoise(x+(int)seed, z+(int)seed);
         if (res < 0.23f){
             return this.desertBiome;
         } else if (res < 0.42f) {

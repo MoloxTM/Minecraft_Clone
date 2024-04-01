@@ -1,5 +1,6 @@
 package fr.math.minecraft.shared.world.generator;
 
+import fr.math.minecraft.shared.world.World;
 import org.joml.SimplexNoise;
 
 public class NoiseGenerator {
@@ -37,7 +38,7 @@ public class NoiseGenerator {
         return noiseValue / totalAmplitude;
     }
 
-    public float getHeight(int x, int y) {
+    public float getHeight(int x, int y, float seed) {
         float noiseValue = 0.0f;
         for (int i = 0; i < octaves; i++) {
             float frequency = (float) Math.pow(2.0, i);
@@ -46,7 +47,7 @@ public class NoiseGenerator {
             float noiseX = x * frequency / smoothness;
             float noiseY = y * frequency / smoothness;
 
-            noiseValue += SimplexNoise.noise(noiseX, noiseY) * amplitude;
+            noiseValue += SimplexNoise.noise(noiseX+seed, noiseY+seed) * amplitude;
         }
 
         float height = (((noiseValue / 2.1f) + 1.2f) * amplitude) + offset;

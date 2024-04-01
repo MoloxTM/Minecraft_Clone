@@ -4,6 +4,7 @@ import fr.math.minecraft.shared.world.Chunk;
 import fr.math.minecraft.shared.world.Material;
 import fr.math.minecraft.shared.world.World;
 import org.joml.Vector2i;
+import java.util.Random;
 
 import java.util.Map;
 
@@ -14,7 +15,7 @@ public class OverworldCavesGenerator implements CavesGenerator {
     public void generateCaves(World world, Chunk chunk) {
         PerlinNoiseGenerator noiseGenerator = new PerlinNoiseGenerator(0.015f, 0.2f, 3, 1.175f, 0);
 
-        Map<Vector2i, Integer> heightMap = chunk.getHeightMap();
+        Map<Vector2i, Integer> heightMap = chunk.getHeightMap(world);
 
         for (int x = 0; x < Chunk.SIZE; x++) {
             for (int z = 0; z < Chunk.SIZE; z++) {

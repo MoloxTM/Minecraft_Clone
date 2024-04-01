@@ -1,5 +1,6 @@
 package fr.math.minecraft.shared.world.generator;
 
+import fr.math.minecraft.ServerMain;
 import org.joml.SimplexNoise;
 
 public class PerlinNoiseGenerator {
@@ -28,7 +29,7 @@ public class PerlinNoiseGenerator {
 
         for (int i = 0; i < octaves; i++) {
 
-            float noise = SimplexNoise.noise(x, y, z);
+            float noise = SimplexNoise.noise(x, y, z, ServerMain.seedNumber);
             noiseValue += noise * currentPersistence;
 
             x *= lacunarity;

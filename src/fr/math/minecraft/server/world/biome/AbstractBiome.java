@@ -18,9 +18,9 @@ public abstract class AbstractBiome {
     public abstract void buildWeeds(int worldX, int worldY, int worldZ, Structure structure, World world);
     public abstract void buildVillage(int worldX, int worldY, int worldZ, Structure structure, World world, Region region);
 
-    public float getHeight(int x, int z) {
+    public float getHeight(int x, int z,float seed) {
 
-        return noise.getHeight(x, z);
+        return noise.getHeight(x, z,seed);
     }
     
     public String getBiomeName() {

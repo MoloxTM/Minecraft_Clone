@@ -13,6 +13,7 @@ public class ClientMain {
     public static void main(String[] args) {
         System.setProperty("java.awt.headless", "true");
         String skinPath = "res/textures/skin.png";
+        Float seedNumber = 0f;
         if (args.length == 2) {
             if (!args[0].equalsIgnoreCase("--name")) {
                 throw new IllegalArgumentException("Veuillez renseigner un pseudo ! (--name <pseudo>)");

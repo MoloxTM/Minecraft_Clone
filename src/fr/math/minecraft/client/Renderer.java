@@ -32,6 +32,7 @@ import fr.math.minecraft.server.manager.BiomeManager;
 import fr.math.minecraft.shared.GameConfiguration;
 import fr.math.minecraft.shared.world.DroppedItem;
 import fr.math.minecraft.shared.world.Material;
+import fr.math.minecraft.shared.world.World;
 import org.apache.log4j.Logger;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
@@ -593,7 +594,8 @@ public class Renderer {
         this.renderText(camera, "FPS: " + frames, 0, GameConfiguration.WINDOW_HEIGHT - 120,0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
         this.renderText(camera, "Ping: " + player.getPing() + "ms", 0, GameConfiguration.WINDOW_HEIGHT - 140,0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
         BiomeManager biomeManager = new BiomeManager();
-        this.renderText(camera, "BIOME: " + biomeManager.getBiome((int) player.getPosition().x, (int)player.getPosition().z).getBiomeName(), 0, GameConfiguration.WINDOW_HEIGHT - 160, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
+        World world = Game.getInstance().getWorld();
+        this.renderText(camera, "BIOME: " + biomeManager.getBiome((int) player.getPosition().x, (int)player.getPosition().z,world.getSeed()).getBiomeName(), 0, GameConfiguration.WINDOW_HEIGHT - 160, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
         this.renderText(camera, "Entity Interpolation: " + gameConfiguration.isEntityInterpolationEnabled(), 0, GameConfiguration.WINDOW_HEIGHT - 180, 0xFFFFFF, GameConfiguration.DEFAULT_SCALE);
     }
 

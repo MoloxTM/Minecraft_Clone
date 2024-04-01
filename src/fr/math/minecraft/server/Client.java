@@ -368,7 +368,7 @@ public class Client {
 
                         if(material == Material.SPRUCE_LEAVES || material == Material.OAK_LEAVES || material == Material.BIRCH_LEAVES) {
                             material = Material.APPLE;
-                            if(random.nextFloat(0, 1) <= 0.5) {
+                            if(random.nextFloat() <= 0.5) {
                                 DroppedItem droppedItem = new DroppedItem(new Vector3f(rayPosition), material);
                                 droppedItem.getVelocity().y = 0.8f;
                                 droppedItem.getVelocity().x = random.nextFloat() * (0.75f - 0.35f) + 0.35f;

@@ -44,6 +44,7 @@ public class World {
     private TerrainGenerator terrainGenerator;
     private final int SPAWN_SIZE = 2;
     private final Graph graph;
+    private float seed;
 
     public World() {
         this.chunks = new HashMap<>();
@@ -61,6 +62,7 @@ public class World {
         this.loadedRegions = new HashSet<>();
         this.entities = new HashMap<>();
         this.graph = new Graph();
+        this.seed = 0;
 
         for (Material material : Material.values()) {
             if (material.isSolid()) {
@@ -359,5 +361,13 @@ public class World {
 
     public Graph getGraph() {
         return graph;
+    }
+
+    public float getSeed() {
+        return seed;
+    }
+
+    public void setSeed(float seed) {
+        this.seed = seed;
     }
 }

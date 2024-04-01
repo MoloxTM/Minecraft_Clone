@@ -195,7 +195,7 @@ public class Chunk {
         return emptyMap;
     }
 
-    public Map<Vector2i, Integer> getHeightMap() {
-        return new OverworldGenerator().fillHeightMap(position.x, position.z, 0, Chunk.SIZE - 1, 0, Chunk.SIZE - 1);
+    public Map<Vector2i, Integer> getHeightMap(World world) {
+        return new OverworldGenerator().fillHeightMap(position.x, position.z, 0, Chunk.SIZE - 1, 0, Chunk.SIZE - 1,world);
     }
 }
