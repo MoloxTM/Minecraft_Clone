@@ -145,9 +145,9 @@ public abstract class Entity {
                         Vector2f entityPosition = new Vector2f(position.x, position.z);
                         Vector2f direction = new Vector2f(client.getPosition().x, client.getPosition().z).sub(entityPosition);
                         client.setHealth(client.getHealth() - damage);
-                        client.getVelocity().y = 0.14f;
-                        client.getVelocity().x = direction.x * 0.125f;
-                        client.getVelocity().z = direction.y * 0.125f;
+                        client.getVelocity().y = GameConfiguration.KNOCK_BACK_Y;
+                        client.getVelocity().x = direction.x * GameConfiguration.KNOCK_BACK_X;
+                        client.getVelocity().z = direction.y * GameConfiguration.KNOCK_BACK_Z;
                         client.setMaxSpeed(.4f);
                         logger.debug("Un " + type.getName() + " a attaqué " + client.getName() + " (" + client.getUuid() + ") " + client.getHealth() + "/" + client.getMaxHealth());
                         continue;
