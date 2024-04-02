@@ -29,7 +29,7 @@ public class MinecraftServer {
     private DatagramSocket socket;
     private boolean running;
     private final byte[] buffer;
-    private final int port;
+    private int port;
     private final static Logger logger = LoggerUtility.getServerLogger(MinecraftServer.class, LogType.TXT);;
     private final Map<String, Client> clients;
     private final Map<String, String> sockets;
@@ -209,5 +209,9 @@ public class MinecraftServer {
 
     public ThreadPoolExecutor getPathfindingQueue() {
         return pathfindingQueue;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 }

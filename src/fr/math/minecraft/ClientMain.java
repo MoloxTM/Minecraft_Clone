@@ -1,7 +1,14 @@
 package fr.math.minecraft;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.math.minecraft.client.Game;
 import fr.math.minecraft.client.entity.player.Player;
+import fr.math.minecraft.logger.LogType;
+import fr.math.minecraft.logger.LoggerUtility;
+import org.apache.log4j.Logger;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -10,9 +17,13 @@ import java.io.IOException;
 
 public class ClientMain {
 
+    private final static Logger logger = LoggerUtility.getClientLogger(ClientMain.class, LogType.TXT);
+
     public static void main(String[] args) {
         System.setProperty("java.awt.headless", "true");
         String skinPath = "res/textures/skin.png";
+        String serverIp = "localhost";
+        int serverPort = 50000;
         Float seedNumber = 0f;
         if (args.length == 2) {
             if (!args[0].equalsIgnoreCase("--name")) {
@@ -34,11 +45,27 @@ public class ClientMain {
             throw new IllegalArgumentException("Le fichier spécifié est introuvable ! " + skinPath);
         }
 
-        System.out.println("Instance de game ClientMain :" + Game.getInstance() + "\n");
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            JsonNode configNode = mapper.readTree(new File("res/client_config.json"));
+            JsonNode portNode = configNode.get("port");
+            JsonNode ipNode = configNode.get("ip");
+
+            if (portNode == null || ipNode == null) {
+                throw new IOException();
+            }
+
+            serverPort = portNode.asInt();
+            serverIp = ipNode.asText();
+        } catch (IOException e) {
+            logger.error("Impossible de lire le fichier de configuration! Parametres par défaut défini");
+        }
+
+        logger.info("IP SERVEUR : " + serverIp + ":" + serverPort);
         Game game = Game.getInstance();
         game.setPlayer(new Player(args[1]));
         game.getPlayer().setSkinPath(skinPath);
-        game.init();
+        game.init(serverIp, serverPort);
         BufferedImage skin = loadSkin(skinPath);
         game.getPlayer().setSkin(skin);
         game.run();

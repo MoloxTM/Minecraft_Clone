@@ -7,20 +7,22 @@ import fr.math.minecraft.shared.world.World;
 import java.io.IOException;
 
 public class ServerMain {
-    public static float seedNumber;
+    public static float seedNumber = 0;
     public static void main(String[] args) {
+        int port = 50000;
         if(args.length==2){
-            if (!args[0].equalsIgnoreCase("--seed")) {
-                throw new IllegalArgumentException("Veuillez renseigner un seed ! (--seed nombre)");
+            if (!args[0].equalsIgnoreCase("-p")) {
+                throw new IllegalArgumentException("Veuillez renseigner un port ! (-p <port>)");
             }
             try {
-                seedNumber = Integer.parseInt(args[1]);
+                port = Integer.parseInt(args[1]);
             } catch(Exception e){
-                seedNumber = 0;
+                port = 50000;
             }
         }
 
         MinecraftServer server = MinecraftServer.getInstance();
+        server.setPort(port);
         World world = server.getWorld();
         world.setSeed(seedNumber);
         world.buildSpawn();

@@ -135,8 +135,8 @@ public class Game {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
-    public void init() {
-        this.client = new MinecraftClient(50000);
+    public void init(String serverIp, int serverPort) {
+        this.client = new MinecraftClient(serverIp, serverPort);
         this.sounds = new HashMap<>();
         this.players = new HashMap<>();
         this.menus = new HashMap<>();
