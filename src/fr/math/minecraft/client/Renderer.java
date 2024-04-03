@@ -271,16 +271,16 @@ public class Renderer {
             terrainTexture.activeSlot();
             terrainTexture.bind();
 
-            /*
-            for (Node node : zombie.getPattern().getPath()) {
-                Vector3f pathWorldPosition = new Vector3f(node.getPosition().x, zombie.getPosition().y + 1, node.getPosition().y);
-                camera.matrixInWorld(handBlockShader, pathWorldPosition);
+            if (gameConfiguration.isEntitesPathEnabled()) {
+                for (Node node : zombie.getPattern().getPath()) {
+                    Vector3f pathWorldPosition = new Vector3f(node.getPosition().x, zombie.getPosition().y + 1, node.getPosition().y);
+                    camera.matrixInWorld(handBlockShader, pathWorldPosition);
 
-                handBlockMesh.update(handBlockShader, Material.DEBUG);
+                    handBlockMesh.update(handBlockShader, Material.DEBUG);
 
-                handBlockMesh.draw();
+                    handBlockMesh.draw();
+                }
             }
-             */
 
             terrainTexture.unbind();
         }
@@ -811,6 +811,7 @@ public class Renderer {
                 continue;
             }
 
+            imageShader.enable();
             glActiveTexture(GL_TEXTURE0 + guiBlocksTexture.getSlot());
             guiBlocksTexture.bind();
             imageShader.sendInt("uTexture", guiBlocksTexture.getSlot());

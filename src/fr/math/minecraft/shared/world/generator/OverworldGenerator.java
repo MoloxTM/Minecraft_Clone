@@ -158,6 +158,6 @@ public class OverworldGenerator implements TerrainGenerator {
             }
         }
 
-        //cavesGenerator.generateCaves(world, chunk);
+        cavesGenerator.generateCaves(world, chunk);
     }
 }

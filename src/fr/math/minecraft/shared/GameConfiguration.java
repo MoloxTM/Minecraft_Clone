@@ -39,6 +39,7 @@ public class GameConfiguration {
     private boolean debugging;
     private boolean musicEnabled;
     private float guiScale;
+    private boolean entitesPathEnabled;
     private static GameConfiguration instance = null;
 
     private GameConfiguration() {
@@ -46,6 +47,7 @@ public class GameConfiguration {
         this.occlusionEnabled = true;
         this.debugging = true;
         this.musicEnabled = true;
+        this.entitesPathEnabled = true;
         this.guiScale = 1.0f;
     }
 
@@ -91,6 +93,14 @@ public class GameConfiguration {
 
     public void setGuiScale(float guiScale) {
         this.guiScale = guiScale;
+    }
+
+    public boolean isEntitesPathEnabled() {
+        return entitesPathEnabled;
+    }
+
+    public void setEntitesPathEnabled(boolean entitesPathEnabled) {
+        this.entitesPathEnabled = entitesPathEnabled;
     }
 
     public static GameConfiguration getInstance() {

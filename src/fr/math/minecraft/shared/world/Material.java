@@ -67,6 +67,7 @@ public enum Material {
     APPLE("Apple", 54, 4, 4, 21, 1, false, true, true),
     BREAD("Bread", 80, -1, -1, 19, 1, false, true, true),
     SNOW("Snow", 55, 2, 11, 8, 4, true, false),
+    DIAMOND_ORE("Diamond Ore", 91, 2, 12, 0, 4),
     BREAKING_ANIMATION("", -3, 0, 0, 0, 0);
 
     private final int blockIconX, x;

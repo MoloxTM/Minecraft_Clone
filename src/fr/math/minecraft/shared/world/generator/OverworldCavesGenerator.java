@@ -34,7 +34,7 @@ public class OverworldCavesGenerator implements CavesGenerator {
                     }
 
                     if (worldY < worldHeight - 10) {
-                        if (Math.abs(noiseGenerator.getNoise(worldX, worldY, worldZ)) >= 0.32f) {
+                        if (Math.abs(noiseGenerator.getNoise(world.getSeed(), worldX, worldY, worldZ)) >= 0.32f) {
                             chunk.setBlock(x, y, z, Material.AIR.getId());
                         }
                     }

@@ -7,8 +7,8 @@ import fr.math.minecraft.shared.world.World;
 import java.io.IOException;
 
 public class ServerMain {
-    public static float seedNumber = 0;
     public static void main(String[] args) {
+        int seed = 0;
         int port = 50000;
         if(args.length==2){
             if (!args[0].equalsIgnoreCase("-p")) {
@@ -21,10 +21,16 @@ public class ServerMain {
             }
         }
 
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equalsIgnoreCase("-seed")) {
+                seed = Integer.parseInt(args[i + 1]);
+            }
+        }
+
         MinecraftServer server = MinecraftServer.getInstance();
         server.setPort(port);
         World world = server.getWorld();
-        world.setSeed(seedNumber);
+        world.setSeed(seed);
         world.buildSpawn();
         world.calculateSpawnPosition();
         AStar.initGraph(world, world.getSpawnPosition());
