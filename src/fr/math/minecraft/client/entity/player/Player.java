@@ -524,15 +524,17 @@ public class Player extends Entity {
             if (canPlaceBlock && hotbarItem != null && hotbarItem.getMaterial() != Material.AIR) {
                 ChunkManager chunkManager = new ChunkManager();
                 if (buildRay.isAimingBlock() && !hotbarItem.getMaterial().isFood()) {
-                    Vector3i rayPosition = buildRay.getBlockWorldPosition();
-                    Vector3i placedBlockWorldPosition = buildRay.getBlockPlacedPosition(rayPosition);
-                    Vector3i blockPositionLocal = Utils.worldToLocal(placedBlockWorldPosition);
-                    PlacedBlock placedBlock = new PlacedBlock(uuid, placedBlockWorldPosition, blockPositionLocal, hotbarItem.getMaterial().getId());
+                    if (!hotbarItem.getMaterial().isItem()) {
+                        Vector3i rayPosition = buildRay.getBlockWorldPosition();
+                        Vector3i placedBlockWorldPosition = buildRay.getBlockPlacedPosition(rayPosition);
+                        Vector3i blockPositionLocal = Utils.worldToLocal(placedBlockWorldPosition);
+                        PlacedBlock placedBlock = new PlacedBlock(uuid, placedBlockWorldPosition, blockPositionLocal, hotbarItem.getMaterial().getId());
 
-                    placedBlocks.add(placedBlock);
-                    Chunk aimedChunk = world.getChunkAt(placedBlockWorldPosition);
+                        placedBlocks.add(placedBlock);
+                        Chunk aimedChunk = world.getChunkAt(placedBlockWorldPosition);
 
-                    chunkManager.placeBlock(aimedChunk, blockPositionLocal, Game.getInstance().getWorld(), hotbarItem.getMaterial());
+                        chunkManager.placeBlock(aimedChunk, blockPositionLocal, Game.getInstance().getWorld(), hotbarItem.getMaterial());
+                    }
                 }
                 canPlaceBlock = false;
                 placeBlockCooldown = (int) GameConfiguration.UPS / 3;

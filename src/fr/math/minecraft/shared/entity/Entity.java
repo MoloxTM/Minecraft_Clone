@@ -267,10 +267,14 @@ public abstract class Entity {
                     }
 
                     if (velocity.x > 0) {
-                        handleJumpCollision();
+                        if (type != EntityType.PLAYER) {
+                            handleJumpCollision();
+                        }
                         position.x = worldX - hitbox.getWidth();
                     } else if (velocity.x < 0) {
-                        handleJumpCollision();
+                        if (type != EntityType.PLAYER) {
+                            handleJumpCollision();
+                        }
                         position.x = worldX + hitbox.getWidth() + 1;
                     }
 
@@ -286,10 +290,14 @@ public abstract class Entity {
                     }
 
                     if (velocity.z > 0) {
-                        handleJumpCollision();
+                        if (type != EntityType.PLAYER) {
+                            handleJumpCollision();
+                        }
                         position.z = worldZ - hitbox.getDepth();
                     } else if (velocity.z < 0) {
-                        handleJumpCollision();
+                        if (type != EntityType.PLAYER) {
+                            handleJumpCollision();
+                        }
                         position.z = worldZ + hitbox.getDepth() + 1;
                     }
                 }

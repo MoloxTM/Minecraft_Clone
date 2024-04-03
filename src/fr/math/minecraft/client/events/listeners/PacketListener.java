@@ -31,8 +31,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Base64;
-import java.util.Map;
+import java.util.*;
 
 public class PacketListener implements PacketEventListener {
 
@@ -54,6 +53,8 @@ public class PacketListener implements PacketEventListener {
     @Override
     public void onPlayerListPacket(PlayerListPacketEvent event) {
         ArrayNode playersNode = event.getPlayers();
+
+        Set<String> trustedPlayers = new HashSet<>();
 
         for (int i = 0; i < playersNode.size(); i++) {
             JsonNode playerNode = playersNode.get(i);
@@ -128,6 +129,8 @@ public class PacketListener implements PacketEventListener {
                 }
             }
 
+            trustedPlayers.add(player.getUuid());
+
             player.setMovingRight(movingRight);
             player.setMovingLeft(movingLeft);
             player.setMovingBackward(movingBackward);
@@ -146,6 +149,18 @@ public class PacketListener implements PacketEventListener {
 
             player.setAction(action);
             player.getSprite().setIndex(spriteIndex);
+        }
+
+        synchronized (game.getPlayers()) {
+            List<Player> disconnectedPlayers = new ArrayList<>();
+            for (Player player : game.getPlayers().values()) {
+                if (!trustedPlayers.contains(player.getUuid())) {
+                    disconnectedPlayers.add(player);
+                }
+            }
+            for (Player player : disconnectedPlayers) {
+                game.getPlayers().remove(player.getUuid());
+            }
         }
     }
 

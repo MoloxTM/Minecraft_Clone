@@ -15,7 +15,7 @@ public enum Material {
     OAK_LOG("Log",6,new Vector2i(4, 14), new Vector2i(4, 14), new Vector2i(4, 14), new Vector2i(4, 14), new Vector2i(5, 14), new Vector2i(5, 14), 6, 7),
     OAK_LEAVES("Oak leaves", 7, 4, 12, 1, 0),
     WEED("Weed", 8, 7, 13, 24, 1, false, true),
-    ROSE("Rose", 63, 12, 15, 23, 1, false, true),
+    ROSE("Rose", 63, 12, 15, 23, 1, false, false),
     DEAD_BUSH("Dead bush", 10, 7, 12, 14, 3, false, true),
     BIRCH_LOG("Birch log", 64, new Vector2i(5, 8), new Vector2i(5, 8), new Vector2i(5, 8), new Vector2i(5, 8), new Vector2i(10, 7), new Vector2i(10, 7), 8, 7),
     BIRCH_LEAVES("Oak leaves", 12, 4, 7, 1, 0),
